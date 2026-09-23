@@ -125,6 +125,35 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .fx.splash2{animation:splash 1s .12s ease-out forwards;border:2px solid rgba(255,255,255,.7);opacity:0}
 @keyframes splash{from{transform:translate(-50%,-50%) scale(.2);opacity:1}to{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
 .fx.ping{animation:splash 1s ease-out forwards;border:2px solid var(--accent)}
+.fx.spark{animation:splash .6s ease-out forwards;border:3px solid #fff3c4;box-shadow:0 0 12px #ffcf4a,inset 0 0 8px #ffcf4a}
+.cell.dent::after{content:"";position:absolute;inset:26%;border-radius:50%;z-index:2;border:3px solid var(--gold);box-shadow:0 0 10px var(--gold);animation:flicker 1.6s ease-in-out infinite}
+.cell.mine::before{content:"";position:absolute;inset:30%;border-radius:50%;z-index:2;background:radial-gradient(circle at 40% 35%,#8a8f96,#2a2e33 60%);box-shadow:0 0 0 2px rgba(255,80,60,.75),0 0 0 4px rgba(0,0,0,.25)}
+.cell.miss.mine::after{width:60%;height:60%;background:radial-gradient(circle,#ffcf4a 0,#ff5a3c 45%,transparent 70%);box-shadow:none}
+.uplist{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;font-size:13px;opacity:.9;max-width:var(--bw);min-height:4px}
+/* shipyard */
+.yard-head{display:flex;align-items:center;gap:12px;padding:12px 16px;width:min(560px,100%)}
+.yard-head .pts{font-size:34px;font-weight:900;color:var(--gold);line-height:1}
+.yard-head small{display:block;color:var(--muted)}
+.tree{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:16px 4px;width:min(560px,100%);padding:14px 6px 18px}
+.tree svg.links{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+.col-head{text-align:center;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);z-index:1}
+.node{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;text-align:center;line-height:1.15;font-weight:700;padding:0}
+.node .orb{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:rgba(2,34,72,.8);border:2px solid rgba(255,255,255,.3);transition:transform .15s,box-shadow .2s}
+.node:active .orb{transform:scale(.92)}
+.node.owned .orb{background:radial-gradient(circle at 40% 35%,#fff4b8,#ffcf4a 45%,#ff9f1c);border-color:#fff;box-shadow:0 0 16px rgba(255,207,74,.85)}
+.node.avail .orb{border-color:var(--gold);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(255,207,74,.25),0 0 18px rgba(255,207,74,.5)}}
+.node.locked{opacity:.5}.node.locked .orb{filter:grayscale(1)}
+.node.sel .orb{outline:3px solid #fff;outline-offset:3px}
+.node.cap .orb{width:70px;height:70px;font-size:34px}
+.up-info{position:sticky;bottom:max(8px,env(safe-area-inset-bottom));width:min(560px,100%);padding:14px 16px;display:flex;flex-direction:column;gap:8px;z-index:5}
+.up-info .t{display:flex;align-items:center;gap:10px}
+.up-info .t b{font-size:30px}
+.up-info .t strong{font-size:17px}
+.up-info .t small{display:block;color:var(--muted);font-weight:600}
+.up-info p{margin:0;color:#e6f6ff}
+.badge{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 7px;border-radius:13px;background:#ff5a3c;color:#fff;font-size:14px;font-weight:800;text-shadow:none}
+.badge.zero{background:rgba(255,255,255,.25)}
 
 /* setup */
 .dock{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:min(var(--bw),100%)}
@@ -272,6 +301,8 @@ table.diff td:first-child{text-align:left}
     <span class="chev">▾</span>
   </button>
 
+  <button class="btn glass big" id="btn-yard" style="width:min(420px,100%)">🛠 Верфь — прокачка флота <span class="badge" id="yard-pts">0</span></button>
+
   <div class="glass menu-card">
     <h3>Против компьютера</h3>
     <div class="seg" id="diff-seg">
@@ -335,6 +366,7 @@ table.diff td:first-child{text-align:left}
     <div class="board-wrap own" id="own-wrap">
       <div class="board-title" id="own-title">Ваш флот</div>
       <div id="own-board"></div>
+      <div class="uplist" id="uplist"></div>
     </div>
   </div>
 </section>
@@ -350,6 +382,14 @@ table.diff td:first-child{text-align:left}
   <div class="tabpane on" id="tab-ach"></div>
   <div class="tabpane" id="tab-lb"></div>
   <div class="tabpane" id="tab-st"></div>
+</section>
+
+<!-- ================= SHIPYARD ================= -->
+<section id="scr-yard" class="screen">
+  <div class="topbar"><button class="iconbtn glass back-menu" aria-label="Назад">←</button><h2>Верфь</h2><button class="iconbtn glass" id="yard-reset" aria-label="Сбросить">↺</button></div>
+  <div class="glass yard-head"><div class="pts" id="yp-pts">0</div><div style="flex:1"><b id="yp-title">очков прокачки</b><small id="yp-sub"></small></div></div>
+  <div class="glass tree" id="tree"></div>
+  <div class="glass up-info" id="up-info"></div>
 </section>
 
 <!-- ================= HELP ================= -->
@@ -368,8 +408,10 @@ table.diff td:first-child{text-align:left}
       <li>🚀 <b>Торпеда</b> (6⚡): плывёт по выбранной строке слева направо и взрывается у первого корабля.</li>
       <li>Если залп или торпеда попали — ход остаётся за вами.</li>
     </ul>
+    <h3>🛠 Верфь и прокачка</h3>
+    <p>Каждая победа (над компьютером или в игре вдвоём) даёт 1 очко прокачки. Одно очко — одно улучшение на Верфи. Древо из четырёх веток: Корпус, Энергия, Разведка и Оружие. Улучшения открываются по порядку сверху вниз, а на самом дне ждёт «Флагман». Сброс древа возвращает все очки. Компьютер на сложном уровне получает столько же улучшений, сколько у вас, на среднем — половину.</p>
     <h3>🏆 Капитаны и достижения</h3>
-    <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 16 достижений и таблица всех капитанов на этом устройстве.</p>
+    <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 19 достижений и таблица всех капитанов на этом устройстве.</p>
   </div>
 </section>
 
@@ -434,7 +476,16 @@ const WEAPONS = [
   { id: 'radar',   name: 'Радар',   icon: '📡', cost: 2, hint: 'Радар: выберите центр квадрата 3×3' },
   { id: 'salvo',   name: 'Залп',    icon: '💥', cost: 4, hint: 'Залп: выберите центр креста' },
   { id: 'torpedo', name: 'Торпеда', icon: '🚀', cost: 6, hint: 'Торпеда: выберите строку' },
+  { id: 'air',     name: 'Авиаудар', icon: '✈️', cost: 5, hint: 'Авиаудар: выберите столбец', need: 'air' },
 ];
+const has = (pl, id) => !!(pl && pl.up && pl.up.has(id));
+const maxE = pl => has(pl, 'cap') ? 14 : MAX_E;
+function wCost(pl, id) {
+  if (id === 'radar') return pl.freeRadar > 0 ? 0 : (has(pl, 'cheapRadar') ? 1 : 2);
+  if (id === 'salvo') return has(pl, 'cheapSalvo') ? 3 : 4;
+  if (id === 'torpedo') return has(pl, 'cheapTorp') ? 4 : 6;
+  return 5;
+}
 const $ = s => document.querySelector(s);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const idx = (r, c) => r * N + c;
@@ -610,6 +661,9 @@ const Snd = {
       case 'place':  this.tone(420, 620, .08, 'triangle', .12); break;
       case 'bad':    this.tone(200, 140, .15, 'square', .06); break;
       case 'click':  this.tone(700, 900, .05, 'triangle', .08); break;
+      case 'clang':  this.tone(1900, 1300, .12, 'square', .07); this.tone(950, 700, .25, 'triangle', .12); break;
+      case 'plane':  this.noise(.5, 400, 2400, .18, 'bandpass'); this.tone(180, 260, .45, 'sawtooth', .05); break;
+      case 'buy':    [523, 784, 1046, 1568].forEach((f, i) => this.tone(f, f, .16, 'triangle', .14, i * .07)); break;
       case 'ach':    [880, 1175, 1568].forEach((f, i) => this.tone(f, f, .18, 'triangle', .14, i * .09)); break;
       case 'win':    [523, 659, 784, 1046].forEach((f, i) => this.tone(f, f, .25, 'triangle', .18, i * .14)); break;
       case 'lose':   [392, 330, 262, 196].forEach((f, i) => this.tone(f, f * .98, .3, 'sine', .18, i * .18)); break;
@@ -621,12 +675,13 @@ function vibrate(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch
 /* ==================== PROFILES ==================== */
 const PKEY = 'bs-profiles-v2';
 const PR = store.get(PKEY, { list: [], cur: null });
+PR.list.forEach(p => { if (!Array.isArray(p.up)) p.up = []; });
 function saveProfiles() { store.set(PKEY, PR); }
 function newStats() { return { easy: { w: 0, l: 0 }, normal: { w: 0, l: 0 }, hard: { w: 0, l: 0 }, duoW: 0, duoL: 0, games: 0, shots: 0, hits: 0, sunk: 0, streak: 0, bestStreak: 0, best: null, fastest: null, radar: 0, salvo: 0, torpedo: 0 }; }
 function curProfile() { return PR.list.find(p => p.id === PR.cur) || null; }
 function profileById(id) { return PR.list.find(p => p.id === id) || null; }
 function addProfile(name) {
-  const p = { id: 'p' + Date.now().toString(36) + rnd(1e4), name, created: Date.now(), st: newStats(), ach: {} };
+  const p = { id: 'p' + Date.now().toString(36) + rnd(1e4), name, created: Date.now(), st: newStats(), ach: {}, up: [] };
   if (!PR.list.length) {       // carry over v1 stats into the first captain
     const old = store.get('bs-stats-v1', null);
     if (old) {
@@ -644,6 +699,46 @@ function nameError(name) {
   return '';
 }
 function wins(st) { return st.easy.w + st.normal.w + st.hard.w + st.duoW; }
+/* ==================== UPGRADE TREE ==================== */
+const BRANCHES = ['Корпус', 'Энергия', 'Разведка', 'Оружие'];
+const UPG = [
+  { id: 'hull1',      col: 0, row: 0, ic: '🛡️', name: 'Броня линкора',        desc: 'Первое попадание в ваш линкор отражается бронёй.', req: [] },
+  { id: 'hull2',      col: 0, row: 1, ic: '🔰', name: 'Броня крейсеров',      desc: 'Крейсеры тоже отражают первое попадание.', req: ['hull1'] },
+  { id: 'hull3',      col: 0, row: 2, ic: '🧱', name: 'Броня эсминцев',       desc: 'Эсминцы отражают первое попадание.', req: ['hull2'] },
+  { id: 'repair',     col: 0, row: 3, ic: '🔧', name: 'Ремонтная бригада',    desc: 'Раз за бой в начале вашего хода чинит одну подбитую палубу.', req: ['hull3'] },
+  { id: 'mines',      col: 0, row: 4, ic: '💣', name: 'Минное поле',          desc: 'На вашем поле 3 мины. Выстрел в мину отнимает у противника 3⚡.', req: ['repair'] },
+  { id: 'en1',        col: 1, row: 0, ic: '🔋', name: 'Заряд I',              desc: '+2⚡ в начале боя.', req: [] },
+  { id: 'en2',        col: 1, row: 1, ic: '🔋', name: 'Заряд II',             desc: 'Ещё +2⚡ в начале боя.', req: ['en1'] },
+  { id: 'rage',       col: 1, row: 2, ic: '😤', name: 'Боевой азарт',         desc: 'С третьего попадания подряд каждое попадание даёт ещё +1⚡.', req: ['en2'] },
+  { id: 'counter',    col: 1, row: 3, ic: '↩️', name: 'Контрудар',            desc: 'Когда противник топит ваш корабль, вы получаете +3⚡.', req: ['rage'] },
+  { id: 'cap',        col: 1, row: 4, ic: '🔌', name: 'Большой аккумулятор',  desc: 'Запас энергии 14⚡ вместо 10.', req: ['counter'] },
+  { id: 'reactor',    col: 1, row: 5, ic: '⚛️', name: 'Реактор',              desc: '+1⚡ после каждого вашего промаха.', req: ['cap'] },
+  { id: 'cheapRadar', col: 2, row: 0, ic: '📡', name: 'Лёгкий радар',         desc: 'Радар стоит 1⚡.', req: [] },
+  { id: 'intel1',     col: 2, row: 1, ic: '🔭', name: 'Разведчик',            desc: 'В начале боя раскрыта 1 палуба противника.', req: ['cheapRadar'] },
+  { id: 'bigRadar',   col: 2, row: 2, ic: '🌀', name: 'Сонар',                desc: 'Радар сканирует квадрат 5×5.', req: ['intel1'] },
+  { id: 'second',     col: 2, row: 3, ic: '🍀', name: 'Второй шанс',          desc: 'Раз за бой после промаха вы стреляете ещё раз.', req: ['bigRadar'] },
+  { id: 'intel2',     col: 2, row: 4, ic: '🛰️', name: 'Спутник',              desc: 'В начале боя раскрыты ещё 2 палубы противника.', req: ['second'] },
+  { id: 'eagle',      col: 2, row: 5, ic: '🦅', name: 'Орлиный глаз',         desc: 'Каждый потопленный вами корабль даёт бесплатный радар.', req: ['intel2'] },
+  { id: 'cheapSalvo', col: 3, row: 0, ic: '💥', name: 'Скорострельность',     desc: 'Залп стоит 3⚡.', req: [] },
+  { id: 'bigSalvo',   col: 3, row: 1, ic: '🎆', name: 'Шквальный залп',       desc: 'Залп бьёт по всему квадрату 3×3.', req: ['cheapSalvo'] },
+  { id: 'cheapTorp',  col: 3, row: 2, ic: '🚀', name: 'Торпедный аппарат',    desc: 'Торпеда стоит 4⚡.', req: ['bigSalvo'] },
+  { id: 'pierce',     col: 3, row: 3, ic: '🎯', name: 'Бронебойная торпеда',  desc: 'Торпеда не останавливается после первого попадания и бьёт ещё раз.', req: ['cheapTorp'] },
+  { id: 'air',        col: 3, row: 4, ic: '✈️', name: 'Авиаудар',             desc: 'Новое оружие (5⚡): удар по столбцу сверху вниз до первого корабля.', req: ['pierce'] },
+  { id: 'barrage',    col: 3, row: 5, ic: '🌋', name: 'Ковровая бомбардировка', desc: 'Авиаудар накрывает весь столбец целиком.', req: ['air'] },
+  { id: 'flagship',   col: 0, row: 6, cap: true, ic: '👑', name: 'Флагман', desc: 'Вершина древа. Пока ваш линкор на плаву, каждый ваш ход даёт +1⚡.', req: ['mines', 'reactor', 'eagle', 'barrage'] },
+];
+const AI_UPG = ['hull1', 'hull2', 'hull3', 'repair', 'mines', 'en1', 'en2', 'rage', 'counter', 'cap', 'reactor', 'intel1', 'second', 'intel2', 'cheapSalvo', 'bigSalvo'];
+function upPoints(p) { return Math.max(0, wins(p.st) - p.up.length); }
+function upState(p, u) { return p.up.includes(u.id) ? 'owned' : u.req.every(r => p.up.includes(r)) ? 'avail' : 'locked'; }
+function aiUpgrades(n) {
+  const got = new Set();
+  while (got.size < n) {
+    const opts = AI_UPG.filter(id => !got.has(id) && UPG.find(u => u.id === id).req.every(r => got.has(r) || !AI_UPG.includes(r)));
+    if (!opts.length) break; got.add(pick(opts));
+  }
+  return got;
+}
+
 
 /* players overlay: resolves with a profile or null */
 function choosePlayer({ title, sub, exclude = null, mandatory = false }) {
@@ -678,7 +773,7 @@ function choosePlayer({ title, sub, exclude = null, mandatory = false }) {
     if (!PR.list.filter(p => p.id !== exclude).length) setTimeout(() => $('#pl-input').focus(), 300);
   });
 }
-function refreshCaptain() { const p = curProfile(); $('#captain-name').textContent = p ? p.name : 'не выбран'; }
+function refreshCaptain() { const p = curProfile(); $('#captain-name').textContent = p ? p.name : 'не выбран'; const n = p ? upPoints(p) : 0; $('#yard-pts').textContent = n; $('#yard-pts').classList.toggle('zero', !n); }
 async function ensureCaptain() {
   if (curProfile()) return curProfile();
   const p = await choosePlayer({ title: 'Добро пожаловать!', sub: 'Как вас зовут, капитан?', mandatory: true });
@@ -703,11 +798,14 @@ const ACH = [
   { id: 'fleet',     ic: '🚢', name: 'Гроза флотов',     desc: 'Потопите 100 кораблей',                   ok: c => c.st.sunk >= 100 },
   { id: 'veteran',   ic: '🧭', name: 'Морской волк',     desc: 'Сыграйте 25 партий',                      ok: c => c.st.games >= 25 },
   { id: 'duel',      ic: '🤝', name: 'Дуэлянт',          desc: 'Победите в игре вдвоём',                  ok: c => c.won && c.mode === 'duo' },
+  { id: 'engineer',  ic: '🛠️', name: 'Корабел',          desc: 'Изучите 5 улучшений на Верфи',            ok: c => c.prof.up.length >= 5 },
+  { id: 'master',    ic: '⚙️', name: 'Главный инженер',  desc: 'Изучите 12 улучшений',                    ok: c => c.prof.up.length >= 12 },
+  { id: 'genius',    ic: '👑', name: 'Флагман флота',    desc: 'Откройте всё древо развития',             ok: c => c.prof.up.length >= UPG.length },
 ];
 function toast(html) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html; document.body.appendChild(t); setTimeout(() => t.remove(), 3100); }
 
 /* ==================== BOARD MODEL ==================== */
-function newBoard() { return { cells: Array.from({ length: N * N }, () => ({ ship: -1, shot: false, auto: false })), ships: [], scans: [] }; }
+function newBoard() { return { cells: Array.from({ length: N * N }, () => ({ ship: -1, shot: false, auto: false, dent: false, mine: false })), ships: [], scans: [] }; }
 function shipCells(len, r, c, v) { const a = []; for (let i = 0; i < len; i++) a.push(v ? [r + i, c] : [r, c + i]); return a; }
 function canPlace(b, len, r, c, v) {
   for (const [y, x] of shipCells(len, r, c, v)) {
@@ -751,7 +849,9 @@ function autoPlace(b) {
 function fire(b, r, c) {
   const cl = b.cells[idx(r, c)];
   if (cl.shot) return { r, c, res: 'already' };
-  cl.shot = true; cl.auto = false;
+  if (cl.ship >= 0 && b.ships[cl.ship].armor > 0) { b.ships[cl.ship].armor--; cl.dent = true; return { r, c, res: 'block', ship: b.ships[cl.ship] }; }
+  cl.shot = true; cl.auto = false; cl.dent = false;
+  if (cl.mine) return { r, c, res: 'mine' };
   if (cl.ship < 0) return { r, c, res: 'miss' };
   const s = b.ships[cl.ship]; s.hits++;
   if (s.hits >= s.len) {
@@ -765,11 +865,16 @@ function fire(b, r, c) {
   return { r, c, res: 'hit', ship: s };
 }
 const allSunk = b => b.ships.length > 0 && b.ships.every(s => s.sunk);
-function areaCells(kind, r, c) {
+function sq(r, c, k) { const out = []; for (let dy = -k; dy <= k; dy++) for (let dx = -k; dx <= k; dx++) if (inb(r + dy, c + dx)) out.push([r + dy, c + dx]); return out; }
+function areaCells(kind, r, c, pl) {
   const out = [];
-  if (kind === 'radar') { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (inb(r + dy, c + dx)) out.push([r + dy, c + dx]); }
-  else if (kind === 'salvo') { [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([dy, dx]) => { if (inb(r + dy, c + dx)) out.push([r + dy, c + dx]); }); }
+  if (kind === 'radar') return sq(r, c, pl && has(pl, 'bigRadar') ? 2 : 1);
+  if (kind === 'salvo') {
+    if (pl && has(pl, 'bigSalvo')) return sq(r, c, 1);
+    [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([dy, dx]) => { if (inb(r + dy, c + dx)) out.push([r + dy, c + dx]); });
+  }
   else if (kind === 'torpedo') { for (let x = 0; x < N; x++) out.push([r, x]); }
+  else if (kind === 'air') { for (let y = 0; y < N; y++) out.push([y, c]); }
   else out.push([r, c]);
   return out;
 }
@@ -780,9 +885,9 @@ const cur = () => G.p[G.turn];
 const foe = () => G.p[1 - G.turn];
 const viewer = () => G.mode === 'ai' ? 0 : G.turn;
 function newPlayer(name, ai, pid = null) {
-  return { name, ai, pid, board: newBoard(), energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false };
+  return { name, ai, pid, up: new Set(), board: newBoard(), energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false };
 }
-function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); }
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); if (id === 'scr-menu' && PR) refreshCaptain(); }
 function overlay(id, on) { $(id).classList.toggle('show', on); }
 
 /* ==================== BOARD VIEW ==================== */
@@ -828,14 +933,16 @@ function updateView(v, b, reveal, fresh) {
     const cl = b.cells[i]; let cls = 'cell';
     if (cl.ship >= 0 && b.ships[cl.ship].sunk) cls += ' sunk';
     if (cl.shot) cls += cl.ship >= 0 ? ' hit' : ' miss' + (cl.auto ? ' auto' : '');
-    else cls += ' free';
+    else cls += ' free' + (cl.dent ? ' dent' : '');
+    if (cl.mine && (reveal || cl.shot)) cls += ' mine';
     v.cells[i].className = cls;
   }
   renderShips(v, b, reveal, fresh);
   v.el.querySelectorAll('.scan-badge').forEach(e => e.remove());
   for (const sc of b.scans) {
-    const live = areaCells('radar', sc.r, sc.c).filter(([y, x]) => { const cl = b.cells[idx(y, x)]; return cl.ship >= 0 && !cl.shot; }).length;
-    areaCells('radar', sc.r, sc.c).forEach(([y, x]) => { if (!b.cells[idx(y, x)].shot) v.cells[idx(y, x)].classList.add('scan'); });
+    const area = sq(sc.r, sc.c, sc.k || 1);
+    const live = area.filter(([y, x]) => { const cl = b.cells[idx(y, x)]; return cl.ship >= 0 && !cl.shot; }).length;
+    area.forEach(([y, x]) => { if (!b.cells[idx(y, x)].shot) v.cells[idx(y, x)].classList.add('scan'); });
     const badge = document.createElement('div'); badge.className = 'scan-badge'; badge.innerHTML = `<b>${live}</b>`;
     v.cells[idx(sc.r, sc.c)].appendChild(badge);
   }
@@ -886,6 +993,8 @@ function startGame(mode, p2) {
     ? [newPlayer(me.name, false, me.id), newPlayer('Компьютер', true)]
     : [newPlayer(me.name, false, me.id), newPlayer(p2.name, false, p2.id)];
   G.lastP2 = p2 || null;
+  G.p.forEach(pl => { const pr = profileById(pl.pid); if (pr) pl.up = new Set(pr.up); });
+  if (mode === 'ai') { const n = me.up.length; G.p[1].up = aiUpgrades(G.diff === 'hard' ? n : G.diff === 'normal' ? Math.floor(n / 2) : 0); }
   G.turn = 0; G.armed = null; G.busy = false; G.phase = 'setup';
   startSetup(0);
 }
@@ -968,10 +1077,43 @@ function passScreen(title, text) {
 const B = { tv: null, ov: null, hover: null };
 function beginBattle() {
   G.phase = 'battle'; G.turn = 0; G.armed = null; G.busy = false; G.start = Date.now();
-  G.p.forEach(p => { Object.assign(p, { energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false }); p.board.scans = []; });
+  G.p.forEach(p => {
+    Object.assign(p, { energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, air: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false,
+      usedRepair: false, repairPending: null, usedSecond: false, freeRadar: 0 });
+    p.board.scans = [];
+    p.energy = (has(p, 'en1') ? 2 : 0) + (has(p, 'en2') ? 2 : 0);
+    p.board.cells.forEach(cl => { cl.dent = false; cl.mine = false; });
+    p.board.ships.forEach(s => { s.armor = ((s.len === 4 && has(p, 'hull1')) || (s.len === 3 && has(p, 'hull2')) || (s.len === 2 && has(p, 'hull3'))) ? 1 : 0; });
+    if (has(p, 'mines')) placeMines(p.board, 3);
+  });
+  G.p.forEach((p, i) => revealRandom(G.p[1 - i].board, (has(p, 'intel1') ? 1 : 0) + (has(p, 'intel2') ? 2 : 0)));
   B.tv = makeView($('#target-board'), { click: onTargetClick, hover: onTargetHover, leave: () => { B.hover = null; clearPreview(B.tv); } });
   B.ov = makeView($('#own-board'), { bob: true });
-  setMsg('', ''); renderBattle(); show('scr-battle');
+  setMsg('', ''); onTurnStart(G.p[0]);
+  if (G.mode === 'ai' && G.p[1].up.size) setMsg(`⚙️ Компьютер прокачан: ${G.p[1].up.size} ${plural(G.p[1].up.size, 'улучшение', 'улучшения', 'улучшений')}`, 'info');
+  renderBattle(); show('scr-battle');
+}
+function placeMines(b, n) {
+  const ok = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    let near = false;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (inb(r + dy, c + dx) && b.cells[idx(r + dy, c + dx)].ship >= 0) near = true;
+    if (!near) ok.push(idx(r, c));
+  }
+  for (let k = 0; k < n && ok.length; k++) b.cells[ok.splice(rnd(ok.length), 1)[0]].mine = true;
+}
+function revealRandom(b, n) {
+  const pool = []; b.cells.forEach((cl, i) => { if (cl.ship >= 0 && !cl.shot && !cl.dent) pool.push(i); });
+  for (let k = 0; k < n && pool.length; k++) b.cells[pool.splice(rnd(pool.length), 1)[0]].dent = true;
+}
+function onTurnStart(pl) {
+  const who = pl.ai ? 'Компьютер' : pl.name;
+  if (pl.repairPending) {
+    const { r, c } = pl.repairPending, cl = pl.board.cells[idx(r, c)], s = cl.ship >= 0 ? pl.board.ships[cl.ship] : null;
+    if (s && !s.sunk && cl.shot) { cl.shot = false; cl.dent = true; s.hits--; pl.usedRepair = true; setMsg(`🔧 ${who}: палуба ${coord(r, c)} отремонтирована`, 'info'); }
+    pl.repairPending = null;
+  }
+  if (has(pl, 'flagship')) { const f = pl.board.ships.find(s => s.len === 4); if (f && !f.sunk) pl.energy = Math.min(maxE(pl), pl.energy + 1); }
 }
 function viewFor(board) { return B.tv.board === board ? B.tv : B.ov; }
 function renderBattle() {
@@ -983,8 +1125,10 @@ function renderBattle() {
   $('#target-wrap').classList.toggle('armed', !!G.armed);
   $('#own-wrap').classList.toggle('active', !myTurn && G.phase === 'battle');
   B.tv.el.classList.toggle('disabled', !myTurn);
-  $('#target-title').textContent = G.mode === 'ai' ? 'Флот компьютера' : `Флот: ${them.name}`;
+  const upTag = p => p.up.size ? ` · 🛠${p.up.size}` : '';
+  $('#target-title').textContent = (G.mode === 'ai' ? 'Флот компьютера' : `Флот: ${them.name}`) + upTag(them);
   $('#own-title').textContent = `Флот: ${me.name}`;
+  $('#uplist').innerHTML = [...me.up].map(id => { const u = UPG.find(x => x.id === id); return u ? `<span title="${u.name}">${u.ic}</span>` : ''; }).join('');
   const st = $('#status');
   if (G.phase === 'over') { st.textContent = 'Бой окончен'; st.className = 'status'; }
   else if (G.mode === 'ai') { st.textContent = myTurn ? `Ваш ход, ${me.name}` : 'Ход компьютера…'; st.className = 'status ' + (myTurn ? 'mine' : 'theirs'); }
@@ -993,15 +1137,18 @@ function renderBattle() {
   them.board.ships.slice().sort((a, b) => b.len - a.len).forEach(s => {
     const i = document.createElement('i'); if (s.sunk) i.className = 'sunk'; i.innerHTML = '<u></u>'.repeat(s.len); fl.appendChild(i);
   });
-  const e = me.energy;
+  const e = me.energy, mx = maxE(me);
   $('#energy-num').textContent = e;
-  $('#pips').innerHTML = Array.from({ length: MAX_E }, (_, i) => `<span class="${i < e ? 'on' : ''}"></span>`).join('');
+  $('#pips').innerHTML = Array.from({ length: mx }, (_, i) => `<span class="${i < e ? 'on' : ''}"></span>`).join('');
   const wb = $('#wbtns'); wb.innerHTML = '';
-  WEAPONS.forEach(w => {
+  const list = WEAPONS.filter(w => !w.need || has(me, w.need));
+  wb.style.gridTemplateColumns = `repeat(${list.length},1fr)`;
+  list.forEach(w => {
+    const cost = wCost(me, w.id);
     const b = document.createElement('button');
-    b.className = 'wbtn glass' + (G.armed === w.id ? ' on' : '') + (e >= w.cost ? ' ready' : '');
-    b.disabled = !myTurn || G.busy || e < w.cost || G.phase !== 'battle';
-    b.innerHTML = `<span>${w.icon}</span>${w.name}<small>${w.cost}⚡</small>`;
+    b.className = 'wbtn glass' + (G.armed === w.id ? ' on' : '') + (e >= cost ? ' ready' : '');
+    b.disabled = !myTurn || G.busy || e < cost || G.phase !== 'battle';
+    b.innerHTML = `<span>${w.icon}</span>${w.name}<small>${cost ? cost + '⚡' : 'бесплатно'}</small>`;
     b.onclick = () => {
       G.armed = G.armed === w.id ? null : w.id; Snd.play('click');
       setMsg(G.armed ? w.hint : '', 'info'); renderBattle();
@@ -1014,13 +1161,13 @@ function setMsg(text, cls) { const m = $('#msg'); m.textContent = text; m.classN
 function onTargetHover(r, c) {
   B.hover = [r, c]; clearPreview(B.tv);
   if (G.busy || G.phase !== 'battle' || cur().ai || G.turn !== viewer() || !G.armed) return;
-  areaCells(G.armed, r, c).forEach(([y, x]) => B.tv.cells[idx(y, x)].classList.add('pv-aim'));
+  areaCells(G.armed, r, c, cur()).forEach(([y, x]) => B.tv.cells[idx(y, x)].classList.add('pv-aim'));
 }
 async function onTargetClick(r, c) {
   if (G.busy || G.phase !== 'battle' || cur().ai || G.turn !== viewer()) return;
   const kind = G.armed || 'shot', b = foe().board;
   if (kind === 'shot' && b.cells[idx(r, c)].shot) { Snd.play('bad'); return; }
-  if (kind === 'salvo' && areaCells('salvo', r, c).every(([y, x]) => b.cells[idx(y, x)].shot)) { Snd.play('bad'); setMsg('Здесь уже всё прострелено', 'info'); return; }
+  if (kind === 'salvo' && areaCells('salvo', r, c, cur()).every(([y, x]) => b.cells[idx(y, x)].shot)) { Snd.play('bad'); setMsg('Здесь уже всё прострелено', 'info'); return; }
   G.armed = null; clearPreview(B.tv);
   const res = await doMove(kind, r, c);
   if (res.over || res.stale) return;
@@ -1029,62 +1176,89 @@ async function onTargetClick(r, c) {
 async function doMove(kind, r, c) {
   const gen = G.gen;
   G.busy = true; renderBattle();
-  const me = cur(), target = foe().board, v = viewFor(target);
-  const w = WEAPONS.find(x => x.id === kind);
-  if (w) { me.energy -= w.cost; me[kind]++; }
-  let anyHit = false, sunkShips = [], moveHits = 0;
+  const me = cur(), them = foe(), target = them.board, v = viewFor(target);
+  const addE = (p, n) => { p.energy = Math.max(0, Math.min(maxE(p), p.energy + n)); };
+  if (WEAPONS.some(x => x.id === kind)) {
+    const cost = wCost(me, kind);
+    if (kind === 'radar' && me.freeRadar > 0) me.freeRadar--;
+    me.energy -= cost; me[kind] = (me[kind] || 0) + 1;
+  }
+  let anyHit = false, sunkShips = [], moveHits = 0, blocked = 0, mined = 0, missed = false;
   const gain = res => {
-    if (res.res === 'hit' || res.res === 'sunk') { me.hits++; moveHits++; me.combo++; me.maxCombo = Math.max(me.maxCombo, me.combo); anyHit = true; }
-    if (res.res === 'hit') me.energy = Math.min(MAX_E, me.energy + 1);
-    if (res.res === 'sunk') { me.sunk++; me.energy = Math.min(MAX_E, me.energy + 2); sunkShips.push(res.ship); if (kind === 'torpedo') me.torpedoSink = true; }
+    if (res.res === 'hit' || res.res === 'sunk') {
+      me.hits++; moveHits++; me.combo++; me.maxCombo = Math.max(me.maxCombo, me.combo); anyHit = true;
+      addE(me, res.res === 'sunk' ? 2 : 1);
+      if (has(me, 'rage') && me.combo >= 3) addE(me, 1);
+      if (res.res === 'hit' && has(them, 'repair') && !them.usedRepair && !them.repairPending) them.repairPending = { r: res.r, c: res.c };
+    }
+    if (res.res === 'sunk') {
+      me.sunk++; sunkShips.push(res.ship);
+      if (kind === 'torpedo') me.torpedoSink = true;
+      if (has(me, 'eagle')) me.freeRadar++;
+      if (has(them, 'counter')) addE(them, 3);
+    }
+    if (res.res === 'block') blocked++;
+    if (res.res === 'mine') { mined++; addE(me, -3); }
+    if (res.res === 'miss' || res.res === 'mine') missed = true;
     if (res.res !== 'already') me.shots++;
   };
   const showRes = res => {
     if (res.res === 'miss') fx(v, res.r, res.c, 'splash');
-    else if (res.res === 'hit' || res.res === 'sunk') { fx(v, res.r, res.c, 'boom'); shake(v); }
+    else if (res.res === 'block') { fx(v, res.r, res.c, 'spark'); shake(v); }
+    else if (res.res === 'hit' || res.res === 'sunk' || res.res === 'mine') { fx(v, res.r, res.c, 'boom'); shake(v); }
   };
   if (kind === 'radar') {
-    target.scans.push({ r, c }); Snd.play('radar'); fx(v, r, c, 'ping');
+    const k = has(me, 'bigRadar') ? 2 : 1;
+    target.scans.push({ r, c, k }); Snd.play('radar'); fx(v, r, c, 'ping');
     renderBattle(); await sleep(350);
-    const n = areaCells('radar', r, c).filter(([y, x]) => { const cl = target.cells[idx(y, x)]; return cl.ship >= 0 && !cl.shot; }).length;
+    const n = sq(r, c, k).filter(([y, x]) => { const cl = target.cells[idx(y, x)]; return cl.ship >= 0 && !cl.shot; }).length;
     setMsg(n ? `Радар: ${n} ${plural(n, 'палуба', 'палубы', 'палуб')} рядом с ${coord(r, c)}` : `Радар: вокруг ${coord(r, c)} пусто`, 'info');
     if (gen !== G.gen) return { stale: true };
-    G.busy = false; renderBattle(); return { keep: true };
+    if (!me.ai) G.busy = false; renderBattle(); return { keep: true };
   }
-  Snd.play('shot');
-  await sleep(220);
+  Snd.play(kind === 'air' ? 'plane' : 'shot');
+  await sleep(kind === 'air' ? 420 : 220);
   if (gen !== G.gen) return { stale: true };
-  if (kind === 'shot') {
-    const res = fire(target, r, c); gain(res); showRes(res); sound(res);
-  } else if (kind === 'salvo') {
-    for (const [y, x] of areaCells('salvo', r, c)) {
-      const res = fire(target, y, x); if (res.res === 'already') continue;
-      gain(res); showRes(res); sound(res); renderBattle(); await sleep(110);
+  const one = (y, x) => { const res = fire(target, y, x); gain(res); showRes(res); sound(res); return res; };
+  if (kind === 'shot') one(r, c);
+  else if (kind === 'salvo') {
+    for (const [y, x] of areaCells('salvo', r, c, me)) {
+      if (target.cells[idx(y, x)].shot) continue;
+      one(y, x); renderBattle(); await sleep(100);
+      if (gen !== G.gen) return { stale: true };
     }
     me.salvoMax = Math.max(me.salvoMax, moveHits);
-  } else if (kind === 'torpedo') {
-    for (let x = 0; x < N; x++) {
-      const cl = target.cells[idx(r, x)];
-      if (cl.shot) { fx(v, r, x, 'splash'); await sleep(50); continue; }
-      const res = fire(target, r, x); gain(res); showRes(res); renderBattle();
-      if (res.res !== 'miss') { sound(res); break; }
-      Snd.play('miss'); await sleep(90);
+  } else if (kind === 'torpedo' || kind === 'air') {
+    const line = areaCells(kind, r, c, me);
+    const stopAfter = kind === 'torpedo' ? (has(me, 'pierce') ? 2 : 1) : (has(me, 'barrage') ? 99 : 1);
+    let stops = 0;
+    for (const [y, x] of line) {
+      if (target.cells[idx(y, x)].shot) { fx(v, y, x, 'splash'); await sleep(40); continue; }
+      const res = fire(target, y, x); gain(res); showRes(res); renderBattle(); sound(res);
+      if (res.res === 'hit' || res.res === 'sunk' || res.res === 'block') { if (++stops >= stopAfter) break; }
+      await sleep(90);
       if (gen !== G.gen) return { stale: true };
     }
   }
   if (gen !== G.gen) return { stale: true };
   if (!anyHit) me.combo = 0;
+  if (missed && has(me, 'reactor')) addE(me, 1);
+  let keep = anyHit, extra = '';
+  if (!keep && has(me, 'second') && !me.usedSecond) { me.usedSecond = true; keep = true; extra = ' 🍀 Второй шанс!'; }
   const who = G.mode === 'ai' ? (me.ai ? 'Компьютер' : me.name) : me.name;
-  if (sunkShips.length) setMsg(`${who}: ${sunkShips.length > 1 ? 'потоплено кораблей: ' + sunkShips.length : SHIP_NAMES[sunkShips[0].len] + ' потоплен!'}`, 'sunk');
-  else if (anyHit) setMsg(`${who}: попадание!${kind === 'shot' ? ' ' + coord(r, c) : ''}`, 'hit');
-  else setMsg(`${who}: мимо${kind === 'shot' ? ' — ' + coord(r, c) : ''}`, 'miss');
+  const at = kind === 'shot' ? ' ' + coord(r, c) : '';
+  if (sunkShips.length) setMsg(`${who}: ${sunkShips.length > 1 ? 'потоплено кораблей: ' + sunkShips.length : SHIP_NAMES[sunkShips[0].len] + ' потоплен!'}${extra}`, 'sunk');
+  else if (anyHit) setMsg(`${who}: попадание!${at}${extra}`, 'hit');
+  else if (mined) setMsg(`${who}: подрыв на мине! −3⚡${extra}`, 'hit');
+  else if (blocked) setMsg(`${who}: броня отразила снаряд!${extra}`, 'info');
+  else setMsg(`${who}: мимо${at}${extra}`, 'miss');
   renderBattle();
   if (allSunk(target)) { await sleep(700); if (gen === G.gen) endGame(G.turn); return { over: true }; }
-  if (anyHit && !me.ai) G.busy = false;
+  if (keep && !me.ai) G.busy = false;
   renderBattle();
-  return { keep: anyHit };
+  return { keep };
 }
-function sound(res) { Snd.play(res.res === 'sunk' ? 'sunk' : res.res === 'hit' ? 'hit' : 'miss'); }
+function sound(res) { Snd.play({ sunk: 'sunk', hit: 'hit', mine: 'hit', block: 'clang' }[res.res] || 'miss'); }
 function plural(n, a, b, c) { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? a : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? b : c; }
 async function passTurn() {
   const gen = G.gen;
@@ -1095,8 +1269,8 @@ async function passTurn() {
   if (G.mode === 'duo') {
     await passScreen(`Ход: ${cur().name}`, 'Передайте устройство и не подглядывайте');
     if (gen !== G.gen) return;
-    G.busy = false; setMsg('', ''); renderBattle();
-  } else { renderBattle(); if (cur().ai) await aiTurn(); }
+    G.busy = false; setMsg('', ''); onTurnStart(cur()); renderBattle();
+  } else { onTurnStart(cur()); renderBattle(); if (cur().ai) await aiTurn(); }
 }
 async function aiTurn() {
   const gen = G.gen; renderBattle();
@@ -1108,7 +1282,7 @@ async function aiTurn() {
     if (res.over || res.stale) return;
     if (!res.keep) {
       await sleep(650); if (gen !== G.gen) return;
-      G.turn = 1 - G.turn; cur().combo = 0; G.busy = false; renderBattle(); return;
+      G.turn = 1 - G.turn; cur().combo = 0; onTurnStart(cur()); G.busy = false; renderBattle(); return;
     }
   }
 }
@@ -1157,16 +1331,18 @@ function aiChoose() {
     }
     const [r, c] = pick(unshot); return { kind: 'shot', r, c };
   }
+  const dents = []; b.cells.forEach((cl, i) => { if (!cl.shot && cl.dent) dents.push([Math.floor(i / N), i % N]); });
+  if (dents.length) { const [r, c] = pick(dents); return { kind: 'shot', r, c }; }
   const D = density(b);
   if (G.diff === 'normal') {
     if (hits.length) { const [r, c] = bestOf(D, unshot); return { kind: 'shot', r, c }; }
     const par = unshot.filter(([r, c]) => (r + c) % 2 === 0);
     const [r, c] = pick(par.length ? par : unshot); return { kind: 'shot', r, c };
   }
-  if (!hits.length && me.energy >= 4) {
+  if (!hits.length && me.energy >= wCost(me, 'salvo') + 2) {
     let best = null, bs = 0;
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
-      const s = areaCells('salvo', r, c).reduce((a, [y, x]) => a + D[idx(y, x)], 0);
+      const s = areaCells('salvo', r, c, me).reduce((a, [y, x]) => a + D[idx(y, x)], 0);
       if (s > bs) { bs = s; best = [r, c]; }
     }
     if (best) return { kind: 'salvo', r: best[0], c: best[1] };
@@ -1179,7 +1355,7 @@ function recordFor(pl, won, secs, lost) {
   const prof = profileById(pl.pid); if (!prof) return [];
   const st = prof.st;
   st.games++; st.shots += pl.shots; st.hits += pl.hits; st.sunk += pl.sunk;
-  st.radar += pl.radar; st.salvo += pl.salvo; st.torpedo += pl.torpedo;
+  st.radar += pl.radar; st.salvo += pl.salvo; st.torpedo += pl.torpedo; st.air = (st.air || 0) + (pl.air || 0);
   if (G.mode === 'ai') {
     st[G.diff][won ? 'w' : 'l']++;
     if (won) { st.streak++; st.bestStreak = Math.max(st.bestStreak, st.streak); } else st.streak = 0;
@@ -1188,7 +1364,7 @@ function recordFor(pl, won, secs, lost) {
     if (st.best == null || pl.shots < st.best) st.best = pl.shots;
     if (st.fastest == null || secs < st.fastest) st.fastest = secs;
   }
-  const ctx = { won, mode: G.mode, diff: G.diff, acc: pl.shots ? pl.hits / pl.shots : 0, secs, shots: pl.shots, lost, st, pl };
+  const ctx = { won, mode: G.mode, diff: G.diff, acc: pl.shots ? pl.hits / pl.shots : 0, secs, shots: pl.shots, lost, st, pl, prof };
   const got = [];
   for (const a of ACH) if (!prof.ach[a.id] && a.ok(ctx)) { prof.ach[a.id] = Date.now(); got.push({ a, who: prof.name }); }
   return got;
@@ -1207,6 +1383,7 @@ function endGame(winner) {
     text = won ? (st.streak > 1 ? `Серия побед: ${st.streak}` : 'Флот противника на дне') : 'Ваш флот потоплен. Реванш?';
     Snd.play(won ? 'win' : 'lose');
   } else { ico = '🏆'; title = `${G.p[winner].name} побеждает!`; text = 'Отличная битва'; Snd.play('win'); }
+  if (!G.p[winner].ai) text += ` · +1 очко прокачки${G.mode === 'duo' ? ' для ' + G.p[winner].name : ''} 🛠`;
   $('#over-ico').textContent = ico; $('#over-title').textContent = title; $('#over-text').textContent = text;
   const acc = p => p.shots ? Math.round(p.hits / p.shots * 100) + '%' : '—';
   $('#over-grid').innerHTML = `<span class="h"></span><span class="h">Выстрелы</span><span class="h">Точность</span>` +
@@ -1265,8 +1442,75 @@ function renderHall() {
     <div class="kpis"><div class="kpi"><b>${s.duoW} / ${s.duoW + s.duoL}</b><span>Побед в играх вдвоём</span></div><div class="kpi"><b>${s.radar + s.salvo + s.torpedo}</b><span>Спецоружие применено</span></div></div>`;
 }
 
+
+/* ==================== SHIPYARD ==================== */
+const Y = { sel: null, resetArm: false };
+function renderYard() {
+  const p = curProfile(), pts = upPoints(p);
+  $('#yp-pts').textContent = pts;
+  $('#yp-title').textContent = plural(pts, 'очко прокачки', 'очка прокачки', 'очков прокачки');
+  $('#yp-sub').textContent = `Изучено ${p.up.length} из ${UPG.length} · 1 победа = 1 очко`;
+  const tree = $('#tree'); tree.innerHTML = '<svg class="links"></svg>';
+  BRANCHES.forEach((b, i) => { const h = document.createElement('div'); h.className = 'col-head'; h.style.gridColumn = i + 1; h.style.gridRow = 1; h.textContent = b; tree.appendChild(h); });
+  UPG.forEach(u => {
+    const st = upState(p, u);
+    const n = document.createElement('button');
+    n.className = `node ${st}${u.cap ? ' cap' : ''}${Y.sel === u.id ? ' sel' : ''}`; n.dataset.id = u.id;
+    n.style.gridColumn = u.cap ? '1 / -1' : String(u.col + 1); n.style.gridRow = String(u.row + 2);
+    n.innerHTML = `<span class="orb">${u.ic}</span><span>${u.name}</span>`;
+    n.onclick = () => { Y.sel = u.id; Snd.play('click'); renderYard(); };
+    tree.appendChild(n);
+  });
+  requestAnimationFrame(drawLinks);
+  renderUpInfo();
+}
+function drawLinks() {
+  const tree = $('#tree'), svg = tree.querySelector('svg.links'); if (!svg) return;
+  const tb = tree.getBoundingClientRect(), p = curProfile();
+  if (!tb.width) return;
+  const ctr = id => { const o = tree.querySelector(`.node[data-id="${id}"] .orb`).getBoundingClientRect(); return [o.left + o.width / 2 - tb.left, o.top + o.height / 2 - tb.top]; };
+  let h = '';
+  UPG.forEach(u => u.req.forEach(r => {
+    const [x1, y1] = ctr(r), [x2, y2] = ctr(u.id);
+    const on = p.up.includes(r) && p.up.includes(u.id), next = p.up.includes(r) && !p.up.includes(u.id);
+    const d = Math.abs(x1 - x2) < 2 ? `M${x1},${y1} L${x2},${y2}` : `M${x1},${y1} C${x1},${(y1 + y2) / 2} ${x2},${(y1 + y2) / 2} ${x2},${y2}`;
+    h += `<path d="${d}" fill="none" stroke="${on ? '#ffcf4a' : next ? 'rgba(255,255,255,.75)' : 'rgba(255,255,255,.25)'}" stroke-width="${on ? 4 : 3}" ${on ? '' : 'stroke-dasharray="6 6"'} stroke-linecap="round"/>`;
+  }));
+  svg.setAttribute('viewBox', `0 0 ${tb.width} ${tb.height}`); svg.innerHTML = h;
+}
+addEventListener('resize', () => { if ($('#scr-yard').classList.contains('active')) drawLinks(); });
+function renderUpInfo() {
+  const p = curProfile(), box = $('#up-info'), u = UPG.find(x => x.id === Y.sel);
+  if (!u) { box.innerHTML = `<p>Нажмите на улучшение, чтобы узнать подробности. Мерцающие — уже можно изучить.</p>`; return; }
+  const st = upState(p, u), pts = upPoints(p);
+  const need = u.req.filter(r => !p.up.includes(r)).map(r => UPG.find(x => x.id === r).name);
+  box.innerHTML = `<div class="t"><b>${u.ic}</b><span><strong>${u.name}</strong><small>${u.cap ? 'Вершина древа' : BRANCHES[u.col]}</small></span></div><p>${u.desc}</p>
+    ${st === 'owned' ? '<p style="color:var(--gold);font-weight:700">✓ Изучено</p>'
+      : st === 'locked' ? `<p style="color:var(--muted)">Сначала изучите: ${need.join(', ')}</p>`
+      : `<button class="btn primary" id="up-buy" ${pts < 1 ? 'disabled' : ''}>${pts < 1 ? 'Нужна ещё одна победа' : 'Изучить за 1 очко'}</button>`}`;
+  const b = $('#up-buy'); if (b) b.onclick = () => buyUp(u);
+}
+function buyUp(u) {
+  const p = curProfile(); if (upPoints(p) < 1 || upState(p, u) !== 'avail') return;
+  p.up.push(u.id);
+  const got = [], ctx = { prof: p, st: p.st, pl: {}, won: false };
+  for (const a of ACH) if (['engineer', 'master', 'genius'].includes(a.id) && !p.ach[a.id] && a.ok(ctx)) { p.ach[a.id] = Date.now(); got.push(a); }
+  saveProfiles(); Snd.play('buy'); vibrate(40);
+  got.forEach((a, i) => setTimeout(() => { toast(`${a.ic} Достижение: ${a.name}`); Snd.play('ach'); }, 500 + i * 900));
+  renderYard();
+  const orb = $(`.node[data-id="${u.id}"] .orb`);
+  if (orb && orb.animate) orb.animate([{ transform: 'scale(1.5)' }, { transform: 'scale(1)' }], { duration: 450, easing: 'ease-out' });
+}
+function initYard() {
+  $('#btn-yard').onclick = async () => { Snd.ensure(); await ensureCaptain(); Y.sel = null; show('scr-yard'); renderYard(); };
+  $('#yard-reset').onclick = () => {
+    const p = curProfile(); if (!p.up.length) return;
+    if (!Y.resetArm) { Y.resetArm = true; toast('↺ Нажмите ещё раз — древо сбросится, очки вернутся'); setTimeout(() => Y.resetArm = false, 3000); return; }
+    Y.resetArm = false; p.up = []; saveProfiles(); Snd.play('click'); renderYard();
+  };
+}
 /* ==================== BOOT ==================== */
-Sea.init(); logoShip(); initMenu(); initSetup(); initOver();
+Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); refreshCaptain();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
