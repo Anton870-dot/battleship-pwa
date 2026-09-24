@@ -202,6 +202,21 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .hunit.cur::before{border:3px solid var(--gold);box-shadow:0 0 12px var(--gold)}
 .hunit.done .spr{opacity:.6}
 .hubtabs{grid-template-columns:repeat(4,1fr);width:min(560px,100%)}
+.seg2{grid-template-columns:repeat(2,1fr);flex:1}
+.rules-row{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--muted)}
+.dchal{display:flex;align-items:center;gap:12px}.dchal .dic{font-size:30px}.dchal .dtx{flex:1;min-width:0}.dchal small{display:block;color:var(--muted);font-size:12px;line-height:1.3}
+.tasks{display:flex;flex-direction:column;gap:2px}
+.task{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px;font-weight:700}
+.task .ic{font-size:20px;width:26px;text-align:center;flex:none}.task .tt{flex:1;min-width:0}.task .bar{display:block;margin-top:5px;height:5px}
+.task b{color:var(--gold);font-size:13px;white-space:nowrap}.task.done{opacity:.6}.task.done b{color:#5dff9a}
+.adm-list{display:flex;flex-direction:column;gap:10px;width:min(560px,100%)}
+.adm{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px}
+.adm .aic{font-size:36px;width:48px;text-align:center;flex:none}
+.adm .nb{flex:1;min-width:0}.adm .nb b{font-size:15px}.adm .nb small{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
+.adm .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.adm .chips span{font-size:11px;font-weight:800;background:rgba(0,30,70,.4);border-radius:8px;padding:2px 7px}
+.adm.beaten{box-shadow:inset 0 0 0 2px rgba(93,255,154,.5)}.adm.next{box-shadow:inset 0 0 0 2px var(--gold)}.adm.locked{opacity:.55}
+.adm .btn{flex:none;min-width:96px}
+#scr-battle.daily #own-wrap,#scr-battle.daily #weapons{display:none}
 .hubtabs button{font-size:12.5px;padding:9px 1px;white-space:nowrap;letter-spacing:-.2px}
 .hub-body{display:flex;flex-direction:column;gap:10px;width:min(560px,100%);align-items:center}
 .muted{color:var(--muted);font-size:12px;line-height:1.35;display:block}
@@ -430,6 +445,13 @@ body:not(.menu-on) #bgmBtn{display:none}
 
   <button class="btn glass big" id="btn-yard" style="width:min(420px,100%)">🛠 Верфь — прокачка флота <span class="badge" id="yard-pts">0</span></button>
 
+  <div class="glass menu-card" id="daily-card">
+    <h3>Каждый день</h3>
+    <div class="dchal"><span class="dic">🗓</span><span class="dtx"><b>Вызов дня</b><small id="daily-sub"></small></span><button class="btn primary small" id="btn-daily">Играть</button></div>
+    <div class="tasks" id="tasks"></div>
+    <small class="muted" id="tasks-foot" style="text-align:center"></small>
+  </div>
+
   <div class="glass menu-card">
     <h3>Против компьютера</h3>
     <div class="seg" id="diff-seg">
@@ -437,7 +459,10 @@ body:not(.menu-on) #bgmBtn{display:none}
       <button data-d="normal" class="on">Средний</button>
       <button data-d="hard">Сложный</button>
     </div>
+    <div class="rules-row"><span>Правила</span><div class="seg seg2" id="rules-seg"><button data-r="classic">Классика</button><button data-r="salvo">Залпы 🔥</button></div></div>
+    <small class="muted" id="rules-hint" style="text-align:center"></small>
     <button class="btn primary big" id="btn-ai">⚔️ В бой</button>
+    <button class="btn big" id="btn-adm">🎩 Лестница адмиралов</button>
   </div>
 
   <div class="glass menu-card">
@@ -448,7 +473,7 @@ body:not(.menu-on) #bgmBtn{display:none}
   <div class="glass menu-card">
     <h3>Новый режим</h3>
     <button class="btn big" id="btn-hunt">🧭 Морской поход</button>
-    <p style="margin:0;color:var(--muted);font-size:13px;text-align:center">Один корабль, открытое море и туман войны. Пошаговые дуэли, золото, покупка и прокачка кораблей.</p>
+    <p style="margin:0;color:var(--muted);font-size:13px;text-align:center">Свой флот, морпехи и абордажи, архипелаг с боссами, погода и туман войны.</p>
   </div>
 
   <div class="menu-foot">
@@ -525,6 +550,13 @@ body:not(.menu-on) #bgmBtn{display:none}
   <div class="glass up-info" id="up-info"></div>
 </section>
 
+<!-- ================= ADMIRALS ================= -->
+<section id="scr-adm" class="screen">
+  <div class="topbar"><button class="iconbtn glass back-menu" aria-label="Назад">←</button><h2>Адмиралы</h2><span style="width:44px"></span></div>
+  <div class="glass hub-panel"><small class="muted" id="adm-sub"></small><small class="muted">Каждый адмирал играет по-своему: по-разному ставит корабли и по-разному стреляет. Правила боя — те, что выбраны в меню.</small></div>
+  <div class="adm-list" id="adm-list"></div>
+</section>
+
 <!-- ================= HUNT HUB ================= -->
 <section id="scr-hub" class="screen">
   <div class="topbar"><button class="iconbtn glass" id="hub-back" aria-label="Назад">←</button><h2>Морской поход</h2><span style="width:44px"></span></div>
@@ -564,6 +596,12 @@ body:not(.menu-on) #bgmBtn{display:none}
       <li>🚀 <b>Торпеда</b> (6⚡): плывёт по выбранной строке слева направо и взрывается у первого корабля.</li>
       <li>Если залп или торпеда попали — ход остаётся за вами.</li>
     </ul>
+    <h3>🔥 Правила «Залпы»</h3>
+    <p>Переключатель в меню. За ход вы делаете столько выстрелов, сколько у вас целых кораблей (в начале — 10). Попадание не даёт лишнего хода, зато каждый потопленный корабль противника отнимает у него один выстрел. Спецоружие тратит один выстрел залпа, радар — нет. Работает и против компьютера, и вдвоём.</p>
+    <h3>🎩 Лестница адмиралов</h3>
+    <p>Шесть противников с характером: от Юнги Пита, который стреляет наугад, до Гранд-адмирала Нептуна с почти полным древом улучшений. Каждый по-своему ставит флот (у краёв, в углу, в центре, вразброс) и по-своему стреляет. Победа открывает следующего адмирала и приносит золото в казну Морского похода.</p>
+    <h3>🗓 Вызов дня и задания</h3>
+    <p>Вызов дня — одна и та же расстановка для всех на весь день. Противник не стреляет: задача потопить флот за минимум выстрелов. Первое прохождение за день даёт 50 💰, дни подряд складываются в серию. Задания дня — три небольшие цели; за каждую платят золото, а за все три — очко на Верфь.</p>
     <h3>🛠 Верфь и прокачка</h3>
     <p>Каждая победа (над компьютером или в игре вдвоём) даёт 1 очко прокачки. Одно очко — одно улучшение на Верфи. Древо из четырёх веток: Корпус, Энергия, Разведка и Оружие. Улучшения открываются по порядку сверху вниз, а на самом дне ждёт «Флагман». Сброс древа возвращает все очки. Компьютер на сложном уровне получает столько же улучшений, сколько у вас, на среднем — половину.</p>
     <h3>🧭 Морской поход</h3>
@@ -574,7 +612,7 @@ body:not(.menu-on) #bgmBtn{display:none}
     <p><b>Люди:</b> на каждый корабль набирают морпехов и специалистов (артиллерист, штурман, инженер, врач, сигнальщик, боцман, минёр); специалистов обучают до 3-го уровня. Морпехи идут на абордаж: подойдите вплотную к врагу и нажмите ⚔️ — чем сильнее он повреждён, тем выше шанс. Захваченный корабль становится вашим. Так же можно взять штурмом форт.</p>
     <p>За миссии платят золото, каждая победа ещё и даёт очко на Верфь.</p>
     <h3>🏆 Капитаны и достижения</h3>
-    <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 25 достижений и таблица всех капитанов на этом устройстве.</p>
+    <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 29 достижений и таблица всех капитанов на этом устройстве.</p>
   </div>
 </section>
 
@@ -909,7 +947,7 @@ const UPG = [
   { id: 'flagship',   col: 0, row: 6, cap: true, ic: '👑', name: 'Флагман', desc: 'Вершина древа. Пока ваш линкор на плаву, каждый ваш ход даёт +1⚡.', req: ['mines', 'reactor', 'eagle', 'barrage'] },
 ];
 const AI_UPG = ['hull1', 'hull2', 'hull3', 'repair', 'mines', 'en1', 'en2', 'rage', 'counter', 'cap', 'reactor', 'intel1', 'second', 'intel2', 'cheapSalvo', 'bigSalvo'];
-function upPoints(p) { return Math.max(0, wins(p.st) - p.up.length); }
+function upPoints(p) { return Math.max(0, wins(p.st) + (p.st.bonus || 0) - p.up.length); }
 function upState(p, u) { return p.up.includes(u.id) ? 'owned' : u.req.every(r => p.up.includes(r)) ? 'avail' : 'locked'; }
 function aiUpgrades(n) {
   const got = new Set();
@@ -954,7 +992,7 @@ function choosePlayer({ title, sub, exclude = null, mandatory = false }) {
     if (!PR.list.filter(p => p.id !== exclude).length) setTimeout(() => $('#pl-input').focus(), 300);
   });
 }
-function refreshCaptain() { const p = curProfile(); $('#captain-name').textContent = p ? p.name : 'не выбран'; const n = p ? upPoints(p) : 0; $('#yard-pts').textContent = n; $('#yard-pts').classList.toggle('zero', !n); }
+function refreshCaptain() { if (typeof renderDaily === 'function') renderDaily(); const p = curProfile(); $('#captain-name').textContent = p ? p.name : 'не выбран'; const n = p ? upPoints(p) : 0; $('#yard-pts').textContent = n; $('#yard-pts').classList.toggle('zero', !n); }
 async function ensureCaptain() {
   if (curProfile()) return curProfile();
   const p = await choosePlayer({ title: 'Добро пожаловать!', sub: 'Как вас зовут, капитан?', mandatory: true });
@@ -987,6 +1025,10 @@ const ACH = [
   { id: 'board1',    ic: '⚔️', name: 'На абордаж!',      desc: 'Захватите вражеский корабль абордажем',   ok: c => !!(c.prof.hunt && c.prof.hunt.caps >= 1) },
   { id: 'boss1',     ic: '☠️', name: 'Гроза пиратов',    desc: 'Победите босса в Морском походе',         ok: c => !!(c.prof.hunt && c.prof.hunt.bosses >= 1) },
   { id: 'legend',    ic: '🎖', name: 'Легенда флота',    desc: 'Доведите корабль до звания «Легенда»',    ok: c => !!(c.prof.hunt && Object.values(c.prof.hunt.ships).some(s => (s.xp || 0) >= 15)) },
+  { id: 'salvowin',  ic: '🔥', name: 'Шквальный огонь',  desc: 'Победите компьютер по правилам «Залпы»',  ok: c => c.won && c.mode === 'ai' && G.rules === 'salvo' },
+  { id: 'ladder3',   ic: '📜', name: 'Покоритель адмиралов', desc: 'Победите трёх адмиралов',             ok: c => (c.prof.adm || 0) >= 3 },
+  { id: 'neptune',   ic: '🔱', name: 'Владыка морей',    desc: 'Победите Гранд-адмирала Нептуна',         ok: c => (c.prof.adm || 0) >= 6 },
+  { id: 'daily1',    ic: '🗓', name: 'Ежедневник',       desc: 'Пройдите вызов дня 7 дней подряд',        ok: c => !!(c.prof.dstreak && c.prof.dstreak.n >= 7) },
   { id: 'genius',    ic: '👑', name: 'Флагман флота',    desc: 'Откройте всё древо развития',             ok: c => c.prof.up.length >= UPG.length },
 ];
 function toast(html) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html; document.body.appendChild(t); setTimeout(() => t.remove(), 3100); }
@@ -1067,7 +1109,7 @@ function areaCells(kind, r, c, pl) {
 }
 
 /* ==================== GAME STATE ==================== */
-const G = { mode: 'ai', diff: store.get('bs-diff', 'normal'), p: [], turn: 0, phase: 'menu', armed: null, busy: false, start: 0, gen: 0 };
+const G = { mode: 'ai', diff: store.get('bs-diff', 'normal'), rules: store.get('bs-rules', 'classic'), adm: null, shotsLeft: null, p: [], turn: 0, phase: 'menu', armed: null, busy: false, start: 0, gen: 0 };
 const cur = () => G.p[G.turn];
 const foe = () => G.p[1 - G.turn];
 const viewer = () => G.mode === 'ai' ? 0 : G.turn;
@@ -1153,11 +1195,11 @@ function initMenu() {
     Snd.ensure(); const p = await choosePlayer({ title: 'Кто играет?' });
     if (p) { PR.cur = p.id; saveProfiles(); } refreshCaptain(); if (!curProfile()) ensureCaptain();
   };
-  $('#btn-ai').onclick = async () => { Snd.ensure(); await ensureCaptain(); startGame('ai'); };
+  $('#btn-ai').onclick = async () => { Snd.ensure(); await ensureCaptain(); G.adm = null; startGame('ai'); };
   $('#btn-duo').onclick = async () => {
     Snd.ensure(); const me = await ensureCaptain();
     const p2 = await choosePlayer({ title: 'Второй капитан', sub: `Против кого играет ${me.name}?`, exclude: me.id });
-    if (p2) startGame('duo', p2);
+    if (p2) { G.adm = null; startGame('duo', p2); }
   };
   $('#btn-ach').onclick = async () => { await ensureCaptain(); renderHall(); show('scr-ach'); };
   $('#btn-help').onclick = () => show('scr-help');
@@ -1176,12 +1218,23 @@ function syncSoundUi() { $('#snd-ico').textContent = Snd.on ? '🔊' : '🔇'; $
 function startGame(mode, p2) {
   G.gen++; G.mode = mode;
   const me = curProfile();
+  G.shotsLeft = null;
+  if (mode !== 'ai') G.adm = null;
+  G.diff = G.adm ? G.adm.diff : store.get('bs-diff', 'normal');
+  if (mode === 'daily') {
+    G.p = [newPlayer(me.name, false, me.id), newPlayer('Вызов дня', true)];
+    autoPlace(G.p[0].board);
+    seededRun(dayKey() * 7 + 13, () => autoPlace(G.p[1].board));
+    G.turn = 0; G.armed = null; G.busy = false; G.lastP2 = null;
+    beginBattle(); return;
+  }
   G.p = mode === 'ai'
-    ? [newPlayer(me.name, false, me.id), newPlayer('Компьютер', true)]
+    ? [newPlayer(me.name, false, me.id), newPlayer(G.adm ? G.adm.name : 'Компьютер', true)]
     : [newPlayer(me.name, false, me.id), newPlayer(p2.name, false, p2.id)];
   G.lastP2 = p2 || null;
   G.p.forEach(pl => { const pr = profileById(pl.pid); if (pr) pl.up = new Set(pr.up); });
-  if (mode === 'ai') { const n = me.up.length; G.p[1].up = aiUpgrades(G.diff === 'hard' ? Math.round(n * .7) : G.diff === 'normal' ? Math.floor(n / 3) : 0); }
+  if (mode === 'ai' && G.adm) { G.p[1].up = aiUpgrades(G.adm.ups); (G.adm.extra || []).forEach(x => G.p[1].up.add(x)); }
+  else if (mode === 'ai') { const n = me.up.length; G.p[1].up = aiUpgrades(G.diff === 'hard' ? Math.round(n * .7) : G.diff === 'normal' ? Math.floor(n / 3) : 0); }
   G.turn = 0; G.armed = null; G.busy = false; G.phase = 'setup';
   startSetup(0);
 }
@@ -1249,7 +1302,7 @@ function initSetup() {
   $('#setup-back').onclick = () => { G.gen++; show('scr-menu'); };
   $('#setup-go').onclick = async () => {
     Snd.play('click');
-    if (G.mode === 'ai') { autoPlace(G.p[1].board); beginBattle(); }
+    if (G.mode === 'ai') { if (G.adm) placeStyled(G.p[1].board, G.adm.place); else autoPlace(G.p[1].board); beginBattle(); }
     else if (S.who === 0) { await passScreen(`Расстановка: ${G.p[1].name}`, 'Передайте устройство второму капитану'); startSetup(1); }
     else { await passScreen(`Ход: ${G.p[0].name}`, 'Передайте устройство первому капитану'); beginBattle(); }
   };
@@ -1276,8 +1329,11 @@ function beginBattle() {
   G.p.forEach((p, i) => revealRandom(G.p[1 - i].board, (has(p, 'intel1') ? 1 : 0) + (has(p, 'intel2') ? 2 : 0)));
   B.tv = makeView($('#target-board'), { click: onTargetClick, hover: onTargetHover, leave: () => { B.hover = null; clearPreview(B.tv); } });
   B.ov = makeView($('#own-board'), { bob: true });
+  $('#scr-battle').classList.toggle('daily', G.mode === 'daily');
   setMsg('', ''); onTurnStart(G.p[0]);
-  if (G.mode === 'ai' && G.p[1].up.size) setMsg(`⚙️ Компьютер прокачан: ${G.p[1].up.size} ${plural(G.p[1].up.size, 'улучшение', 'улучшения', 'улучшений')}`, 'info');
+  if (G.mode === 'daily') setMsg('🗓 Найдите и потопите весь флот за как можно меньшее число выстрелов', 'info');
+  else if (G.mode === 'ai' && G.adm) setMsg(`${G.adm.ic} ${G.adm.name}: «${G.adm.taunt}»`, 'info');
+  else if (G.mode === 'ai' && G.p[1].up.size) setMsg(`⚙️ Компьютер прокачан: ${G.p[1].up.size} ${plural(G.p[1].up.size, 'улучшение', 'улучшения', 'улучшений')}`, 'info');
   renderBattle(); show('scr-battle');
 }
 function placeMines(b, n) {
@@ -1294,7 +1350,8 @@ function revealRandom(b, n) {
   for (let k = 0; k < n && pool.length; k++) b.cells[pool.splice(rnd(pool.length), 1)[0]].dent = true;
 }
 function onTurnStart(pl) {
-  const who = pl.ai ? 'Компьютер' : pl.name;
+  const who = pl.ai ? (G.adm ? G.adm.name : 'Компьютер') : pl.name;
+  if (G.rules === 'salvo' && G.mode !== 'daily') G.shotsLeft = pl.board.ships.filter(s => !s.sunk).length;
   if (pl.repairPending) {
     const { r, c } = pl.repairPending, cl = pl.board.cells[idx(r, c)], s = cl.ship >= 0 ? pl.board.ships[cl.ship] : null;
     if (s && !s.sunk && cl.shot) { cl.shot = false; cl.dent = true; s.hits--; pl.usedRepair = true; setMsg(`🔧 ${who}: палуба ${coord(r, c)} отремонтирована`, 'info'); }
@@ -1313,13 +1370,15 @@ function renderBattle() {
   $('#own-wrap').classList.toggle('active', !myTurn && G.phase === 'battle');
   B.tv.el.classList.toggle('disabled', !myTurn);
   const upTag = p => p.up.size ? ` · 🛠${p.up.size}` : '';
-  $('#target-title').textContent = (G.mode === 'ai' ? 'Флот компьютера' : `Флот: ${them.name}`) + upTag(them);
+  $('#target-title').textContent = (G.mode === 'daily' ? 'Вызов дня: флот противника' : G.mode === 'ai' ? (G.adm ? `Флот: ${G.adm.name}` : 'Флот компьютера') : `Флот: ${them.name}`) + upTag(them);
   $('#own-title').textContent = `Флот: ${me.name}`;
   $('#uplist').innerHTML = [...me.up].map(id => { const u = UPG.find(x => x.id === id); return u ? `<span title="${u.name}">${u.ic}</span>` : ''; }).join('');
   const st = $('#status');
   if (G.phase === 'over') { st.textContent = 'Бой окончен'; st.className = 'status'; }
-  else if (G.mode === 'ai') { st.textContent = myTurn ? `Ваш ход, ${me.name}` : 'Ход компьютера…'; st.className = 'status ' + (myTurn ? 'mine' : 'theirs'); }
+  else if (G.mode === 'ai') { st.textContent = myTurn ? `Ваш ход, ${me.name}` : (G.adm ? `Ход: ${G.adm.name}…` : 'Ход компьютера…'); st.className = 'status ' + (myTurn ? 'mine' : 'theirs'); }
   else { st.textContent = `Ход: ${cur().name}`; st.className = 'status mine'; }
+  if (G.mode === 'daily' && G.phase !== 'over') { st.textContent = `Вызов дня · выстрелов: ${me.shots}`; st.className = 'status mine'; }
+  else if (G.rules === 'salvo' && G.phase === 'battle' && G.shotsLeft != null) st.textContent += ` · залп: ${G.shotsLeft}`;
   const fl = $('#fleet-left'); fl.innerHTML = '';
   them.board.ships.slice().sort((a, b) => b.len - a.len).forEach(s => {
     const i = document.createElement('i'); if (s.sunk) i.className = 'sunk'; i.innerHTML = '<u></u>'.repeat(s.len); fl.appendChild(i);
@@ -1328,7 +1387,7 @@ function renderBattle() {
   $('#energy-num').textContent = e;
   $('#pips').innerHTML = Array.from({ length: mx }, (_, i) => `<span class="${i < e ? 'on' : ''}"></span>`).join('');
   const wb = $('#wbtns'); wb.innerHTML = '';
-  const list = WEAPONS.filter(w => !w.need || has(me, w.need));
+  const list = G.mode === 'daily' ? [] : WEAPONS.filter(w => !w.need || has(me, w.need));
   wb.style.gridTemplateColumns = `repeat(${list.length},1fr)`;
   list.forEach(w => {
     const cost = wCost(me, w.id);
@@ -1431,8 +1490,10 @@ async function doMove(kind, r, c) {
   if (!anyHit) me.combo = 0;
   if (missed && has(me, 'reactor')) addE(me, 1);
   let keep = anyHit, extra = '';
-  if (!keep && has(me, 'second') && !me.usedSecond) { me.usedSecond = true; keep = true; extra = ' 🍀 Второй шанс!'; }
-  const who = G.mode === 'ai' ? (me.ai ? 'Компьютер' : me.name) : me.name;
+  if (G.mode === 'daily') keep = true;
+  else if (G.rules === 'salvo') { G.shotsLeft = Math.max(0, (G.shotsLeft || 1) - 1); keep = G.shotsLeft > 0; }
+  else if (!keep && has(me, 'second') && !me.usedSecond) { me.usedSecond = true; keep = true; extra = ' 🍀 Второй шанс!'; }
+  const who = G.mode === 'ai' ? (me.ai ? (G.adm ? G.adm.name : 'Компьютер') : me.name) : me.name;
   const at = kind === 'shot' ? ' ' + coord(r, c) : '';
   if (sunkShips.length) setMsg(`${who}: ${sunkShips.length > 1 ? 'потоплено кораблей: ' + sunkShips.length : SHIP_NAMES[sunkShips[0].len] + ' потоплен!'}${extra}`, 'sunk');
   else if (anyHit) setMsg(`${who}: попадание!${at}${extra}`, 'hit');
@@ -1440,7 +1501,7 @@ async function doMove(kind, r, c) {
   else if (blocked) setMsg(`${who}: броня отразила снаряд!${extra}`, 'info');
   else setMsg(`${who}: мимо${at}${extra}`, 'miss');
   renderBattle();
-  if (allSunk(target)) { await sleep(700); if (gen === G.gen) endGame(G.turn); return { over: true }; }
+  if (allSunk(target)) { await sleep(700); if (gen === G.gen) { if (G.mode === 'daily') endDaily(); else endGame(G.turn); } return { over: true }; }
   if (keep && !me.ai) G.busy = false;
   renderBattle();
   return { keep };
@@ -1462,7 +1523,7 @@ async function passTurn() {
 async function aiTurn() {
   const gen = G.gen; renderBattle();
   for (;;) {
-    await sleep(G.diff === 'easy' ? 700 : 600);
+    await sleep(G.rules === 'salvo' ? 380 : G.diff === 'easy' ? 700 : 600);
     if (gen !== G.gen || G.phase !== 'battle') return;
     const mv = aiChoose();
     const res = await doMove(mv.kind, mv.r, mv.c);
@@ -1510,6 +1571,8 @@ function bestOf(D, cells) {
 }
 function aiChoose() {
   const me = cur(), b = foe().board, { hits, unshot } = aiInfo(b);
+  const am = admAim(me, b, hits, unshot); if (am) return am;
+  const perfect = G.adm && G.adm.shoot === 'perfect';
   if (G.diff === 'easy') {
     if (hits.length && Math.random() < .6) {
       const adj = [];
@@ -1534,8 +1597,8 @@ function aiChoose() {
     }
     if (best) return { kind: 'salvo', r: best[0], c: best[1] };
   }
-  if (!hits.length && Math.random() < .3) { const par = unshot.filter(([r, c]) => (r + c) % 2 === 0); const [r, c] = pick(par.length ? par : unshot); return { kind: 'shot', r, c }; }
-  if (hits.length && Math.random() < .15) { const [r, c] = pick(unshot); return { kind: 'shot', r, c }; }
+  if (!perfect && !hits.length && Math.random() < .3) { const par = unshot.filter(([r, c]) => (r + c) % 2 === 0); const [r, c] = pick(par.length ? par : unshot); return { kind: 'shot', r, c }; }
+  if (hits.length && Math.random() < (perfect ? .1 : .15)) { const [r, c] = pick(unshot); return { kind: 'shot', r, c }; }
   const [r, c] = bestOf(D, unshot); return { kind: 'shot', r, c };
 }
 
@@ -1563,15 +1626,25 @@ function endGame(winner) {
   const secs = Math.round((Date.now() - G.start) / 1000);
   renderBattle();
   const unlocked = [];
+  let admLine = '';
+  if (G.mode === 'ai' && G.adm && winner === 0) {
+    const pr = profileById(G.p[0].pid), i = ADM.indexOf(G.adm), first = (pr.adm || 0) <= i;
+    const g = first ? G.adm.reward : Math.round(G.adm.reward / 4);
+    if (first) pr.adm = i + 1;
+    hdata(pr).gold += g;
+    admLine = ` · +${g} 💰 в казну похода${first && i + 1 < ADM.length ? ` · открыт: ${ADM[i + 1].ic} ${ADM[i + 1].name}` : ''}`;
+  }
   G.p.forEach((pl, i) => { if (!pl.ai) unlocked.push(...recordFor(pl, i === winner, secs, pl.board.ships.filter(s => s.sunk).length)); });
+  { const p0 = G.p[0]; dailyEvent('classic', { mode: G.mode, won: winner === 0, diff: G.diff, rules: G.rules, acc: p0.shots ? p0.hits / p0.shots : 0, sunk: p0.sunk, weapons: (p0.radar || 0) + (p0.salvo || 0) + (p0.torpedo || 0) + (p0.air || 0), adm: !!G.adm }); }
   saveProfiles();
   let title, text, ico;
   if (G.mode === 'ai') {
     const won = winner === 0, st = profileById(G.p[0].pid).st;
-    ico = won ? '🏆' : '🌊'; title = won ? 'Победа!' : 'Поражение';
+    ico = won ? '🏆' : '🌊'; title = won ? (G.adm ? `${G.adm.name} ${G.adm.f ? 'повержена' : 'повержен'}!` : 'Победа!') : (G.adm ? `${G.adm.name} ${G.adm.f ? 'победила' : 'победил'}` : 'Поражение');
     text = won ? (st.streak > 1 ? `Серия побед: ${st.streak}` : 'Флот противника на дне') : 'Ваш флот потоплен. Реванш?';
     Snd.play(won ? 'win' : 'lose');
   } else { ico = '🏆'; title = `${G.p[winner].name} побеждает!`; text = 'Отличная битва'; Snd.play('win'); }
+  text += admLine;
   if (!G.p[winner].ai) text += ` · +1 очко прокачки${G.mode === 'duo' ? ' для ' + G.p[winner].name : ''} 🛠`;
   $('#over-ico').textContent = ico; $('#over-title').textContent = title; $('#over-text').textContent = text;
   const acc = p => p.shots ? Math.round(p.hits / p.shots * 100) + '%' : '—';
@@ -1586,7 +1659,7 @@ function endGame(winner) {
 function fmtTime(s) { return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
 function initOver() {
   $('#over-again').onclick = () => { overlay('#ov-over', false); startGame(G.mode, G.lastP2); };
-  $('#over-menu').onclick = () => { overlay('#ov-over', false); show('scr-menu'); };
+  $('#over-menu').onclick = () => { overlay('#ov-over', false); if (G.adm) { renderAdm(); show('scr-adm'); } else show('scr-menu'); };
   $('#over-boards').onclick = () => { overlay('#ov-over', false); setMsg('Нажмите ✕, чтобы выйти в меню', 'info'); };
   $('#battle-exit').onclick = () => { if (G.phase === 'over') { G.gen++; show('scr-menu'); return; } overlay('#ov-confirm', true); };
   $('#conf-no').onclick = () => overlay('#ov-confirm', false);
@@ -2761,8 +2834,160 @@ function initHunt() {
   };
 }
 
+/* ==================== АДМИРАЛЫ, ВЫЗОВ ДНЯ, ЗАДАНИЯ ==================== */
+const ADM = [
+  { id: 'pit',     ic: '🐣', name: 'Юнга Пит',             title: 'Стреляет наугад, корабли ставит как попало.', diff: 'easy',   ups: 0,  place: 'random', shoot: '',        reward: 60,  taunt: 'Я только вчера научился держать бинокль!' },
+  { id: 'crab',    ic: '🦀', name: 'Боцман Краб',          title: 'Жмёт корабли к краям поля и первым делом обстреливает края.', diff: 'normal', ups: 1, place: 'edges', shoot: 'edges', reward: 100, taunt: 'Бочком-бочком… и в угол!' },
+  { id: 'chess',   ic: '♟️', name: 'Капитан Шахматов',     title: 'Бьёт строго в шахматном порядке, корабли расставляет подальше друг от друга.', diff: 'normal', ups: 3, place: 'spread', shoot: 'chess', reward: 140, taunt: 'Е2–Е4. Ваш ход, капитан.' },
+  { id: 'fog',     ic: '🌫️', f: true, name: 'Леди Туман',           title: 'Прячет весь флот в одном углу и не скупится на радар.', diff: 'normal', ups: 5, place: 'corner', shoot: 'radar', reward: 180, taunt: 'Вы меня не найдёте. А я вас — уже.' },
+  { id: 'bluff',   ic: '🎭', name: 'Адмирал Блеф',         title: 'Ставит флот в центр, окружает минами и бьёт залпами.', diff: 'hard', ups: 6, extra: ['mines'], place: 'center', shoot: '', reward: 230, taunt: 'Все мои корабли у краёв. Честно-честно.' },
+  { id: 'neptune', ic: '🔱', name: 'Гранд-адмирал Нептун', title: 'Идеальный расчёт вероятностей и почти полное древо улучшений.', diff: 'hard', ups: 9, place: 'spread', shoot: 'perfect', reward: 350, taunt: 'Море принадлежит мне.' },
+];
+const DIFF_NAME = { easy: 'лёгкий', normal: 'средний', hard: 'сложный' };
+function placeStyled(b, style) {
+  if (!style || style === 'random') return autoPlace(b);
+  const corner = [pick([0, N - 1]), pick([0, N - 1])];
+  const score = () => {
+    const cells = b.ships.flatMap(s => s.cells);
+    if (style === 'edges') return cells.filter(([r, c]) => r === 0 || c === 0 || r === N - 1 || c === N - 1).length;
+    if (style === 'center') return -cells.reduce((a, [r, c]) => a + Math.abs(r - 4.5) + Math.abs(c - 4.5), 0);
+    if (style === 'corner') return -cells.reduce((a, [r, c]) => a + Math.abs(r - corner[0]) + Math.abs(c - corner[1]), 0);
+    let s = 0;
+    b.ships.forEach((x, i) => { let m = 99; b.ships.forEach((y, j) => { if (i !== j) x.cells.forEach(([r1, c1]) => y.cells.forEach(([r2, c2]) => { m = Math.min(m, Math.max(Math.abs(r1 - r2), Math.abs(c1 - c2))); })); }); s += m; });
+    return s;
+  };
+  let best = null, bs = -1e9;
+  for (let i = 0; i < 60; i++) { autoPlace(b); const sc = score() + Math.random() * .5; if (sc > bs) { bs = sc; best = b.ships.map(s => [s.len, s.r, s.c, s.v]); } }
+  b.cells.forEach(c => c.ship = -1); b.ships = [];
+  best.forEach(([len, r, c, v]) => placeShip(b, len, r, c, v));
+}
+function admAim(me, b, hits, unshot) {
+  const st = G.adm && G.adm.shoot; if (!st || hits.length) return null;
+  if (st === 'edges' && Math.random() < .6) { const e = unshot.filter(([r, c]) => r === 0 || c === 0 || r === N - 1 || c === N - 1); if (e.length) { const [r, c] = pick(e); return { kind: 'shot', r, c }; } }
+  if (st === 'chess') { const D = density(b), par = unshot.filter(([r, c]) => (r + c) % 2 === 0); const [r, c] = bestOf(D, par.length ? par : unshot); return { kind: 'shot', r, c }; }
+  if (st === 'radar') {
+    const D = density(b);
+    for (let i = b.scans.length - 1; i >= 0; i--) {
+      const s = b.scans[i], area = sq(s.r, s.c, s.k), live = area.filter(([y, x]) => { const cl = b.cells[idx(y, x)]; return !cl.shot && cl.ship >= 0; }).length;
+      const free = area.filter(([y, x]) => !b.cells[idx(y, x)].shot);
+      if (live > 0 && free.length) { const [r, c] = bestOf(D, free); return { kind: 'shot', r, c }; }
+    }
+    if (me.energy >= wCost(me, 'radar') && Math.random() < .5) {
+      let best = null, bs = -1;
+      for (let r = 1; r < N - 1; r++) for (let c = 1; c < N - 1; c++) { const s = sq(r, c, 1).reduce((a, [y, x]) => a + D[idx(y, x)], 0); if (s > bs) { bs = s; best = [r, c]; } }
+      if (best) return { kind: 'radar', r: best[0], c: best[1] };
+    }
+  }
+  return null;
+}
+function renderAdm() {
+  const p = curProfile(), beat = p.adm || 0;
+  $('#adm-list').innerHTML = ADM.map((a, i) => {
+    const done = i < beat, open = i <= beat;
+    return `<div class="adm glass ${done ? 'beaten' : open ? 'next' : 'locked'}"><div class="aic">${open ? a.ic : '🔒'}</div>
+      <div class="nb"><b>${i + 1}. ${a.name}</b><small>${a.title}</small><div class="chips"><span>${DIFF_NAME[a.diff]}</span><span>🛠 ${a.ups + (a.extra ? a.extra.length : 0)} ${plural(a.ups + (a.extra ? a.extra.length : 0), 'улучшение', 'улучшения', 'улучшений')}</span><span>${done ? (a.f ? '✓ побеждена' : '✓ побеждён') : `награда ${a.reward} 💰`}</span></div></div>
+      <button class="btn small ${open ? 'primary' : ''}" data-adm="${i}" ${open ? '' : 'disabled'}>${done ? 'Реванш' : 'Сразиться'}</button></div>`;
+  }).join('');
+  document.querySelectorAll('#adm-list [data-adm]').forEach(b => b.onclick = () => { Snd.play('click'); G.adm = ADM[+b.dataset.adm]; startGame('ai'); });
+  $('#adm-sub').textContent = beat >= ADM.length ? 'Все адмиралы повержены! Реванш — в любое время.' : `Побеждено: ${beat} из ${ADM.length}. Победа открывает следующего адмирала и приносит золото для Морского похода.`;
+}
+/* ---- сид и даты ---- */
+function seededRun(seed, fn) {
+  const orig = Math.random; let a = seed >>> 0;
+  Math.random = () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  try { return fn(); } finally { Math.random = orig; }
+}
+const dayKey = (d = new Date()) => d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+const yesterdayKey = () => { const d = new Date(); d.setDate(d.getDate() - 1); return dayKey(d); };
+/* ---- задания дня ---- */
+const TASKS = [
+  { id: 'win_ai',  ic: '⚔️', t: 'Победите компьютер', n: 1, gold: 60, ev: e => e.type === 'classic' && e.mode === 'ai' && e.won ? 1 : 0 },
+  { id: 'win_mid', ic: '🎩', t: 'Победите на среднем или сложном уровне', n: 1, gold: 90, ev: e => e.type === 'classic' && e.mode === 'ai' && e.won && e.diff !== 'easy' ? 1 : 0 },
+  { id: 'sink',    ic: '🚢', t: 'Потопите 15 кораблей в классических боях', n: 15, gold: 70, ev: e => e.type === 'classic' ? e.sunk : 0 },
+  { id: 'acc',     ic: '🎯', t: 'Выиграйте с точностью от 50%', n: 1, gold: 90, ev: e => e.type === 'classic' && e.won && e.acc >= .5 ? 1 : 0 },
+  { id: 'salvo',   ic: '🔥', t: 'Победите по правилам «Залпы»', n: 1, gold: 80, ev: e => e.type === 'classic' && e.won && e.rules === 'salvo' ? 1 : 0 },
+  { id: 'weap',    ic: '💥', t: 'Примените спецоружие 4 раза', n: 4, gold: 60, ev: e => e.type === 'classic' ? e.weapons : 0 },
+  { id: 'daily',   ic: '🗓', t: 'Пройдите вызов дня', n: 1, gold: 60, ev: e => e.type === 'daily' ? 1 : 0 },
+  { id: 'daily55', ic: '💎', t: 'Пройдите вызов дня не больше чем за 55 выстрелов', n: 1, gold: 120, ev: e => e.type === 'daily' && e.shots <= 55 ? 1 : 0 },
+  { id: 'adm',     ic: '🎖', t: 'Сразитесь с адмиралом', n: 1, gold: 70, ev: e => e.type === 'classic' && e.adm ? 1 : 0 },
+  { id: 'hunt',    ic: '🧭', t: 'Пройдите миссию в Морском походе', n: 1, gold: 80, ev: e => e.type === 'hunt' && e.won ? 1 : 0 },
+  { id: 'hsink',   ic: '⚓', t: 'Потопите 5 кораблей в походе', n: 5, gold: 80, ev: e => e.type === 'hunt' ? e.sunk : 0 },
+  { id: 'board',   ic: '🏴', t: 'Захватите корабль абордажем', n: 1, gold: 110, ev: e => e.type === 'hunt' ? e.caps : 0 },
+  { id: 'duo',     ic: '👥', t: 'Сыграйте партию вдвоём', n: 1, gold: 50, ev: e => e.type === 'classic' && e.mode === 'duo' ? 1 : 0 },
+];
+function ensureTasks(p) {
+  const d = dayKey();
+  if (!p.tasks || p.tasks.day !== d) {
+    const ids = seededRun(d * 31 + 7, () => { const a = TASKS.map(t => t.id); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, 3); });
+    p.tasks = { day: d, list: ids.map(id => ({ id, prog: 0, done: false })), bonus: false };
+  }
+  return p.tasks;
+}
+function dailyEvent(type, data = {}) {
+  const p = curProfile(); if (!p) return;
+  const tk = ensureTasks(p), e = { type, ...data };
+  let changed = false;
+  tk.list.forEach((x, i) => {
+    if (x.done) return; const t = TASKS.find(z => z.id === x.id); if (!t) return;
+    const add = t.ev(e) || 0; if (!add) return;
+    x.prog = Math.min(t.n, x.prog + add); changed = true;
+    if (x.prog >= t.n) { x.done = true; hdata(p).gold += t.gold; setTimeout(() => { toast(`✅ ${t.t}: +${t.gold} 💰`); Snd.play('ach'); }, 1400 + i * 1100); }
+  });
+  if (tk.list.every(x => x.done) && !tk.bonus) { tk.bonus = true; p.st.bonus = (p.st.bonus || 0) + 1; setTimeout(() => { toast('🎁 Все задания дня выполнены: +1 очко на Верфь'); Snd.play('win'); }, 4800); }
+  if (changed) saveProfiles();
+}
+function renderDaily() {
+  const p = curProfile(), card = $('#daily-card'); if (!card) return;
+  card.style.display = p ? '' : 'none'; if (!p) return;
+  const tk = ensureTasks(p), d = dayKey(), dl = p.daily && p.daily.day === d ? p.daily : null, sk = p.dstreak && (p.dstreak.last === d || p.dstreak.last === yesterdayKey()) ? p.dstreak.n : 0;
+  $('#daily-sub').textContent = dl ? `Лучший результат сегодня: ${dl.best} ${plural(dl.best, 'выстрел', 'выстрела', 'выстрелов')}${sk > 1 ? ` · серия ${sk} дн.` : ''}` : `Один и тот же флот для всех. Потопите его за минимум выстрелов${sk > 1 ? ` · серия ${sk} дн.` : ''}`;
+  $('#tasks').innerHTML = tk.list.map(x => { const t = TASKS.find(z => z.id === x.id); if (!t) return ''; return `<div class="task ${x.done ? 'done' : ''}"><span class="ic">${x.done ? '✅' : t.ic}</span><span class="tt">${t.t}${t.n > 1 ? ` (${x.prog}/${t.n})` : ''}<span class="bar"><i style="width:${x.prog / t.n * 100}%"></i></span></span><b>${x.done ? '✓' : '+' + t.gold + ' 💰'}</b></div>`; }).join('');
+  $('#tasks-foot').textContent = tk.bonus ? '🎁 Бонус получен. Новые задания — завтра!' : 'Выполните все три — получите +1 очко на Верфь. Золото идёт в казну Морского похода.';
+}
+/* ---- вызов дня ---- */
+function endDaily() {
+  G.phase = 'over'; G.busy = true; renderBattle();
+  const p = curProfile(), me = G.p[0], d = dayKey(), shots = me.shots;
+  if (!p.daily || p.daily.day !== d) p.daily = { day: d, best: null, plays: 0 };
+  const first = p.daily.best == null, rec = first || shots < p.daily.best;
+  p.daily.plays++; if (rec) p.daily.best = shots;
+  let bonus = '';
+  if (first) {
+    const s = p.dstreak || { last: 0, n: 0 };
+    s.n = s.last === yesterdayKey() ? s.n + 1 : 1; s.last = d; p.dstreak = s;
+    hdata(p).gold += 50; bonus = ' · +50 💰 в казну похода';
+  }
+  checkAch(p, ['daily1']);
+  dailyEvent('daily', { shots });
+  saveProfiles();
+  const grade = shots <= 45 ? '🥇 Адмиральская точность!' : shots <= 60 ? '🥈 Отличная стрельба' : shots <= 75 ? '🥉 Неплохо' : 'Можно лучше — попробуйте ещё раз';
+  $('#over-ico').textContent = '🗓'; $('#over-title').textContent = 'Вызов дня пройден!';
+  $('#over-text').textContent = `${grade}${bonus}`;
+  const acc = me.shots ? Math.round(me.hits / me.shots * 100) + '%' : '—';
+  $('#over-grid').innerHTML = `<span class="h"></span><span class="h">Выстрелы</span><span class="h">Точность</span><span>Этот бой</span><b>${shots}</b><b>${acc}</b>` +
+    `<span style="grid-column:1/-1;color:var(--muted);font-size:13px">${rec && !first ? '🎉 Новый рекорд дня! ' : ''}Рекорд дня: ${p.daily.best} · серия: ${p.dstreak ? p.dstreak.n : 1} дн.</span>`;
+  $('#over-ach-h').style.display = 'none'; $('#over-ach').innerHTML = '';
+  Snd.play('win');
+  setTimeout(() => overlay('#ov-over', true), 400);
+}
+function initExtra() {
+  document.querySelectorAll('#rules-seg button').forEach(b => {
+    b.classList.toggle('on', b.dataset.r === G.rules);
+    b.onclick = () => { G.rules = b.dataset.r; store.set('bs-rules', G.rules); Snd.play('click'); document.querySelectorAll('#rules-seg button').forEach(x => x.classList.toggle('on', x === b)); syncRulesHint(); };
+  });
+  syncRulesHint();
+  $('#btn-adm').onclick = async () => { Snd.ensure(); await ensureCaptain(); renderAdm(); show('scr-adm'); };
+  $('#btn-daily').onclick = async () => { Snd.ensure(); await ensureCaptain(); startGame('daily'); };
+  renderDaily();
+}
+function syncRulesHint() {
+  $('#rules-hint').textContent = G.rules === 'salvo'
+    ? 'Залпы: за ход столько выстрелов, сколько у вас целых кораблей. Потерял корабль — потерял огневую мощь. Правила действуют и в игре вдвоём.'
+    : 'Классика: попал — стреляешь ещё раз.';
+}
+
 /* ==================== BOOT ==================== */
-Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); refreshCaptain();
+Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initExtra(); refreshCaptain();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
