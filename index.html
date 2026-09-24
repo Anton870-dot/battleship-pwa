@@ -338,11 +338,15 @@ body.menu-on .logo svg{display:none}
 body.menu-on .logo{margin:2vh 0 34vh}
 body.menu-on #scr-menu{justify-content:flex-start}
 @media (min-aspect-ratio:1/1){#splash{background-position:center 58%}body.menu-on .logo{margin:4vh 0 30vh}}
+#bgmBtn{position:fixed;top:12px;right:12px;z-index:50;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(3,22,50,.55);color:#fff;font-size:20px;cursor:pointer}
+body:not(.menu-on) #bgmBtn{display:none}
 </style>
 </head>
 <body class="menu-on">
 <canvas id="sea"></canvas>
 <div id="splash" aria-hidden="true"></div>
+<audio id="bgm" src="music.mp3" loop preload="none"></audio>
+<button id="bgmBtn" aria-label="Музыка">🔊</button>
 
 <!-- shared SVG gradients for ships -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2084,6 +2088,19 @@ Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHun
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
+</script>
+<script>
+(function(){
+  var a=document.getElementById('bgm'), b=document.getElementById('bgmBtn');
+  a.volume=0.5;
+  var on=localStorage.getItem('bgm')!=='off';
+  function menu(){return document.body.classList.contains('menu-on');}
+  function sync(){ b.textContent=on?'🔊':'🔇'; if(on&&menu()) a.play().catch(function(){}); else a.pause(); }
+  b.onclick=function(e){ e.stopPropagation(); on=!on; localStorage.setItem('bgm',on?'on':'off'); sync(); };
+  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+  document.addEventListener('pointerdown',function(){ if(on&&menu()&&a.paused) a.play().catch(function(){}); });
+  sync();
+})();
 </script>
 </body>
 </html>
