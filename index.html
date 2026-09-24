@@ -184,7 +184,7 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .hud{display:flex;gap:10px;align-items:center;width:min(470px,94vw);padding:8px 12px;font-weight:800;font-size:14px}
 .hpbig{flex:1;height:12px;border-radius:6px;background:rgba(0,30,70,.45);overflow:hidden}
 .hpbig i{display:block;height:100%;background:linear-gradient(90deg,#3ddc84,#b6ff9e);transition:width .3s}
-.hacts{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;width:min(470px,94vw)}
+.hacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(66px,1fr));gap:6px;width:min(470px,94vw)}
 .hact{padding:8px 2px;border-radius:14px;display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:800;gap:1px;position:relative}
 .hact span{font-size:20px}
 .hact.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#3b2300;text-shadow:none}
@@ -201,6 +201,47 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .hunit.ally::before{border:2px dashed rgba(130,225,255,.85)}
 .hunit.cur::before{border:3px solid var(--gold);box-shadow:0 0 12px var(--gold)}
 .hunit.done .spr{opacity:.6}
+.hubtabs{grid-template-columns:repeat(4,1fr);width:min(560px,100%)}
+.hubtabs button{font-size:12.5px;padding:9px 1px;white-space:nowrap;letter-spacing:-.2px}
+.hub-body{display:flex;flex-direction:column;gap:10px;width:min(560px,100%);align-items:center}
+.muted{color:var(--muted);font-size:12px;line-height:1.35;display:block}
+.fleetline{font-size:14px;line-height:1.45}.fleetline small{display:block;color:var(--muted);font-size:12px}
+.warnline{color:#ffb4a8;font-weight:700;font-size:13px}
+.route{display:flex;align-items:center;margin:6px 0 2px}
+.route .rn{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;background:rgba(0,30,70,.45);border:2px solid rgba(255,255,255,.25)}
+.route .rn.done{background:rgba(93,255,154,.22);border-color:#5dff9a}
+.route .rn.now{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#3b2300;border-color:#fff;animation:pulse 1.6s infinite}
+.route .rn.boss{border-color:#ff6b57}
+.route .rl{flex:1;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.5) 0 5px,transparent 5px 9px)}
+.rnode{width:min(560px,100%);display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px}
+.rnode .ni{font-size:34px;flex:none;width:44px;text-align:center}
+.rnode .nb{flex:1;min-width:0}.rnode .nb b{font-size:16px}.rnode .nb small{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
+.rnode .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.rnode .chips span{font-size:11px;font-weight:800;background:rgba(0,30,70,.4);border-radius:8px;padding:2px 7px}
+.rnode.bossnode{box-shadow:inset 0 0 0 2px rgba(255,107,87,.85)}
+.rnode .btn{flex:none;min-width:84px}
+.rankline{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800}.rankline .bar{flex:1}.rankline small{color:var(--muted);font-weight:600}
+.col2{display:flex;flex-direction:column;gap:4px;flex:none}
+.lockedrow{opacity:.55}
+.vet{font-size:11px;background:rgba(255,207,74,.2);border-radius:6px;padding:1px 5px;color:var(--gold)}
+.evbtns{display:flex;flex-direction:column;gap:8px}
+.evbtns .btn{white-space:normal;line-height:1.25}
+.hlines{display:block;text-align:left;font-size:13px;line-height:1.45;margin-top:6px}
+.hobj{width:min(470px,94vw);font-size:13px;font-weight:700;text-align:center;padding:5px 10px;border-radius:12px;background:rgba(0,30,70,.35)}
+.hc.shoal{background-color:rgba(226,204,146,.3);background-image:radial-gradient(circle at 30% 40%,rgba(255,240,200,.4) 0 12%,transparent 13%),radial-gradient(circle at 70% 70%,rgba(255,240,200,.35) 0 10%,transparent 11%)}
+.hc.exit{box-shadow:inset 0 0 0 2px rgba(93,255,154,.65)}.hc.exit.intercept{box-shadow:inset 0 0 0 2px rgba(255,107,87,.65)}
+.hc .ico{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:calc(var(--hc) * .55);z-index:2;pointer-events:none;line-height:1}
+.hc .ico.boat{animation:bob 1.6s ease-in-out infinite}
+.hunit.npc .spr{filter:sepia(.6) saturate(1.8) hue-rotate(10deg) drop-shadow(0 3px 3px rgba(0,30,60,.5))}
+.hunit.foe.npc .spr{filter:sepia(.9) saturate(2) hue-rotate(-25deg) brightness(.8) drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.hunit.fortu .spr{filter:drop-shadow(0 3px 3px rgba(0,0,0,.55))}
+.hunit.boss .spr{filter:sepia(1) hue-rotate(-50deg) saturate(4) brightness(.55) drop-shadow(0 0 6px #ff3b2f)}
+.hunit.smoked .spr{opacity:.45;filter:blur(1px) grayscale(.6)}
+.bosstag{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:13px}
+.wx{position:absolute;inset:0;pointer-events:none;z-index:5}
+.wx.night{background:radial-gradient(ellipse at 20% 85%,rgba(0,0,25,.08),rgba(0,5,30,.42))}
+.wx.fog{background:linear-gradient(180deg,rgba(225,238,248,.2),rgba(225,238,248,.08))}
+.wx.storm{background-image:repeating-linear-gradient(105deg,rgba(255,255,255,.13) 0 1px,transparent 1px 9px);background-size:120px 120px;animation:rain .45s linear infinite}
+@keyframes rain{to{background-position:-30px 120px}}
 .hlegend{font-size:12px;color:var(--muted);text-align:center;max-width:470px;line-height:1.4}
 
 /* shipyard */
@@ -488,11 +529,8 @@ body:not(.menu-on) #bgmBtn{display:none}
 <section id="scr-hub" class="screen">
   <div class="topbar"><button class="iconbtn glass" id="hub-back" aria-label="Назад">←</button><h2>Морской поход</h2><span style="width:44px"></span></div>
   <div class="glass hub-head"><div class="g"><span id="hub-gold">0</span> 💰</div><div><b>Гавань</b><small id="hub-stats"></small></div></div>
-  <div class="ships-row" id="hub-ships"></div>
-  <div class="glass hub-panel" id="hub-ship"></div>
-  <div class="glass hub-panel" id="hub-crew"></div>
-  <div class="glass hub-panel" id="hub-hire"></div>
-  <button class="btn primary big" id="hub-go" style="max-width:560px"></button>
+  <div class="seg hubtabs" id="hub-tabs"><button data-t="map">🗺 Карта</button><button data-t="ships">🚢 Корабли</button><button data-t="squad">⚓ Эскадра</button><button data-t="crew">👥 Люди</button></div>
+  <div class="hub-body" id="hub-body"></div>
 </section>
 
 <!-- ================= HUNT BATTLE ================= -->
@@ -503,10 +541,11 @@ body:not(.menu-on) #bgmBtn{display:none}
     <button class="iconbtn glass" id="hunt-sound" aria-label="Звук">🔊</button>
   </div>
   <div class="glass hud"><span id="hud-hptxt"></span><div class="hpbig"><i id="hud-hp"></i></div><span id="hud-info"></span></div>
+  <div class="hobj" id="hobj"></div>
   <div class="hfleet" id="hunt-fleet"></div>
   <div id="hunt-map"></div>
   <div class="hacts" id="hunt-actions"></div>
-  <div class="hlegend">Каждый ваш корабль за ход делает <b>одно действие: плывёт или стреляет</b>. Нажмите на свой корабль (или на его имя сверху), чтобы командовать им. Тёмное — туман. ❗ — вспышка вражеского выстрела. Красная штриховка — шум винтов. Стреляя, вы выдаёте себя. Затаившись, вы не шумите.</div>
+  <div class="hlegend">Каждый ваш корабль за ход делает <b>одно действие</b>. Нажмите на свой корабль (или на его имя сверху), чтобы командовать им. Тёмное — туман. ❗ — вспышка вражеского выстрела. Красная штриховка — шум винтов. Песчаные клетки — мели: крейсер и линкор там не пройдут без штурмана. ✴️ — замеченная мина, 🗼 — маяк (+2 к обзору рядом с ним), 🛟 — шлюпка.</div>
 </section>
 
 <!-- ================= HELP ================= -->
@@ -528,11 +567,14 @@ body:not(.menu-on) #bgmBtn{display:none}
     <h3>🛠 Верфь и прокачка</h3>
     <p>Каждая победа (над компьютером или в игре вдвоём) даёт 1 очко прокачки. Одно очко — одно улучшение на Верфи. Древо из четырёх веток: Корпус, Энергия, Разведка и Оружие. Улучшения открываются по порядку сверху вниз, а на самом дне ждёт «Флагман». Сброс древа возвращает все очки. Компьютер на сложном уровне получает столько же улучшений, сколько у вас, на среднем — половину.</p>
     <h3>🧭 Морской поход</h3>
-    <p>Отдельный режим. Вы на одном корабле посреди карты 12×12 с островами. За ход можно <b>либо плыть</b> (на столько клеток, какая скорость), <b>либо стрелять</b> по клетке в пределах дальности. Врагов видно только в радиусе обзора, всё остальное — туман. Выстрел выдаёт стрелявшего (❗ вспышка). Двигаясь, корабль шумит — акустики слышат примерную зону (красная штриховка). «Затаиться» — пропустить ход беззвучно. Подлодка невидима дальше 1 клетки, пока не выстрелит.</p>
-    <p><b>Наёмники.</b> В гавани можно нанять до двух кораблей на один поход. Они плывут вместе с вами, и каждым вы командуете сами: за ход каждый корабль делает одно действие. Выбрать корабль — нажать на него на карте или на его имя над картой. «Все стоп» завершает ход остальным. Если потопят ваш главный корабль — миссия проиграна, даже если наёмники ещё на плаву. Наёмники после похода уходят, даже уцелевшие.</p>
-    <p>За миссии платят золото. В гавани на него покупают корабли (катер, эсминец, подлодка, крейсер, линкор), улучшают их (орудия, дальность, броня, двигатель, корпус), ставят оборудование (залп, торпеды, радар) и нанимают экипаж (канониры, механики, наблюдатели, акустики). Каждая выигранная миссия ещё и даёт очко на Верфь.</p>
+    <p>Отдельный режим: вы ведёте свой флот по архипелагу. Перед каждой миссией на карте выбираете, куда плыть: бой с заданием, торговец, тихая бухта, сигнал SOS или тайник. Каждые 5 миссий — босс, за победу над ним дают редкое оборудование.</p>
+    <p><b>Задания:</b> охота (потопить всех), спасение шлюпок, перехват транспорта, проводка конвоя, штурм форта, оборона до подхода своих. <b>Погода:</b> шторм, туман и ночь меняют обзор и меткость. На карте бывают мели (крупным кораблям туда нельзя без штурмана), маяки и мины.</p>
+    <p><b>Бой:</b> поле 12×12 с островами. Каждый ваш корабль за ход делает одно действие: плывёт, стреляет, идёт на абордаж, ставит мину или затаивается. Врагов видно только в радиусе обзора. Выстрел выдаёт стрелявшего (❗), движение шумит — акустики слышат зону. Подлодка невидима дальше 1 клетки, пока не выстрелит. Потопят флагман — миссия проиграна.</p>
+    <p><b>Флот:</b> купленные корабли можно взять в эскадру (до 3 кораблей сопровождения вместе с наёмниками). Корабли копят опыт и получают звания: Бывалый, Ветеран, Легенда. Потопленный в бою корабль нужно чинить.</p>
+    <p><b>Люди:</b> на каждый корабль набирают морпехов и специалистов (артиллерист, штурман, инженер, врач, сигнальщик, боцман, минёр); специалистов обучают до 3-го уровня. Морпехи идут на абордаж: подойдите вплотную к врагу и нажмите ⚔️ — чем сильнее он повреждён, тем выше шанс. Захваченный корабль становится вашим. Так же можно взять штурмом форт.</p>
+    <p>За миссии платят золото, каждая победа ещё и даёт очко на Верфь.</p>
     <h3>🏆 Капитаны и достижения</h3>
-    <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 22 достижения и таблица всех капитанов на этом устройстве.</p>
+    <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 25 достижений и таблица всех капитанов на этом устройстве.</p>
   </div>
 </section>
 
@@ -578,6 +620,15 @@ body:not(.menu-on) #bgmBtn{display:none}
     <h2 id="hov-title"></h2>
     <p id="hov-text"></p>
     <button class="btn primary big" id="hov-ok">В гавань</button>
+  </div>
+</div>
+
+<div class="overlay" id="ov-ev">
+  <div class="card glass">
+    <div class="big-ico" id="ev-ico"></div>
+    <h2 id="ev-title"></h2>
+    <p id="ev-text"></p>
+    <div class="evbtns" id="ev-btns"></div>
   </div>
 </div>
 
@@ -933,6 +984,9 @@ const ACH = [
   { id: 'hunt1',     ic: '🧭', name: 'Первый поход',     desc: 'Пройдите миссию в Морском походе',        ok: c => !!(c.prof.hunt && c.prof.hunt.w >= 1) },
   { id: 'hunt10',    ic: '🏴‍☠️', name: 'Гроза морей',      desc: 'Дойдите до 10-й миссии похода',           ok: c => !!(c.prof.hunt && c.prof.hunt.mission >= 10) },
   { id: 'fleet5',    ic: '⚓', name: 'Адмиралтейство',   desc: 'Соберите в гавани все 5 кораблей',        ok: c => !!(c.prof.hunt && Object.keys(c.prof.hunt.ships).length >= 5) },
+  { id: 'board1',    ic: '⚔️', name: 'На абордаж!',      desc: 'Захватите вражеский корабль абордажем',   ok: c => !!(c.prof.hunt && c.prof.hunt.caps >= 1) },
+  { id: 'boss1',     ic: '☠️', name: 'Гроза пиратов',    desc: 'Победите босса в Морском походе',         ok: c => !!(c.prof.hunt && c.prof.hunt.bosses >= 1) },
+  { id: 'legend',    ic: '🎖', name: 'Легенда флота',    desc: 'Доведите корабль до звания «Легенда»',    ok: c => !!(c.prof.hunt && Object.values(c.prof.hunt.ships).some(s => (s.xp || 0) >= 15)) },
   { id: 'genius',    ic: '👑', name: 'Флагман флота',    desc: 'Откройте всё древо развития',             ok: c => c.prof.up.length >= UPG.length },
 ];
 function toast(html) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html; document.body.appendChild(t); setTimeout(() => t.remove(), 3100); }
@@ -1647,11 +1701,14 @@ function initYard() {
 
 /* ==================== МОРСКОЙ ПОХОД (hunt mode) ==================== */
 const HS = {
-  boat:       { name: 'Катер',    len: 1, price: 0,    hp: 6,  armor: 0, speed: 3, dmg: 2, range: 3, sight: 2, desc: 'Быстрый и юркий. Слабая броня, зато три клетки за ход.' },
-  destroyer:  { name: 'Эсминец',  len: 2, price: 300,  hp: 10, armor: 1, speed: 2, dmg: 3, range: 4, sight: 2, desc: 'Надёжный универсал: крепче катера и бьёт дальше.' },
-  sub:        { name: 'Подлодка', len: 2, price: 500,  hp: 8,  armor: 0, speed: 2, dmg: 4, range: 4, sight: 2, sub: true, desc: 'Невидима дальше 1 клетки, пока не стреляет. Мощный удар.' },
-  cruiser:    { name: 'Крейсер',  len: 3, price: 800,  hp: 14, armor: 2, speed: 2, dmg: 4, range: 5, sight: 3, desc: 'Тяжёлая броня, хороший обзор, дальние орудия.' },
-  battleship: { name: 'Линкор',   len: 4, price: 1400, hp: 22, armor: 3, speed: 1, dmg: 6, range: 6, sight: 3, desc: 'Плавучая крепость. Медленный, но сокрушительный.' },
+  boat:       { name: 'Катер',    len: 1, price: 0,    hp: 6,  armor: 0, speed: 3, dmg: 2, range: 3, sight: 2, mar: 2,  slots: 1, desc: 'Быстрый и юркий. Слабая броня, зато три клетки за ход.' },
+  destroyer:  { name: 'Эсминец',  len: 2, price: 300,  hp: 10, armor: 1, speed: 2, dmg: 3, range: 4, sight: 2, mar: 4,  slots: 1, desc: 'Надёжный универсал: крепче катера и бьёт дальше.' },
+  sub:        { name: 'Подлодка', len: 2, price: 500,  hp: 8,  armor: 0, speed: 2, dmg: 4, range: 4, sight: 2, mar: 2,  slots: 1, sub: true, desc: 'Невидима дальше 1 клетки, пока не стреляет. Мощный удар.' },
+  cruiser:    { name: 'Крейсер',  len: 3, price: 800,  hp: 14, armor: 2, speed: 2, dmg: 4, range: 5, sight: 3, mar: 6,  slots: 2, desc: 'Тяжёлая броня, хороший обзор, дальние орудия.' },
+  battleship: { name: 'Линкор',   len: 4, price: 1400, hp: 22, armor: 3, speed: 1, dmg: 6, range: 6, sight: 3, mar: 10, slots: 3, desc: 'Плавучая крепость. Медленный, но сокрушительный.' },
+  merchant:   { name: 'Торговец', len: 2, price: 0, hp: 8,  armor: 0, speed: 1, dmg: 0, range: 0, sight: 1, mar: 0, slots: 0, npc: true },
+  transport:  { name: 'Транспорт', len: 3, price: 0, hp: 12, armor: 1, speed: 1, dmg: 0, range: 0, sight: 2, mar: 0, slots: 0, npc: true },
+  fort:       { name: 'Форт',     len: 1, price: 0, hp: 18, armor: 2, speed: 0, dmg: 3, range: 4, sight: 4, mar: 0, slots: 0, npc: true, fort: true },
 };
 const HS_ORDER = ['boat', 'destroyer', 'sub', 'cruiser', 'battleship'];
 const HUP = [
@@ -1662,9 +1719,12 @@ const HUP = [
   { id: 'hull',   ic: '🧱', name: 'Корпус',         max: 4, eff: l => `прочность +${l * 4}` },
 ];
 const HEQ = [
-  { id: 'salvo', ic: '💥', name: 'Залповая батарея', price: 150, desc: 'Крест из 5 клеток, урон −1. Перезарядка 2 хода.' },
-  { id: 'torp',  ic: '🚀', name: 'Торпедный аппарат', price: 220, desc: 'Торпеда по прямой до первой цели, урон ×1,5 сквозь броню. Перезарядка 3 хода.' },
-  { id: 'radar', ic: '📡', name: 'Радар',            price: 180, desc: 'Засекает всех врагов в радиусе 4 клеток. Перезарядка 4 хода.' },
+  { id: 'salvo',   ic: '💥', name: 'Залповая батарея',  price: 150, desc: 'Крест из 5 клеток, урон −1. Перезарядка 2 хода.' },
+  { id: 'torp',    ic: '🚀', name: 'Торпедный аппарат', price: 220, desc: 'Торпеда по прямой до первой цели, урон ×1,5 сквозь броню. Перезарядка 3 хода.' },
+  { id: 'radar',   ic: '📡', name: 'Радар',             price: 180, desc: 'Засекает всех врагов в радиусе 4 клеток. Перезарядка 4 хода.' },
+  { id: 'smoke',   ic: '🌫️', name: 'Дымовая завеса',    price: 300, rare: 0, desc: 'Корабль 2 хода скрыт в дыму — его видно только вплотную. Перезарядка 5 ходов.' },
+  { id: 'plating', ic: '🧲', name: 'Бронеплиты',        price: 320, rare: 1, desc: 'Постоянно +1 к броне.' },
+  { id: 'fire',    ic: '🔥', name: 'Огненный залп',     price: 350, rare: 2, desc: 'Накрывает квадрат 3×3, урон −1. Перезарядка 4 хода.' },
 ];
 const HCREW = [
   { id: 'gunners', ic: '🎖️', name: 'Канониры',   max: 3, eff: l => `разброс снарядов ${[30, 20, 10, 0][l]}%` },
@@ -1674,24 +1734,93 @@ const HCREW = [
 ];
 const CREW_COST = [100, 200, 350];
 const UP_BASE = { boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180 };
-const HIRE = { boat: 50, destroyer: 110, sub: 160, cruiser: 230, battleship: 380 }, HIRE_MAX = 2;
+const HIRE = { boat: 50, destroyer: 110, sub: 160, cruiser: 230, battleship: 380 }, HIRE_MAX = 2, SQUAD_MAX = 3;
 const hireLvl = m => Math.floor((m - 1) / 3);
-const hirePrice = (id, m) => HIRE[id] + 25 * hireLvl(m);
-function hireUp(pts) { const up = {}, ord = ['gun', 'hull', 'armor', 'gun', 'hull', 'range', 'gun', 'hull', 'armor', 'engine']; for (let i = 0; i < pts && i < ord.length; i++) { const u = ord[i], max = HUP.find(x => x.id === u).max; if ((up[u] || 0) < max) up[u] = (up[u] || 0) + 1; } return up; }
+const hirePrice = (h, id) => Math.round((HIRE[id] + 25 * hireLvl(h.mission)) * (1 - .1 * (h.hireVet[id] || 0)));
+function hireUp(pts) { const up = {}, ord = ['gun', 'hull', 'armor', 'gun', 'hull', 'range', 'gun', 'hull', 'armor', 'engine', 'gun', 'hull']; for (let i = 0; i < pts && i < ord.length; i++) { const u = ord[i], max = HUP.find(x => x.id === u).max; if ((up[u] || 0) < max) up[u] = (up[u] || 0) + 1; } return up; }
 const hireEq = id => ({ salvo: HS[id].len >= 3, torp: !!HS[id].sub });
+/* специалисты */
+const SPEC = [
+  { id: 'gunner', ic: '🎯', name: 'Артиллерист', eff: l => ({ dmg: l >= 3 ? 2 : 1, scatter: l >= 2 ? .1 : 0 }), txt: l => ['урон +1', 'урон +1, разброс −10%', 'урон +2, разброс −10%'][l - 1] },
+  { id: 'nav',    ic: '🧭', name: 'Штурман',     eff: l => ({ speed: l >= 3 ? 2 : 1, shoal: l >= 2, storm: l >= 2 }), txt: l => ['скорость +1', 'скорость +1, проходит мели, шторм не мешает', 'скорость +2, проходит мели, шторм не мешает'][l - 1] },
+  { id: 'eng',    ic: '🔩', name: 'Инженер',     eff: l => ({ armor: l >= 3 ? 2 : 1, hp: l >= 2 ? 3 : 0 }), txt: l => ['броня +1', 'броня +1, прочность +3', 'броня +2, прочность +3'][l - 1] },
+  { id: 'doc',    ic: '⚕️', name: 'Врач',        eff: l => ({ regen: [5, 4, 3][l - 1], heal: [.25, .5, .75][l - 1] }), txt: l => { const n = [5, 4, 3][l - 1]; return `+1 ❤ каждые ${n} ${plural(n, 'ход', 'хода', 'ходов')}, спасает ${[25, 50, 75][l - 1]}% раненых морпехов`; } },
+  { id: 'scout',  ic: '🔭', name: 'Сигнальщик',  eff: l => ({ sight: l >= 3 ? 2 : 1, hear: l >= 2 ? 2 : 0 }), txt: l => ['обзор +1', 'обзор +1, слух +2', 'обзор +2, слух +2'][l - 1] },
+  { id: 'bosun',  ic: '⚔️', name: 'Боцман',      eff: l => ({ board: [.25, .5, .8][l - 1] }), txt: l => `сила абордажа +${[25, 50, 80][l - 1]}%` },
+  { id: 'miner',  ic: '💣', name: 'Минёр',       eff: l => ({ mines: l + 1 }), txt: l => `ставит мины: ${l + 1} за бой` },
+];
+const SPEC_HIRE = 120, SPEC_TRAIN = [0, 150, 300];
+const MARINE_COST = 25, DRILL_COST = [150, 300, 500];
+const RANKS = [
+  { n: 'Новобранец', ic: '',       xp: 0 },
+  { n: 'Бывалый',    ic: '🎖',     xp: 3,  hp: 2 },
+  { n: 'Ветеран',    ic: '🎖🎖',   xp: 8,  hp: 2, dmg: 1 },
+  { n: 'Легенда',    ic: '🎖🎖🎖', xp: 15, hp: 4, dmg: 1, armor: 1 },
+];
+const rankOf = xp => { let r = 0; RANKS.forEach((k, i) => { if ((xp || 0) >= k.xp) r = i; }); return r; };
+const repairCost = id => Math.max(40, Math.round(HS[id].price * .3));
+/* задания, погода, события, боссы */
+const OBJ = {
+  hunt:      { ic: '⚔️', name: 'Охота',     k: 1,    desc: 'Найдите и потопите все вражеские корабли.' },
+  rescue:    { ic: '🛟', name: 'Спасение',  k: 1.2,  desc: 'В море три шлюпки с моряками. Подойдите вплотную раньше пиратов — нужно спасти хотя бы две.' },
+  intercept: { ic: '🎯', name: 'Перехват',  k: 1.25, desc: 'Вражеский транспорт идёт к левому краю карты. Потопите или возьмите его на абордаж, пока не ушёл.' },
+  convoy:    { ic: '🚢', name: 'Конвой',    k: 1.35, desc: 'Проведите два торговых судна в правый нижний угол карты. Хотя бы одно должно дойти.' },
+  fort:      { ic: '🏰', name: 'Форт',      k: 1.5,  desc: 'Разрушьте вражеский форт на острове или возьмите его штурмом морпехов.' },
+  survive:   { ic: '⏳', name: 'Оборона',   k: 1.3,  desc: 'Продержитесь до подхода своих. Каждые 3 хода к врагу приходит подкрепление.' },
+  boss:      { ic: '☠️', name: 'Босс',      k: 2.2,  desc: '' },
+};
+const WEATHER = {
+  clear: { ic: '☀️', name: 'Ясно',  desc: 'обычная видимость' },
+  storm: { ic: '⛈️', name: 'Шторм', desc: 'обзор −1, снаряды сильнее разбрасывает' },
+  fog:   { ic: '🌫️', name: 'Туман', desc: 'обзор −1, но звук слышно дальше' },
+  night: { ic: '🌙', name: 'Ночь',  desc: 'видно только соседние клетки, выстрел выдаёт стрелка' },
+};
+const EVENTS = {
+  trade: { ic: '🛒', name: 'Торговец',    desc: 'Купец продаёт товары со скидкой.' },
+  bay:   { ic: '⚓', name: 'Тихая бухта',  desc: 'Бесплатный ремонт всех кораблей и пополнение морпехов.' },
+  sos:   { ic: '🆘', name: 'Сигнал SOS',   desc: 'Кто-то зовёт на помощь. Поможете — или пройдёте мимо?' },
+  cache: { ic: '💎', name: 'Тайник',       desc: 'Остров контрабандистов. Может, клад… а может, засада.' },
+};
+const BOSSES = [
+  { name: 'Чёрный Корсар',  ic: '🏴‍☠️', type: 'battleship', ab: ['smoke', 'repair'], reward: 'smoke',   desc: 'Прячется в дымовой завесе и чинится прямо в бою.' },
+  { name: 'Морской Дьявол', ic: '🦈',  type: 'sub',        ab: ['torp'],            reward: 'plating', desc: 'Подлодка-невидимка. Торпеды перезаряжает вдвое быстрее.' },
+  { name: 'Адмирал Шторм',  ic: '🌪️', type: 'battleship', ab: ['fire'], weather: 'storm', reward: 'fire', desc: 'Приводит с собой шторм и бьёт огненными залпами 3×3.' },
+];
+const bossOf = m => BOSSES[(Math.floor(m / 5) - 1) % BOSSES.length];
+const pickW = list => { let t = list.reduce((a, x) => a + x[1], 0) * Math.random(); for (const [v, w] of list) { t -= w; if (t < 0) return v; } return list[0][0]; };
+
 function hdata(p) {
   if (!p.hunt) p.hunt = { gold: 150, mission: 1, active: 'boat', ships: { boat: { up: {}, eq: {} } }, crew: {}, w: 0, l: 0, sunk: 0 };
-  if (!p.hunt.hired) p.hunt.hired = [];
-  return p.hunt;
+  const h = p.hunt;
+  h.hired ||= []; h.squad ||= []; h.hireVet ||= {}; h.drill ||= 0; h.unlock ||= {}; h.caps ||= 0; h.bosses ||= 0; h.forts ||= 0;
+  for (const id in h.ships) { const s = h.ships[id]; s.up ||= {}; s.eq ||= {}; s.marines ||= 0; s.spec ||= []; s.xp ||= 0; s.broken ||= false; }
+  h.squad = h.squad.filter((id, i, a) => h.ships[id] && id !== h.active && a.indexOf(id) === i);
+  if (!h.route) h.route = genRoute(h);
+  return h;
 }
-function shipStats(id, up = {}, crew = {}) {
+function shipStats(id, up = {}, crew = {}, x = {}) {
   const b = HS[id];
-  return {
+  const s = {
     hp: b.hp + 4 * (up.hull || 0), armor: b.armor + (up.armor || 0), speed: b.speed + (up.engine || 0),
     dmg: b.dmg + (up.gun || 0), range: b.range + (up.range || 0), sight: b.sight + (crew.look || 0),
     hear: 4 + 2 * (crew.acou || 0), scatter: [.3, .2, .1, 0][crew.gunners || 0], mech: [0, 3, 2, 1][crew.mech || 0], sub: !!b.sub,
+    len: b.len, regen: 0, heal: 0, board: 0, mines: 0, shoal: false, storm: false, cap: b.mar, fort: !!b.fort,
   };
+  (x.spec || []).forEach(sp => {
+    const d = SPEC.find(z => z.id === sp.t); if (!d) return; const e = d.eff(sp.lvl);
+    for (const k in e) {
+      if (typeof e[k] === 'boolean') s[k] = s[k] || e[k];
+      else if (k === 'scatter') s.scatter = Math.max(0, s.scatter - e[k]);
+      else if (k === 'regen') s.regen = s.regen ? Math.min(s.regen, e[k]) : e[k];
+      else if (k === 'heal') s.heal = Math.max(s.heal, e[k]);
+      else s[k] = (s[k] || 0) + e[k];
+    }
+  });
+  const rk = RANKS[x.rank || 0]; s.hp += rk.hp || 0; s.dmg += rk.dmg || 0; s.armor += rk.armor || 0;
+  if (x.eq && x.eq.plating) s.armor += 1;
+  return s;
 }
+const ownStats = (h, id) => { const s = h.ships[id]; return shipStats(id, s ? s.up : {}, h.crew, s ? { spec: s.spec, rank: rankOf(s.xp), eq: s.eq } : {}); };
 function subSVG() {
   return `<svg viewBox="0 0 200 100" width="100%" height="100%" preserveAspectRatio="none" style="overflow:visible">
     <ellipse cx="100" cy="50" rx="94" ry="28" fill="url(#gHull)" stroke="#111a22" stroke-width="3"/>
@@ -1699,8 +1828,14 @@ function subSVG() {
     <rect x="78" y="34" width="38" height="32" rx="14" fill="#5d6c78" stroke="#1a232b" stroke-width="2"/>
     <line x1="97" y1="50" x2="150" y2="50" stroke="#aebcc7" stroke-width="3"/><circle cx="186" cy="50" r="4" fill="#9fb0bd"/></svg>`;
 }
-const shipPic = (id, foam) => HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
-const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5'];
+function fortSVG() {
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%"><rect x="16" y="36" width="68" height="52" rx="4" fill="#8d7a63" stroke="#3b2f22" stroke-width="4"/>
+    <path d="M16 38V22h13v9h11v-9h20v9h11v-9h13v16z" fill="#a8927a" stroke="#3b2f22" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="41" y="60" width="18" height="28" rx="9" fill="#3b2f22"/><rect x="24" y="48" width="9" height="9" fill="#3b2f22"/><rect x="67" y="48" width="9" height="9" fill="#3b2f22"/>
+    <line x1="50" y1="22" x2="50" y2="3" stroke="#3b2f22" stroke-width="4"/><path d="M50 3h24l-7 6 7 6H50z" fill="#d6453a"/></svg>`;
+}
+const shipPic = (id, foam) => HS[id].fort ? fortSVG() : HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
+const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5', 'board1', 'boss1', 'legend'];
 function checkAch(p, ids) {
   const got = [], ctx = { prof: p, st: p.st, pl: {}, won: false };
   for (const a of ACH) if (ids.includes(a.id) && !p.ach[a.id] && a.ok(ctx)) { p.ach[a.id] = Date.now(); got.push(a); }
@@ -1708,86 +1843,251 @@ function checkAch(p, ids) {
   return got;
 }
 
+/* ---------- Маршрут по архипелагу ---------- */
+function genRoute(h, noEvent) {
+  const m = h.mission;
+  const wth = () => m < 2 ? 'clear' : pickW([['clear', 5], ['storm', 2], ['fog', 2], ['night', 2]]);
+  if (m % 5 === 0) { const b = bossOf(m); return { opts: [{ kind: 'boss', obj: 'boss', weather: b.weather || wth() }] }; }
+  const pool = ['hunt']; if (m >= 2) pool.push('rescue', 'intercept'); if (m >= 3) pool.push('convoy'); if (m >= 4) pool.push('fort'); if (m >= 6) pool.push('survive');
+  const objs = []; let guard = 0;
+  while (objs.length < Math.min(2, pool.length) && guard++ < 50) { const o = pick(pool); if (!objs.includes(o)) objs.push(o); }
+  const opts = objs.map(o => ({ kind: 'battle', obj: o, weather: wth() }));
+  if (!noEvent && m >= 2 && Math.random() < .8) opts.push({ kind: pick(['trade', 'bay', 'sos', 'cache']) });
+  return { opts };
+}
+const nodeGold = (node, m) => Math.round((80 + 30 * m) * OBJ[node.obj].k * (node.sos ? 1.5 : 1));
+
 /* ---------- Гавань (hub) ---------- */
-const HB = { sel: null };
+const HB = { sel: null, tab: 'map', pick: false };
+function squadCount(h) { return h.squad.filter(id => h.ships[id] && !h.ships[id].broken).length + h.hired.length; }
 function renderHub() {
   const p = curProfile(), h = hdata(p);
-  if (!HB.sel) HB.sel = h.active;
+  if (!HB.sel || !HS[HB.sel]) HB.sel = h.active;
   $('#hub-gold').textContent = h.gold;
-  $('#hub-stats').innerHTML = `Миссия <b>${h.mission}</b> · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}`;
-  // ship cards
-  const row = $('#hub-ships'); row.innerHTML = '';
-  HS_ORDER.forEach(id => {
-    const own = !!h.ships[id], s = HS[id];
-    const b = document.createElement('button');
-    b.className = 'shipcard glass' + (HB.sel === id ? ' sel' : '') + (own ? '' : ' locked');
-    b.innerHTML = `<span class="pic" style="width:${22 + s.len * 16}px">${shipPic(id, false)}</span><span>${s.name}</span>
-      <small>${own ? (h.active === id ? '⭐ в строю' : 'в гавани') : `${s.price} 💰`}</small>`;
-    b.onclick = () => { HB.sel = id; Snd.play('click'); renderHub(); };
-    row.appendChild(b);
+  $('#hub-stats').innerHTML = `Миссия <b>${h.mission}</b> · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}${h.caps ? ` · трофеев ${h.caps}` : ''}`;
+  document.querySelectorAll('#hub-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === HB.tab));
+  const body = $('#hub-body');
+  body.innerHTML = HB.tab === 'map' ? hubMap(h) : HB.tab === 'ships' ? hubShips(h) : HB.tab === 'squad' ? hubSquad(h) : hubCrew(h);
+  body.querySelectorAll('[data-sel]').forEach(b => b.onclick = () => { HB.sel = b.dataset.sel; HB.pick = false; Snd.play('click'); renderHub(); });
+  body.querySelectorAll('[data-act]').forEach(b => b.onclick = () => hubAct(b.dataset.act, b.dataset.id));
+}
+const lvBar = (n, max) => `<span class="lv">${Array.from({ length: max }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
+function fleetLine(h) {
+  const a = h.ships[h.active], rk = RANKS[rankOf(a.xp)];
+  let s = `<b>⭐ ${HS[h.active].name}</b>${rk.ic ? ' ' + rk.ic : ''}`;
+  h.squad.forEach(id => { const x = h.ships[id]; s += x.broken ? ` · <span style="opacity:.55">🔧 ${HS[id].name}</span>` : ` · ⚓ ${HS[id].name}`; });
+  h.hired.forEach(x => s += ` · 🤝 ${HS[x.type].name}`);
+  const mar = [h.active, ...h.squad].reduce((t, id) => t + (h.ships[id].broken ? 0 : h.ships[id].marines), 0);
+  return `${s}<small>морпехов: ${mar} · кораблей в походе: ${1 + squadCount(h)}</small>`;
+}
+function hubMap(h) {
+  const m = h.mission, a = h.ships[h.active];
+  let html = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">Ваш флот</div><div class="fleetline">${fleetLine(h)}</div>
+    ${a.broken ? '<div class="warnline">Флагман нуждается в ремонте!</div>' : ''}</div>`;
+  let track = '';
+  for (let i = Math.max(1, m - 3); i <= m + 3; i++) {
+    const boss = i % 5 === 0, cls = i < m ? 'done' : i === m ? 'now' : '';
+    track += `${i > Math.max(1, m - 3) ? '<i class="rl"></i>' : ''}<span class="rn ${cls} ${boss ? 'boss' : ''}">${i < m ? '✓' : boss ? '☠️' : i}</span>`;
+  }
+  html += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">Архипелаг · миссия ${m}</div><div class="route">${track}</div>
+    <small class="muted">Каждые 5 миссий — босс. Выберите, куда плыть дальше:</small></div>`;
+  h.route.opts.forEach((n, i) => {
+    let ic, title, desc, chips = '';
+    if (n.kind === 'battle' || n.kind === 'boss') {
+      const o = OBJ[n.obj], w = WEATHER[n.weather];
+      if (n.kind === 'boss') { const b = bossOf(m), eq = HEQ.find(e => e.id === b.reward); ic = b.ic; title = `Босс: ${b.name}`; desc = `${b.desc} Трофей: ${eq.ic} ${eq.name}.`; }
+      else { ic = o.ic; title = o.name; desc = o.desc; }
+      chips = `<span>${w.ic} ${w.name}</span><span>≈ ${nodeGold(n, m)} 💰</span>`;
+    } else { const e = EVENTS[n.kind]; ic = e.ic; title = e.name; desc = e.desc; chips = '<span>без боя… наверное</span>'; }
+    html += `<div class="rnode glass ${n.kind === 'boss' ? 'bossnode' : ''}"><div class="ni">${ic}</div><div class="nb"><b>${title}</b><small>${desc}</small><div class="chips">${chips}</div></div>
+      <button class="btn primary small" data-act="go" data-id="${i}" ${a.broken ? 'disabled' : ''}>${n.kind === 'battle' || n.kind === 'boss' ? 'Отплыть' : 'Зайти'}</button></div>`;
   });
-  // selected ship panel
-  const id = HB.sel, s = HS[id], own = h.ships[id], st = shipStats(id, own ? own.up : {}, h.crew);
-  const lv = (n, max) => `<span class="lv">${Array.from({ length: max }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
-  let html = `<div class="hp-title"><span class="pic big" style="width:${40 + s.len * 26}px">${shipPic(id, false)}</span><div><b>${s.name}</b><small>${s.desc}</small></div></div>
-    <div class="statgrid">
+  return html;
+}
+function hubShips(h) {
+  let html = '<div class="ships-row">';
+  HS_ORDER.forEach(id => {
+    const own = h.ships[id], s = HS[id];
+    const st = !own ? `${s.price} 💰` : h.active === id ? '⭐ флагман' : own.broken ? '🔧 ремонт' : h.squad.includes(id) ? '⚓ в эскадре' : 'в гавани';
+    html += `<button class="shipcard glass${HB.sel === id ? ' sel' : ''}${own ? '' : ' locked'}" data-sel="${id}"><span class="pic" style="width:${22 + s.len * 16}px">${shipPic(id, false)}</span><span>${s.name}${own && rankOf(own.xp) ? ' ' + RANKS[rankOf(own.xp)].ic : ''}</span><small>${st}</small></button>`;
+  });
+  html += '</div>';
+  const id = HB.sel, s = HS[id], own = h.ships[id], st = ownStats(h, id);
+  let pn = `<div class="hp-title"><span class="pic big" style="width:${40 + s.len * 26}px">${shipPic(id, false)}</span><div><b>${s.name}</b><small>${s.desc}</small></div></div>`;
+  if (own) {
+    const r = rankOf(own.xp), nx = RANKS[r + 1];
+    pn += `<div class="rankline"><span>${RANKS[r].ic || '▫️'} ${RANKS[r].n}</span><span class="bar"><i style="width:${nx ? (own.xp - RANKS[r].xp) / (nx.xp - RANKS[r].xp) * 100 : 100}%"></i></span><small>${nx ? `опыт ${own.xp}/${nx.xp}` : 'максимум'}</small></div>`;
+  }
+  pn += `<div class="statgrid">
       <div class="stat">Прочность<b>❤ ${st.hp}</b></div><div class="stat">Броня<b>🛡 ${st.armor}</b></div><div class="stat">Скорость<b>⚙ ${st.speed}</b></div>
       <div class="stat">Урон<b>🎯 ${st.dmg}</b></div><div class="stat">Дальность<b>📏 ${st.range}</b></div><div class="stat">Обзор<b>🔭 ${st.sight}</b></div>
     </div>`;
   if (!own) {
-    html += `<button class="btn primary" data-act="buy" ${h.gold < s.price ? 'disabled' : ''}>Купить за ${s.price} 💰</button>`;
-  } else {
-    if (h.active !== id) html += `<button class="btn primary" data-act="activate">⭐ Выйти в море на этом корабле</button>`;
-    html += `<div class="sec-t">Улучшения корабля</div>`;
-    HUP.forEach(u => {
-      const l = own.up[u.id] || 0, cost = UP_BASE[id] * (l + 1), max = l >= u.max;
-      html += `<div class="uprow"><span class="ic">${u.ic}</span><span class="nm">${u.name}<small>${l ? u.eff(l) : 'базовый уровень'}</small>${lv(l, u.max)}</span>
-        <button class="btn small ${max ? '' : 'primary'}" data-act="up" data-id="${u.id}" ${max || h.gold < cost ? 'disabled' : ''}>${max ? 'макс.' : cost + ' 💰'}</button></div>`;
-    });
-    html += `<div class="sec-t">Оборудование</div>`;
-    HEQ.forEach(e => {
-      const has = !!own.eq[e.id];
-      html += `<div class="uprow"><span class="ic">${e.ic}</span><span class="nm">${e.name}<small>${e.desc}</small></span>
-        <button class="btn small ${has ? '' : 'primary'}" data-act="eq" data-id="${e.id}" ${has || h.gold < e.price ? 'disabled' : ''}>${has ? '✓ есть' : e.price + ' 💰'}</button></div>`;
+    pn += `<button class="btn primary" data-act="buy" ${h.gold < s.price ? 'disabled' : ''}>Купить за ${s.price} 💰</button>`;
+    return html + `<div class="glass hub-panel">${pn}</div>`;
+  }
+  if (own.broken) pn += `<div class="warnline">Корабль потоплен в бою и стоит в доке.</div><button class="btn primary" data-act="repair" ${h.gold < repairCost(id) ? 'disabled' : ''}>🔧 Починить за ${repairCost(id)} 💰</button>`;
+  const btns = [];
+  if (h.active !== id) btns.push(`<button class="btn small primary" data-act="activate" ${own.broken ? 'disabled' : ''}>⭐ Сделать флагманом</button>`);
+  if (h.active !== id) btns.push(h.squad.includes(id) ? `<button class="btn small" data-act="sqdel" data-id="${id}">Убрать из эскадры</button>`
+    : `<button class="btn small" data-act="sqadd" data-id="${id}" ${own.broken || squadCount(h) >= SQUAD_MAX ? 'disabled' : ''}>⚓ В эскадру</button>`);
+  if (btns.length) pn += `<div class="row" style="flex-wrap:wrap">${btns.join('')}</div>`;
+  // морпехи
+  const free = st.cap - own.marines;
+  pn += `<div class="sec-t">🪖 Морская пехота</div><div class="uprow"><span class="ic">🪖</span><span class="nm">Морпехи: ${own.marines} из ${st.cap}<small>Нужны для абордажа и штурма фортов. Учения — во вкладке «Люди».</small></span>
+    <span class="col2"><button class="btn small primary" data-act="mar1" ${!free || h.gold < MARINE_COST ? 'disabled' : ''}>+1 · ${MARINE_COST} 💰</button>
+    ${free > 1 ? `<button class="btn small" data-act="marfull" ${h.gold < MARINE_COST * free ? 'disabled' : ''}>+${free} · ${MARINE_COST * free} 💰</button>` : ''}</span></div>`;
+  // специалисты
+  pn += `<div class="sec-t">🧑‍✈️ Специалисты (${own.spec.length}/${s.slots})</div>`;
+  own.spec.forEach((sp, i) => {
+    const d = SPEC.find(z => z.id === sp.t), max = sp.lvl >= 3, cost = SPEC_TRAIN[sp.lvl];
+    pn += `<div class="uprow"><span class="ic">${d.ic}</span><span class="nm">${d.name} · ур. ${sp.lvl}<small>${d.txt(sp.lvl)}${max ? '' : ` → обучение: ${d.txt(sp.lvl + 1)}`}</small>${lvBar(sp.lvl, 3)}</span>
+      <span class="col2"><button class="btn small ${max ? '' : 'primary'}" data-act="sptrain" data-id="${i}" ${max || h.gold < cost ? 'disabled' : ''}>${max ? 'макс.' : `🎓 ${cost} 💰`}</button><button class="btn small" data-act="spfire" data-id="${i}">Уволить</button></span></div>`;
+  });
+  if (own.spec.length < s.slots) {
+    if (!HB.pick) pn += `<div class="uprow"><span class="ic">➕</span><span class="nm">Свободное место<small>Специалист усиливает корабль. Потом его можно обучить до 3-го уровня.</small></span><button class="btn small primary" data-act="pick">Нанять…</button></div>`;
+    else SPEC.filter(d => !own.spec.some(x => x.t === d.id)).forEach(d => {
+      pn += `<div class="uprow pickrow"><span class="ic">${d.ic}</span><span class="nm">${d.name}<small>${d.txt(1)}</small></span><button class="btn small primary" data-act="sphire" data-id="${d.id}" ${h.gold < SPEC_HIRE ? 'disabled' : ''}>${SPEC_HIRE} 💰</button></div>`;
     });
   }
-  $('#hub-ship').innerHTML = html;
-  let ch = `<div class="sec-t" style="margin-top:0">Экипаж (для всех кораблей)</div>`;
-  HCREW.forEach(c => {
-    const l = h.crew[c.id] || 0, max = l >= c.max, cost = CREW_COST[l];
-    ch += `<div class="uprow"><span class="ic">${c.ic}</span><span class="nm">${c.name}<small>${c.eff(l)}</small>${lv(l, c.max)}</span>
-      <button class="btn small ${max ? '' : 'primary'}" data-act="crew" data-id="${c.id}" ${max || h.gold < cost ? 'disabled' : ''}>${max ? 'макс.' : cost + ' 💰'}</button></div>`;
+  pn += `<div class="sec-t">Улучшения корабля</div>`;
+  HUP.forEach(u => {
+    const l = own.up[u.id] || 0, cost = UP_BASE[id] * (l + 1), max = l >= u.max;
+    pn += `<div class="uprow"><span class="ic">${u.ic}</span><span class="nm">${u.name}<small>${l ? u.eff(l) : 'базовый уровень'}</small>${lvBar(l, u.max)}</span>
+      <button class="btn small ${max ? '' : 'primary'}" data-act="up" data-id="${u.id}" ${max || h.gold < cost ? 'disabled' : ''}>${max ? 'макс.' : cost + ' 💰'}</button></div>`;
   });
-  $('#hub-crew').innerHTML = ch;
-  const lvl = hireLvl(h.mission), full = h.hired.length >= HIRE_MAX;
-  let hh = `<div class="sec-t" style="margin-top:0">🤝 Наёмники на один поход (${h.hired.length}/${HIRE_MAX})</div>
-    <small style="display:block;color:var(--muted);font-size:12px;line-height:1.35;margin:4px 0 2px">Плывут с вами, а командуете ими вы сами. Плата вперёд, за один поход. Экипаж — ваш${lvl ? `, опыт наёмников: +${lvl}` : ''}.</small>`;
+  pn += `<div class="sec-t">Оборудование</div>`;
+  HEQ.forEach(e => {
+    const has = !!own.eq[e.id], locked = e.rare !== undefined && !h.unlock[e.id];
+    pn += `<div class="uprow ${locked ? 'lockedrow' : ''}"><span class="ic">${locked ? '🔒' : e.ic}</span><span class="nm">${e.name}<small>${locked ? `Трофей босса «${BOSSES[e.rare].name}»` : e.desc}</small></span>
+      <button class="btn small ${has || locked ? '' : 'primary'}" data-act="eq" data-id="${e.id}" ${has || locked || h.gold < e.price ? 'disabled' : ''}>${has ? '✓ есть' : locked ? '—' : e.price + ' 💰'}</button></div>`;
+  });
+  return html + `<div class="glass hub-panel">${pn}</div>`;
+}
+function hubSquad(h) {
+  const n = squadCount(h);
+  let html = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Эскадра (${n}/${SQUAD_MAX})</div>
+    <small class="muted">С флагманом в поход идут до ${SQUAD_MAX} кораблей сопровождения: свои из гавани и наёмные (наёмных — не больше ${HIRE_MAX}). Своими кораблями вы командуете в бою, они копят опыт и получают звания. Потопленный корабль после боя нужно чинить.</small>`;
+  const a = h.ships[h.active];
+  html += `<div class="uprow"><span class="ic">⭐</span><span class="nm">${HS[h.active].name} ${RANKS[rankOf(a.xp)].ic}<small>флагман · морпехов ${a.marines} · специалистов ${a.spec.length}</small></span><button class="btn small" data-sel="${h.active}" data-go="ships">Открыть</button></div>`;
+  HS_ORDER.filter(id => h.ships[id] && id !== h.active).forEach(id => {
+    const s = h.ships[id], inS = h.squad.includes(id);
+    html += `<div class="uprow"><span class="ic">${s.broken ? '🔧' : inS ? '⚓' : '▫️'}</span><span class="nm">${HS[id].name} ${RANKS[rankOf(s.xp)].ic}<small>${s.broken ? 'в ремонте' : inS ? 'в эскадре' : 'в гавани'} · морпехов ${s.marines} · специалистов ${s.spec.length}</small></span>
+      ${s.broken ? `<button class="btn small primary" data-act="repair2" data-id="${id}" ${h.gold < repairCost(id) ? 'disabled' : ''}>🔧 ${repairCost(id)} 💰</button>`
+        : inS ? `<button class="btn small" data-act="sqdel" data-id="${id}">Убрать</button>` : `<button class="btn small primary" data-act="sqadd" data-id="${id}" ${n >= SQUAD_MAX ? 'disabled' : ''}>В эскадру</button>`}</div>`;
+  });
+  if (Object.keys(h.ships).length < 2) html += `<small class="muted">Купите ещё корабли во вкладке «Корабли» — или возьмите их абордажем.</small>`;
+  html += `</div>`;
+  const lvl = hireLvl(h.mission), full = h.hired.length >= HIRE_MAX || n >= SQUAD_MAX;
+  let hh = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🤝 Наёмники на один поход (${h.hired.length}/${HIRE_MAX})</div>
+    <small class="muted">Плата вперёд, за один поход. Экипаж — ваш${lvl ? `, опыт наёмников +${lvl}` : ''}. Уцелевшие наёмники становятся ветеранами: такие корабли дешевле и сильнее.</small>`;
   h.hired.forEach((x, i) => {
-    hh += `<div class="uprow"><span class="ic">✅</span><span class="nm">${HS[x.type].name}<small>нанят за ${x.paid} 💰 — плывёт с вами</small></span>
-      <button class="btn small" data-act="unhire" data-id="${i}">Отказаться</button></div>`;
+    hh += `<div class="uprow"><span class="ic">✅</span><span class="nm">${HS[x.type].name}<small>нанят за ${x.paid} 💰 — плывёт с вами</small></span><button class="btn small" data-act="unhire" data-id="${i}">Отказаться</button></div>`;
   });
   HS_ORDER.forEach(id => {
-    const s = HS[id], st = shipStats(id, hireUp(lvl), h.crew), price = hirePrice(id, h.mission), eq = hireEq(id);
+    const s = HS[id], v = h.hireVet[id] || 0, st = shipStats(id, hireUp(lvl), h.crew, { rank: v }), price = hirePrice(h, id), eq = hireEq(id);
     hh += `<div class="uprow"><span class="ic" style="width:44px"><span class="pic" style="display:block;width:${16 + s.len * 7}px;margin:auto">${shipPic(id, false)}</span></span>
-      <span class="nm">${s.name}<small>❤${st.hp} 🛡${st.armor} ⚙${st.speed} 🎯${st.dmg} 📏${st.range}${eq.salvo ? ' · 💥залп' : ''}${eq.torp ? ' · 🚀торпеды' : ''}</small></span>
+      <span class="nm">${s.name}${v ? ` <span class="vet">${RANKS[v].ic} −${v * 10}%</span>` : ''}<small>❤${st.hp} 🛡${st.armor} ⚙${st.speed} 🎯${st.dmg} 📏${st.range} · 🪖${Math.floor(s.mar / 2)}${eq.salvo ? ' · 💥залп' : ''}${eq.torp ? ' · 🚀торпеды' : ''}</small></span>
       <button class="btn small ${full ? '' : 'primary'}" data-act="hire" data-id="${id}" ${full || h.gold < price ? 'disabled' : ''}>${price} 💰</button></div>`;
   });
-  $('#hub-hire').innerHTML = hh;
-  $('#hub-go').innerHTML = `⚓ В поход на «${HS[h.active].name}»${h.hired.length ? ` + ${h.hired.length} 🤝` : ''} — миссия ${h.mission}`;
-  document.querySelectorAll('#scr-hub [data-act]').forEach(b => b.onclick = () => hubAct(b.dataset.act, b.dataset.id));
+  return html + hh + '</div>';
+}
+function hubCrew(h) {
+  let ch = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">Экипаж (для всех кораблей)</div>`;
+  HCREW.forEach(c => {
+    const l = h.crew[c.id] || 0, max = l >= c.max, cost = CREW_COST[l];
+    ch += `<div class="uprow"><span class="ic">${c.ic}</span><span class="nm">${c.name}<small>${c.eff(l)}</small>${lvBar(l, c.max)}</span>
+      <button class="btn small ${max ? '' : 'primary'}" data-act="crew" data-id="${c.id}" ${max || h.gold < cost ? 'disabled' : ''}>${max ? 'макс.' : cost + ' 💰'}</button></div>`;
+  });
+  const d = h.drill, dmax = d >= 3;
+  ch += `</div><div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🪖 Учения морской пехоты</div>
+    <div class="uprow"><span class="ic">🏋️</span><span class="nm">Уровень подготовки: ${d}<small>Сила каждого морпеха ×${(1 + .3 * d).toFixed(1)}${dmax ? '' : ` → ×${(1 + .3 * (d + 1)).toFixed(1)}`}</small>${lvBar(d, 3)}</span>
+      <button class="btn small ${dmax ? '' : 'primary'}" data-act="drill" ${dmax || h.gold < DRILL_COST[d] ? 'disabled' : ''}>${dmax ? 'макс.' : DRILL_COST[d] + ' 💰'}</button></div>
+    <small class="muted">Морпехов набирают на каждый корабль отдельно (вкладка «Корабли»). Абордаж: подойдите вплотную к вражескому кораблю и нажмите ⚔️. Шанс растёт с числом и подготовкой морпехов, с боцманом на борту и с повреждениями врага. Захваченный корабль достаётся вам, а если такой уже есть — продаётся за 40% цены. Форт тоже можно взять штурмом.</small></div>`;
+  ch += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🧑‍✈️ Специалисты</div>`;
+  SPEC.forEach(sp => { ch += `<div class="uprow"><span class="ic">${sp.ic}</span><span class="nm">${sp.name}<small>${sp.txt(1)} → ${sp.txt(3)}</small></span></div>`; });
+  ch += `<small class="muted">Нанимаются на конкретный корабль во вкладке «Корабли»: у катера, эсминца и подлодки одно место, у крейсера два, у линкора три.</small></div>`;
+  return ch;
 }
 function hubAct(act, id) {
   const p = curProfile(), h = hdata(p), sid = HB.sel, own = h.ships[sid];
   const pay = n => { if (h.gold < n) return false; h.gold -= n; return true; };
-  if (act === 'buy' && !own && pay(HS[sid].price)) { h.ships[sid] = { up: {}, eq: {} }; h.active = sid; checkAch(p, HUNT_ACH); }
-  else if (act === 'activate' && own) h.active = sid;
+  let snd = 'buy';
+  if (act === 'go') return goNode(+id);
+  if (act === 'pick') { HB.pick = true; Snd.play('click'); return renderHub(); }
+  if (act === 'buy' && !own && pay(HS[sid].price)) { h.ships[sid] = { up: {}, eq: {}, marines: 0, spec: [], xp: 0, broken: false }; checkAch(p, HUNT_ACH); }
+  else if (act === 'activate' && own && !own.broken) { h.squad = h.squad.filter(x => x !== sid); h.active = sid; snd = 'click'; }
   else if (act === 'up' && own) { const l = own.up[id] || 0; if (l < HUP.find(u => u.id === id).max && pay(UP_BASE[sid] * (l + 1))) own.up[id] = l + 1; else return; }
-  else if (act === 'eq' && own && !own.eq[id]) { if (pay(HEQ.find(e => e.id === id).price)) own.eq[id] = true; else return; }
-  else if (act === 'hire') { const price = hirePrice(id, h.mission); if (h.hired.length < HIRE_MAX && pay(price)) h.hired.push({ type: id, paid: price }); else return; }
-  else if (act === 'unhire') { const x = h.hired.splice(+id, 1)[0]; if (!x) return; h.gold += x.paid; }
+  else if (act === 'eq' && own && !own.eq[id]) { const e = HEQ.find(x => x.id === id); if ((e.rare === undefined || h.unlock[id]) && pay(e.price)) own.eq[id] = true; else return; }
   else if (act === 'crew') { const l = h.crew[id] || 0; if (l < HCREW.find(c => c.id === id).max && pay(CREW_COST[l])) h.crew[id] = l + 1; else return; }
+  else if (act === 'drill') { if (h.drill < 3 && pay(DRILL_COST[h.drill])) h.drill++; else return; }
+  else if (act === 'hire') { const price = hirePrice(h, id); if (h.hired.length < HIRE_MAX && squadCount(h) < SQUAD_MAX && pay(price)) h.hired.push({ type: id, paid: price }); else return; }
+  else if (act === 'unhire') { const x = h.hired.splice(+id, 1)[0]; if (!x) return; h.gold += x.paid; snd = 'click'; }
+  else if (act === 'sqadd') { const s = h.ships[id]; if (s && !s.broken && id !== h.active && !h.squad.includes(id) && squadCount(h) < SQUAD_MAX) h.squad.push(id); else return; snd = 'click'; }
+  else if (act === 'sqdel') { h.squad = h.squad.filter(x => x !== id); snd = 'click'; }
+  else if (act === 'repair' || act === 'repair2') { const k = act === 'repair' ? sid : id, s = h.ships[k]; if (s && s.broken && pay(repairCost(k))) s.broken = false; else return; }
+  else if (act === 'mar1' && own) { if (own.marines < ownStats(h, sid).cap && pay(MARINE_COST)) own.marines++; else return; }
+  else if (act === 'marfull' && own) { const f = ownStats(h, sid).cap - own.marines; if (f > 0 && pay(f * MARINE_COST)) own.marines += f; else return; }
+  else if (act === 'sphire' && own) { if (own.spec.length < HS[sid].slots && !own.spec.some(x => x.t === id) && pay(SPEC_HIRE)) { own.spec.push({ t: id, lvl: 1 }); HB.pick = false; } else return; }
+  else if (act === 'sptrain' && own) { const sp = own.spec[+id]; if (sp && sp.lvl < 3 && pay(SPEC_TRAIN[sp.lvl])) sp.lvl++; else return; }
+  else if (act === 'spfire' && own) { own.spec.splice(+id, 1); snd = 'click'; }
   else return;
-  saveProfiles(); Snd.play(act === 'activate' || act === 'unhire' ? 'click' : 'buy'); vibrate(30); renderHub();
+  saveProfiles(); Snd.play(snd); vibrate(30); renderHub();
+}
+
+/* ---------- События архипелага ---------- */
+function showEv(ic, title, text, btns) {
+  $('#ev-ico').textContent = ic; $('#ev-title').textContent = title; $('#ev-text').innerHTML = text;
+  const box = $('#ev-btns'); box.innerHTML = '';
+  btns.forEach(b => { const e = document.createElement('button'); e.className = 'btn ' + (b.cls || ''); e.innerHTML = b.t; e.disabled = !!b.dis; e.onclick = () => b.fn(e); box.appendChild(e); });
+  overlay('#ov-ev', true);
+}
+function closeEv(h) { overlay('#ov-ev', false); h.route = genRoute(h, true); saveProfiles(); renderHub(); }
+function goNode(i) {
+  const p = curProfile(), h = hdata(p), n = h.route.opts[i]; if (!n) return;
+  if (h.ships[h.active].broken) return;
+  Snd.play('click');
+  if (n.kind === 'battle' || n.kind === 'boss') return startHunt(n);
+  const a = h.ships[h.active], ast = ownStats(h, h.active);
+  if (n.kind === 'bay') {
+    let fixed = 0, mar = 0;
+    for (const id in h.ships) { const s = h.ships[id]; if (s.broken) { s.broken = false; fixed++; } }
+    [h.active, ...h.squad].forEach(id => { const s = h.ships[id], cap = ownStats(h, id).cap, add = Math.min(2, cap - s.marines); if (add > 0) { s.marines += add; mar += add; } });
+    Snd.play('buy');
+    showEv('⚓', 'Тихая бухта', `Команды отдохнули на берегу.<br>${fixed ? `🔧 Отремонтировано кораблей: ${fixed}<br>` : ''}${mar ? `🪖 Новых морпехов: +${mar}` : 'Все корабли и так в порядке.'}`, [{ t: 'Поднять паруса', cls: 'primary', fn: () => closeEv(h) }]);
+  } else if (n.kind === 'cache') {
+    const r = Math.random();
+    if (r < .2) {
+      showEv('💥', 'Засада!', 'Тайник оказался ловушкой: из-за скал выходят пираты. Ночь, враги рядом — держитесь!', [{ t: 'К бою!', cls: 'primary', fn: () => { overlay('#ov-ev', false); startHunt({ kind: 'battle', obj: 'hunt', weather: 'night', ambush: true, bonus: true }); } }]);
+    } else if (r < .45 && a.spec.length < HS[h.active].slots) {
+      const d = pick(SPEC.filter(s => !a.spec.some(x => x.t === s.id)));
+      a.spec.push({ t: d.id, lvl: 1 }); Snd.play('ach');
+      showEv('🧑‍✈️', 'Находка', `В тайнике прятался беглый моряк. Он просится на корабль: ${d.ic} <b>${d.name}</b> (${d.txt(1)}) теперь служит на вашем флагмане.`, [{ t: 'Отлично', cls: 'primary', fn: () => closeEv(h) }]);
+    } else {
+      const g = 60 + 15 * h.mission + rnd(60); h.gold += g; Snd.play('buy');
+      showEv('💎', 'Клад!', `Сундук контрабандистов: <b class="goldchip">+${g} 💰</b>`, [{ t: 'Забрать и плыть дальше', cls: 'primary', fn: () => closeEv(h) }]);
+    }
+  } else if (n.kind === 'sos') {
+    showEv('🆘', 'Сигнал SOS', 'Пираты потопили рыбацкое судно, в воде шлюпки. Если поможете, награда будет в полтора раза выше обычной — и благодарные моряки запомнят вас.', [
+      { t: '🛟 Помочь', cls: 'primary', fn: () => { overlay('#ov-ev', false); startHunt({ kind: 'battle', obj: 'rescue', weather: pick(['clear', 'fog', 'storm']), sos: true, bonus: true }); } },
+      { t: 'Пройти мимо', fn: () => closeEv(h) },
+    ]);
+  } else if (n.kind === 'trade') {
+    const offers = [], disc = .65, free = ast.cap - a.marines;
+    if (free > 0) { const k = Math.min(4, free); offers.push({ t: `🪖 Морпехи ×${k} на флагман`, price: Math.round(k * MARINE_COST * .6), fn: () => a.marines += k }); }
+    if (a.spec.length < HS[h.active].slots) { const d = pick(SPEC.filter(s => !a.spec.some(x => x.t === s.id))); offers.push({ t: `${d.ic} ${d.name}, уже обучен до ур. 2`, price: Math.round((SPEC_HIRE + SPEC_TRAIN[1]) * .6), fn: () => a.spec.push({ t: d.id, lvl: 2 }) }); }
+    const eqs = HEQ.filter(e => !a.eq[e.id] && (e.rare === undefined || h.unlock[e.id]));
+    if (eqs.length) { const e = pick(eqs); offers.push({ t: `${e.ic} ${e.name} на флагман`, price: Math.round(e.price * disc), fn: () => a.eq[e.id] = true }); }
+    const ups = HUP.filter(u => (a.up[u.id] || 0) < u.max);
+    if (ups.length) { const u = pick(ups), l = a.up[u.id] || 0; offers.push({ t: `${u.ic} ${u.name} флагмана → ур. ${l + 1}`, price: Math.round(UP_BASE[h.active] * (l + 1) * disc), fn: () => a.up[u.id] = l + 1 }); }
+    if (h.drill < 3) offers.push({ t: `🏋️ Учения морпехов → ур. ${h.drill + 1}`, price: Math.round(DRILL_COST[h.drill] * disc), fn: () => h.drill++ });
+    const list = offers.sort(() => Math.random() - .5).slice(0, 3);
+    const draw = () => showEv('🛒', 'Торговец', `Скидки только сегодня! У вас <b class="goldchip">${h.gold} 💰</b>`, [
+      ...list.map(o => ({ t: `${o.t} — ${o.done ? '✓ куплено' : o.price + ' 💰'}`, cls: o.done ? '' : 'primary', dis: o.done || h.gold < o.price, fn: () => { if (o.done || h.gold < o.price) return; h.gold -= o.price; o.fn(); o.done = true; Snd.play('buy'); saveProfiles(); draw(); } })),
+      { t: 'Плыть дальше', fn: () => closeEv(h) },
+    ]);
+    draw();
+  }
 }
 
 /* ---------- Бой ---------- */
@@ -1795,13 +2095,16 @@ const HN = 12;
 const hidx = (r, c) => r * HN + c, hin = (r, c) => r >= 0 && r < HN && c >= 0 && c < HN;
 const DIR8 = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 const cheb = (a, b) => Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c));
-const H = { gen: 0, phase: 'menu' };
+const kRC = k => ({ r: Math.floor(k / HN), c: k % HN });
+const H = { gen: 0, phase: 'menu', fleet: [], foes: [], acted: new Set() };
 function hUnits() { return [...H.fleet, ...H.foes]; }
-const myAlive = () => H.fleet.filter(u => u.hp > 0);
-const shipName = u => HS[u.type].name + (u.ally ? '-наёмник' : '');
-function unitAt(r, c) { return hUnits().find(u => u.hp > 0 && u.r === r && u.c === c) || null; }
-function genMap() {
-  for (let tries = 0; tries < 80; tries++) {
+const myAlive = () => H.fleet.filter(u => u.hp > 0 && !u.gone);
+const myCmd = () => myAlive().filter(u => !u.auto);
+const shipName = u => u.name || (HS[u.type].name + (u.ally ? '-наёмник' : ''));
+function unitAt(r, c) { return hUnits().find(u => u.hp > 0 && !u.gone && u.r === r && u.c === c) || null; }
+function genMap(clear = []) {
+  const zones = [[HN - 4, 0, 4, 4], [0, HN - 4, 4, 4], ...clear];
+  for (let tries = 0; tries < 120; tries++) {
     const land = new Array(HN * HN).fill(false), blobs = 5 + rnd(3);
     for (let b = 0; b < blobs; b++) {
       const cr = 1 + rnd(HN - 2), cc = 1 + rnd(HN - 2), rad = 1 + rnd(2);
@@ -1810,64 +2113,177 @@ function genMap() {
         if (d <= rad - .3 || (d <= rad + .4 && Math.random() < .45)) land[hidx(r, c)] = true;
       }
     }
-    for (let r = HN - 4; r < HN; r++) for (let c = 0; c < 4; c++) land[hidx(r, c)] = false;
-    for (let r = 0; r < 4; r++) for (let c = HN - 4; c < HN; c++) land[hidx(r, c)] = false;
+    zones.forEach(([r0, c0, hh, ww]) => { for (let r = r0; r < r0 + hh; r++) for (let c = c0; c < c0 + ww; c++) if (hin(r, c)) land[hidx(r, c)] = false; });
     const nLand = land.filter(Boolean).length;
     if (nLand < HN * HN * .1 || nLand > HN * HN * .22) continue;
     const seen = new Set([hidx(HN - 1, 0)]), q = [hidx(HN - 1, 0)];
     while (q.length) { const k = q.shift(), r = Math.floor(k / HN), c = k % HN; for (const [dr, dc] of DIR8) { const y = r + dr, x = c + dc, kk = hidx(y, x); if (hin(y, x) && !land[kk] && !seen.has(kk)) { seen.add(kk); q.push(kk); } } }
     if (seen.size === HN * HN - nLand) return land;
   }
-  return new Array(HN * HN).fill(false);
+  const land = new Array(HN * HN).fill(false); land[hidx(5, 6)] = land[hidx(6, 6)] = land[hidx(5, 5)] = true; return land;
 }
+const inStart = (r, c) => (r >= HN - 4 && c <= 3) || (r <= 3 && c >= HN - 4);
+function genTerrain() {
+  const m = H.mission;
+  H.shoal = new Array(HN * HN).fill(false); H.lights = []; H.mines = [];
+  if (m >= 2) for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) {
+    const k = hidx(r, c); if (H.land[k] || inStart(r, c) || H.exitCells.has(k)) continue;
+    const nearLand = DIR8.some(([dr, dc]) => hin(r + dr, c + dc) && H.land[hidx(r + dr, c + dc)]);
+    if (nearLand && Math.random() < .28) H.shoal[k] = true;
+  }
+  if (m >= 3 && Math.random() < .6) {
+    const cand = []; for (let k = 0; k < HN * HN; k++) { const { r, c } = kRC(k); if (H.land[k] && k !== H.fortCell && DIR8.some(([dr, dc]) => hin(r + dr, c + dc) && !H.land[hidx(r + dr, c + dc)])) cand.push(k); }
+    if (cand.length) H.lights.push(pick(cand));
+  }
+  if (m >= 3) {
+    const n = 2 + rnd(Math.min(3, m - 2)), cells = [];
+    for (let r = 2; r < HN - 2; r++) for (let c = 2; c < HN - 2; c++) { const k = hidx(r, c); if (!H.land[k] && !inStart(r, c) && !H.exitCells.has(k)) cells.push({ r, c }); }
+    for (let i = 0; i < n && cells.length; i++) { const x = cells.splice(rnd(cells.length), 1)[0]; H.mines.push({ r: x.r, c: x.c, side: 'n', seen: false }); }
+  }
+}
+function lightNear(u) { return H.lights.some(k => cheb(u, kRC(k)) <= 1); }
+function sightOf(u) { return u.st.sight + (lightNear(u) ? 2 : 0); }
+function sees(obs, tgt) {
+  if (tgt.hp <= 0 || tgt.gone) return false;
+  const d = cheb(obs, tgt);
+  if (tgt.smoke > 0 || (tgt.st.sub && !tgt.fired)) return d <= 1;
+  return d <= sightOf(obs);
+}
+function foeVisible(f) { return f.hp > 0 && !f.gone && (f.revealed > 0 || myAlive().some(u => sees(u, f))); }
+function mineKnown(u, m) { return m.side === u.side || (m.side === 'n' && (u.side === 'me' ? m.seen : cheb(u, m) <= 1)); }
 function hbfs(u) {
   const dist = new Array(HN * HN).fill(-1), prev = new Array(HN * HN).fill(-1), s = hidx(u.r, u.c), q = [s]; dist[s] = 0;
+  const bigShip = u.st.len >= 3 && !u.st.shoal, block = new Set(H.mines.filter(m => mineKnown(u, m)).map(m => hidx(m.r, m.c)));
   while (q.length) {
     const k = q.shift(), r = Math.floor(k / HN), c = k % HN;
     for (const [dr, dc] of DIR8) {
       const y = r + dr, x = c + dc; if (!hin(y, x)) continue; const kk = hidx(y, x);
-      if (dist[kk] >= 0 || H.land[kk] || unitAt(y, x)) continue;
+      if (dist[kk] >= 0 || H.land[kk] || (bigShip && H.shoal[kk]) || block.has(kk) || unitAt(y, x)) continue;
       dist[kk] = dist[k] + 1; prev[kk] = k; q.push(kk);
     }
   }
   return { dist, prev };
 }
 function pathTo(prev, k) { const p = []; while (prev[k] !== -1) { p.unshift(k); k = prev[k]; } return p; }
-function sees(obs, tgt) { return cheb(obs, tgt) <= (tgt.st.sub && !tgt.fired ? 1 : obs.st.sight); }
-function foeVisible(f) { return f.hp > 0 && (myAlive().some(u => sees(u, f)) || f.revealed > 0); }
-function mkUnit(type, up, crew, eq, r, c, dir, side) {
-  const st = shipStats(type, up, crew);
-  return { id: side + rnd(1e6), side, type, st, hp: st.hp, r, c, dir, eq: eq || {}, cd: { salvo: 0, torp: 0, radar: 0 }, fired: false, movedLast: false, revealed: 0, known: null, wp: null };
+function applyWeather(st) {
+  const w = H.weather;
+  if (w === 'storm' && !st.storm) { st.sight = Math.max(1, st.sight - 1); st.scatter += .2; }
+  else if (w === 'fog') { st.sight = Math.max(1, st.sight - 1); st.hear += 2; }
+  else if (w === 'night') st.sight = 1;
 }
-function genFoes(m) {
-  const n = Math.min(3, 1 + Math.floor((m - 1) / 3)), top = Math.min(4, Math.floor((m - 1) / 2)), pts = Math.floor((m - 1) / 3);
-  const cells = []; for (let r = 0; r < 5; r++) for (let c = HN - 5; c < HN; c++) if (!H.land[hidx(r, c)]) cells.push([r, c]);
-  const foes = [];
+function mkUnit(type, side, r, c, dir, o = {}) {
+  const st = shipStats(type, o.up, o.crew, { spec: o.spec, rank: o.rank, eq: o.eq });
+  applyWeather(st);
+  return { id: side + rnd(1e9), side, type, st, hp: st.hp, r, c, dir, eq: o.eq || {}, cd: {}, fired: false, movedLast: false, revealed: 0, known: null, wp: null,
+    marines: o.marines || 0, ally: !!o.ally, regular: !!o.regular, auto: !!HS[type].npc, kills: 0, caps: 0, minesLeft: st.mines, smoke: 0, gone: false };
+}
+function freeCell(zone, avoid = []) {
+  const cells = []; for (let r = zone[0]; r < zone[0] + zone[2]; r++) for (let c = zone[1]; c < zone[1] + zone[3]; c++) {
+    if (!hin(r, c)) continue; const k = hidx(r, c);
+    if (!H.land[k] && !H.shoal[k] && !unitAt(r, c) && !H.mines.some(m => m.r === r && m.c === c) && !avoid.some(a => cheb(a, { r, c }) < 2)) cells.push({ r, c });
+  }
+  return cells.length ? pick(cells) : null;
+}
+function foeCfg(m) {
+  const pts = Math.floor((m - 1) / 3), up = {};
+  for (let k = 0; k < pts; k++) { const u = pick(['gun', 'armor', 'hull', 'range', 'gun', 'hull']); const max = HUP.find(x => x.id === u).max; if ((up[u] || 0) < max) up[u] = (up[u] || 0) + 1; }
+  const crew = { gunners: Math.min(3, Math.floor(m / 4)), look: Math.min(2, Math.floor(m / 6)), acou: Math.min(2, Math.floor(m / 4)), mech: Math.min(3, Math.floor(m / 5)) };
+  const eq = { salvo: m >= 4 && Math.random() < .6, torp: m >= 6 && Math.random() < .5 };
+  const marines = Math.floor(m / 3);
+  return { up, crew, eq, marines };
+}
+function addFoe(type, pos, m, weak = 1) {
+  const u = mkUnit(type, 'foe', pos.r, pos.c, 135, foeCfg(m));
+  u.st.hp = Math.max(3, Math.round(u.st.hp * (m === 1 ? .67 : m === 2 ? .8 : .88) * weak)); u.hp = u.st.hp;
+  H.foes.push(u); return u;
+}
+function genFoes(m, n, zone = [0, HN - 5, 5, 5]) {
+  const top = Math.min(4, Math.floor((m - 1) / 2));
   for (let i = 0; i < n; i++) {
     const type = i === 0 ? HS_ORDER[top] : HS_ORDER[rnd(top + 1)];
-    const up = {}; for (let k = 0; k < pts; k++) { const u = pick(['gun', 'armor', 'hull', 'range', 'gun', 'hull']); const max = HUP.find(x => x.id === u).max; if ((up[u] || 0) < max) up[u] = (up[u] || 0) + 1; }
-    const crew = { gunners: Math.min(3, Math.floor(m / 4)), look: Math.min(2, Math.floor(m / 6)), acou: Math.min(2, Math.floor(m / 4)), mech: Math.min(3, Math.floor(m / 5)) };
-    const eq = { salvo: m >= 4 && Math.random() < .6, torp: m >= 6 && Math.random() < .5 };
-    let pos; do { pos = cells.splice(rnd(cells.length), 1)[0]; } while (foes.some(f => cheb(f, { r: pos[0], c: pos[1] }) < 2) && cells.length);
-    const u = mkUnit(type, up, crew, eq, pos[0], pos[1], 135, 'foe');
-    u.st.hp = Math.max(3, Math.round(u.st.hp * (m === 1 ? .67 : m === 2 ? .8 : .88))); u.hp = u.st.hp;
-    foes.push(u);
+    const pos = freeCell(zone, H.foes) || freeCell(zone); if (!pos) break;
+    addFoe(type, pos, m);
   }
-  return foes;
 }
-function startHunt() {
-  const p = curProfile(), h = hdata(p), own = h.ships[h.active];
-  H.gen++; H.phase = 'play'; H.mission = h.mission; H.turn = 0; H.busy = false; H.mode = 'move';
-  H.land = genMap(); H.flashes = []; H.marks = []; H.noise = []; H.exitArm = false;
-  H.me = mkUnit(h.active, own.up, h.crew, own.eq, HN - 2, 1, -45, 'me');
-  const lvl = hireLvl(H.mission), spots = [[HN - 3, 0], [HN - 1, 2], [HN - 3, 2]];
-  H.fleet = [H.me, ...h.hired.map((x, i) => { const u = mkUnit(x.type, hireUp(lvl), h.crew, hireEq(x.type), spots[i][0], spots[i][1], -45, 'me'); u.ally = true; return u; })];
+function setupObjective(node) {
+  const m = H.mission, esc = H.fleet.filter(u => u.side === 'me' && !u.auto).length - 1;
+  let n = Math.min(3, 1 + Math.floor((m - 1) / 3)) + Math.floor(esc / 2);
+  const o = H.obj;
+  if (o === 'convoy') {
+    [[HN - 1, 0], [HN - 2, 3]].forEach(([r, c]) => H.fleet.push(Object.assign(mkUnit('merchant', 'me', r, c, 0), { name: 'Торговец' })));
+  }
+  if (o === 'hunt' && node.ambush) { n += 1; genFoes(m, n, [3, 3, 6, 6]); H.foes.forEach(f => f.known = { r: HN - 2, c: 1, exact: false, age: 0 }); }
+  else if (o === 'hunt' || o === 'convoy') genFoes(m, n);
+  else if (o === 'rescue') {
+    genFoes(m, Math.max(2, n));
+    const cells = []; for (let r = 3; r < 10; r++) for (let c = 2; c < 9; c++) { const k = hidx(r, c); if (!H.land[k] && !H.mines.some(x => x.r === r && x.c === c) && H.foes.every(f => cheb(f, { r, c }) >= 5)) cells.push({ r, c }); }
+    while (H.boats.length < 3 && cells.length) { const x = cells.splice(rnd(cells.length), 1)[0]; if (!H.boats.some(b => cheb(b, x) < 3)) H.boats.push({ r: x.r, c: x.c, done: false }); }
+    for (let r = 3; r < 10 && H.boats.length < 3; r++) for (let c = 1; c < 10 && H.boats.length < 3; c++) { if (!H.land[hidx(r, c)] && !H.boats.some(x => cheb(x, { r, c }) < 3) && H.foes.every(f => cheb(f, { r, c }) >= 3)) H.boats.push({ r, c, done: false }); }
+  } else if (o === 'intercept') {
+    const t = Object.assign(mkUnit('transport', 'foe', 1, HN - 2, 180), { revealed: 99, name: 'Транспорт' });
+    t.st.hp = t.hp = 10 + 2 * m; H.foes.push(t);
+    genFoes(m, Math.max(1, n - 1), [0, HN - 5, 5, 5]);
+  } else if (o === 'fort') {
+    const f = Object.assign(mkUnit('fort', 'foe', kRC(H.fortCell).r, kRC(H.fortCell).c, 0), { revealed: 99, name: 'Форт' });
+    f.st.hp = f.hp = 12 + 2 * m; f.st.dmg = 3 + Math.floor(m / 3); f.st.range = 4; f.st.sight = Math.max(f.st.sight, 4);
+    H.foes.push(f);
+    genFoes(m, Math.max(1, n - 1));
+  } else if (o === 'survive') {
+    H.surviveN = Math.min(12, 8 + Math.floor(m / 3));
+    genFoes(m, Math.max(1, n - 1));
+    H.foes.forEach(f => f.known = { r: HN - 2, c: 1, exact: false, age: 0 });
+  } else if (o === 'boss') {
+    const b = bossOf(m), pos = freeCell([0, HN - 4, 4, 4]);
+    const u = mkUnit(b.type, 'foe', pos.r, pos.c, 135, { up: hireUp(Math.floor(m / 5)), crew: { gunners: 2, look: 1, acou: 2, mech: 0 }, eq: { salvo: true, torp: b.ab.includes('torp') || b.type === 'battleship', smoke: b.ab.includes('smoke'), fire: b.ab.includes('fire') } });
+    u.boss = b; u.name = b.name; u.st.hp = u.hp = Math.round(u.st.hp * 1.1 + 2 * m); u.fastTorp = b.ab.includes('torp');
+    H.foes.push(u);
+    genFoes(m, Math.max(1, n - 1));
+  }
+}
+function spawnReinf() {
+  const pos = freeCell([0, HN - 3, 3, 3]); if (!pos) return;
+  const top = Math.min(4, Math.floor((H.mission - 1) / 2));
+  const u = addFoe(HS_ORDER[rnd(top + 1)], pos, H.mission);
+  u.known = { r: H.me.r, c: H.me.c, exact: false, age: 0 };
+  hMakeEl(u); hMsg('⚠️ К врагу подошло подкрепление!', 'hit');
+}
+function startHunt(node) {
+  const p = curProfile(), h = hdata(p), m = h.mission;
+  const own = h.ships[h.active];
+  H.gen++;
+  Object.assign(H, { phase: 'play', node, obj: node.obj, weather: node.weather || 'clear', mission: m, drill: h.drill, turn: 0, busy: false, mode: 'move',
+    flashes: [], marks: [], noise: [], exitArm: false, mines: [], boats: [], captured: [], rescued: 0, lostBoats: 0, saved: 0, fortCell: -1, exitCells: new Set(), foes: [] });
+  const clear = [];
+  if (H.obj === 'convoy') { clear.push([HN - 3, HN - 3, 3, 3]); for (let r = HN - 3; r < HN; r++) for (let c = HN - 3; c < HN; c++) H.exitCells.add(hidx(r, c)); }
+  if (H.obj === 'intercept') { clear.push([0, 0, 4, 3]); for (let r = 0; r < 4; r++) H.exitCells.add(hidx(r, 0)); }
+  H.land = genMap(clear);
+  if (H.obj === 'fort') {
+    const cand = []; for (let k = 0; k < HN * HN; k++) { const { r, c } = kRC(k); if (H.land[k] && r <= 6 && c >= 5 && DIR8.filter(([dr, dc]) => hin(r + dr, c + dc) && !H.land[hidx(r + dr, c + dc)]).length >= 2) cand.push(k); }
+    H.fortCell = cand.length ? pick(cand) : hidx(4, 7); H.land[H.fortCell] = true;
+  }
+  genTerrain();
+  const ro = { crew: h.crew, regular: true };
+  H.me = mkUnit(h.active, 'me', HN - 2, 1, -45, { ...ro, up: own.up, eq: own.eq, spec: own.spec, rank: rankOf(own.xp), marines: own.marines });
+  const esc = [];
+  h.squad.forEach(id => { const s = h.ships[id]; if (s && !s.broken) esc.push(mkUnit(id, 'me', 0, 0, -45, { ...ro, up: s.up, eq: s.eq, spec: s.spec, rank: rankOf(s.xp), marines: s.marines })); });
+  h.hired.forEach(x => esc.push(mkUnit(x.type, 'me', 0, 0, -45, { crew: h.crew, up: hireUp(hireLvl(m)), eq: hireEq(x.type), rank: h.hireVet[x.type] || 0, marines: Math.floor(HS[x.type].mar / 2), ally: true })));
+  const spots = [[HN - 3, 0], [HN - 1, 2], [HN - 3, 2]];
+  esc.slice(0, SQUAD_MAX).forEach((u, i) => { u.r = spots[i][0]; u.c = spots[i][1]; });
+  H.fleet = [H.me, ...esc.slice(0, SQUAD_MAX)];
   h.hired = []; saveProfiles();
+  setupObjective(node);
   H.acted = new Set(); H.cur = H.me;
-  H.foes = genFoes(H.mission);
   buildHuntMap(); show('scr-hunt');
-  hMsg(`Врагов: ${H.foes.length}. Ищите их в тумане`, 'info');
+  const o = OBJ[H.obj], w = WEATHER[H.weather];
+  hMsg(H.obj === 'boss' ? `☠️ ${bossOf(m).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   hStartPlayerTurn(true);
+}
+function hMakeEl(u) {
+  const len = HS[u.type].len, w = HS[u.type].fort ? 1 : .8 + .2 * len;
+  const el = document.createElement('div');
+  el.className = 'hunit ' + u.side + (u.ally ? ' ally' : '') + (u.auto ? ' npc' : '') + (u.boss ? ' boss' : '') + (HS[u.type].fort ? ' fortu' : '');
+  el.innerHTML = `<div class="rot"><div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${HS[u.type].fort ? 1 : w / len})">${shipPic(u.type, u.side === 'me')}</div></div><div class="hpbar"><i></i></div>${u.boss ? '<div class="bosstag">☠️</div>' : ''}`;
+  H.layer.appendChild(el); H.els[u.id] = el;
 }
 function buildHuntMap() {
   const wrap = $('#hunt-map'); wrap.innerHTML = '';
@@ -1877,23 +2293,40 @@ function buildHuntMap() {
     const d = document.createElement('div'); d.className = 'hc'; d.onclick = () => hClick(r, c); m.appendChild(d); H.cells.push(d);
   }
   const layer = document.createElement('div'); layer.className = 'hlayer'; m.appendChild(layer); H.layer = layer;
+  const wx = document.createElement('div'); wx.className = 'wx ' + H.weather; m.appendChild(wx);
   H.els = {};
-  hUnits().forEach(u => {
-    const len = HS[u.type].len, w = .8 + .2 * len;
-    const el = document.createElement('div'); el.className = 'hunit ' + u.side + (u.ally ? ' ally' : '');
-    el.innerHTML = `<div class="rot"><div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${w / len})">${shipPic(u.type, u.side === 'me')}</div></div><div class="hpbar"><i></i></div>`;
-    layer.appendChild(el); H.els[u.id] = el;
-  });
+  hUnits().forEach(hMakeEl);
   wrap.appendChild(m);
 }
 function hMsg(t, cls) { const m = $('#hmsg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
+function boardTargets(u) { return H.foes.filter(f => f.hp > 0 && !f.gone && !f.boss && cheb(u, f) <= 1 && (foeVisible(f) || HS[f.type].fort)); }
+function boardChance(u, t) {
+  const str = u.marines * (1 + .3 * H.drill) * (1 + u.st.board);
+  const def = HS[t.type].fort ? (8 + H.mission) * (.35 + .65 * t.hp / t.st.hp) : (2 + 2 * HS[t.type].len + Math.floor(H.mission / 3)) * (.3 + .7 * t.hp / t.st.hp);
+  return Math.max(.05, Math.min(.95, str / (str + def)));
+}
 function hHighlights() {
   const me = H.cur, s = new Set();
   if (H.phase !== 'play' || H.busy || !me) return s;
   if (H.mode === 'move') { const { dist } = hbfs(me); dist.forEach((d, k) => { if (d >= 1 && d <= me.st.speed) s.add(k); }); }
-  else if (H.mode === 'gun' || H.mode === 'salvo') { for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) { const d = cheb(me, { r, c }); if (d >= 1 && d <= me.st.range && !H.land[hidx(r, c)]) s.add(hidx(r, c)); } }
+  else if (H.mode === 'gun' || H.mode === 'salvo' || H.mode === 'fire') {
+    for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) { const d = cheb(me, { r, c }), k = hidx(r, c); if (d >= 1 && d <= me.st.range && (!H.land[k] || H.foes.some(f => f.hp > 0 && f.r === r && f.c === c && foeVisible(f)))) s.add(k); }
+  }
   else if (H.mode === 'torp') { for (const [dr, dc] of DIR8) { let y = me.r, x = me.c; for (let i = 0; i < me.st.range + 2; i++) { y += dr; x += dc; if (!hin(y, x) || H.land[hidx(y, x)]) break; s.add(hidx(y, x)); } } }
+  else if (H.mode === 'board') boardTargets(me).forEach(t => s.add(hidx(t.r, t.c)));
+  else if (H.mode === 'mine') for (const [dr, dc] of DIR8) { const y = me.r + dr, x = me.c + dc; if (hin(y, x) && !H.land[hidx(y, x)] && !unitAt(y, x) && !H.mines.some(m => m.r === y && m.c === x)) s.add(hidx(y, x)); }
   return s;
+}
+function objStatus() {
+  switch (H.obj) {
+    case 'convoy': { const ms = H.fleet.filter(u => u.type === 'merchant'); return `🚢 Конвой: дошло ${ms.filter(u => u.gone).length}, в пути ${ms.filter(u => u.hp > 0 && !u.gone).length}, потоплено ${ms.filter(u => u.hp <= 0).length}`; }
+    case 'rescue': return `🛟 Спасено ${H.rescued} · потеряно ${H.lostBoats} · в воде ${H.boats.filter(b => !b.done).length} (нужно 2)`;
+    case 'intercept': { const t = H.foes.find(f => f.type === 'transport'); return t.hp > 0 ? `🎯 Транспорт: ❤ ${t.hp}/${t.st.hp}, до края ${t.c} ${plural(t.c, 'клетка', 'клетки', 'клеток')}` : '🎯 Транспорт остановлен'; }
+    case 'fort': { const f = H.foes.find(x => x.type === 'fort'); return `🏰 Форт: ❤ ${Math.max(0, f.hp)}/${f.st.hp} · штурм морпехами — вплотную, кнопка ⚔️`; }
+    case 'survive': return `⏳ Продержитесь: ход ${Math.min(H.turn, H.surviveN)} из ${H.surviveN}`;
+    case 'boss': { const b = H.foes.find(f => f.boss); return `☠️ ${b.name}: ${b.hp > 0 ? (foeVisible(b) ? `❤ ${b.hp}/${b.st.hp}` : 'скрывается') : 'повержен'}`; }
+    default: return `⚔️ Охота: врагов осталось ${H.foes.filter(f => f.hp > 0).length}`;
+  }
 }
 function renderHunt() {
   if (!H.cells) return;
@@ -1902,39 +2335,46 @@ function renderHunt() {
   H.hl = hl;
   for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) {
     const k = hidx(r, c), el = H.cells[k];
-    let cls = 'hc' + (H.land[k] ? ' land' : '') + (mine.some(u => cheb(u, { r, c }) <= u.st.sight) ? '' : ' fog');
-    if (hl.has(k)) cls += H.mode === 'move' ? ' reach' : ' inr';
+    let cls = 'hc' + (H.land[k] ? ' land' : H.shoal[k] ? ' shoal' : '') + (H.exitCells.has(k) ? ' exit ' + H.obj : '') + (mine.some(u => cheb(u, { r, c }) <= sightOf(u)) ? '' : ' fog');
+    if (hl.has(k)) cls += H.mode === 'move' ? ' reach' : H.mode === 'mine' ? ' reach' : ' inr';
     if (noise.has(k)) cls += ' noise';
     el.className = cls;
-    el.querySelectorAll('.mk').forEach(x => x.remove());
+    el.querySelectorAll('.mk,.ico').forEach(x => x.remove());
   }
+  const ico = (r, c, t, cls = '') => { const d = document.createElement('i'); d.className = 'ico ' + cls; d.textContent = t; H.cells[hidx(r, c)].appendChild(d); };
+  H.lights.forEach(k => { const { r, c } = kRC(k); ico(r, c, '🗼', 'light'); });
+  H.mines.forEach(m => { if (m.side === 'me') ico(m.r, m.c, '💣', 'mymine'); else if (m.side === 'n' && m.seen) ico(m.r, m.c, '✴️', 'nmine'); });
+  H.boats.forEach(b => { if (!b.done) ico(b.r, b.c, '🛟', 'boat'); });
   H.marks.forEach(m => { const d = document.createElement('i'); d.className = 'mk ' + m.type; H.cells[hidx(m.r, m.c)].appendChild(d); });
   hUnits().forEach(u => {
     const el = H.els[u.id]; if (!el) return;
-    const vis = u.hp > 0 && (u.side === 'me' || foeVisible(u));
+    const vis = u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u));
     el.classList.toggle('hidden', !vis);
-    el.classList.toggle('cur', u === H.cur && H.fleet.length > 1 && !H.busy && H.phase === 'play');
-    el.classList.toggle('done', u.side === 'me' && H.acted.has(u) && H.phase === 'play');
+    el.classList.toggle('smoked', u.smoke > 0);
     el.style.left = `calc(var(--hc) * ${u.c})`; el.style.top = `calc(var(--hc) * ${u.r})`;
     el.querySelector('.rot').style.transform = `translate(-50%,-50%) rotate(${u.dir}deg)`;
-    el.querySelector('.hpbar i').style.width = (u.hp / u.st.hp * 100) + '%';
+    el.querySelector('.hpbar i').style.width = (Math.max(0, u.hp) / u.st.hp * 100) + '%';
+    el.classList.toggle('cur', u === H.cur && myCmd().length > 1 && !H.busy && H.phase === 'play');
+    el.classList.toggle('done', u.side === 'me' && !u.auto && H.acted.has(u) && H.phase === 'play');
   });
   H.layer.querySelectorAll('.hflash').forEach(x => x.remove());
   H.flashes.forEach(f => { const d = document.createElement('div'); d.className = 'hflash'; d.textContent = '❗'; d.style.left = `calc(var(--hc) * ${f.c})`; d.style.top = `calc(var(--hc) * ${f.r})`; H.layer.appendChild(d); });
   // HUD
-  $('#hud-hp').style.width = (me.hp / me.st.hp * 100) + '%';
-  $('#hud-hptxt').textContent = (H.fleet.length > 1 ? HS[me.type].name + ' ' : '') + `❤ ${me.hp}/${me.st.hp}`;
+  const cmd = H.fleet.filter(u => !u.auto);
+  $('#hud-hp').style.width = (Math.max(0, me.hp) / me.st.hp * 100) + '%';
+  $('#hud-hptxt').textContent = (cmd.length > 1 ? HS[me.type].name + ' ' : '') + `❤ ${Math.max(0, me.hp)}/${me.st.hp}`;
+  $('#hud-info').textContent = `🛡${me.st.armor}${me.marines ? ' · 🪖' + me.marines : ''} · ${WEATHER[H.weather].ic} ход ${H.turn}`;
+  $('#hobj').textContent = objStatus();
   const fb = $('#hunt-fleet'); fb.innerHTML = '';
-  if (H.fleet.length > 1) H.fleet.forEach(u => {
+  if (cmd.length > 1) cmd.forEach(u => {
     const b = document.createElement('button');
     b.className = 'glass' + (u.hp <= 0 ? ' dead' : u === H.cur && !H.busy ? ' cur' : '') + (u.hp > 0 && H.acted.has(u) ? ' done' : '');
-    b.innerHTML = `${u.ally ? '🤝' : '⭐'} ${HS[u.type].name}${u.hp > 0 && H.acted.has(u) ? ' ✓' : ''}<span class="mini"><i style="width:${u.hp / u.st.hp * 100}%"></i></span>`;
+    b.innerHTML = `${u === H.me ? '⭐' : u.ally ? '🤝' : '⚓'} ${HS[u.type].name}${u.hp > 0 && H.acted.has(u) ? ' ✓' : ''}<span class="mini"><i style="width:${Math.max(0, u.hp) / u.st.hp * 100}%"></i></span>`;
     b.disabled = u.hp <= 0 || H.busy || H.phase !== 'play' || H.acted.has(u);
     b.onclick = () => hSelect(u);
     fb.appendChild(b);
   });
-  $('#hud-info').textContent = `🛡${me.st.armor} · ход ${H.turn} · врагов ${H.foes.filter(f => f.hp > 0).length}`;
-  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : H.fleet.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : `Ваш ход · миссия ${H.mission}`;
+  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : cmd.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : `Ваш ход · миссия ${H.mission}`;
   $('#hstatus').className = 'status ' + (H.busy ? 'theirs' : 'mine');
   // actions
   const acts = [
@@ -1942,15 +2382,19 @@ function renderHunt() {
     { id: 'gun', ic: '🎯', nm: 'Огонь' },
     me.eq.salvo && { id: 'salvo', ic: '💥', nm: 'Залп' },
     me.eq.torp && { id: 'torp', ic: '🚀', nm: 'Торпеда' },
+    me.eq.fire && { id: 'fire', ic: '🔥', nm: 'Пламя' },
     me.eq.radar && { id: 'radar', ic: '📡', nm: 'Радар' },
+    me.eq.smoke && { id: 'smoke', ic: '🌫️', nm: 'Дым' },
+    me.marines > 0 && { id: 'board', ic: '⚔️', nm: 'Абордаж' },
+    me.minesLeft > 0 && { id: 'mine', ic: '💣', nm: `Мина ×${me.minesLeft}` },
     { id: 'hold', ic: '🤫', nm: 'Затаиться' },
-    myAlive().filter(u => !H.acted.has(u)).length > 1 && { id: 'end', ic: '⏭', nm: 'Все стоп' },
+    myCmd().filter(u => !H.acted.has(u)).length > 1 && { id: 'end', ic: '⏭', nm: 'Все стоп' },
   ].filter(Boolean);
   const box = $('#hunt-actions'); box.innerHTML = '';
   acts.forEach(a => {
     const cd = me.cd[a.id] || 0;
     const b = document.createElement('button'); b.className = 'hact glass' + (H.mode === a.id ? ' on' : '');
-    b.disabled = H.busy || H.phase !== 'play' || cd > 0;
+    b.disabled = H.busy || H.phase !== 'play' || cd > 0 || (a.id === 'board' && !boardTargets(me).length);
     b.innerHTML = `<span>${a.ic}</span>${a.nm}${cd ? `<em class="cd">${cd}</em>` : ''}`;
     b.onclick = () => hAction(a.id);
     box.appendChild(b);
@@ -1960,40 +2404,72 @@ function hfx(r, c, type) { const cell = H.cells[hidx(r, c)]; const add = t => { 
 function hAction(id) {
   if (H.busy || H.phase !== 'play') return;
   Snd.play('click');
-  if (id === 'hold') { H.cur.movedLast = false; hMsg(H.cur === H.me ? 'Вы затаились: двигатели заглушены, вас не слышно' : `${shipName(H.cur)} затаился`, 'info'); return hUnitDone(); }
-  if (id === 'end') { myAlive().forEach(u => { if (!H.acted.has(u)) { u.movedLast = false; H.acted.add(u); } }); hMsg('Остальные корабли затаились', 'info'); return hEndPlayerTurn(); }
-  if (id === 'radar') return (async () => { H.busy = true; const res = await hFire(H.cur, 'radar'); hMsg(res.found ? `📡 Радар засёк врагов: ${res.found}` : '📡 В радиусе 4 клеток пусто', 'info'); hUnitDone(); })();
+  const u = H.cur;
+  if (id === 'hold') { u.movedLast = false; hMsg(u === H.me ? 'Вы затаились: двигатели заглушены, вас не слышно' : `${shipName(u)} затаился`, 'info'); return hUnitDone(); }
+  if (id === 'end') { myCmd().forEach(x => { if (!H.acted.has(x)) { x.movedLast = false; H.acted.add(x); } }); hMsg('Остальные корабли затаились', 'info'); return hEndPlayerTurn(); }
+  if (id === 'radar') return (async () => { H.busy = true; const res = await hFire(u, 'radar'); hMsg(res.found ? `📡 Радар засёк врагов: ${res.found}` : '📡 В радиусе 4 клеток пусто', 'info'); hUnitDone(); })();
+  if (id === 'smoke') { u.smoke = 2; u.cd.smoke = 5; u.movedLast = false; hfx(u.r, u.c, 'ping'); Snd.play('plane'); hMsg(`🌫️ ${u === H.me ? 'Вы скрылись' : shipName(u) + ' скрылся'} в дымовой завесе на 2 хода`, 'info'); return hUnitDone(); }
   H.mode = id;
-  hMsg({ move: 'Выберите клетку, куда плыть', gun: 'Выберите клетку для выстрела', salvo: 'Выберите центр залпа', torp: 'Выберите направление торпеды' }[id], 'info');
+  if (id === 'board') { const ts = boardTargets(u); hMsg(`⚔️ Абордаж (🪖${u.marines}): ` + ts.map(t => `${shipName(t)} — ${Math.round(boardChance(u, t) * 100)}%`).join(', '), 'info'); }
+  else hMsg({ move: 'Выберите клетку, куда плыть', gun: 'Выберите клетку для выстрела', salvo: 'Выберите центр залпа', fire: 'Выберите центр огненного залпа 3×3', torp: 'Выберите направление торпеды', mine: 'Выберите соседнюю клетку для мины' }[id], 'info');
   renderHunt();
 }
 function hSelect(u) {
-  if (H.busy || H.phase !== 'play' || u.hp <= 0 || H.acted.has(u) || u === H.cur) return;
+  if (H.busy || H.phase !== 'play' || u.hp <= 0 || u.auto || H.acted.has(u) || u === H.cur) return;
   H.cur = u; H.mode = 'move'; Snd.play('click');
   hMsg(`Приказы получает: ${shipName(u)}`, 'info'); renderHunt();
 }
+function hPickup(u) {
+  if (H.obj !== 'rescue' || !u || u.hp <= 0 || u.auto) return;
+  H.boats.forEach(b => { if (!b.done && cheb(u, b) <= 1) { b.done = true; H.rescued++; Snd.play('ach'); toast('🛟 Шлюпка спасена!'); } });
+}
 function hUnitDone() {
+  hPickup(H.cur);
   H.acted.add(H.cur);
-  if (H.foes.every(f => f.hp <= 0)) return hFinish(true);
-  const next = myAlive().find(u => !H.acted.has(u));
+  if (hCheck()) return;
+  const next = myCmd().find(u => !H.acted.has(u));
   if (!next) return hEndPlayerTurn();
   H.cur = next; H.mode = 'move'; H.busy = false; renderHunt();
 }
 async function hClick(r, c) {
   if (H.busy || H.phase !== 'play') return;
-  const own = myAlive().find(u => u.r === r && u.c === c);
+  const own = myCmd().find(u => u.r === r && u.c === c);
   if (own) return hSelect(own);
   if (!H.hl || !H.hl.has(hidx(r, c))) return;
   H.busy = true; const me = H.cur, gen = H.gen;
   if (H.mode === 'move') {
     const { prev } = hbfs(me);
     await hMove(me, pathTo(prev, hidx(r, c)));
-    hMsg('', '');
+    if (me.hp > 0) hMsg('', '');
+  } else if (H.mode === 'board') {
+    const t = unitAt(r, c); if (t && t.side === 'foe') await hBoard(me, t);
+  } else if (H.mode === 'mine') {
+    H.mines.push({ r, c, side: 'me' }); me.minesLeft--; me.movedLast = false; Snd.play('place'); hMsg('💣 Мина поставлена. Враг о ней не знает', 'info'); renderHunt(); await sleep(250);
   } else {
     const res = await hFire(me, H.mode, r, c);
     hMsg(res.text, res.cls);
   }
-  if (gen === H.gen) hUnitDone();
+  if (gen !== H.gen || H.phase !== 'play') return;
+  if (me.hp <= 0 && hCheck()) return;
+  hUnitDone();
+}
+async function hBoard(u, t) {
+  const ch = boardChance(u, t), ok = Math.random() < ch;
+  u.movedLast = false; u.fired = true;
+  H.foes.forEach(f => { if (f.hp > 0) f.known = { r: u.r, c: u.c, exact: true, age: 0 }; });
+  Snd.play('clang'); hfx(t.r, t.c, 'boom'); renderHunt(); await sleep(450);
+  const loss = Math.min(u.marines, Math.max(1, Math.ceil(u.marines * (ok ? .1 + .2 * Math.random() : .35 + .3 * Math.random())))), back = Math.floor(loss * u.st.heal);
+  u.marines -= loss - back;
+  const lostTxt = `потери: ${loss - back} 🪖${back ? ` (врач спас ${back})` : ''}`;
+  if (ok) {
+    t.hp = 0; t.captured = true; u.caps++; H.captured.push(t);
+    Snd.play('win'); vibrate([60, 40, 60]);
+    hMsg(HS[t.type].fort ? `🏰 Форт взят штурмом! ${lostTxt}` : `⚔️ Абордаж удался! ${shipName(t)} захвачен · ${lostTxt}`, 'sunk');
+  } else {
+    Snd.play('bad');
+    hMsg(`⚔️ Абордаж отбит (шанс был ${Math.round(ch * 100)}%) · ${lostTxt}`, 'miss');
+  }
+  renderHunt(); await sleep(300);
 }
 async function hMove(u, path) {
   const gen = H.gen;
@@ -2001,7 +2477,17 @@ async function hMove(u, path) {
     if (gen !== H.gen) return;
     const r = Math.floor(k / HN), c = k % HN;
     u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI; u.r = r; u.c = c;
+    if (u.side === 'me') H.mines.forEach(m => { if (m.side === 'n' && cheb(u, m) <= 1) m.seen = true; });
     renderHunt(); await sleep(170);
+    const mi = H.mines.findIndex(m => m.r === r && m.c === c);
+    if (mi >= 0) {
+      H.mines.splice(mi, 1);
+      const d = hDamage(u, 5, false); hfx(r, c, 'boom'); Snd.play(u.hp <= 0 ? 'sunk' : 'hit');
+      hMsg(`💥 ${u.side === 'me' ? shipName(u) : HS[u.type].name + ' противника'} подорвался на мине! −${d} ❤${u.hp <= 0 ? ' — потоплен!' : ''}`, u.side === 'me' ? 'hit' : 'sunk');
+      if (u.side === 'foe') u.revealed = Math.max(u.revealed, 1);
+      renderHunt(); await sleep(450);
+      break;
+    }
   }
   u.movedLast = path.length > 0;
 }
@@ -2012,84 +2498,138 @@ async function hFire(u, kind, r, c) {
   if (kind === 'radar') {
     u.cd.radar = 4; Snd.play('radar'); hfx(u.r, u.c, 'ping');
     let found = 0;
-    enemies.filter(e => e.hp > 0 && cheb(u, e) <= 4).sort((a, b) => cheb(u, b) - cheb(u, a)).forEach(e => { found++; if (isMe) e.revealed = 2; else u.known = { r: e.r, c: e.c, exact: true, age: 0 }; });
+    enemies.filter(e => e.hp > 0 && !e.gone && cheb(u, e) <= 4).sort((a, b) => cheb(u, b) - cheb(u, a)).forEach(e => { found++; if (isMe) e.revealed = Math.max(e.revealed, 2); else u.known = { r: e.r, c: e.c, exact: true, age: 0 }; });
     renderHunt(); await sleep(500);
     return { found };
   }
   u.fired = true;
   if (isMe) H.foes.forEach(f => { if (f.hp > 0) f.known = { r: u.r, c: u.c, exact: true, age: 0 }; });
-  else H.flashes.push({ r: u.r, c: u.c, age: 0 });
-  u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI;
+  else { H.flashes.push({ r: u.r, c: u.c, age: 0 }); if (H.weather === 'night') u.revealed = Math.max(u.revealed, 1); }
+  if (!u.st.fort) u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI;
   Snd.play(kind === 'torp' ? 'plane' : 'shot'); renderHunt(); await sleep(260);
-  let hits = [], sunk = [], scattered = false, hitUnits = new Set();
+  let hits = [], sunk = [], scattered = false; const hitUnits = new Set();
   const strike = (y, x, amt, ign) => {
-    const t = enemies.find(e => e.hp > 0 && e.r === y && e.c === x);
+    const t = enemies.find(e => e.hp > 0 && !e.gone && e.r === y && e.c === x);
     H.marks.push({ r: y, c: x, type: t ? 'hit' : 'miss', age: 0 });
-    if (!t) { hfx(y, x, 'splash'); return null; }
+    if (!t) { hfx(y, x, H.land[hidx(y, x)] ? 'boom' : 'splash'); return null; }
     const d = hDamage(t, amt, ign); hits.push(d); hitUnits.add(t); hfx(y, x, 'boom');
     if (isMe) t.revealed = Math.max(t.revealed, 2);
-    if (t.hp <= 0) sunk.push(t);
+    if (t.hp <= 0) { sunk.push(t); u.kills++; }
     return t;
   };
+  const area = async (cells, amt) => { for (const [dr, dc] of cells) { if (hin(r + dr, c + dc)) { strike(r + dr, c + dc, amt); renderHunt(); await sleep(70); } } };
   if (kind === 'gun') {
     let y = r, x = c;
     if (Math.random() < u.st.scatter) { const [dr, dc] = pick(DIR8); if (hin(r + dr, c + dc)) { y = r + dr; x = c + dc; scattered = true; } }
     strike(y, x, u.st.dmg);
   } else if (kind === 'salvo') {
-    u.cd.salvo = 2;
-    for (const [dr, dc] of [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]]) { if (hin(r + dr, c + dc) && !H.land[hidx(r + dr, c + dc)]) { strike(r + dr, c + dc, Math.max(1, u.st.dmg - 1)); renderHunt(); await sleep(90); } }
+    u.cd.salvo = 2; await area([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]], Math.max(1, u.st.dmg - 1));
+  } else if (kind === 'fire') {
+    u.cd.fire = 4; const cells = []; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) cells.push([dr, dc]);
+    await area(cells, Math.max(1, u.st.dmg - 1));
   } else if (kind === 'torp') {
-    u.cd.torp = 3;
+    u.cd.torp = u.fastTorp ? 2 : 3;
     const dr = Math.sign(r - u.r), dc = Math.sign(c - u.c); let y = u.r, x = u.c;
     for (let i = 0; i < u.st.range + 2; i++) {
       y += dr; x += dc;
       if (!hin(y, x) || H.land[hidx(y, x)]) { if (hin(y, x)) hfx(y, x, 'boom'); break; }
-      if (enemies.some(e => e.hp > 0 && e.r === y && e.c === x)) { strike(y, x, Math.ceil(u.st.dmg * 1.5), true); break; }
+      if (enemies.some(e => e.hp > 0 && !e.gone && e.r === y && e.c === x)) { strike(y, x, Math.ceil(u.st.dmg * 1.5), true); break; }
       hfx(y, x, 'splash'); await sleep(70);
     }
   }
   if (sunk.length) Snd.play('sunk'); else if (hits.length) Snd.play('hit'); else Snd.play('miss');
   if (!isMe) hitUnits.forEach(t => { const el = H.els[t.id]; if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); } });
   renderHunt();
-  const who = isMe ? (u === H.me ? 'Вы' : shipName(u)) : HS[u.type].name + ' противника';
+  const who = isMe ? (u === H.me ? 'Вы' : shipName(u)) : (u.name || HS[u.type].name + ' противника');
   const total = hits.reduce((a, b) => a + b, 0);
   let text, cls;
-  if (sunk.length) { text = isMe ? `💥 ${sunk.map(s => HS[s.type].name).join(', ')} потоплен!` : sunk.includes(H.me) ? 'Ваш корабль потоплен!' : `${sunk.map(shipName).join(', ')} потоплен!`; cls = 'sunk'; }
+  if (sunk.length) { text = isMe ? `💥 ${sunk.map(s => s.name || HS[s.type].name).join(', ')} ${sunk.some(s => HS[s.type].fort) ? 'разрушен' : 'потоплен'}!` : sunk.includes(H.me) ? 'Ваш флагман потоплен!' : `${sunk.map(shipName).join(', ')} потоплен!`; cls = 'sunk'; }
   else if (hits.length) { text = `${who}: попадание! −${total} ❤`; cls = 'hit'; }
   else { text = `${who}: мимо${scattered ? ' (снаряд отклонился)' : ''}`; cls = 'miss'; }
   return { text, cls, hits: hits.length };
 }
+function hResult() {
+  if (H.me.hp <= 0) return ['lose', 'Флагман потоплен'];
+  const alive = H.foes.filter(f => f.hp > 0 && !f.gone && !HS[f.type].npc);
+  switch (H.obj) {
+    case 'convoy': {
+      const ms = H.fleet.filter(u => u.type === 'merchant');
+      if (ms.every(u => u.hp <= 0)) return ['lose', 'Конвой потоплен'];
+      if (ms.every(u => u.hp <= 0 || u.gone) || !alive.length) return ['win'];
+      return null;
+    }
+    case 'rescue': {
+      if (H.lostBoats >= 2) return ['lose', 'Пираты перехватили шлюпки'];
+      if (!alive.length) { H.boats.forEach(b => { if (!b.done) { b.done = true; H.rescued++; } }); }
+      if (H.boats.every(b => b.done)) return H.rescued >= 2 ? ['win'] : ['lose', 'Спасено слишком мало моряков'];
+      return null;
+    }
+    case 'intercept': { const t = H.foes.find(f => f.type === 'transport'); if (t.hp <= 0) return ['win']; if (t.gone) return ['lose', 'Транспорт ушёл']; return null; }
+    case 'fort': { const f = H.foes.find(x => x.type === 'fort'); return f.hp <= 0 ? ['win'] : null; }
+    case 'survive': return H.turn > H.surviveN ? ['win'] : null;
+    default: return H.foes.every(f => f.hp <= 0) ? ['win'] : null;
+  }
+}
+function hCheck() { const r = hResult(); if (r) { hFinish(r[0] === 'win', r[1]); return true; } return false; }
+async function npcMove(u) {
+  if (u.hp <= 0 || u.gone) return;
+  const exit = u.side === 'me' ? { r: HN - 1, c: HN - 1 } : { r: 1, c: 0 };
+  const { dist, prev } = hbfs(u);
+  let best = -1, bs = 1e9;
+  dist.forEach((d, k) => { if (d < 0) return; const s = cheb(kRC(k), exit) * 100 + d; if (s < bs) { bs = s; best = k; } });
+  if (best >= 0 && best !== hidx(u.r, u.c)) await hMove(u, pathTo(prev, best).slice(0, u.st.speed));
+  else u.movedLast = false;
+  if (u.hp > 0 && H.exitCells.has(hidx(u.r, u.c))) {
+    u.gone = true; renderHunt();
+    if (u.side === 'me') { H.saved++; toast('🚢 Торговец дошёл до гавани!'); Snd.play('ach'); }
+    else hMsg('Транспорт уходит за край карты…', 'hit');
+  }
+}
 async function hEndPlayerTurn() {
   const gen = H.gen;
-  if (H.foes.every(f => f.hp <= 0)) return hFinish(true);
+  if (hCheck()) return;
   H.busy = true; H.mode = 'move'; renderHunt();
-  await sleep(500);
-  for (const f of H.foes) {
+  await sleep(450);
+  for (const u of H.fleet) {
+    if (!u.auto || u.hp <= 0 || u.gone) continue;
+    await npcMove(u); if (gen !== H.gen) return; if (hCheck()) return;
+  }
+  if (H.obj === 'survive' && H.turn % 3 === 0 && H.turn < H.surviveN) { spawnReinf(); renderHunt(); await sleep(500); }
+  for (const f of [...H.foes]) {
     if (gen !== H.gen) return;
-    if (f.hp <= 0) continue;
+    if (f.hp <= 0 || f.gone) continue;
     await foeAct(f);
     if (gen !== H.gen) return;
-    if (H.me.hp <= 0) { await sleep(600); return hFinish(false); }
-    renderHunt(); await sleep(350);
+    if (hCheck()) return;
+    renderHunt(); await sleep(320);
   }
   hStartPlayerTurn();
 }
 function hStartPlayerTurn(first) {
   const me = H.me;
-  H.turn++; let fixed = 0;
+  H.turn++;
+  if (!first && hCheck()) return;
+  let fixed = 0;
   myAlive().forEach(u => {
-    u.fired = false;
+    u.fired = false; if (u.smoke > 0) u.smoke--;
     for (const k in u.cd) if (u.cd[k] > 0) u.cd[k]--;
-    if (!first && u.st.mech && H.turn % u.st.mech === 0 && u.hp < u.st.hp) { u.hp++; fixed++; }
+    if (!first && u.hp < u.st.hp) {
+      let add = 0;
+      if (u.st.mech && H.turn % u.st.mech === 0) add++;
+      if (u.st.regen && H.turn % u.st.regen === 0) add++;
+      if (add) { u.hp = Math.min(u.st.hp, u.hp + add); fixed++; }
+    }
+    if (!u.auto) H.mines.forEach(m => { if (m.side === 'n' && cheb(u, m) <= 1) m.seen = true; });
   });
-  if (fixed) hMsg(fixed > 1 ? `🔧 Механики залатали пробоины: +1 ❤ на ${fixed} кораблях` : '🔧 Механики залатали пробоину: +1 ❤', 'info');
+  if (fixed) hMsg(fixed > 1 ? `🔧 Ремонт на ходу: +❤ на ${fixed} кораблях` : '🔧 Пробоину залатали: +❤', 'info');
   H.acted = new Set(); H.cur = me;
-  H.flashes.forEach(f => f.age++); H.flashes = H.flashes.filter(f => f.age <= 1);
+  const keep = H.weather === 'night' ? 2 : 1;
+  H.flashes.forEach(f => f.age++); H.flashes = H.flashes.filter(f => f.age <= keep);
   H.marks.forEach(m => m.age++); H.marks = H.marks.filter(m => m.age <= 1);
-  H.foes.forEach(f => { if (f.revealed > 0) f.revealed--; });
+  H.foes.forEach(f => { if (f.revealed > 0 && f.revealed < 50) f.revealed--; });
   H.noise = [];
   H.foes.forEach(f => {
-    if (f.hp > 0 && f.movedLast && !foeVisible(f) && myAlive().some(u => cheb(u, f) <= u.st.hear)) {
+    if (f.hp > 0 && !f.gone && f.movedLast && !foeVisible(f) && myAlive().some(u => cheb(u, f) <= u.st.hear)) {
       H.noise.push({ r: Math.max(0, Math.min(HN - 1, f.r + rnd(3) - 1)), c: Math.max(0, Math.min(HN - 1, f.c + rnd(3) - 1)) });
     }
   });
@@ -2097,10 +2637,19 @@ function hStartPlayerTurn(first) {
   H.busy = false; H.mode = 'move'; renderHunt();
 }
 async function foeAct(f) {
-  const mine = myAlive(), near = a => a.sort((x, y) => cheb(f, x) - cheb(f, y) || (y === H.me) - (x === H.me))[0];
+  if (f.type === 'transport') return npcMove(f);
   f.fired = false;
+  if (f.smoke > 0) f.smoke--;
   for (const k in f.cd) if (f.cd[k] > 0) f.cd[k]--;
   if (f.st.mech && H.turn % f.st.mech === 0 && f.hp < f.st.hp) f.hp++;
+  if (f.boss) {
+    if (f.boss.ab.includes('repair') && H.turn % 3 === 0 && f.hp < f.st.hp) f.hp = Math.min(f.st.hp, f.hp + 2);
+    if (f.eq.smoke && !f.cd.smoke && f.hp < f.st.hp * .6 && f.smoke <= 0 && foeVisible(f)) {
+      f.smoke = 2; f.cd.smoke = 5; hfx(f.r, f.c, 'ping'); Snd.play('plane');
+      hMsg(`🌫️ ${f.name} скрылся в дымовой завесе!`, 'hit'); renderHunt(); await sleep(500); return;
+    }
+  }
+  const mine = myAlive(), near = a => a.sort((x, y) => cheb(f, x) - cheb(f, y) || (y === H.me) - (x === H.me))[0];
   let tgt = null, exact = false;
   const seen = near(mine.filter(u => sees(f, u))), heard = near(mine.filter(u => u.movedLast && cheb(f, u) <= f.st.hear));
   if (seen) { tgt = { r: seen.r, c: seen.c }; exact = true; f.known = { ...tgt, exact: true, age: 0 }; }
@@ -2109,49 +2658,101 @@ async function foeAct(f) {
   else if (f.known && f.known.age < 4) tgt = f.known;
   if (f.known) f.known.age++;
   const d = tgt ? cheb(f, tgt) : 99;
-  if (tgt && exact && d <= f.st.range) {
+  if (tgt && exact && d <= f.st.range && f.st.dmg > 0) {
     const dr = tgt.r - f.r, dc = tgt.c - f.c, aligned = dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc);
     let kind = 'gun';
-    if (f.eq.torp && !f.cd.torp && aligned) kind = 'torp';
+    if (f.eq.fire && !f.cd.fire) kind = 'fire';
+    else if (f.eq.torp && !f.cd.torp && aligned) kind = 'torp';
     else if (f.eq.salvo && !f.cd.salvo && Math.random() < .5) kind = 'salvo';
-    const res = await hFire(f, kind, tgt.r, tgt.c); hMsg(res.text, res.cls); f.known.age = 1; return;
+    const res = await hFire(f, kind, tgt.r, tgt.c); hMsg(res.text, res.cls); if (f.known) f.known.age = 1; return foeAfter(f);
   }
   if (tgt && !exact && d <= f.st.range && f.eq.salvo && !f.cd.salvo && Math.random() < .5) {
-    const res = await hFire(f, 'salvo', tgt.r, tgt.c); hMsg(res.text, res.cls); return;
+    const res = await hFire(f, 'salvo', tgt.r, tgt.c); hMsg(res.text, res.cls); return foeAfter(f);
   }
+  if (HS[f.type].fort) { f.movedLast = false; return; }
   let dest = tgt;
   if (!dest) {
-    if (!f.wp || cheb(f, f.wp) <= 1) { let w; do { w = { r: rnd(HN), c: rnd(HN) }; } while (H.land[hidx(w.r, w.c)]); f.wp = w; }
-    dest = f.wp;
+    const boats = H.boats.filter(b => !b.done), tr = H.foes.find(x => x.type === 'transport' && x.hp > 0 && !x.gone);
+    if (H.obj === 'rescue' && boats.length) dest = near(boats);
+    else if (H.obj === 'intercept' && tr) dest = tr;
+    else {
+      if (!f.wp || cheb(f, f.wp) <= 1) { let w, g = 0; do { w = H.obj === 'convoy' && Math.random() < .6 ? { r: HN - 3 - rnd(5), c: HN - 1 - rnd(6) } : { r: rnd(HN), c: rnd(HN) }; } while (H.land[hidx(w.r, w.c)] && g++ < 50); f.wp = w; }
+      dest = f.wp;
+    }
   }
   const { dist, prev } = hbfs(f);
   let best = -1, bs = 1e9;
-  dist.forEach((dd, k) => { if (dd < 0) return; const s = cheb({ r: Math.floor(k / HN), c: k % HN }, dest) * 100 + dd; if (s < bs) { bs = s; best = k; } });
-  if (best < 0 || best === hidx(f.r, f.c)) { f.movedLast = false; return; }
-  const path = pathTo(prev, best).slice(0, f.st.speed);
-  await hMove(f, path);
+  dist.forEach((dd, k) => { if (dd < 0) return; const s = cheb(kRC(k), dest) * 100 + dd; if (s < bs) { bs = s; best = k; } });
+  if (best < 0 || best === hidx(f.r, f.c)) { f.movedLast = false; return foeAfter(f); }
+  await hMove(f, pathTo(prev, best).slice(0, f.st.speed));
+  return foeAfter(f);
 }
-function hFinish(won) {
+function foeAfter(f) {
+  if (H.obj !== 'rescue' || f.hp <= 0) return;
+  H.boats.forEach(b => { if (!b.done && cheb(f, b) <= 1) { b.done = true; H.lostBoats++; hMsg('☠️ Пираты перехватили шлюпку!', 'hit'); Snd.play('bad'); } });
+}
+function hFinish(won, reason) {
+  if (H.phase !== 'play') return;
   H.phase = 'over'; H.busy = true; renderHunt();
-  const p = curProfile(), h = hdata(p), sunk = H.foes.filter(f => f.hp <= 0).length;
+  const p = curProfile(), h = hdata(p), m = H.mission, node = H.node;
+  const warships = H.foes.filter(f => !HS[f.type].npc);
+  const sunk = warships.filter(f => f.hp <= 0 && !f.captured).length;
+  const lines = [];
   let gold;
-  if (won) { gold = 80 + 30 * H.mission + 25 * sunk; h.w++; h.mission = Math.max(h.mission, H.mission + 1); p.st.huntW = (p.st.huntW || 0) + 1; }
-  else { gold = 20 + 25 * sunk; h.l++; }
+  if (won) {
+    gold = nodeGold(node, m) + 25 * sunk;
+    if (H.obj === 'convoy') { const s = H.fleet.filter(u => u.type === 'merchant' && u.gone).length; gold += 40 * s; lines.push(`🚢 Торговцев доведено: ${s}`); }
+    if (H.obj === 'rescue') { gold += 40 * H.rescued; lines.push(`🛟 Спасено шлюпок: ${H.rescued}`); }
+    if (H.obj === 'boss') {
+      const b = bossOf(m), e = HEQ.find(x => x.id === b.reward);
+      gold += 200; h.bosses++; h.unlock[b.reward] = true; h.ships[h.active].eq[b.reward] = true;
+      lines.push(`☠️ ${b.name} повержен! Трофей: ${e.ic} <b>${e.name}</b> — уже установлен на флагман, а для других кораблей появился в продаже`);
+    }
+    if (H.obj === 'intercept') { const t = H.foes.find(x => x.type === 'transport'); if (!t.captured) lines.push('🎯 Транспорт потоплен'); }
+    if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 150; lines.push('🏰 Форт взят штурмом: +150 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
+    h.w++; if (!node.bonus) h.mission = m + 1; p.st.huntW = (p.st.huntW || 0) + 1;
+  } else { gold = 20 + 25 * sunk; h.l++; }
+  // трофеи
+  H.captured.forEach(t => {
+    h.caps++;
+    if (HS[t.type].fort) return;
+    if (t.type === 'transport') { gold += 150; lines.push('📦 Груз транспорта: +150 💰'); return; }
+    if (won && !h.ships[t.type]) { h.ships[t.type] = { up: {}, eq: {}, marines: 0, spec: [], xp: 0, broken: false }; lines.push(`🏴 Трофей: ${HS[t.type].name} теперь ваш! Он в гавани`); }
+    else { const g = Math.round(HS[t.type].price * .4) || 60; gold += g; lines.push(`🏴 Захваченный ${HS[t.type].name} продан: +${g} 💰`); }
+  });
+  // флот: опыт, потери, морпехи
+  H.fleet.forEach(u => {
+    if (u.auto) return;
+    if (u.ally) {
+      if (won && u.hp > 0) { const v = h.hireVet[u.type] || 0; if (v < 3) { h.hireVet[u.type] = v + 1; lines.push(`🤝 Наёмные корабли «${HS[u.type].name}» теперь ${RANKS[v + 1].n.toLowerCase()}: сильнее и на 10% дешевле`); } }
+      return;
+    }
+    const s = h.ships[u.type]; if (!s) return;
+    s.marines = u.hp > 0 ? u.marines : 0;
+    if (u.hp <= 0 && u !== H.me) { s.broken = true; lines.push(`🔧 ${HS[u.type].name} потоплен — нужен ремонт (${repairCost(u.type)} 💰)`); }
+    const before = rankOf(s.xp);
+    s.xp += (won && u.hp > 0 ? 1 : 0) + u.kills + 2 * u.caps;
+    const after = rankOf(s.xp);
+    if (after > before) lines.push(`🎖 ${HS[u.type].name} получил звание «${RANKS[after].n}»`);
+  });
   h.gold += gold; h.sunk += sunk;
-  const got = checkAch(p, HUNT_ACH);
+  h.route = genRoute(h);
+  checkAch(p, HUNT_ACH);
+  if (typeof dailyEvent === 'function') dailyEvent('hunt', { won, sunk, caps: H.captured.length, boss: won && H.obj === 'boss' });
   saveProfiles();
-  $('#hov-ico').textContent = won ? '🏆' : '🌊';
-  $('#hov-title').textContent = won ? `Миссия ${H.mission} пройдена!` : 'Корабль потоплен';
-  const allies = H.fleet.filter(u => u.ally), alive = allies.filter(u => u.hp > 0).length;
-  $('#hov-text').innerHTML = `Потоплено врагов: ${sunk} из ${H.foes.length}<br>${allies.length ? `Наёмники уцелели: ${alive} из ${allies.length}<br>` : ''}<b class="goldchip">+${gold} 💰</b>${won ? ' · +1 очко на Верфь 🛠' : ''}<br><small>Корабль отремонтируют в гавани бесплатно</small>`;
+  $('#hov-ico').textContent = won ? (H.obj === 'boss' ? '👑' : '🏆') : '🌊';
+  $('#hov-title').textContent = won ? (node.bonus ? `${OBJ[H.obj].name}: победа!` : `Миссия ${m} пройдена!`) : (reason || 'Поражение');
+  $('#hov-text').innerHTML = `Потоплено врагов: ${sunk} из ${warships.length}${H.captured.length ? ` · захвачено: ${H.captured.length}` : ''}<br><b class="goldchip">+${gold} 💰</b>${won ? ' · +1 очко на Верфь 🛠' : ''}` +
+    (lines.length ? `<br><span class="hlines">${lines.join('<br>')}</span>` : '') + `<br><small>Повреждения флагмана починят в гавани бесплатно</small>`;
   Snd.play(won ? 'win' : 'lose');
   setTimeout(() => overlay('#ov-hunt', true), 500);
 }
 function initHunt() {
-  $('#btn-hunt').onclick = async () => { Snd.ensure(); await ensureCaptain(); HB.sel = null; show('scr-hub'); renderHub(); };
-  $('#hub-go').onclick = () => { Snd.play('click'); startHunt(); };
+  $('#btn-hunt').onclick = async () => { Snd.ensure(); await ensureCaptain(); HB.sel = null; HB.tab = 'map'; show('scr-hub'); renderHub(); };
   $('#hub-back').onclick = () => show('scr-menu');
-  $('#hov-ok').onclick = () => { overlay('#ov-hunt', false); HB.sel = null; show('scr-hub'); renderHub(); };
+  document.querySelectorAll('#hub-tabs button').forEach(b => b.onclick = () => { HB.tab = b.dataset.t; HB.pick = false; Snd.play('click'); renderHub(); window.scrollTo(0, 0); });
+  $('#hub-body').addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) { HB.tab = g.dataset.go; renderHub(); } }, true);
+  $('#hov-ok').onclick = () => { overlay('#ov-hunt', false); HB.sel = null; HB.tab = 'map'; show('scr-hub'); renderHub(); };
   $('#hunt-sound').onclick = toggleSound;
   $('#hunt-exit').onclick = () => {
     if (H.phase !== 'play') { show('scr-hub'); renderHub(); return; }
