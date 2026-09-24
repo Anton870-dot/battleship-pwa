@@ -330,10 +330,19 @@ table.diff td:first-child{text-align:left}
 .toast{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top));transform:translateX(-50%);z-index:80;padding:10px 16px;border-radius:14px;
   background:rgba(4,40,80,.9);border:1px solid var(--gold);font-weight:700;display:flex;gap:8px;align-items:center;animation:toast 3s forwards;pointer-events:none}
 @keyframes toast{0%{opacity:0;transform:translate(-50%,-20px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+#splash{position:fixed;left:0;right:0;top:0;height:100vh;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s;
+  background:url(menu.webp) center top/cover no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 50%,transparent 96%);mask-image:linear-gradient(180deg,#000 50%,transparent 96%)}
+#splash::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,20,45,.05),rgba(3,22,50,.12) 45%,rgba(3,30,70,.5))}
+body.menu-on #splash{opacity:1}
+body.menu-on .logo svg{display:none}
+body.menu-on .logo{margin:2vh 0 34vh}
+body.menu-on #scr-menu{justify-content:flex-start}
+@media (min-aspect-ratio:1/1){#splash{background-position:center 58%}body.menu-on .logo{margin:4vh 0 30vh}}
 </style>
 </head>
-<body>
+<body class="menu-on">
 <canvas id="sea"></canvas>
+<div id="splash" aria-hidden="true"></div>
 
 <!-- shared SVG gradients for ships -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -993,7 +1002,7 @@ const viewer = () => G.mode === 'ai' ? 0 : G.turn;
 function newPlayer(name, ai, pid = null) {
   return { name, ai, pid, up: new Set(), board: newBoard(), energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false };
 }
-function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); if (id === 'scr-menu' && PR) refreshCaptain(); }
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); if (id === 'scr-menu' && PR) refreshCaptain(); }
 function overlay(id, on) { $(id).classList.toggle('show', on); }
 
 /* ==================== BOARD VIEW ==================== */
