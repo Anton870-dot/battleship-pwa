@@ -130,6 +130,68 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .cell.mine::before{content:"";position:absolute;inset:30%;border-radius:50%;z-index:2;background:radial-gradient(circle at 40% 35%,#8a8f96,#2a2e33 60%);box-shadow:0 0 0 2px rgba(255,80,60,.75),0 0 0 4px rgba(0,0,0,.25)}
 .cell.miss.mine::after{width:60%;height:60%;background:radial-gradient(circle,#ffcf4a 0,#ff5a3c 45%,transparent 70%);box-shadow:none}
 .uplist{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;font-size:13px;opacity:.9;max-width:var(--bw);min-height:4px}
+
+/* ===== hunt mode ===== */
+.hub-head{display:flex;align-items:center;gap:12px;padding:12px 16px;width:min(560px,100%)}
+.hub-head .g{font-size:30px;font-weight:900;color:var(--gold);white-space:nowrap}
+.hub-head small{display:block;color:var(--muted);font-size:13px}
+.ships-row{display:flex;gap:8px;overflow-x:auto;width:min(560px,100%);padding:4px 2px 8px;scrollbar-width:none}
+.shipcard{flex:none;width:100px;padding:10px 6px;border-radius:14px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;font-weight:800}
+.shipcard small{font-size:11px;color:var(--muted);font-weight:700}
+.shipcard.sel{box-shadow:inset 0 0 0 2px var(--gold);background:rgba(255,207,74,.15)}
+.shipcard.locked .pic{filter:grayscale(.7) brightness(.8)}
+.pic{display:block;height:26px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.pic svg{width:100%;height:100%;display:block;overflow:visible}
+.pic.big{height:34px;flex:none}
+.hub-panel{width:min(560px,100%);padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.hp-title{display:flex;align-items:center;gap:14px}
+.hp-title b{font-size:20px}.hp-title small{display:block;color:var(--muted);font-size:13px}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{background:var(--panel2);border-radius:10px;padding:6px 8px;font-size:12px;color:var(--muted)}
+.stat b{display:block;font-size:17px;color:#fff}
+.sec-t{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-top:6px}
+.uprow{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.uprow .ic{font-size:22px;width:30px;text-align:center;flex:none}
+.uprow .nm{flex:1;font-weight:700;font-size:14px}
+.uprow .nm small{display:block;color:var(--muted);font-weight:500;font-size:12px;line-height:1.3}
+.lv{display:flex;gap:3px;margin-top:4px}.lv i{width:16px;height:6px;border-radius:3px;background:rgba(0,30,70,.45)}.lv i.on{background:var(--gold)}
+.uprow .btn{min-width:80px;flex:none}
+.goldchip{font-weight:900;color:var(--gold);font-size:20px}
+#scr-hunt{gap:8px}
+#hmsg{height:auto;min-height:20px;font-size:14px;line-height:1.25}
+.hmap{--hw:min(94vw,470px,56vh);--hc:calc(var(--hw) / 12);position:relative;display:grid;grid-template-columns:repeat(12,var(--hc));grid-auto-rows:var(--hc);width:var(--hw);border-radius:14px;overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,40,90,.35),inset 0 0 0 1px rgba(255,255,255,.3);background:rgba(120,210,255,.06)}
+.hc{position:relative;border:1px solid rgba(255,255,255,.1);margin:-.5px;transition:background .25s}
+.hc.fog{background:rgba(2,26,58,.5)}
+.hc.land{background:radial-gradient(circle at 50% 45%,#86cf6e 0 34%,#e2cc92 58%,#d3b67c 72%,rgba(226,204,146,.55) 100%);border-color:transparent}
+.hc.land.fog{filter:brightness(.6)}
+.hc.reach{background:rgba(90,255,170,.3);cursor:pointer}.hc.reach:hover{background:rgba(90,255,170,.55)}
+.hc.inr{background:rgba(255,207,74,.24);cursor:crosshair}.hc.inr:hover{background:rgba(255,207,74,.55)}
+.hc.noise{box-shadow:inset 0 0 0 2px rgba(255,130,130,.7);background-image:repeating-linear-gradient(45deg,rgba(255,90,90,.18) 0 4px,transparent 4px 8px)}
+.hc .mk{position:absolute;inset:36%;border-radius:50%;background:#fff;opacity:.75;z-index:2}.hc .mk.hit{background:#ff5a3c;opacity:.9}
+.hlayer{position:absolute;inset:0;pointer-events:none}
+.hunit{position:absolute;width:var(--hc);height:var(--hc);transition:left .16s linear,top .16s linear;z-index:3}
+.hunit .rot{position:absolute;left:50%;top:50%;transition:transform .2s}
+.hunit .spr{filter:drop-shadow(0 3px 3px rgba(0,30,60,.55))}
+.hunit .spr svg{width:100%;height:100%;display:block}
+.hunit.foe .spr{filter:sepia(.8) hue-rotate(-35deg) saturate(3.2) brightness(.72) drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.hunit .hpbar{position:absolute;left:8%;right:8%;top:-3px;height:4px;border-radius:2px;background:rgba(0,0,0,.45)}
+.hunit .hpbar i{display:block;height:100%;border-radius:2px;background:#5dff9a;transition:width .3s}.hunit.foe .hpbar i{background:#ff6b57}
+.hunit.hidden{display:none}
+.hunit.me::before{content:"";position:absolute;inset:-4%;border-radius:50%;border:2px solid rgba(255,255,255,.55)}
+.hunit.shake{animation:shake .35s}
+.hflash{position:absolute;width:var(--hc);height:var(--hc);display:grid;place-items:center;font-size:calc(var(--hc) * .55);z-index:4;animation:flicker 1s ease-in-out infinite;text-shadow:0 0 8px #ff5a3c}
+.hud{display:flex;gap:10px;align-items:center;width:min(470px,94vw);padding:8px 12px;font-weight:800;font-size:14px}
+.hpbig{flex:1;height:12px;border-radius:6px;background:rgba(0,30,70,.45);overflow:hidden}
+.hpbig i{display:block;height:100%;background:linear-gradient(90deg,#3ddc84,#b6ff9e);transition:width .3s}
+.hacts{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;width:min(470px,94vw)}
+.hact{padding:8px 2px;border-radius:14px;display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:800;gap:1px;position:relative}
+.hact span{font-size:20px}
+.hact.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#3b2300;text-shadow:none}
+.hact .cd{position:absolute;top:2px;right:4px;font-size:11px;font-style:normal;background:#ff5a3c;border-radius:8px;padding:0 5px;color:#fff}
+.hact:disabled{opacity:.4}
+.hlegend{font-size:12px;color:var(--muted);text-align:center;max-width:470px;line-height:1.4}
+
 /* shipyard */
 .yard-head{display:flex;align-items:center;gap:12px;padding:12px 16px;width:min(560px,100%)}
 .yard-head .pts{font-size:34px;font-weight:900;color:var(--gold);line-height:1}
@@ -318,6 +380,12 @@ table.diff td:first-child{text-align:left}
     <button class="btn big" id="btn-duo">👥 Два капитана</button>
   </div>
 
+  <div class="glass menu-card">
+    <h3>Новый режим</h3>
+    <button class="btn big" id="btn-hunt">🧭 Морской поход</button>
+    <p style="margin:0;color:var(--muted);font-size:13px;text-align:center">Один корабль, открытое море и туман войны. Пошаговые дуэли, золото, покупка и прокачка кораблей.</p>
+  </div>
+
   <div class="menu-foot">
     <button class="btn glass" id="btn-ach"><span>🏆</span>Достижения</button>
     <button class="btn glass" id="btn-help"><span>📖</span>Правила</button>
@@ -392,6 +460,29 @@ table.diff td:first-child{text-align:left}
   <div class="glass up-info" id="up-info"></div>
 </section>
 
+<!-- ================= HUNT HUB ================= -->
+<section id="scr-hub" class="screen">
+  <div class="topbar"><button class="iconbtn glass" id="hub-back" aria-label="Назад">←</button><h2>Морской поход</h2><span style="width:44px"></span></div>
+  <div class="glass hub-head"><div class="g"><span id="hub-gold">0</span> 💰</div><div><b>Гавань</b><small id="hub-stats"></small></div></div>
+  <div class="ships-row" id="hub-ships"></div>
+  <div class="glass hub-panel" id="hub-ship"></div>
+  <div class="glass hub-panel" id="hub-crew"></div>
+  <button class="btn primary big" id="hub-go" style="max-width:560px"></button>
+</section>
+
+<!-- ================= HUNT BATTLE ================= -->
+<section id="scr-hunt" class="screen">
+  <div class="topbar">
+    <button class="iconbtn glass" id="hunt-exit" aria-label="Отступить">✕</button>
+    <div style="flex:1"><div class="status" id="hstatus"></div><div class="msg" id="hmsg"></div></div>
+    <button class="iconbtn glass" id="hunt-sound" aria-label="Звук">🔊</button>
+  </div>
+  <div class="glass hud"><span id="hud-hptxt"></span><div class="hpbig"><i id="hud-hp"></i></div><span id="hud-info"></span></div>
+  <div id="hunt-map"></div>
+  <div class="hacts" id="hunt-actions"></div>
+  <div class="hlegend">Ход — это <b>либо движение, либо выстрел</b>. Тёмное — туман. ❗ — вспышка вражеского выстрела. Красная штриховка — шум винтов. Стреляя, вы выдаёте себя. Затаившись, вы не шумите.</div>
+</section>
+
 <!-- ================= HELP ================= -->
 <section id="scr-help" class="screen">
   <div class="topbar"><button class="iconbtn glass back-menu" aria-label="Назад">←</button><h2>Правила</h2><span style="width:44px"></span></div>
@@ -410,8 +501,11 @@ table.diff td:first-child{text-align:left}
     </ul>
     <h3>🛠 Верфь и прокачка</h3>
     <p>Каждая победа (над компьютером или в игре вдвоём) даёт 1 очко прокачки. Одно очко — одно улучшение на Верфи. Древо из четырёх веток: Корпус, Энергия, Разведка и Оружие. Улучшения открываются по порядку сверху вниз, а на самом дне ждёт «Флагман». Сброс древа возвращает все очки. Компьютер на сложном уровне получает столько же улучшений, сколько у вас, на среднем — половину.</p>
+    <h3>🧭 Морской поход</h3>
+    <p>Отдельный режим. Вы на одном корабле посреди карты 12×12 с островами. За ход можно <b>либо плыть</b> (на столько клеток, какая скорость), <b>либо стрелять</b> по клетке в пределах дальности. Врагов видно только в радиусе обзора, всё остальное — туман. Выстрел выдаёт стрелявшего (❗ вспышка). Двигаясь, корабль шумит — акустики слышат примерную зону (красная штриховка). «Затаиться» — пропустить ход беззвучно. Подлодка невидима дальше 1 клетки, пока не выстрелит.</p>
+    <p>За миссии платят золото. В гавани на него покупают корабли (катер, эсминец, подлодка, крейсер, линкор), улучшают их (орудия, дальность, броня, двигатель, корпус), ставят оборудование (залп, торпеды, радар) и нанимают экипаж (канониры, механики, наблюдатели, акустики). Каждая выигранная миссия ещё и даёт очко на Верфь.</p>
     <h3>🏆 Капитаны и достижения</h3>
-    <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 19 достижений и таблица всех капитанов на этом устройстве.</p>
+    <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 22 достижения и таблица всех капитанов на этом устройстве.</p>
   </div>
 </section>
 
@@ -448,6 +542,15 @@ table.diff td:first-child{text-align:left}
     <h2 style="font-size:22px">Выйти из игры?</h2>
     <p>Текущая партия будет потеряна.</p>
     <div class="row"><button class="btn" id="conf-no">Остаться</button><button class="btn warn" id="conf-yes">Выйти</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-hunt">
+  <div class="card glass">
+    <div class="big-ico" id="hov-ico">🏆</div>
+    <h2 id="hov-title"></h2>
+    <p id="hov-text"></p>
+    <button class="btn primary big" id="hov-ok">В гавань</button>
   </div>
 </div>
 
@@ -698,7 +801,7 @@ function nameError(name) {
   if (PR.list.some(p => p.name.toLowerCase() === name.toLowerCase())) return 'Такой капитан уже есть';
   return '';
 }
-function wins(st) { return st.easy.w + st.normal.w + st.hard.w + st.duoW; }
+function wins(st) { return st.easy.w + st.normal.w + st.hard.w + st.duoW + (st.huntW || 0); }
 /* ==================== UPGRADE TREE ==================== */
 const BRANCHES = ['Корпус', 'Энергия', 'Разведка', 'Оружие'];
 const UPG = [
@@ -800,6 +903,9 @@ const ACH = [
   { id: 'duel',      ic: '🤝', name: 'Дуэлянт',          desc: 'Победите в игре вдвоём',                  ok: c => c.won && c.mode === 'duo' },
   { id: 'engineer',  ic: '🛠️', name: 'Корабел',          desc: 'Изучите 5 улучшений на Верфи',            ok: c => c.prof.up.length >= 5 },
   { id: 'master',    ic: '⚙️', name: 'Главный инженер',  desc: 'Изучите 12 улучшений',                    ok: c => c.prof.up.length >= 12 },
+  { id: 'hunt1',     ic: '🧭', name: 'Первый поход',     desc: 'Пройдите миссию в Морском походе',        ok: c => !!(c.prof.hunt && c.prof.hunt.w >= 1) },
+  { id: 'hunt10',    ic: '🏴‍☠️', name: 'Гроза морей',      desc: 'Дойдите до 10-й миссии похода',           ok: c => !!(c.prof.hunt && c.prof.hunt.mission >= 10) },
+  { id: 'fleet5',    ic: '⚓', name: 'Адмиралтейство',   desc: 'Соберите в гавани все 5 кораблей',        ok: c => !!(c.prof.hunt && Object.keys(c.prof.hunt.ships).length >= 5) },
   { id: 'genius',    ic: '👑', name: 'Флагман флота',    desc: 'Откройте всё древо развития',             ok: c => c.prof.up.length >= UPG.length },
 ];
 function toast(html) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html; document.body.appendChild(t); setTimeout(() => t.remove(), 3100); }
@@ -984,7 +1090,7 @@ function initMenu() {
   syncSoundUi(); refreshCaptain();
 }
 function toggleSound() { Snd.on = !Snd.on; store.set('bs-sound', Snd.on); syncSoundUi(); Snd.play('click'); }
-function syncSoundUi() { $('#snd-ico').textContent = Snd.on ? '🔊' : '🔇'; $('#snd-txt').textContent = Snd.on ? 'Звук вкл' : 'Звук выкл'; $('#battle-sound').textContent = Snd.on ? '🔊' : '🔇'; }
+function syncSoundUi() { $('#snd-ico').textContent = Snd.on ? '🔊' : '🔇'; $('#snd-txt').textContent = Snd.on ? 'Звук вкл' : 'Звук выкл'; $('#battle-sound').textContent = $('#hunt-sound').textContent = Snd.on ? '🔊' : '🔇'; }
 
 function startGame(mode, p2) {
   G.gen++; G.mode = mode;
@@ -1509,8 +1615,461 @@ function initYard() {
     Y.resetArm = false; p.up = []; saveProfiles(); Snd.play('click'); renderYard();
   };
 }
+
+/* ==================== МОРСКОЙ ПОХОД (hunt mode) ==================== */
+const HS = {
+  boat:       { name: 'Катер',    len: 1, price: 0,    hp: 6,  armor: 0, speed: 3, dmg: 2, range: 3, sight: 2, desc: 'Быстрый и юркий. Слабая броня, зато три клетки за ход.' },
+  destroyer:  { name: 'Эсминец',  len: 2, price: 300,  hp: 10, armor: 1, speed: 2, dmg: 3, range: 4, sight: 2, desc: 'Надёжный универсал: крепче катера и бьёт дальше.' },
+  sub:        { name: 'Подлодка', len: 2, price: 500,  hp: 8,  armor: 0, speed: 2, dmg: 4, range: 4, sight: 2, sub: true, desc: 'Невидима дальше 1 клетки, пока не стреляет. Мощный удар.' },
+  cruiser:    { name: 'Крейсер',  len: 3, price: 800,  hp: 14, armor: 2, speed: 2, dmg: 4, range: 5, sight: 3, desc: 'Тяжёлая броня, хороший обзор, дальние орудия.' },
+  battleship: { name: 'Линкор',   len: 4, price: 1400, hp: 22, armor: 3, speed: 1, dmg: 6, range: 6, sight: 3, desc: 'Плавучая крепость. Медленный, но сокрушительный.' },
+};
+const HS_ORDER = ['boat', 'destroyer', 'sub', 'cruiser', 'battleship'];
+const HUP = [
+  { id: 'gun',    ic: '🎯', name: 'Орудия',         max: 4, eff: l => `урон +${l}` },
+  { id: 'range',  ic: '📏', name: 'Дальнобойность', max: 2, eff: l => `дальность +${l}` },
+  { id: 'armor',  ic: '🛡️', name: 'Броня',          max: 3, eff: l => `броня +${l}` },
+  { id: 'engine', ic: '⚙️', name: 'Двигатель',      max: 2, eff: l => `скорость +${l}` },
+  { id: 'hull',   ic: '🧱', name: 'Корпус',         max: 4, eff: l => `прочность +${l * 4}` },
+];
+const HEQ = [
+  { id: 'salvo', ic: '💥', name: 'Залповая батарея', price: 150, desc: 'Крест из 5 клеток, урон −1. Перезарядка 2 хода.' },
+  { id: 'torp',  ic: '🚀', name: 'Торпедный аппарат', price: 220, desc: 'Торпеда по прямой до первой цели, урон ×1,5 сквозь броню. Перезарядка 3 хода.' },
+  { id: 'radar', ic: '📡', name: 'Радар',            price: 180, desc: 'Засекает всех врагов в радиусе 4 клеток. Перезарядка 4 хода.' },
+];
+const HCREW = [
+  { id: 'gunners', ic: '🎖️', name: 'Канониры',   max: 3, eff: l => `разброс снарядов ${[30, 20, 10, 0][l]}%` },
+  { id: 'mech',    ic: '🔧', name: 'Механики',   max: 3, eff: l => l ? `ремонт 1 ед. каждые ${[0, 3, 2, 1][l]} ${plural([0, 3, 2, 1][l], 'ход', 'хода', 'ходов')}` : 'ремонта в бою нет' },
+  { id: 'look',    ic: '🔭', name: 'Наблюдатели', max: 2, eff: l => `обзор +${l}` },
+  { id: 'acou',    ic: '🎧', name: 'Акустики',   max: 2, eff: l => `слух ${4 + l * 2} клеток` },
+];
+const CREW_COST = [100, 200, 350];
+const UP_BASE = { boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180 };
+function hdata(p) {
+  if (!p.hunt) p.hunt = { gold: 150, mission: 1, active: 'boat', ships: { boat: { up: {}, eq: {} } }, crew: {}, w: 0, l: 0, sunk: 0 };
+  return p.hunt;
+}
+function shipStats(id, up = {}, crew = {}) {
+  const b = HS[id];
+  return {
+    hp: b.hp + 4 * (up.hull || 0), armor: b.armor + (up.armor || 0), speed: b.speed + (up.engine || 0),
+    dmg: b.dmg + (up.gun || 0), range: b.range + (up.range || 0), sight: b.sight + (crew.look || 0),
+    hear: 4 + 2 * (crew.acou || 0), scatter: [.3, .2, .1, 0][crew.gunners || 0], mech: [0, 3, 2, 1][crew.mech || 0], sub: !!b.sub,
+  };
+}
+function subSVG() {
+  return `<svg viewBox="0 0 200 100" width="100%" height="100%" preserveAspectRatio="none" style="overflow:visible">
+    <ellipse cx="100" cy="50" rx="94" ry="28" fill="url(#gHull)" stroke="#111a22" stroke-width="3"/>
+    <ellipse cx="104" cy="50" rx="70" ry="12" fill="#3d4b57" opacity=".7"/>
+    <rect x="78" y="34" width="38" height="32" rx="14" fill="#5d6c78" stroke="#1a232b" stroke-width="2"/>
+    <line x1="97" y1="50" x2="150" y2="50" stroke="#aebcc7" stroke-width="3"/><circle cx="186" cy="50" r="4" fill="#9fb0bd"/></svg>`;
+}
+const shipPic = (id, foam) => HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
+const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5'];
+function checkAch(p, ids) {
+  const got = [], ctx = { prof: p, st: p.st, pl: {}, won: false };
+  for (const a of ACH) if (ids.includes(a.id) && !p.ach[a.id] && a.ok(ctx)) { p.ach[a.id] = Date.now(); got.push(a); }
+  got.forEach((a, i) => setTimeout(() => { toast(`${a.ic} Достижение: ${a.name}`); Snd.play('ach'); }, 500 + i * 900));
+  return got;
+}
+
+/* ---------- Гавань (hub) ---------- */
+const HB = { sel: null };
+function renderHub() {
+  const p = curProfile(), h = hdata(p);
+  if (!HB.sel) HB.sel = h.active;
+  $('#hub-gold').textContent = h.gold;
+  $('#hub-stats').innerHTML = `Миссия <b>${h.mission}</b> · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}`;
+  // ship cards
+  const row = $('#hub-ships'); row.innerHTML = '';
+  HS_ORDER.forEach(id => {
+    const own = !!h.ships[id], s = HS[id];
+    const b = document.createElement('button');
+    b.className = 'shipcard glass' + (HB.sel === id ? ' sel' : '') + (own ? '' : ' locked');
+    b.innerHTML = `<span class="pic" style="width:${22 + s.len * 16}px">${shipPic(id, false)}</span><span>${s.name}</span>
+      <small>${own ? (h.active === id ? '⭐ в строю' : 'в гавани') : `${s.price} 💰`}</small>`;
+    b.onclick = () => { HB.sel = id; Snd.play('click'); renderHub(); };
+    row.appendChild(b);
+  });
+  // selected ship panel
+  const id = HB.sel, s = HS[id], own = h.ships[id], st = shipStats(id, own ? own.up : {}, h.crew);
+  const lv = (n, max) => `<span class="lv">${Array.from({ length: max }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
+  let html = `<div class="hp-title"><span class="pic big" style="width:${40 + s.len * 26}px">${shipPic(id, false)}</span><div><b>${s.name}</b><small>${s.desc}</small></div></div>
+    <div class="statgrid">
+      <div class="stat">Прочность<b>❤ ${st.hp}</b></div><div class="stat">Броня<b>🛡 ${st.armor}</b></div><div class="stat">Скорость<b>⚙ ${st.speed}</b></div>
+      <div class="stat">Урон<b>🎯 ${st.dmg}</b></div><div class="stat">Дальность<b>📏 ${st.range}</b></div><div class="stat">Обзор<b>🔭 ${st.sight}</b></div>
+    </div>`;
+  if (!own) {
+    html += `<button class="btn primary" data-act="buy" ${h.gold < s.price ? 'disabled' : ''}>Купить за ${s.price} 💰</button>`;
+  } else {
+    if (h.active !== id) html += `<button class="btn primary" data-act="activate">⭐ Выйти в море на этом корабле</button>`;
+    html += `<div class="sec-t">Улучшения корабля</div>`;
+    HUP.forEach(u => {
+      const l = own.up[u.id] || 0, cost = UP_BASE[id] * (l + 1), max = l >= u.max;
+      html += `<div class="uprow"><span class="ic">${u.ic}</span><span class="nm">${u.name}<small>${l ? u.eff(l) : 'базовый уровень'}</small>${lv(l, u.max)}</span>
+        <button class="btn small ${max ? '' : 'primary'}" data-act="up" data-id="${u.id}" ${max || h.gold < cost ? 'disabled' : ''}>${max ? 'макс.' : cost + ' 💰'}</button></div>`;
+    });
+    html += `<div class="sec-t">Оборудование</div>`;
+    HEQ.forEach(e => {
+      const has = !!own.eq[e.id];
+      html += `<div class="uprow"><span class="ic">${e.ic}</span><span class="nm">${e.name}<small>${e.desc}</small></span>
+        <button class="btn small ${has ? '' : 'primary'}" data-act="eq" data-id="${e.id}" ${has || h.gold < e.price ? 'disabled' : ''}>${has ? '✓ есть' : e.price + ' 💰'}</button></div>`;
+    });
+  }
+  $('#hub-ship').innerHTML = html;
+  let ch = `<div class="sec-t" style="margin-top:0">Экипаж (для всех кораблей)</div>`;
+  HCREW.forEach(c => {
+    const l = h.crew[c.id] || 0, max = l >= c.max, cost = CREW_COST[l];
+    ch += `<div class="uprow"><span class="ic">${c.ic}</span><span class="nm">${c.name}<small>${c.eff(l)}</small>${lv(l, c.max)}</span>
+      <button class="btn small ${max ? '' : 'primary'}" data-act="crew" data-id="${c.id}" ${max || h.gold < cost ? 'disabled' : ''}>${max ? 'макс.' : cost + ' 💰'}</button></div>`;
+  });
+  $('#hub-crew').innerHTML = ch;
+  $('#hub-go').innerHTML = `⚓ В поход на «${HS[h.active].name}» — миссия ${h.mission}`;
+  document.querySelectorAll('#scr-hub [data-act]').forEach(b => b.onclick = () => hubAct(b.dataset.act, b.dataset.id));
+}
+function hubAct(act, id) {
+  const p = curProfile(), h = hdata(p), sid = HB.sel, own = h.ships[sid];
+  const pay = n => { if (h.gold < n) return false; h.gold -= n; return true; };
+  if (act === 'buy' && !own && pay(HS[sid].price)) { h.ships[sid] = { up: {}, eq: {} }; h.active = sid; checkAch(p, HUNT_ACH); }
+  else if (act === 'activate' && own) h.active = sid;
+  else if (act === 'up' && own) { const l = own.up[id] || 0; if (l < HUP.find(u => u.id === id).max && pay(UP_BASE[sid] * (l + 1))) own.up[id] = l + 1; else return; }
+  else if (act === 'eq' && own && !own.eq[id]) { if (pay(HEQ.find(e => e.id === id).price)) own.eq[id] = true; else return; }
+  else if (act === 'crew') { const l = h.crew[id] || 0; if (l < HCREW.find(c => c.id === id).max && pay(CREW_COST[l])) h.crew[id] = l + 1; else return; }
+  else return;
+  saveProfiles(); Snd.play(act === 'activate' ? 'click' : 'buy'); vibrate(30); renderHub();
+}
+
+/* ---------- Бой ---------- */
+const HN = 12;
+const hidx = (r, c) => r * HN + c, hin = (r, c) => r >= 0 && r < HN && c >= 0 && c < HN;
+const DIR8 = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+const cheb = (a, b) => Math.max(Math.abs(a.r - b.r), Math.abs(a.c - b.c));
+const H = { gen: 0, phase: 'menu' };
+function hUnits() { return [H.me, ...H.foes]; }
+function unitAt(r, c) { return hUnits().find(u => u.hp > 0 && u.r === r && u.c === c) || null; }
+function genMap() {
+  for (let tries = 0; tries < 80; tries++) {
+    const land = new Array(HN * HN).fill(false), blobs = 5 + rnd(3);
+    for (let b = 0; b < blobs; b++) {
+      const cr = 1 + rnd(HN - 2), cc = 1 + rnd(HN - 2), rad = 1 + rnd(2);
+      for (let r = cr - rad; r <= cr + rad; r++) for (let c = cc - rad; c <= cc + rad; c++) {
+        if (!hin(r, c)) continue; const d = Math.hypot(r - cr, c - cc);
+        if (d <= rad - .3 || (d <= rad + .4 && Math.random() < .45)) land[hidx(r, c)] = true;
+      }
+    }
+    for (let r = HN - 4; r < HN; r++) for (let c = 0; c < 4; c++) land[hidx(r, c)] = false;
+    for (let r = 0; r < 4; r++) for (let c = HN - 4; c < HN; c++) land[hidx(r, c)] = false;
+    const nLand = land.filter(Boolean).length;
+    if (nLand < HN * HN * .1 || nLand > HN * HN * .22) continue;
+    const seen = new Set([hidx(HN - 1, 0)]), q = [hidx(HN - 1, 0)];
+    while (q.length) { const k = q.shift(), r = Math.floor(k / HN), c = k % HN; for (const [dr, dc] of DIR8) { const y = r + dr, x = c + dc, kk = hidx(y, x); if (hin(y, x) && !land[kk] && !seen.has(kk)) { seen.add(kk); q.push(kk); } } }
+    if (seen.size === HN * HN - nLand) return land;
+  }
+  return new Array(HN * HN).fill(false);
+}
+function hbfs(u) {
+  const dist = new Array(HN * HN).fill(-1), prev = new Array(HN * HN).fill(-1), s = hidx(u.r, u.c), q = [s]; dist[s] = 0;
+  while (q.length) {
+    const k = q.shift(), r = Math.floor(k / HN), c = k % HN;
+    for (const [dr, dc] of DIR8) {
+      const y = r + dr, x = c + dc; if (!hin(y, x)) continue; const kk = hidx(y, x);
+      if (dist[kk] >= 0 || H.land[kk] || unitAt(y, x)) continue;
+      dist[kk] = dist[k] + 1; prev[kk] = k; q.push(kk);
+    }
+  }
+  return { dist, prev };
+}
+function pathTo(prev, k) { const p = []; while (prev[k] !== -1) { p.unshift(k); k = prev[k]; } return p; }
+function sees(obs, tgt) { return cheb(obs, tgt) <= (tgt.st.sub && !tgt.fired ? 1 : obs.st.sight); }
+function foeVisible(f) { return f.hp > 0 && (sees(H.me, f) || f.revealed > 0); }
+function mkUnit(type, up, crew, eq, r, c, dir, side) {
+  const st = shipStats(type, up, crew);
+  return { id: side + rnd(1e6), side, type, st, hp: st.hp, r, c, dir, eq: eq || {}, cd: { salvo: 0, torp: 0, radar: 0 }, fired: false, movedLast: false, revealed: 0, known: null, wp: null };
+}
+function genFoes(m) {
+  const n = Math.min(3, 1 + Math.floor((m - 1) / 3)), top = Math.min(4, Math.floor((m - 1) / 2)), pts = Math.floor((m - 1) / 2);
+  const cells = []; for (let r = 0; r < 5; r++) for (let c = HN - 5; c < HN; c++) if (!H.land[hidx(r, c)]) cells.push([r, c]);
+  const foes = [];
+  for (let i = 0; i < n; i++) {
+    const type = i === 0 ? HS_ORDER[top] : HS_ORDER[rnd(top + 1)];
+    const up = {}; for (let k = 0; k < pts; k++) { const u = pick(['gun', 'armor', 'hull', 'range', 'gun', 'hull']); const max = HUP.find(x => x.id === u).max; if ((up[u] || 0) < max) up[u] = (up[u] || 0) + 1; }
+    const crew = { gunners: Math.min(3, Math.floor(m / 3)), look: Math.min(2, Math.floor(m / 6)), acou: Math.min(2, Math.floor(m / 4)), mech: Math.min(3, Math.floor(m / 5)) };
+    const eq = { salvo: m >= 4 && Math.random() < .6, torp: m >= 6 && Math.random() < .5 };
+    let pos; do { pos = cells.splice(rnd(cells.length), 1)[0]; } while (foes.some(f => cheb(f, { r: pos[0], c: pos[1] }) < 2) && cells.length);
+    const u = mkUnit(type, up, crew, eq, pos[0], pos[1], 135, 'foe');
+    if (m <= 2) { u.st.hp = Math.round(u.st.hp * (m === 1 ? .67 : .84)); u.hp = u.st.hp; }
+    foes.push(u);
+  }
+  return foes;
+}
+function startHunt() {
+  const p = curProfile(), h = hdata(p), own = h.ships[h.active];
+  H.gen++; H.phase = 'play'; H.mission = h.mission; H.turn = 0; H.busy = false; H.mode = 'move';
+  H.land = genMap(); H.flashes = []; H.marks = []; H.noise = []; H.exitArm = false;
+  H.me = mkUnit(h.active, own.up, h.crew, own.eq, HN - 2, 1, -45, 'me');
+  H.foes = genFoes(H.mission);
+  buildHuntMap(); show('scr-hunt');
+  hMsg(`Врагов: ${H.foes.length}. Ищите их в тумане`, 'info');
+  hStartPlayerTurn(true);
+}
+function buildHuntMap() {
+  const wrap = $('#hunt-map'); wrap.innerHTML = '';
+  const m = document.createElement('div'); m.className = 'hmap';
+  H.cells = [];
+  for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) {
+    const d = document.createElement('div'); d.className = 'hc'; d.onclick = () => hClick(r, c); m.appendChild(d); H.cells.push(d);
+  }
+  const layer = document.createElement('div'); layer.className = 'hlayer'; m.appendChild(layer); H.layer = layer;
+  H.els = {};
+  hUnits().forEach(u => {
+    const len = HS[u.type].len, w = .8 + .2 * len;
+    const el = document.createElement('div'); el.className = 'hunit ' + u.side;
+    el.innerHTML = `<div class="rot"><div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${w / len})">${shipPic(u.type, u.side === 'me')}</div></div><div class="hpbar"><i></i></div>`;
+    layer.appendChild(el); H.els[u.id] = el;
+  });
+  wrap.appendChild(m);
+}
+function hMsg(t, cls) { const m = $('#hmsg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
+function hHighlights() {
+  const me = H.me, s = new Set();
+  if (H.phase !== 'play' || H.busy) return s;
+  if (H.mode === 'move') { const { dist } = hbfs(me); dist.forEach((d, k) => { if (d >= 1 && d <= me.st.speed) s.add(k); }); }
+  else if (H.mode === 'gun' || H.mode === 'salvo') { for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) { const d = cheb(me, { r, c }); if (d >= 1 && d <= me.st.range && !H.land[hidx(r, c)]) s.add(hidx(r, c)); } }
+  else if (H.mode === 'torp') { for (const [dr, dc] of DIR8) { let y = me.r, x = me.c; for (let i = 0; i < me.st.range + 2; i++) { y += dr; x += dc; if (!hin(y, x) || H.land[hidx(y, x)]) break; s.add(hidx(y, x)); } } }
+  return s;
+}
+function renderHunt() {
+  if (!H.cells) return;
+  const me = H.me, hl = hHighlights(), noise = new Set();
+  H.noise.forEach(z => { for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) if (hin(z.r + dr, z.c + dc)) noise.add(hidx(z.r + dr, z.c + dc)); });
+  H.hl = hl;
+  for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) {
+    const k = hidx(r, c), el = H.cells[k];
+    let cls = 'hc' + (H.land[k] ? ' land' : '') + (cheb(me, { r, c }) > me.st.sight ? ' fog' : '');
+    if (hl.has(k)) cls += H.mode === 'move' ? ' reach' : ' inr';
+    if (noise.has(k)) cls += ' noise';
+    el.className = cls;
+    el.querySelectorAll('.mk').forEach(x => x.remove());
+  }
+  H.marks.forEach(m => { const d = document.createElement('i'); d.className = 'mk ' + m.type; H.cells[hidx(m.r, m.c)].appendChild(d); });
+  hUnits().forEach(u => {
+    const el = H.els[u.id]; if (!el) return;
+    const vis = u.hp > 0 && (u.side === 'me' || foeVisible(u));
+    el.classList.toggle('hidden', !vis);
+    el.style.left = `calc(var(--hc) * ${u.c})`; el.style.top = `calc(var(--hc) * ${u.r})`;
+    el.querySelector('.rot').style.transform = `translate(-50%,-50%) rotate(${u.dir}deg)`;
+    el.querySelector('.hpbar i').style.width = (u.hp / u.st.hp * 100) + '%';
+  });
+  H.layer.querySelectorAll('.hflash').forEach(x => x.remove());
+  H.flashes.forEach(f => { const d = document.createElement('div'); d.className = 'hflash'; d.textContent = '❗'; d.style.left = `calc(var(--hc) * ${f.c})`; d.style.top = `calc(var(--hc) * ${f.r})`; H.layer.appendChild(d); });
+  // HUD
+  $('#hud-hp').style.width = (me.hp / me.st.hp * 100) + '%';
+  $('#hud-hptxt').textContent = `❤ ${me.hp}/${me.st.hp}`;
+  $('#hud-info').textContent = `🛡${me.st.armor} · ход ${H.turn} · врагов ${H.foes.filter(f => f.hp > 0).length}`;
+  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : `Ваш ход · миссия ${H.mission}`;
+  $('#hstatus').className = 'status ' + (H.busy ? 'theirs' : 'mine');
+  // actions
+  const acts = [
+    { id: 'move', ic: '🧭', nm: 'Плыть' },
+    { id: 'gun', ic: '🎯', nm: 'Огонь' },
+    me.eq.salvo && { id: 'salvo', ic: '💥', nm: 'Залп' },
+    me.eq.torp && { id: 'torp', ic: '🚀', nm: 'Торпеда' },
+    me.eq.radar && { id: 'radar', ic: '📡', nm: 'Радар' },
+    { id: 'hold', ic: '🤫', nm: 'Затаиться' },
+  ].filter(Boolean);
+  const box = $('#hunt-actions'); box.innerHTML = '';
+  acts.forEach(a => {
+    const cd = me.cd[a.id] || 0;
+    const b = document.createElement('button'); b.className = 'hact glass' + (H.mode === a.id ? ' on' : '');
+    b.disabled = H.busy || H.phase !== 'play' || cd > 0;
+    b.innerHTML = `<span>${a.ic}</span>${a.nm}${cd ? `<em class="cd">${cd}</em>` : ''}`;
+    b.onclick = () => hAction(a.id);
+    box.appendChild(b);
+  });
+}
+function hfx(r, c, type) { const cell = H.cells[hidx(r, c)]; const add = t => { const d = document.createElement('div'); d.className = 'fx ' + t; cell.appendChild(d); setTimeout(() => d.remove(), 1300); }; add(type); if (type === 'splash') add('splash2'); }
+function hAction(id) {
+  if (H.busy || H.phase !== 'play') return;
+  Snd.play('click');
+  if (id === 'hold') { H.me.movedLast = false; hMsg('Вы затаились: двигатели заглушены, вас не слышно', 'info'); return hEndPlayerTurn(); }
+  if (id === 'radar') return (async () => { H.busy = true; const res = await hFire(H.me, 'radar'); hMsg(res.found ? `📡 Радар засёк врагов: ${res.found}` : '📡 В радиусе 4 клеток пусто', 'info'); hEndPlayerTurn(); })();
+  H.mode = id;
+  hMsg({ move: 'Выберите клетку, куда плыть', gun: 'Выберите клетку для выстрела', salvo: 'Выберите центр залпа', torp: 'Выберите направление торпеды' }[id], 'info');
+  renderHunt();
+}
+async function hClick(r, c) {
+  if (H.busy || H.phase !== 'play' || !H.hl || !H.hl.has(hidx(r, c))) return;
+  H.busy = true; const me = H.me;
+  if (H.mode === 'move') {
+    const { prev } = hbfs(me);
+    await hMove(me, pathTo(prev, hidx(r, c)));
+    hMsg('', '');
+  } else {
+    const res = await hFire(me, H.mode, r, c);
+    hMsg(res.text, res.cls);
+  }
+  hEndPlayerTurn();
+}
+async function hMove(u, path) {
+  const gen = H.gen;
+  for (const k of path) {
+    if (gen !== H.gen) return;
+    const r = Math.floor(k / HN), c = k % HN;
+    u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI; u.r = r; u.c = c;
+    renderHunt(); await sleep(170);
+  }
+  u.movedLast = path.length > 0;
+}
+function hDamage(t, amount, ignoreArmor) { const d = ignoreArmor ? amount : Math.max(1, amount - t.st.armor); t.hp = Math.max(0, t.hp - d); return d; }
+async function hFire(u, kind, r, c) {
+  const isMe = u === H.me, enemies = isMe ? H.foes : [H.me];
+  u.movedLast = false;
+  if (kind === 'radar') {
+    u.cd.radar = 4; Snd.play('radar'); hfx(u.r, u.c, 'ping');
+    let found = 0;
+    enemies.forEach(e => { if (e.hp > 0 && cheb(u, e) <= 4) { found++; if (isMe) e.revealed = 2; else u.known = { r: e.r, c: e.c, exact: true, age: 0 }; } });
+    renderHunt(); await sleep(500);
+    return { found };
+  }
+  u.fired = true;
+  if (isMe) H.foes.forEach(f => { if (f.hp > 0) f.known = { r: u.r, c: u.c, exact: true, age: 0 }; });
+  else H.flashes.push({ r: u.r, c: u.c, age: 0 });
+  u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI;
+  Snd.play(kind === 'torp' ? 'plane' : 'shot'); renderHunt(); await sleep(260);
+  let hits = [], sunk = [], scattered = false;
+  const strike = (y, x, amt, ign) => {
+    const t = enemies.find(e => e.hp > 0 && e.r === y && e.c === x);
+    H.marks.push({ r: y, c: x, type: t ? 'hit' : 'miss', age: 0 });
+    if (!t) { hfx(y, x, 'splash'); return null; }
+    const d = hDamage(t, amt, ign); hits.push(d); hfx(y, x, 'boom');
+    if (isMe) t.revealed = Math.max(t.revealed, 2);
+    if (t.hp <= 0) sunk.push(t);
+    return t;
+  };
+  if (kind === 'gun') {
+    let y = r, x = c;
+    if (Math.random() < u.st.scatter) { const [dr, dc] = pick(DIR8); if (hin(r + dr, c + dc)) { y = r + dr; x = c + dc; scattered = true; } }
+    strike(y, x, u.st.dmg);
+  } else if (kind === 'salvo') {
+    u.cd.salvo = 2;
+    for (const [dr, dc] of [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]]) { if (hin(r + dr, c + dc) && !H.land[hidx(r + dr, c + dc)]) { strike(r + dr, c + dc, Math.max(1, u.st.dmg - 1)); renderHunt(); await sleep(90); } }
+  } else if (kind === 'torp') {
+    u.cd.torp = 3;
+    const dr = Math.sign(r - u.r), dc = Math.sign(c - u.c); let y = u.r, x = u.c;
+    for (let i = 0; i < u.st.range + 2; i++) {
+      y += dr; x += dc;
+      if (!hin(y, x) || H.land[hidx(y, x)]) { if (hin(y, x)) hfx(y, x, 'boom'); break; }
+      if (enemies.some(e => e.hp > 0 && e.r === y && e.c === x)) { strike(y, x, Math.ceil(u.st.dmg * 1.5), true); break; }
+      hfx(y, x, 'splash'); await sleep(70);
+    }
+  }
+  if (sunk.length) Snd.play('sunk'); else if (hits.length) Snd.play('hit'); else Snd.play('miss');
+  if (hits.length) { const el = isMe ? null : H.els[H.me.id]; if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); } }
+  renderHunt();
+  const who = isMe ? 'Вы' : HS[u.type].name + ' противника';
+  const total = hits.reduce((a, b) => a + b, 0);
+  let text, cls;
+  if (sunk.length) { text = isMe ? `💥 ${sunk.map(s => HS[s.type].name).join(', ')} потоплен!` : 'Ваш корабль потоплен!'; cls = 'sunk'; }
+  else if (hits.length) { text = `${who}: попадание! −${total} ❤`; cls = 'hit'; }
+  else { text = `${who}: мимо${scattered ? ' (снаряд отклонился)' : ''}`; cls = 'miss'; }
+  return { text, cls, hits: hits.length };
+}
+async function hEndPlayerTurn() {
+  const gen = H.gen;
+  if (H.foes.every(f => f.hp <= 0)) return hFinish(true);
+  H.busy = true; H.mode = 'move'; renderHunt();
+  await sleep(500);
+  for (const f of H.foes) {
+    if (gen !== H.gen) return;
+    if (f.hp <= 0) continue;
+    await foeAct(f);
+    if (gen !== H.gen) return;
+    if (H.me.hp <= 0) { await sleep(600); return hFinish(false); }
+    renderHunt(); await sleep(350);
+  }
+  hStartPlayerTurn();
+}
+function hStartPlayerTurn(first) {
+  const me = H.me;
+  H.turn++; me.fired = false;
+  for (const k in me.cd) if (me.cd[k] > 0) me.cd[k]--;
+  if (!first && me.st.mech && H.turn % me.st.mech === 0 && me.hp < me.st.hp) { me.hp++; hMsg('🔧 Механики залатали пробоину: +1 ❤', 'info'); }
+  H.flashes.forEach(f => f.age++); H.flashes = H.flashes.filter(f => f.age <= 1);
+  H.marks.forEach(m => m.age++); H.marks = H.marks.filter(m => m.age <= 1);
+  H.foes.forEach(f => { if (f.revealed > 0) f.revealed--; });
+  H.noise = [];
+  H.foes.forEach(f => {
+    if (f.hp > 0 && f.movedLast && !foeVisible(f) && cheb(me, f) <= me.st.hear) {
+      H.noise.push({ r: Math.max(0, Math.min(HN - 1, f.r + rnd(3) - 1)), c: Math.max(0, Math.min(HN - 1, f.c + rnd(3) - 1)) });
+    }
+  });
+  if (H.noise.length && !first) hMsg(`🎧 Акустики слышат шум винтов (${H.noise.length})`, 'info');
+  H.busy = false; H.mode = 'move'; renderHunt();
+}
+async function foeAct(f) {
+  const me = H.me;
+  f.fired = false;
+  for (const k in f.cd) if (f.cd[k] > 0) f.cd[k]--;
+  if (f.st.mech && H.turn % f.st.mech === 0 && f.hp < f.st.hp) f.hp++;
+  let tgt = null, exact = false;
+  if (sees(f, me)) { tgt = { r: me.r, c: me.c }; exact = true; f.known = { ...tgt, exact: true, age: 0 }; }
+  else if (f.known && f.known.exact && f.known.age === 0) { tgt = f.known; exact = true; }
+  else if (me.movedLast && cheb(f, me) <= f.st.hear) { tgt = { r: Math.max(0, Math.min(HN - 1, me.r + rnd(3) - 1)), c: Math.max(0, Math.min(HN - 1, me.c + rnd(3) - 1)) }; f.known = { ...tgt, exact: false, age: 0 }; }
+  else if (f.known && f.known.age < 4) tgt = f.known;
+  if (f.known) f.known.age++;
+  const d = tgt ? cheb(f, tgt) : 99;
+  if (tgt && exact && d <= f.st.range) {
+    const dr = tgt.r - f.r, dc = tgt.c - f.c, aligned = dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc);
+    let kind = 'gun';
+    if (f.eq.torp && !f.cd.torp && aligned) kind = 'torp';
+    else if (f.eq.salvo && !f.cd.salvo && Math.random() < .5) kind = 'salvo';
+    const res = await hFire(f, kind, tgt.r, tgt.c); hMsg(res.text, res.cls); f.known.age = 1; return;
+  }
+  if (tgt && !exact && d <= f.st.range && f.eq.salvo && !f.cd.salvo && Math.random() < .5) {
+    const res = await hFire(f, 'salvo', tgt.r, tgt.c); hMsg(res.text, res.cls); return;
+  }
+  let dest = tgt;
+  if (!dest) {
+    if (!f.wp || cheb(f, f.wp) <= 1) { let w; do { w = { r: rnd(HN), c: rnd(HN) }; } while (H.land[hidx(w.r, w.c)]); f.wp = w; }
+    dest = f.wp;
+  }
+  const { dist, prev } = hbfs(f);
+  let best = -1, bs = 1e9;
+  dist.forEach((dd, k) => { if (dd < 0) return; const s = cheb({ r: Math.floor(k / HN), c: k % HN }, dest) * 100 + dd; if (s < bs) { bs = s; best = k; } });
+  if (best < 0 || best === hidx(f.r, f.c)) { f.movedLast = false; return; }
+  const path = pathTo(prev, best).slice(0, f.st.speed);
+  await hMove(f, path);
+}
+function hFinish(won) {
+  H.phase = 'over'; H.busy = true; renderHunt();
+  const p = curProfile(), h = hdata(p), sunk = H.foes.filter(f => f.hp <= 0).length;
+  let gold;
+  if (won) { gold = 80 + 30 * H.mission + 25 * sunk; h.w++; h.mission = Math.max(h.mission, H.mission + 1); p.st.huntW = (p.st.huntW || 0) + 1; }
+  else { gold = 20 + 25 * sunk; h.l++; }
+  h.gold += gold; h.sunk += sunk;
+  const got = checkAch(p, HUNT_ACH);
+  saveProfiles();
+  $('#hov-ico').textContent = won ? '🏆' : '🌊';
+  $('#hov-title').textContent = won ? `Миссия ${H.mission} пройдена!` : 'Корабль потоплен';
+  $('#hov-text').innerHTML = `Потоплено врагов: ${sunk} из ${H.foes.length}<br><b class="goldchip">+${gold} 💰</b>${won ? ' · +1 очко на Верфь 🛠' : ''}<br><small>Корабль отремонтируют в гавани бесплатно</small>`;
+  Snd.play(won ? 'win' : 'lose');
+  setTimeout(() => overlay('#ov-hunt', true), 500);
+}
+function initHunt() {
+  $('#btn-hunt').onclick = async () => { Snd.ensure(); await ensureCaptain(); HB.sel = null; show('scr-hub'); renderHub(); };
+  $('#hub-go').onclick = () => { Snd.play('click'); startHunt(); };
+  $('#hub-back').onclick = () => show('scr-menu');
+  $('#hov-ok').onclick = () => { overlay('#ov-hunt', false); HB.sel = null; show('scr-hub'); renderHub(); };
+  $('#hunt-sound').onclick = toggleSound;
+  $('#hunt-exit').onclick = () => {
+    if (H.phase !== 'play') { show('scr-hub'); renderHub(); return; }
+    if (!H.exitArm) { H.exitArm = true; hMsg('Нажмите ✕ ещё раз, чтобы отступить (без награды)', 'hit'); setTimeout(() => H.exitArm = false, 3000); return; }
+    H.gen++; H.phase = 'menu'; HB.sel = null; show('scr-hub'); renderHub();
+  };
+}
+
 /* ==================== BOOT ==================== */
-Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); refreshCaptain();
+Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); refreshCaptain();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
