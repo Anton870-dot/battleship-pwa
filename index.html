@@ -1100,7 +1100,7 @@ function startGame(mode, p2) {
     : [newPlayer(me.name, false, me.id), newPlayer(p2.name, false, p2.id)];
   G.lastP2 = p2 || null;
   G.p.forEach(pl => { const pr = profileById(pl.pid); if (pr) pl.up = new Set(pr.up); });
-  if (mode === 'ai') { const n = me.up.length; G.p[1].up = aiUpgrades(G.diff === 'hard' ? n : G.diff === 'normal' ? Math.floor(n / 2) : 0); }
+  if (mode === 'ai') { const n = me.up.length; G.p[1].up = aiUpgrades(G.diff === 'hard' ? Math.round(n * .7) : G.diff === 'normal' ? Math.floor(n / 3) : 0); }
   G.turn = 0; G.armed = null; G.busy = false; G.phase = 'setup';
   startSetup(0);
 }
@@ -1441,11 +1441,11 @@ function aiChoose() {
   if (dents.length) { const [r, c] = pick(dents); return { kind: 'shot', r, c }; }
   const D = density(b);
   if (G.diff === 'normal') {
-    if (hits.length) { const [r, c] = bestOf(D, unshot); return { kind: 'shot', r, c }; }
+    if (hits.length && Math.random() < .75) { const [r, c] = bestOf(D, unshot); return { kind: 'shot', r, c }; }
     const par = unshot.filter(([r, c]) => (r + c) % 2 === 0);
     const [r, c] = pick(par.length ? par : unshot); return { kind: 'shot', r, c };
   }
-  if (!hits.length && me.energy >= wCost(me, 'salvo') + 2) {
+  if (!hits.length && me.energy >= wCost(me, 'salvo') + 2 && Math.random() < .6) {
     let best = null, bs = 0;
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
       const s = areaCells('salvo', r, c, me).reduce((a, [y, x]) => a + D[idx(y, x)], 0);
@@ -1453,6 +1453,8 @@ function aiChoose() {
     }
     if (best) return { kind: 'salvo', r: best[0], c: best[1] };
   }
+  if (!hits.length && Math.random() < .3) { const par = unshot.filter(([r, c]) => (r + c) % 2 === 0); const [r, c] = pick(par.length ? par : unshot); return { kind: 'shot', r, c }; }
+  if (hits.length && Math.random() < .15) { const [r, c] = pick(unshot); return { kind: 'shot', r, c }; }
   const [r, c] = bestOf(D, unshot); return { kind: 'shot', r, c };
 }
 
@@ -1787,17 +1789,17 @@ function mkUnit(type, up, crew, eq, r, c, dir, side) {
   return { id: side + rnd(1e6), side, type, st, hp: st.hp, r, c, dir, eq: eq || {}, cd: { salvo: 0, torp: 0, radar: 0 }, fired: false, movedLast: false, revealed: 0, known: null, wp: null };
 }
 function genFoes(m) {
-  const n = Math.min(3, 1 + Math.floor((m - 1) / 3)), top = Math.min(4, Math.floor((m - 1) / 2)), pts = Math.floor((m - 1) / 2);
+  const n = Math.min(3, 1 + Math.floor((m - 1) / 3)), top = Math.min(4, Math.floor((m - 1) / 2)), pts = Math.floor((m - 1) / 3);
   const cells = []; for (let r = 0; r < 5; r++) for (let c = HN - 5; c < HN; c++) if (!H.land[hidx(r, c)]) cells.push([r, c]);
   const foes = [];
   for (let i = 0; i < n; i++) {
     const type = i === 0 ? HS_ORDER[top] : HS_ORDER[rnd(top + 1)];
     const up = {}; for (let k = 0; k < pts; k++) { const u = pick(['gun', 'armor', 'hull', 'range', 'gun', 'hull']); const max = HUP.find(x => x.id === u).max; if ((up[u] || 0) < max) up[u] = (up[u] || 0) + 1; }
-    const crew = { gunners: Math.min(3, Math.floor(m / 3)), look: Math.min(2, Math.floor(m / 6)), acou: Math.min(2, Math.floor(m / 4)), mech: Math.min(3, Math.floor(m / 5)) };
+    const crew = { gunners: Math.min(3, Math.floor(m / 4)), look: Math.min(2, Math.floor(m / 6)), acou: Math.min(2, Math.floor(m / 4)), mech: Math.min(3, Math.floor(m / 5)) };
     const eq = { salvo: m >= 4 && Math.random() < .6, torp: m >= 6 && Math.random() < .5 };
     let pos; do { pos = cells.splice(rnd(cells.length), 1)[0]; } while (foes.some(f => cheb(f, { r: pos[0], c: pos[1] }) < 2) && cells.length);
     const u = mkUnit(type, up, crew, eq, pos[0], pos[1], 135, 'foe');
-    if (m <= 2) { u.st.hp = Math.round(u.st.hp * (m === 1 ? .67 : .84)); u.hp = u.st.hp; }
+    u.st.hp = Math.max(3, Math.round(u.st.hp * (m === 1 ? .67 : m === 2 ? .8 : .88))); u.hp = u.st.hp;
     foes.push(u);
   }
   return foes;
