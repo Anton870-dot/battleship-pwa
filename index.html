@@ -1116,7 +1116,7 @@ const viewer = () => G.mode === 'ai' ? 0 : G.turn;
 function newPlayer(name, ai, pid = null) {
   return { name, ai, pid, up: new Set(), board: newBoard(), energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false };
 }
-function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); if (id === 'scr-menu' && PR) refreshCaptain(); }
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); document.body.classList.toggle('in-game', ['scr-setup', 'scr-battle', 'scr-hunt'].includes(id)); if (id === 'scr-menu' && PR) refreshCaptain(); }
 function overlay(id, on) { $(id).classList.toggle('show', on); }
 
 /* ==================== BOARD VIEW ==================== */
@@ -2997,7 +2997,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   var a=document.getElementById('bgm'), b=document.getElementById('bgmBtn');
   a.volume=0.5;
   var on=localStorage.getItem('bgm')!=='off';
-  function menu(){return document.body.classList.contains('menu-on');}
+  function menu(){return !document.body.classList.contains('in-game');}
   function sync(){ b.textContent=on?'🔊':'🔇'; if(on&&menu()) a.play().catch(function(){}); else a.pause(); }
   b.onclick=function(e){ e.stopPropagation(); on=!on; localStorage.setItem('bgm',on?'on':'off'); sync(); };
   new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
