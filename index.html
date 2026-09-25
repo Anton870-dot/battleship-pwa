@@ -21,9 +21,9 @@
   --bw:min(92vw,440px,54vh); --radius:18px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;min-height:100%}
+html,body{margin:0;min-height:100%;overscroll-behavior:none;overscroll-behavior-y:none}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);background:#0b6fb3;
-  overflow-x:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;text-shadow:0 1px 3px rgba(0,30,60,.55)}
+  overflow-x:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;text-shadow:0 1px 3px rgba(0,30,60,.55)}
 #sea{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none;text-shadow:inherit}
@@ -2998,10 +2998,15 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   a.volume=0.5;
   var on=localStorage.getItem('bgm')!=='off';
   function menu(){return !document.body.classList.contains('in-game');}
-  function sync(){ b.textContent=on?'🔊':'🔇'; if(on&&menu()) a.play().catch(function(){}); else a.pause(); }
+  function sync(){ b.textContent=on?'🔊':'🔇'; if(on&&menu()&&!document.hidden) a.play().catch(function(){}); else a.pause(); }
   b.onclick=function(e){ e.stopPropagation(); on=!on; localStorage.setItem('bgm',on?'on':'off'); sync(); };
   new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
-  document.addEventListener('pointerdown',function(){ if(on&&menu()&&a.paused) a.play().catch(function(){}); });
+  document.addEventListener('pointerdown',function(){ if(on&&menu()&&a.paused&&!document.hidden) a.play().catch(function(){}); });
+  function away(){ a.pause(); try{ if(typeof Snd!=='undefined'&&Snd.ctx) Snd.ctx.suspend(); }catch(e){} }
+  document.addEventListener('visibilitychange',function(){ if(document.hidden) away(); else { try{ if(typeof Snd!=='undefined'&&Snd.ctx&&Snd.on) Snd.ctx.resume(); }catch(e){} sync(); } });
+  window.addEventListener('pagehide',away);
+  window.addEventListener('freeze',away);
+  document.addEventListener('contextmenu',function(e){ if(!(e.target.closest&&e.target.closest('input,textarea'))) e.preventDefault(); });
   sync();
 })();
 </script>
