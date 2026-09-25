@@ -47,7 +47,40 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 
 /* menu */
-#scr-menu{justify-content:center;min-height:calc(100vh - 40px);gap:16px}
+#scr-menu{justify-content:space-between;gap:10px;min-height:calc(100vh - max(12px,env(safe-area-inset-top)) - max(16px,env(safe-area-inset-bottom)));
+  min-height:calc(100dvh - max(12px,env(safe-area-inset-top)) - max(16px,env(safe-area-inset-bottom)))}
+.mtop{display:flex;align-items:center;gap:8px;width:min(440px,100%)}
+.mtop .captain{flex:1;min-width:0;padding:6px 14px 6px 6px}
+.mtop .captain .ava{width:36px;height:36px;font-size:18px}
+.mtop .captain .cn{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtop .iconbtn{border-radius:50%;position:relative;font-size:19px}
+#bgmBtn.off,#btn-sound.off{opacity:.5}
+#bgmBtn.off::after{content:"";position:absolute;left:24%;right:24%;top:50%;height:2px;border-radius:2px;background:#ff6b57;transform:rotate(-45deg)}
+.mbottom{display:flex;flex-direction:column;gap:10px;width:min(440px,100%)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:11px 13px 12px;min-height:88px;border-radius:20px;text-align:left;
+  background:rgba(5,45,88,.62);border:1px solid var(--line);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:0 8px 24px rgba(0,25,60,.3);transition:transform .12s}
+.tile:active{transform:scale(.97)}
+.tile .ti{font-size:26px;line-height:1;margin-bottom:auto;padding-bottom:6px}
+.tile b{font-size:15px;font-weight:800;line-height:1.15}
+.tile small{font-size:12px;color:var(--muted);font-weight:600;line-height:1.2}
+.tile .badge{position:absolute;top:9px;right:9px;min-width:24px;height:24px;font-size:12px}
+.tile.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;min-height:70px;padding:12px 16px}
+.tile.wide .ti{margin:0;padding:0;font-size:30px}.tile.wide .tt{flex:1;display:flex;flex-direction:column;gap:2px}
+.tile.wide b{font-size:18px}.tile .go{font-size:30px;font-weight:300;line-height:1}
+.tile.primary{background:linear-gradient(135deg,rgba(255,214,90,.97),rgba(255,152,28,.97));color:#3b2300;text-shadow:none;border-color:rgba(255,255,255,.5);box-shadow:0 10px 28px rgba(255,140,20,.35)}
+.tile.primary small{color:#6b4300}
+.mbar{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mbar .btn{padding:11px 8px;font-size:14px;border-radius:16px}
+.overlay.sheet{align-items:flex-end;padding:0}
+.overlay.sheet .card{width:min(520px,100%);border-radius:26px 26px 0 0;padding:14px 18px max(22px,env(safe-area-inset-bottom));text-align:left;gap:10px;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);max-height:90vh}
+.overlay.sheet h2{text-align:center;font-size:21px}
+.overlay.sheet p{font-size:14px;line-height:1.4}
+.overlay.sheet .rules-hint{text-align:center}
+.grab{width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.45);margin:0 auto 2px}
+.slbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:4px;text-align:center}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
 .logo{text-align:center}
 .logo svg{width:210px;height:auto;filter:drop-shadow(0 12px 18px rgba(0,40,80,.45));animation:float 5s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-6px) rotate(-1.5deg)}}
@@ -402,18 +435,15 @@ table.diff td:first-child{text-align:left}
 #splash::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,20,45,.05),rgba(3,22,50,.12) 45%,rgba(3,30,70,.5))}
 body.menu-on #splash{opacity:1}
 body.menu-on .logo svg{display:none}
-body.menu-on .logo{margin:2vh 0 34vh}
-body.menu-on #scr-menu{justify-content:flex-start}
-@media (min-aspect-ratio:1/1){#splash{background-position:center 58%}body.menu-on .logo{margin:4vh 0 30vh}}
-#bgmBtn{position:fixed;top:12px;right:12px;z-index:50;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(3,22,50,.55);color:#fff;font-size:20px;cursor:pointer}
-body:not(.menu-on) #bgmBtn{display:none}
+body.menu-on .logo{margin:0}
+#scr-menu .logo h1{font-size:38px}#scr-menu .logo p{font-size:14px}
+@media (min-aspect-ratio:1/1){#splash{background-position:center 58%}}
 </style>
 </head>
 <body class="menu-on">
 <canvas id="sea"></canvas>
 <div id="splash" aria-hidden="true"></div>
 <audio id="bgm" src="music.mp3" loop preload="none"></audio>
-<button id="bgmBtn" aria-label="Музыка">🔊</button>
 
 <!-- shared SVG gradients for ships -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -431,55 +461,36 @@ body:not(.menu-on) #bgmBtn{display:none}
 
 <!-- ================= MENU ================= -->
 <section id="scr-menu" class="screen active">
+  <div class="mtop">
+    <button class="captain glass" id="btn-captain">
+      <span class="ava">⚓</span>
+      <span class="cn"><small>Капитан</small><span id="captain-name">—</span></span>
+      <span class="chev">▾</span>
+    </button>
+    <button class="iconbtn glass" id="bgmBtn" aria-label="Музыка">🎵</button>
+    <button class="iconbtn glass" id="btn-sound" aria-label="Звуки"><span id="snd-ico">🔊</span><em id="snd-txt" hidden></em></button>
+  </div>
+
   <div class="logo">
     <svg id="logo-ship" viewBox="-20 -10 440 130" aria-hidden="true"></svg>
     <h1>Морской бой</h1>
     <p>Живое море · спецоружие · достижения</p>
   </div>
 
-  <button class="captain glass" id="btn-captain">
-    <span class="ava">⚓</span>
-    <span><small>Капитан</small><span id="captain-name">—</span></span>
-    <span class="chev">▾</span>
-  </button>
-
-  <button class="btn glass big" id="btn-yard" style="width:min(420px,100%)">🛠 Верфь — прокачка флота <span class="badge" id="yard-pts">0</span></button>
-
-  <div class="glass menu-card" id="daily-card">
-    <h3>Каждый день</h3>
-    <div class="dchal"><span class="dic">🗓</span><span class="dtx"><b>Вызов дня</b><small id="daily-sub"></small></span><button class="btn primary small" id="btn-daily">Играть</button></div>
-    <div class="tasks" id="tasks"></div>
-    <small class="muted" id="tasks-foot" style="text-align:center"></small>
-  </div>
-
-  <div class="glass menu-card">
-    <h3>Против компьютера</h3>
-    <div class="seg" id="diff-seg">
-      <button data-d="easy">Лёгкий</button>
-      <button data-d="normal" class="on">Средний</button>
-      <button data-d="hard">Сложный</button>
+  <div class="mbottom">
+    <div class="mgrid">
+      <button class="tile wide primary" id="t-ai"><span class="ti">⚔️</span><span class="tt"><b>Против компьютера</b><small id="t-ai-sub">Средний · Классика</small></span><span class="go">›</span></button>
+      <button class="tile" id="btn-hunt"><span class="ti">🧭</span><b>Морской поход</b><small>флот, абордажи, боссы</small></button>
+      <button class="tile" id="t-duo"><span class="ti">👥</span><b>Вдвоём</b><small>на одном устройстве</small></button>
+      <button class="tile" id="btn-adm"><span class="ti">🎩</span><b>Адмиралы</b><small id="t-adm-sub">6 противников</small></button>
+      <button class="tile" id="btn-daily"><span class="ti">🗓</span><b>Вызов дня</b><small id="daily-sub">новая расстановка</small></button>
+      <button class="tile" id="t-tasks"><span class="ti">📋</span><b>Задания дня</b><small id="t-tasks-sub">3 цели на сегодня</small><span class="badge" id="tasks-badge">0/3</span></button>
+      <button class="tile" id="btn-yard"><span class="ti">🛠</span><b>Верфь</b><small>древо улучшений</small><span class="badge" id="yard-pts">0</span></button>
     </div>
-    <div class="rules-row"><span>Правила</span><div class="seg seg2" id="rules-seg"><button data-r="classic">Классика</button><button data-r="salvo">Залпы 🔥</button></div></div>
-    <small class="muted" id="rules-hint" style="text-align:center"></small>
-    <button class="btn primary big" id="btn-ai">⚔️ В бой</button>
-    <button class="btn big" id="btn-adm">🎩 Лестница адмиралов</button>
-  </div>
-
-  <div class="glass menu-card">
-    <h3>Вдвоём на одном устройстве</h3>
-    <button class="btn big" id="btn-duo">👥 Два капитана</button>
-  </div>
-
-  <div class="glass menu-card">
-    <h3>Новый режим</h3>
-    <button class="btn big" id="btn-hunt">🧭 Морской поход</button>
-    <p style="margin:0;color:var(--muted);font-size:13px;text-align:center">Свой флот, морпехи и абордажи, архипелаг с боссами, погода и туман войны.</p>
-  </div>
-
-  <div class="menu-foot">
-    <button class="btn glass" id="btn-ach"><span>🏆</span>Достижения</button>
-    <button class="btn glass" id="btn-help"><span>📖</span>Правила</button>
-    <button class="btn glass" id="btn-sound"><span id="snd-ico">🔊</span><em id="snd-txt" style="font-style:normal">Звук</em></button>
+    <div class="mbar">
+      <button class="btn glass" id="btn-ach">🏆 Награды</button>
+      <button class="btn glass" id="btn-help">📖 Правила</button>
+    </div>
   </div>
 </section>
 
@@ -667,6 +678,44 @@ body:not(.menu-on) #bgmBtn{display:none}
     <h2 id="ev-title"></h2>
     <p id="ev-text"></p>
     <div class="evbtns" id="ev-btns"></div>
+  </div>
+</div>
+
+<div class="overlay sheet" id="ov-ai">
+  <div class="card glass">
+    <div class="grab"></div>
+    <h2>⚔️ Против компьютера</h2>
+    <div class="slbl">Сложность</div>
+    <div class="seg" id="diff-seg">
+      <button data-d="easy">Лёгкий</button>
+      <button data-d="normal" class="on">Средний</button>
+      <button data-d="hard">Сложный</button>
+    </div>
+    <div class="slbl">Правила</div>
+    <div class="seg seg2 rules-seg"><button data-r="classic">Классика</button><button data-r="salvo">Залпы 🔥</button></div>
+    <small class="muted rules-hint"></small>
+    <button class="btn primary big" id="btn-ai">⚔️ В бой</button>
+  </div>
+</div>
+
+<div class="overlay sheet" id="ov-duo">
+  <div class="card glass">
+    <div class="grab"></div>
+    <h2>👥 Вдвоём</h2>
+    <p>Два капитана на одном устройстве: расставляете флот по очереди и передаёте телефон друг другу.</p>
+    <div class="slbl">Правила</div>
+    <div class="seg seg2 rules-seg"><button data-r="classic">Классика</button><button data-r="salvo">Залпы 🔥</button></div>
+    <small class="muted rules-hint"></small>
+    <button class="btn primary big" id="btn-duo">👥 Выбрать соперника</button>
+  </div>
+</div>
+
+<div class="overlay sheet" id="ov-tasks">
+  <div class="card glass">
+    <div class="grab"></div>
+    <h2>📋 Задания дня</h2>
+    <div class="tasks" id="tasks"></div>
+    <small class="muted" id="tasks-foot"></small>
   </div>
 </div>
 
@@ -1213,7 +1262,7 @@ function initMenu() {
   syncSoundUi(); refreshCaptain();
 }
 function toggleSound() { Snd.on = !Snd.on; store.set('bs-sound', Snd.on); syncSoundUi(); Snd.play('click'); }
-function syncSoundUi() { $('#snd-ico').textContent = Snd.on ? '🔊' : '🔇'; $('#snd-txt').textContent = Snd.on ? 'Звук вкл' : 'Звук выкл'; $('#battle-sound').textContent = $('#hunt-sound').textContent = Snd.on ? '🔊' : '🔇'; }
+function syncSoundUi() { $('#btn-sound').classList.toggle('off', !Snd.on); $('#snd-ico').textContent = Snd.on ? '🔊' : '🔇'; $('#snd-txt').textContent = Snd.on ? 'Звук вкл' : 'Звук выкл'; $('#battle-sound').textContent = $('#hunt-sound').textContent = Snd.on ? '🔊' : '🔇'; }
 
 function startGame(mode, p2) {
   G.gen++; G.mode = mode;
@@ -2937,10 +2986,15 @@ function dailyEvent(type, data = {}) {
   if (changed) saveProfiles();
 }
 function renderDaily() {
-  const p = curProfile(), card = $('#daily-card'); if (!card) return;
-  card.style.display = p ? '' : 'none'; if (!p) return;
+  const p = curProfile();
+  $('#t-ai-sub').textContent = `${DIFF_NAME[store.get('bs-diff', 'normal')].replace(/^./, c => c.toUpperCase())} · ${G.rules === 'salvo' ? 'Залпы' : 'Классика'}`;
+  if (!p) { $('#t-adm-sub').textContent = '6 противников'; $('#daily-sub').textContent = 'новая расстановка'; $('#tasks-badge').textContent = '0/3'; return; }
+  $('#t-adm-sub').textContent = (p.adm || 0) >= ADM.length ? 'все побеждены 👑' : `побеждено ${p.adm || 0} из ${ADM.length}`;
   const tk = ensureTasks(p), d = dayKey(), dl = p.daily && p.daily.day === d ? p.daily : null, sk = p.dstreak && (p.dstreak.last === d || p.dstreak.last === yesterdayKey()) ? p.dstreak.n : 0;
-  $('#daily-sub').textContent = dl ? `Лучший результат сегодня: ${dl.best} ${plural(dl.best, 'выстрел', 'выстрела', 'выстрелов')}${sk > 1 ? ` · серия ${sk} дн.` : ''}` : `Один и тот же флот для всех. Потопите его за минимум выстрелов${sk > 1 ? ` · серия ${sk} дн.` : ''}`;
+  $('#daily-sub').textContent = (dl ? `рекорд: ${dl.best} ${plural(dl.best, 'выстрел', 'выстрела', 'выстрелов')}` : 'новая расстановка') + (sk > 1 ? ` · 🔥${sk}` : '');
+  const done = tk.list.filter(x => x.done).length, bd = $('#tasks-badge');
+  bd.textContent = `${done}/3`; bd.classList.toggle('zero', done === 3);
+  $('#t-tasks-sub').textContent = tk.bonus ? 'бонус получен ✓' : 'золото и очко Верфи';
   $('#tasks').innerHTML = tk.list.map(x => { const t = TASKS.find(z => z.id === x.id); if (!t) return ''; return `<div class="task ${x.done ? 'done' : ''}"><span class="ic">${x.done ? '✅' : t.ic}</span><span class="tt">${t.t}${t.n > 1 ? ` (${x.prog}/${t.n})` : ''}<span class="bar"><i style="width:${x.prog / t.n * 100}%"></i></span></span><b>${x.done ? '✓' : '+' + t.gold + ' 💰'}</b></div>`; }).join('');
   $('#tasks-foot').textContent = tk.bonus ? '🎁 Бонус получен. Новые задания — завтра!' : 'Выполните все три — получите +1 очко на Верфь. Золото идёт в казну Морского похода.';
 }
@@ -2971,19 +3025,27 @@ function endDaily() {
   setTimeout(() => overlay('#ov-over', true), 400);
 }
 function initExtra() {
-  document.querySelectorAll('#rules-seg button').forEach(b => {
-    b.classList.toggle('on', b.dataset.r === G.rules);
-    b.onclick = () => { G.rules = b.dataset.r; store.set('bs-rules', G.rules); Snd.play('click'); document.querySelectorAll('#rules-seg button').forEach(x => x.classList.toggle('on', x === b)); syncRulesHint(); };
+  document.querySelectorAll('.rules-seg button').forEach(b => {
+    b.onclick = () => { G.rules = b.dataset.r; store.set('bs-rules', G.rules); Snd.play('click'); syncRulesHint(); renderDaily(); };
   });
   syncRulesHint();
+  document.querySelectorAll('#diff-seg button').forEach(b => b.addEventListener('click', () => renderDaily()));
+  const sheets = () => document.querySelectorAll('.overlay.sheet').forEach(o => o.classList.remove('show'));
+  document.querySelectorAll('.overlay.sheet').forEach(o => o.addEventListener('click', e => { if (e.target === o) { Snd.play('click'); o.classList.remove('show'); } }));
+  $('#t-ai').onclick = () => { Snd.ensure(); Snd.play('click'); overlay('#ov-ai', true); };
+  $('#t-duo').onclick = () => { Snd.ensure(); Snd.play('click'); overlay('#ov-duo', true); };
+  $('#t-tasks').onclick = async () => { Snd.ensure(); Snd.play('click'); await ensureCaptain(); renderDaily(); overlay('#ov-tasks', true); };
+  $('#btn-ai').addEventListener('click', sheets); $('#btn-duo').addEventListener('click', sheets);
   $('#btn-adm').onclick = async () => { Snd.ensure(); await ensureCaptain(); renderAdm(); show('scr-adm'); };
   $('#btn-daily').onclick = async () => { Snd.ensure(); await ensureCaptain(); startGame('daily'); };
   renderDaily();
 }
 function syncRulesHint() {
-  $('#rules-hint').textContent = G.rules === 'salvo'
+  document.querySelectorAll('.rules-seg button').forEach(x => x.classList.toggle('on', x.dataset.r === G.rules));
+  const t = G.rules === 'salvo'
     ? 'Залпы: за ход столько выстрелов, сколько у вас целых кораблей. Потерял корабль — потерял огневую мощь. Правила действуют и в игре вдвоём.'
     : 'Классика: попал — стреляешь ещё раз.';
+  document.querySelectorAll('.rules-hint').forEach(x => x.textContent = t);
 }
 
 /* ==================== BOOT ==================== */
@@ -2998,7 +3060,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   a.volume=0.5;
   var on=localStorage.getItem('bgm')!=='off';
   function menu(){return !document.body.classList.contains('in-game');}
-  function sync(){ b.textContent=on?'🔊':'🔇'; if(on&&menu()&&!document.hidden) a.play().catch(function(){}); else a.pause(); }
+  function sync(){ b.classList.toggle('off',!on); if(on&&menu()&&!document.hidden) a.play().catch(function(){}); else a.pause(); }
   b.onclick=function(e){ e.stopPropagation(); on=!on; localStorage.setItem('bgm',on?'on':'off'); sync(); };
   new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
   document.addEventListener('pointerdown',function(){ if(on&&menu()&&a.paused&&!document.hidden) a.play().catch(function(){}); });
