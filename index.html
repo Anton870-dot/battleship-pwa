@@ -255,6 +255,29 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .fort-head{gap:8px}
 .frow{display:flex;align-items:center;gap:10px}.frow .fic{font-size:24px;width:32px;text-align:center;flex:none}.frow .ftx{flex:1;min-width:0}.frow small{display:block;color:var(--muted);font-size:12px}
 .raidbar{background:rgba(255,80,60,.2);border:1px solid rgba(255,130,110,.6);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}.raidbar small{color:#ffe0da;font-size:12px;line-height:1.35}.raidbar .row{justify-content:flex-start}
+.fscene{position:relative;width:min(560px,100%);padding:0;overflow:hidden;border-radius:22px;line-height:0}
+.fscene svg{width:100%;height:auto;display:block}
+.fscene .fb{cursor:pointer}
+.fscene .fb.sel{filter:drop-shadow(0 0 6px rgba(255,220,120,.9))}
+.fscene .fempty{opacity:.85}
+.fflag{animation:fflag 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:left center}
+@keyframes fflag{50%{transform:skewY(-8deg) scaleX(.9)}}
+.fsmoke{animation:fsmoke 2.4s ease-in infinite;transform-box:fill-box}
+@keyframes fsmoke{0%{transform:translateY(4px);opacity:.2}50%{opacity:.9}100%{transform:translateY(-12px);opacity:0}}
+.fbeam{animation:fbeam 4s ease-in-out infinite}
+@keyframes fbeam{0%,100%{transform:rotate(-12deg);opacity:.5}50%{transform:rotate(14deg);opacity:1}}
+.fclouds{animation:fclouds 40s linear infinite alternate}
+@keyframes fclouds{to{transform:translateX(40px)}}
+.fwaves{animation:fwaves 3s ease-in-out infinite alternate}
+@keyframes fwaves{to{transform:translateX(-12px)}}
+.fpirates{animation:fpir 3s ease-in-out infinite alternate}
+@keyframes fpir{to{transform:translate(10px,-2px)}}
+.fhook{animation:fhook 1.8s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:top}
+@keyframes fhook{to{transform:scaleY(1.4)}}
+.fgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.fg{display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 2px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);text-align:center}
+.fg span{font-size:22px;line-height:1.1}.fg b{font-size:10px;line-height:1.15;font-weight:800}.fg small{font-size:9.5px;color:var(--muted)}
+.fg.empty span{filter:grayscale(.8);opacity:.6}.fg.sel{box-shadow:inset 0 0 0 2px var(--gold);background:rgba(255,207,74,.15)}
 .island{position:relative;width:min(560px,100%);aspect-ratio:4/3;padding:0;overflow:hidden;border-radius:22px}
 .island svg{position:absolute;inset:0;width:100%;height:100%}
 .plot{position:absolute;transform:translate(-50%,-50%);width:15%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.6);box-shadow:0 4px 10px rgba(0,40,20,.35);transition:transform .12s}
@@ -2958,6 +2981,7 @@ const pTrain = (h, l) => Math.round(SPEC_TRAIN[l] * (1 - .1 * fL(h, 'academy')))
 const pEq = (h, e) => Math.round(e.price * (1 - .1 * fL(h, 'workshop')));
 const pUp = (h, sid, l) => Math.round(UP_BASE[sid] * (l + 1) * (1 - .05 * fL(h, 'workshop')));
 const fmtLeft = ms => { const s = Math.max(0, Math.ceil(ms / 1000)), hh = Math.floor(s / 3600), mm = Math.floor(s % 3600 / 60), ss = s % 60; return hh ? `${hh} ч ${String(mm).padStart(2, '0')} мин` : `${mm}:${String(ss).padStart(2, '0')}`; };
+const fmtDur = ms => { const m = Math.round(ms / 60000); return m < 60 ? `${m} мин` : `${Math.floor(m / 60)} ч${m % 60 ? ` ${m % 60} мин` : ''}`; };
 const speedCost = ms => Math.max(5, Math.ceil(ms / 60000 * 2));
 function fdata(h) {
   if (!h.fort) h.fort = { b: { citadel: 1 }, build: null, last: Date.now(), nextRaid: null, raidDue: false, raidSince: 0, raids: { w: 0, l: 0 } };
@@ -3020,24 +3044,19 @@ function hubFort(h) {
       <div class="row"><button class="btn primary small" data-act="fraid">⚔️ Отразить набег</button><button class="btn small" data-act="ftoll">Откупиться: ${raidToll(h)} 💰</button></div></div>`;
   else if (f.nextRaid) html += `<small class="muted">🔭 ${fL(h, 'lighthouse') >= 2 ? `Маяк: пираты нападут через <span data-until="${f.nextRaid}">${fmtLeft(f.nextRaid - now)}</span>` : `Разведка: пираты рыщут неподалёку, набег возможен ${f.nextRaid - now < 3600000 ? 'совсем скоро' : 'в ближайшие часы'}`}${f.raids.w + f.raids.l ? ` · набегов отбито: ${f.raids.w}` : ''}</small>`;
   else html += `<small class="muted">Пока цитадель 1-го уровня, пираты крепость не замечают.</small>`;
-  html += `</div><div class="island glass">${islandSVG()}`;
-  FB.forEach(b => {
-    const l = f.b[b.id] || 0, bld = f.build && f.build.id === b.id;
-    html += `<button class="plot${l ? '' : ' empty'}${bld ? ' building' : ''}${sel === b.id ? ' sel' : ''}" style="left:${b.x}%;top:${b.y}%" data-fsel="${b.id}">
-      <span class="pi">${b.ic}</span>${l ? `<span class="pl">${l}</span>` : ''}${bld ? `<span class="pt" data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span>` : ''}</button>`;
-  });
-  html += `</div>`;
+  html = `<div class="fscene glass">${fortScene(h)}</div>` + html + `</div>`;
   // карточка здания
   const b = FB.find(x => x.id === sel), l = f.b[b.id] || 0, nx = l + 1, max = l >= 5;
   const capped = b.id !== 'citadel' && nx > cit, busy = !!f.build, cost = max ? 0 : fCost(b.id, nx);
   html += `<div class="glass hub-panel"><div class="hp-title"><span class="bic">${b.ic}</span><div><b>${b.name}</b><small>${b.desc}</small></div></div>
     ${lvBar(l, 5)}
     <div class="uprow"><span class="ic">📍</span><span class="nm">Сейчас: ${l ? `ур. ${l}` : 'не построено'}<small>${l ? b.eff(l) : '—'}</small></span></div>`;
-  if (!max) html += `<div class="uprow"><span class="ic">⬆️</span><span class="nm">${l ? 'Улучшение' : 'Постройка'} до ур. ${nx}<small>${b.eff(nx)} · ⏱ ${fmtLeft(fTime(b.id, nx))}</small></span>
+  if (!max) html += `<div class="uprow"><span class="ic">⬆️</span><span class="nm">${l ? 'Улучшение' : 'Постройка'} до ур. ${nx}<small>${b.eff(nx)} · ⏱ ${fmtDur(fTime(b.id, nx))}</small></span>
       <button class="btn small primary" data-act="fbuild" data-id="${b.id}" ${busy || capped || h.gold < cost ? 'disabled' : ''}>${cost} 💰</button></div>
       ${capped ? `<small class="warnline">Сначала улучшите Цитадель до ур. ${nx}</small>` : busy && f.build.id !== b.id ? '<small class="muted">Строитель занят другим зданием</small>' : busy ? '<small class="muted">Уже строится</small>' : ''}`;
   else html += `<small class="muted">Максимальный уровень ✓</small>`;
-  html += `</div>`;
+  html += `</div><div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔨 Все постройки</div><div class="fgrid">${FB.map(x => { const lv = f.b[x.id] || 0, bl = f.build && f.build.id === x.id;
+    return `<button class="fg${sel === x.id ? ' sel' : ''}${lv ? '' : ' empty'}" data-fsel="${x.id}"><span>${x.ic}</span><b>${x.name}</b><small>${bl ? '🏗 строится' : lv ? `ур. ${lv}` : 'не построено'}</small></button>`; }).join('')}</div></div>`;
   return html;
 }
 function fortAct(act, id) {
@@ -3070,6 +3089,170 @@ function raidSetup(h) {
   H.wavesLeft = 2; H.waveSize = 1 + Math.floor(cit / 3);
   H.foes.forEach(f => f.known = { r: cc[0], c: cc[1], exact: false, age: 0 });
 }
+/* ---- Крепость: рисованный вид «как в Героях» ---- */
+const FPOS = { citadel: [200, 186], treasury: [112, 232], barracks: [290, 230], walls: [200, 290], academy: [70, 318], workshop: [330, 322], battery: [34, 372], dock: [112, 426], market: [262, 420], lighthouse: [366, 404] };
+const OL = 'stroke="#3b2f22" stroke-width="2" stroke-linejoin="round"';
+const ST = '#cdbb9d', ST2 = '#a8927a', WD = '#8b5a2b', WD2 = '#6b4420';
+const flagSVG = (x, y, c = '#3d8bff', h = 18) => `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - h}" stroke="#3b2f22" stroke-width="2"/><path class="fflag" d="M${x} ${y - h}h14l-4 4 4 4H${x}z" fill="${c}" ${OL.replace('2"', '1"')}/>`;
+const crenel = (x, y, w, n) => { let s = ''; const cw = w / (n * 2 - 1); for (let i = 0; i < n; i++) s += `<rect x="${x + i * cw * 2}" y="${y - 6}" width="${cw}" height="6" fill="${ST2}" ${OL}/>`; return s; };
+const tower = (x, y, w, h, roof = '#c8553d', gold) => `<rect x="${x - w / 2}" y="${y - h}" width="${w}" height="${h}" fill="${ST}" ${OL}/>
+  <rect x="${x - 3}" y="${y - h * .6}" width="6" height="9" rx="3" fill="#3b2f22"/>
+  <path d="M${x - w / 2 - 4} ${y - h}L${x} ${y - h - w * 1.1}L${x + w / 2 + 4} ${y - h}z" fill="${gold ? '#ffcf4a' : roof}" ${OL}/>`;
+const window2 = (x, y) => `<rect x="${x}" y="${y}" width="6" height="8" rx="3" fill="#3b2f22"/>`;
+const FART = {
+  citadel(l) {
+    const h = 44 + 6 * l, g = l >= 5;
+    let s = '';
+    if (l >= 2) s += tower(-46, 0, 20, h - 6, '#c8553d', g);
+    if (l >= 3) s += tower(46, 0, 20, h - 6, '#c8553d', g);
+    s += `<rect x="-36" y="${-h}" width="72" height="${h}" fill="${ST}" ${OL}/>${crenel(-36, -h, 72, 7)}
+      <path d="M-10 0v-16a10 10 0 0 1 20 0v16z" fill="#5a3b1c" ${OL}/>${window2(-26, -h + 14)}${window2(20, -h + 14)}`;
+    s += `<rect x="-14" y="${-h - 30 - 4 * l}" width="28" height="${30 + 4 * l}" fill="${ST}" ${OL}/>${crenel(-14, -h - 30 - 4 * l, 28, 3)}
+      <path d="M-18 ${-h - 30 - 4 * l}L0 ${-h - 58 - 5 * l}L18 ${-h - 30 - 4 * l}z" fill="${g ? '#ffcf4a' : '#3d6fb5'}" ${OL}/>${window2(-3, -h - 22 - 3 * l)}`;
+    s += flagSVG(0, -h - 58 - 5 * l, l >= 4 ? '#ffcf4a' : '#3d8bff', 16);
+    if (l >= 4) s += `<path class="fflag" d="M-30 ${-h + 6}v16l6-4 6 4v-16z" fill="#3d8bff" ${OL.replace('2"', '1"')}/><path class="fflag" d="M18 ${-h + 6}v16l6-4 6 4v-16z" fill="#3d8bff" ${OL.replace('2"', '1"')}/>`;
+    return s;
+  },
+  treasury(l) {
+    const w = 50 + 4 * l, h = 30 + 3 * l;
+    let s = `<rect x="${-w / 2 - 4}" y="-6" width="${w + 8}" height="6" fill="${ST2}" ${OL}/><rect x="${-w / 2}" y="${-h}" width="${w}" height="${h - 6}" fill="#e6d6b8" ${OL}/>`;
+    for (let i = 0; i < 4; i++) s += `<rect x="${-w / 2 + 6 + i * (w - 12) / 3 - 3}" y="${-h + 4}" width="6" height="${h - 12}" fill="#fff4dc" ${OL.replace('2"', '1.5"')}/>`;
+    s += `<path d="M${-w / 2 - 6} ${-h}L0 ${-h - 16}L${w / 2 + 6} ${-h}z" fill="#bfa27a" ${OL}/><circle cy="${-h - 6}" r="4" fill="#ffcf4a" ${OL.replace('2"', '1"')}/>`;
+    if (l >= 3) s += `<path d="M-14 ${-h - 12}a14 14 0 0 1 28 0z" fill="${l >= 5 ? '#ffcf4a' : '#7bb3d9'}" ${OL}/>`;
+    if (l >= 2) s += `<g font-size="10"><text x="${-w / 2 - 12}" y="-1">💰</text><text x="${w / 2 + 1}" y="-1">💰</text></g>`;
+    return s;
+  },
+  barracks(l) {
+    const w = 60 + 6 * l, h = 22 + 2 * l;
+    let s = `<rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" fill="#d9c7a4" ${OL}/>`;
+    for (let i = 0; i < 3 + Math.floor(l / 2); i++) s += window2(-w / 2 + 8 + i * 14, -h + 7);
+    s += `<path d="M${-w / 2 - 5} ${-h}L${-w / 2 + 8} ${-h - 16}H${w / 2 - 8}L${w / 2 + 5} ${-h}z" fill="#c8553d" ${OL}/>`;
+    if (l >= 4) s += tower(w / 2 - 6, -h + 2, 16, 20, '#c8553d');
+    s += flagSVG(-w / 2 + 12, -h - 16, '#c8553d', 16) + `<text x="${-w / 2 + 14}" y="${-h - 21}" font-size="7">⚔️</text>`;
+    if (l >= 2) s += `<g ${OL.replace('2"', '1.5"')}><line x1="${w / 2 + 10}" y1="0" x2="${w / 2 + 10}" y2="-14" stroke="${WD}"/><line x1="${w / 2 + 5}" y1="-10" x2="${w / 2 + 15}" y2="-10" stroke="${WD}" stroke-width="2"/><circle cx="${w / 2 + 10}" cy="-16" r="3" fill="#e2c38f"/></g>`;
+    return s;
+  },
+  academy(l) {
+    const w = 46 + 3 * l, h = 34 + 3 * l;
+    let s = `<rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" fill="#e8e0cf" ${OL}/>${window2(-w / 2 + 6, -h + 10)}${window2(w / 2 - 12, -h + 10)}
+      <path d="M-7 0v-12a7 7 0 0 1 14 0v12z" fill="#5a3b1c" ${OL}/>
+      <path d="M${-w / 2 - 5} ${-h}L0 ${-h - 18}L${w / 2 + 5} ${-h}z" fill="#3d6fb5" ${OL}/>`;
+    s += `<rect x="-8" y="${-h - 30 - 2 * l}" width="16" height="${18 + 2 * l}" fill="#e8e0cf" ${OL}/><circle cy="${-h - 22 - l}" r="5" fill="#fff" ${OL.replace('2"', '1.5"')}/><path d="M0 ${-h - 22 - l}v-3M0 ${-h - 22 - l}h3" stroke="#3b2f22" stroke-width="1.2"/>`;
+    s += l >= 3 ? `<path d="M-10 ${-h - 30 - 2 * l}a10 10 0 0 1 20 0z" fill="${l >= 5 ? '#ffcf4a' : '#9fb6c9'}" ${OL}/><line x1="4" y1="${-h - 38 - 2 * l}" x2="14" y2="${-h - 46 - 2 * l}" stroke="#3b2f22" stroke-width="3"/>`
+      : `<path d="M-11 ${-h - 30 - 2 * l}L0 ${-h - 44 - 2 * l}L11 ${-h - 30 - 2 * l}z" fill="#3d6fb5" ${OL}/>`;
+    if (l >= 2) s += `<text x="${-w / 2 - 12}" y="-2" font-size="10">📜</text>`;
+    return s;
+  },
+  workshop(l) {
+    const w = 44 + 4 * l, h = 24 + 2 * l;
+    let s = `<rect x="${w / 2 - 16}" y="${-h - 22}" width="9" height="20" fill="${ST2}" ${OL}/><g class="fsmoke"><circle cx="${w / 2 - 11}" cy="${-h - 28}" r="4" fill="#dfe7ee" opacity=".8"/><circle cx="${w / 2 - 8}" cy="${-h - 36}" r="5" fill="#dfe7ee" opacity=".6"/></g>
+      <rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" fill="#c89a62" ${OL}/>`;
+    for (let i = 0; i < 3; i++) s += `<line x1="${-w / 2 + 4 + i * (w - 8) / 2}" y1="${-h}" x2="${-w / 2 + 4 + i * (w - 8) / 2}" y2="0" stroke="${WD2}" stroke-width="2"/>`;
+    s += `<path d="M${-w / 2 - 4} ${-h}L${-w / 2 + 6} ${-h - 14}H${w / 2 - 6}L${w / 2 + 4} ${-h}z" fill="#7a5a3a" ${OL}/><rect x="-8" y="-14" width="16" height="14" fill="#3b2f22"/>
+      <text x="-6" y="${-h + 11}" font-size="9">⚙️</text>`;
+    if (l >= 3) s += `<g ${OL}><line x1="${-w / 2 - 14}" y1="0" x2="${-w / 2 - 14}" y2="${-h - 26}" stroke="${WD}" stroke-width="3"/><line x1="${-w / 2 - 16}" y1="${-h - 24}" x2="${-w / 2 + 8}" y2="${-h - 30}" stroke="${WD}" stroke-width="3"/><line x1="${-w / 2 + 6}" y1="${-h - 29}" x2="${-w / 2 + 6}" y2="${-h - 16}" stroke="#3b2f22" stroke-width="1"/></g>`;
+    if (l >= 2) s += `<text x="${w / 2 + 2}" y="-1" font-size="10">🔨</text>`;
+    return s;
+  },
+  market(l) {
+    const n = 1 + Math.min(3, Math.floor((l + 1) / 2)), cols = ['#e05a4a', '#3d8bff', '#46b35f', '#f3a33a'];
+    let s = '';
+    if (l >= 4) s += `<rect x="-44" y="-40" width="40" height="34" fill="#d9c7a4" ${OL}/><path d="M-48 -40L-24 -54L0 -40z" fill="#c8553d" ${OL}/><rect x="-32" y="-22" width="14" height="16" fill="#5a3b1c"/>`;
+    for (let i = 0; i < n; i++) {
+      const x = -10 + i * 24, c = cols[i];
+      s += `<rect x="${x - 10}" y="-18" width="20" height="18" fill="#e6d2a8" ${OL}/><path d="M${x - 13} -18h26l-3 -9h-20z" fill="${c}" ${OL}/>
+        <path d="M${x - 13} -18h6.5v4h-6.5zM${x} -18h6.5v4h-6.5z" fill="#fff" opacity=".8"/>`;
+    }
+    s += `<g font-size="9"><text x="-30" y="-1">📦</text><text x="${n * 24 - 14}" y="-1">🛢️</text></g>`;
+    if (l >= 5) s += `<text x="0" y="-32" font-size="12">💰</text>`;
+    return s;
+  },
+  dock(l) {
+    let s = `<path d="M-50 0L-40 -8H40L50 0z" fill="${WD}" ${OL}/>`;
+    s += `<path d="M-30 -8Q-28 -24 0 -26Q28 -24 30 -8z" fill="${l >= 2 ? '#7a5132' : '#c89a62'}" ${OL}/>`;
+    if (l >= 2) s += `<line x1="0" y1="-26" x2="0" y2="-54" stroke="#3b2f22" stroke-width="2.5"/><path d="M1 -52L20 -34H1z" fill="#f5f0e6" ${OL.replace('2"', '1.5"')}/>`;
+    else for (let i = 0; i < 5; i++) s += `<line x1="${-24 + i * 12}" y1="-10" x2="${-22 + i * 11}" y2="-24" stroke="${WD2}" stroke-width="2"/>`;
+    s += `<g ${OL}><line x1="44" y1="-8" x2="44" y2="-58" stroke="${WD}" stroke-width="4"/><line x1="46" y1="-56" x2="${l >= 3 ? 8 : 20}" y2="-50" stroke="${WD}" stroke-width="3"/><line x1="${l >= 3 ? 10 : 22}" y1="-50" x2="${l >= 3 ? 10 : 22}" y2="-36" stroke="#3b2f22" stroke-width="1"/></g>`;
+    if (l >= 3) s += `<path d="M-52 -8V-44L-36 -52V-8" fill="none" stroke="${WD2}" stroke-width="3"/>`;
+    if (l >= 4) s += `<path d="M-36 -52H36" stroke="${WD2}" stroke-width="3"/><path d="M-40 -54H40L34 -62H-34z" fill="#9c6b3f" ${OL}/>`;
+    return s;
+  },
+  lighthouse(l) {
+    const h = 44 + 9 * l;
+    let s = `<path d="M-26 6Q-24 -10 -8 -12Q10 -16 24 -6Q30 2 26 8z" fill="#8a8f96" ${OL}/>`;
+    s += `<path d="M-11 -8L-7 ${-h}H7L11 -8z" fill="#f4f1ea" ${OL}/>`;
+    for (let i = 1; i <= 2 + Math.floor(l / 2); i++) { const y = -8 - i * (h - 8) / (3 + Math.floor(l / 2)); s += `<path d="M${-10 + i * .6} ${y}h${20 - i * 1.2}v-6h${-20 + i * 1.2}z" fill="#d6453a"/>`; }
+    s += `<rect x="-10" y="${-h - 12}" width="20" height="12" fill="#ffe89a" ${OL}/><path d="M-12 ${-h - 12}L0 ${-h - 24}L12 ${-h - 12}z" fill="#c8553d" ${OL}/>`;
+    s += `<g class="fbeam" style="transform-origin:0px ${-h - 6}px"><path d="M0 ${-h - 6}L90 ${-h - 22}L90 ${-h + 10}z" fill="#fff6b0" opacity=".35"/></g>`;
+    return s;
+  },
+  battery(l) {
+    const n = Math.max(1, BAT_N[l]);
+    let s = `<path d="M-30 0L-26 -26H26L30 0z" fill="${ST2}" ${OL}/>${crenel(-26, -26, 52, 5)}`;
+    for (let i = 0; i < n; i++) { const y = -8 - (i % 2) * 11, x = -18 + Math.floor(i / 2) * 6; s += `<rect x="${x + 20}" y="${y - 4}" width="${22 - (i % 2) * 4}" height="7" rx="3" fill="#2d333a" transform="rotate(-8 ${x + 20} ${y})"/>`; }
+    s += `<g font-size="8"><text x="-24" y="-4">⚫</text><text x="-17" y="-4">⚫</text></g>`;
+    return s;
+  },
+  walls(l) {
+    const hh = 16 + 4 * l, w = 84, nT = 2 + Math.floor(l / 2);
+    let s = `<rect x="${-w}" y="${-hh}" width="${w * 2}" height="${hh}" fill="${ST2}" ${OL}/>${crenel(-w, -hh, w * 2, 15)}
+      <path d="M-12 0v-${hh - 4}a12 12 0 0 1 24 0v${hh - 4}z" fill="#5a3b1c" ${OL}/>`;
+    for (let i = 0; i < nT; i++) { const x = -w + i * (w * 2) / (nT - 1); s += tower(x, 4, 16, hh + 10, '#c8553d', l >= 5); }
+    return s;
+  },
+};
+function scaffold(w, h) {
+  let s = `<g opacity=".95">`;
+  for (let i = 0; i <= 3; i++) s += `<line x1="${-w / 2 + i * w / 3}" y1="0" x2="${-w / 2 + i * w / 3}" y2="${-h}" stroke="${WD}" stroke-width="2.5"/>`;
+  for (let j = 1; j <= 3; j++) s += `<line x1="${-w / 2 - 3}" y1="${-j * h / 3}" x2="${w / 2 + 3}" y2="${-j * h / 3}" stroke="${WD}" stroke-width="2.5"/>`;
+  s += `<line x1="${-w / 2}" y1="0" x2="${w / 2}" y2="${-h}" stroke="${WD2}" stroke-width="1.5"/><line x1="${w / 2 + 12}" y1="0" x2="${w / 2 + 12}" y2="${-h - 18}" stroke="${WD}" stroke-width="3"/>
+    <line x1="${w / 2 + 14}" y1="${-h - 16}" x2="${w / 2 - 20}" y2="${-h - 10}" stroke="${WD}" stroke-width="3"/><line class="fhook" x1="${w / 2 - 16}" y1="${-h - 11}" x2="${w / 2 - 16}" y2="${-h + 6}" stroke="#3b2f22" stroke-width="1"/>
+    <rect x="${w / 2 - 22}" y="${-h + 6}" width="12" height="8" fill="${ST2}" ${OL.replace('2"', '1"')}/></g>`;
+  return s;
+}
+const FSIZE = { citadel: [120, 110], treasury: [70, 55], barracks: [80, 45], academy: [60, 70], workshop: [60, 45], market: [80, 40], dock: [100, 55], lighthouse: [50, 80], battery: [64, 34], walls: [180, 40] };
+function fortScene(h) {
+  const f = fdata(h), sel = HB.fsel || 'citadel', now = Date.now(), raid = f.raidDue;
+  let s = `<svg viewBox="0 0 400 500" class="fscene-svg" aria-hidden="false">
+  <defs><linearGradient id="fsSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${raid ? '#e0785a' : '#7cc8f2'}"/><stop offset="1" stop-color="${raid ? '#f7c7a0' : '#e3f5ff'}"/></linearGradient>
+    <linearGradient id="fsSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fa3d8"/><stop offset="1" stop-color="#0b5d9c"/></linearGradient>
+    <linearGradient id="fsHill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd46c"/><stop offset="1" stop-color="#4c9444"/></linearGradient>
+    <linearGradient id="fsRock" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a7a39a"/><stop offset="1" stop-color="#6f6a62"/></linearGradient></defs>
+  <rect width="400" height="500" fill="url(#fsSky)"/>
+  <circle cx="330" cy="62" r="24" fill="${raid ? '#ffdf8a' : '#fff6c4'}" opacity=".9"/>
+  <g class="fclouds" fill="#fff" opacity=".85"><ellipse cx="70" cy="60" rx="34" ry="11"/><ellipse cx="92" cy="52" rx="22" ry="10"/><ellipse cx="250" cy="96" rx="30" ry="9"/><ellipse cx="268" cy="89" rx="18" ry="8"/></g>
+  <path d="M0 190L40 150L80 170L130 128L170 160L220 120L270 158L320 132L360 162L400 140V230H0z" fill="#8fb7cf" opacity=".7"/>
+  <path d="M0 214L50 184L110 200L160 176L230 196L300 170L400 196V250H0z" fill="#6fa3bf" opacity=".8"/>
+  <path d="M0 440V300Q20 250 70 262Q100 210 150 212Q170 170 200 168Q232 170 250 210Q300 206 330 250Q380 262 400 300V440z" fill="url(#fsHill)" stroke="#3f7a3a" stroke-width="2"/>
+  <path d="M0 392Q40 380 60 350Q90 330 130 340Q170 320 200 322Q250 318 290 340Q340 350 400 360V440H0z" fill="#79c05d" opacity=".55"/>
+  <path d="M8 440Q2 400 18 380Q34 362 52 380Q62 404 58 440z" fill="url(#fsRock)" stroke="#4d4a44" stroke-width="2"/>
+  <path d="M0 440Q90 424 200 432Q300 424 400 440V446H0z" fill="#ecd9a0"/>
+  <rect y="444" width="400" height="56" fill="url(#fsSea)"/>
+  <path d="M332 470Q336 430 360 420Q388 414 396 440L400 470z" fill="url(#fsRock)" stroke="#4d4a44" stroke-width="2"/>
+  <g class="fwaves" stroke="#d6f1ff" stroke-width="2" fill="none" opacity=".6" stroke-linecap="round"><path d="M10 462q10-5 20 0t20 0"/><path d="M120 476q10-5 20 0t20 0"/><path d="M230 460q10-5 20 0t20 0"/><path d="M60 490q10-5 20 0t20 0"/><path d="M280 488q10-5 20 0t20 0"/></g>
+  <path d="M170 350Q200 370 188 400Q182 420 200 440" stroke="#d9c49a" stroke-width="7" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M200 300Q205 250 200 200" stroke="#d9c49a" stroke-width="6" fill="none" stroke-linecap="round" opacity=".7"/>
+  <rect x="236" y="436" width="70" height="7" fill="${WD}" stroke="#3b2f22" stroke-width="1.5"/><g stroke="${WD2}" stroke-width="3"><line x1="244" y1="443" x2="244" y2="458"/><line x1="298" y1="443" x2="298" y2="458"/></g>
+  <g font-size="14"><text x="136" y="356">🌳</text><text x="252" y="362">🌳</text><text x="16" y="296">🌲</text><text x="372" y="298">🌲</text><text x="176" y="380">🌳</text></g>`;
+  if (raid) s += `<g class="fpirates"><g transform="translate(60 470)"><path d="M-22 0h44l-6 10h-32z" fill="#2b1d14" stroke="#111" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-30" stroke="#111" stroke-width="2"/><path d="M1 -28L18 -10H1z" fill="#222"/><text x="3" y="-16" font-size="8">☠️</text></g>
+    <g transform="translate(190 484)"><path d="M-18 0h36l-5 8h-26z" fill="#2b1d14" stroke="#111" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-24" stroke="#111" stroke-width="2"/><path d="M1 -22L14 -8H1z" fill="#222"/></g></g>`;
+  const order = ['walls', 'citadel', 'treasury', 'barracks', 'academy', 'workshop', 'battery', 'market', 'dock', 'lighthouse'];
+  order.forEach(id => {
+    const [x, y] = FPOS[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(z => z.id === id), [w, hh] = FSIZE[id];
+    s += `<g class="fb${sel === id ? ' sel' : ''}" data-fsel="${id}" transform="translate(${x} ${y})">`;
+    s += `<ellipse cx="0" cy="2" rx="${w / 2 + 8}" ry="9" fill="${sel === id ? '#ffcf4a' : '#000'}" opacity="${sel === id ? .55 : .12}"/>`;
+    if (l) s += FART[id](l);
+    else if (!bld) s += `<g class="fempty"><ellipse cx="0" cy="0" rx="${Math.min(40, w / 2)}" ry="8" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="5 4" opacity=".8"/><line x1="0" y1="0" x2="0" y2="-22" stroke="${WD}" stroke-width="3"/><rect x="-14" y="-34" width="28" height="14" rx="3" fill="#f3e2b8" ${OL.replace('2"', '1.5"')}/><text x="0" y="-23.5" font-size="10" text-anchor="middle">${b.ic}</text></g>`;
+    if (bld) s += scaffold(Math.min(w, 90), Math.min(hh, 70));
+    s += `<rect x="${-w / 2}" y="${-hh - 10}" width="${w}" height="${hh + 16}" fill="transparent"/>`;
+    if (l) s += `<g transform="translate(${w / 2 - 4} ${-hh + 4})"><path d="M-8 -9h16v10l-8 6-8-6z" fill="#ffcf4a" ${OL.replace('2"', '1.5"')}/><text x="0" y="1" font-size="10" font-weight="900" text-anchor="middle" fill="#3b2300">${l}</text></g>`;
+    if (bld) s += `<g transform="translate(0 ${-Math.min(hh, 70) - 30})"><rect x="-28" y="-9" width="56" height="15" rx="7" fill="rgba(0,20,50,.85)"/><text x="0" y="2" font-size="9.5" font-weight="800" text-anchor="middle" fill="#fff" data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</text></g>`;
+    s += `</g>`;
+  });
+  s += `</svg>`;
+  return s;
+}
+
 async function towerFire(u) {
   const ts = H.foes.filter(f => f.hp > 0 && !f.gone && foeVisible(f) && cheb(u, f) <= u.st.range).sort((a, b) => a.hp - b.hp);
   if (!ts.length) return;
