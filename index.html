@@ -260,6 +260,10 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .frow{display:flex;align-items:center;gap:10px}.frow .fic{font-size:24px;width:32px;text-align:center;flex:none}.frow .ftx{flex:1;min-width:0}.frow small{display:block;color:var(--muted);font-size:12px}
 .raidbar{background:rgba(255,80,60,.2);border:1px solid rgba(255,130,110,.6);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}.raidbar small{color:#ffe0da;font-size:12px;line-height:1.35}.raidbar .row{justify-content:flex-start}
 .ftod{position:absolute;inset:0;pointer-events:none;z-index:2}
+.fstage,.bhero{--tf:brightness(1)}
+.tod-dawn{--tf:sepia(.22) saturate(1.1) brightness(.97) hue-rotate(-8deg)}
+.tod-dusk{--tf:sepia(.35) saturate(1.2) brightness(.82) hue-rotate(-14deg)}
+.tod-night{--tf:brightness(.42) saturate(.6) contrast(1.1)}
 #scr-fort.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#07345f}
 body.fort-on #splash,body.fort-on #sea{display:none}
 .fview{position:absolute;inset:0;overflow:auto;scrollbar-width:none;overscroll-behavior:none;-webkit-overflow-scrolling:touch;cursor:grab}
@@ -287,9 +291,9 @@ body.fort-on #splash,body.fort-on #sea{display:none}
 .goldpill{display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 12px;border-radius:18px;background:rgba(5,30,60,.6);border:1px solid rgba(255,207,74,.7);color:#ffe08a;font-weight:800;white-space:nowrap}
 .bhero{position:relative;width:min(560px,100%);aspect-ratio:16/11;padding:0;overflow:hidden;border-radius:22px}
 .bh-bg{position:absolute;inset:-6px;background-repeat:no-repeat;filter:blur(2.5px) brightness(.85)}
-.bh-img{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);z-index:1;filter:drop-shadow(0 10px 14px rgba(0,0,0,.5));animation:bhin .45s cubic-bezier(.2,.8,.2,1)}
-.bh-img.lv3{filter:drop-shadow(0 10px 14px rgba(0,0,0,.5)) drop-shadow(0 0 12px rgba(120,200,255,.6))}
-.bh-img.lv5{filter:drop-shadow(0 10px 14px rgba(0,0,0,.5)) drop-shadow(0 0 14px rgba(255,210,90,.85))}
+.bh-img{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);z-index:1;filter:var(--tf) drop-shadow(0 10px 14px rgba(0,0,0,.5));animation:bhin .45s cubic-bezier(.2,.8,.2,1)}
+.bh-img.lv3{filter:var(--tf) drop-shadow(0 10px 14px rgba(0,0,0,.5)) drop-shadow(0 0 12px rgba(120,200,255,.6))}
+.bh-img.lv5{filter:var(--tf) drop-shadow(0 10px 14px rgba(0,0,0,.5)) drop-shadow(0 0 14px rgba(255,210,90,.85))}
 @keyframes bhin{from{opacity:0;transform:translateX(-50%) scale(.8)}}
 .bhero .ftod{z-index:2}
 .bh-cap{position:absolute;left:12px;bottom:10px;z-index:3;background:rgba(0,20,50,.75);border:1px solid rgba(255,207,74,.6);border-radius:12px;padding:6px 10px;line-height:1.2}
@@ -306,13 +310,9 @@ body.fort-on #splash,body.fort-on #sea{display:none}
 .flight.beam{background:radial-gradient(circle,rgba(255,250,210,.95) 0,rgba(255,235,150,.45) 25%,transparent 62%);animation:fbeamp 1.8s ease-in-out infinite alternate}
 @keyframes flightp{from{filter:brightness(.85)}to{filter:brightness(1.15)}}
 @keyframes fbeamp{from{transform:translate(-50%,-50%) scale(.85)}to{transform:translate(-50%,-50%) scale(1.15)}}
-.tod-dawn .ftod{background:linear-gradient(200deg,rgba(255,160,140,.6),rgba(255,205,165,.4) 45%,rgba(140,150,210,.45));mix-blend-mode:multiply}
-.tod-dawn .fstage::after,.fstage.tod-dawn::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 88% 0%,rgba(255,196,130,.5),transparent 55%);mix-blend-mode:screen}
 .tod-dawn .flight{opacity:.35}
-.tod-dusk .ftod{background:linear-gradient(160deg,rgba(255,120,40,.55),rgba(255,90,60,.35) 50%,rgba(70,30,90,.55));mix-blend-mode:multiply}
-.tod-dusk .flight{opacity:.7}
-.tod-night .ftod{background:radial-gradient(ellipse at 22% 8%,rgba(160,190,255,.25),transparent 45%),linear-gradient(180deg,rgba(12,24,70,.78),rgba(6,14,45,.85));mix-blend-mode:multiply}
-.tod-night .flight{opacity:1}
+.tod-dusk .flight{opacity:.5}
+.tod-night .flight{opacity:.75}
 .ftodbtn{position:absolute;left:10px;bottom:10px;z-index:4;line-height:1;padding:9px 12px;border-radius:14px;background:rgba(5,30,60,.75);border:1.5px solid rgba(255,207,74,.6);color:#ffe08a;font-size:12px;font-weight:800}
 .fzoom{z-index:4}
 .fscene2{position:relative;width:min(560px,100%);padding:0;overflow:hidden;border-radius:22px;line-height:0}
@@ -322,11 +322,11 @@ body.fort-on #splash,body.fort-on #sea{display:none}
 .fscene2.zoom .fstage{width:230%}
 .fstage img{-webkit-user-drag:none;user-select:none}
 .fbase{display:block;width:100%;height:auto}
-.fbi{position:absolute;height:auto;cursor:pointer;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));transition:filter .2s}
-.fbi.lv3{filter:drop-shadow(0 3px 3px rgba(0,0,0,.35)) drop-shadow(0 0 5px rgba(120,200,255,.55))}
-.fbi.lv5{filter:drop-shadow(0 3px 3px rgba(0,0,0,.35)) drop-shadow(0 0 7px rgba(255,210,90,.8))}
-.fbi.sel{filter:drop-shadow(0 0 2px #fff3b0) drop-shadow(0 0 9px rgba(255,207,74,.95))}
-.fbi.scaf{animation:fscaf 2.4s ease-in-out infinite}
+.fbi{position:absolute;height:auto;cursor:pointer;filter:var(--tf) drop-shadow(0 3px 3px rgba(0,0,0,.35));transition:filter .2s}
+.fbi.lv3{filter:var(--tf) drop-shadow(0 3px 3px rgba(0,0,0,.35)) drop-shadow(0 0 5px rgba(120,200,255,.55))}
+.fbi.lv5{filter:var(--tf) drop-shadow(0 3px 3px rgba(0,0,0,.35)) drop-shadow(0 0 7px rgba(255,210,90,.8))}
+.fbi.sel{filter:var(--tf) drop-shadow(0 0 2px #fff3b0) drop-shadow(0 0 9px rgba(255,207,74,.95))}
+.fbi.scaf{filter:var(--tf) drop-shadow(0 3px 3px rgba(0,0,0,.35));animation:fscaf 2.4s ease-in-out infinite}
 @keyframes fscaf{50%{transform:translateY(-1.5px)}}
 .fpad{position:absolute;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;line-height:1;
   background:rgba(8,30,60,.55);border:2px dashed rgba(255,255,255,.85);box-shadow:0 3px 10px rgba(0,0,0,.4);animation:fpadp 2s ease-in-out infinite}
@@ -3378,12 +3378,13 @@ let FIMG_OK = true;
 function fortImgFail() { if (!FIMG_OK) return; FIMG_OK = false; renderHub(); }
 const fTierImg = (id, l) => { const n = FTIERS[id] || 1, t = l >= 5 && n >= 3 ? 3 : l >= 3 && n >= 2 ? 2 : 1; return `fort_${id}_${t}.webp`; };
 const TOD = { dawn: { ic: '🌅', n: 'Рассвет' }, day: { ic: '☀️', n: 'День' }, dusk: { ic: '🌇', n: 'Закат' }, night: { ic: '🌙', n: 'Ночь' } };
+const fBaseImg = t => t === 'day' ? 'fort_base.webp' : `fort_base_${t}.webp`;
 const todNow = () => { if (HB.tod) return HB.tod; const hr = new Date().getHours(); return hr >= 5 && hr < 8 ? 'dawn' : hr >= 8 && hr < 18 ? 'day' : hr >= 18 && hr < 21 ? 'dusk' : 'night'; };
 function fortSceneImg(h) {
   const f = fdata(h), sel = HB.fsel || 'citadel', now = Date.now();
   const order = Object.keys(FPL).sort((a, b) => (FPL[a].t + FPL[a].w) - (FPL[b].t + FPL[b].w));
   const tod = todNow();
-  let s = `<div class="fzoomwrap"><div class="fstage tod-${tod}"><img class="fbase" src="fort_base.webp" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>`;
+  let s = `<div class="fzoomwrap"><div class="fstage tod-${tod}"><img class="fbase" src="${fBaseImg(tod)}" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>`;
   order.forEach(id => {
     const p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(z => z.id === id), on = sel === id ? ' sel' : '';
     if (bld) {
@@ -3425,7 +3426,7 @@ function fortMigrate(h) {
 function fortStage(h, W) {
   const f = fdata(h), now = Date.now(), tod = todNow();
   const order = Object.keys(FPL).sort((a, b) => (FPL[a].t + FPL[a].w) - (FPL[b].t + FPL[b].w));
-  let s = `<div class="fstage tod-${tod}" style="width:${W}px"><img class="fbase" src="fort_base.webp" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>`;
+  let s = `<div class="fstage tod-${tod}" style="width:${W}px"><img class="fbase" src="${fBaseImg(tod)}" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>`;
   order.forEach(id => {
     const p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(z => z.id === id);
     if (bld) {
@@ -3473,7 +3474,7 @@ function bldHero(h, id) {
   const S = id === 'walls' ? 2.6 : 4.2, Hs = S / FASPECT, Hc = 11 / 16;
   const px = Math.max(0, Math.min(100, (p.cx / 100 * S - .5) / (S - 1) * 100)), py = Math.max(0, Math.min(100, (p.cy / 100 * Hs - Hc / 2) / (Hs - Hc) * 100));
   const wpc = id === 'walls' ? 88 : id === 'lighthouse' ? 44 : 62;
-  let s = `<div class="bh-bg" style="background-image:url(fort_base.webp);background-size:${S * 100}% auto;background-position:${px}% ${py}%"></div><div class="ftod"></div>`;
+  let s = `<div class="bh-bg" style="background-image:url(${fBaseImg(todNow())});background-size:${S * 100}% auto;background-position:${px}% ${py}%"></div><div class="ftod"></div>`;
   if (!FIMG_OK) s = `<div class="bh-svg">${b.ic}</div>`;
   else if (bld) s += `<img class="bh-img" src="fort_scaffold.webp" alt="" style="width:${Math.min(wpc, 62)}%"><span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>`;
   else if (l) s += `<img class="bh-img${l >= 5 ? ' lv5' : l >= 3 ? ' lv3' : ''}" src="${fTierImg(id, l)}" alt="${b.name}" style="width:${wpc}%">`;
