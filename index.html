@@ -3741,15 +3741,16 @@ const Amb = {
     // прибой: коричневый шум + медленные «волны»
     const len = ctx.sampleRate * 6, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0); let last = 0;
     for (let i = 0; i < len; i++) { last = (last + .02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
-    const mk = (rate, fq, base, depth) => {
-      const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; src.playbackRate.value = rate;
-      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = fq;
+    const wbuf = ctx.createBuffer(1, len, ctx.sampleRate), wd = wbuf.getChannelData(0); for (let i = 0; i < len; i++) wd[i] = Math.random() * 2 - 1;
+    const mk = (rate, fq, base, depth, white) => {
+      const src = ctx.createBufferSource(); src.buffer = white ? wbuf : buf; src.loop = true; src.playbackRate.value = rate;
+      const f = ctx.createBiquadFilter(); f.type = white ? 'bandpass' : 'lowpass'; f.frequency.value = fq; if (white) f.Q.value = .7;
       const g = ctx.createGain(); g.gain.value = base;
       const lfo = ctx.createOscillator(); lfo.frequency.value = .07 + Math.random() * .05; const lg = ctx.createGain(); lg.gain.value = depth;
       lfo.connect(lg).connect(g.gain); src.connect(f).connect(g).connect(out); src.start(); lfo.start();
       return [src, lfo];
     };
-    this.nodes = { out, list: [...mk(1, 420, .16, .1), ...mk(.8, 900, .05, .045)] };
+    this.nodes = { out, list: [...mk(1, 1400, .4, .25), ...mk(1, 2200, .045, .035, true)] };
     const loop = (fn, a, b) => { const t = () => { if (this.mode !== mode) return; if (!document.hidden) fn(); this.timers.push(setTimeout(t, a + Math.random() * (b - a))); }; this.timers.push(setTimeout(t, a * .5 + Math.random() * a)); };
     loop(() => { const tod = todNow(); if (tod === 'day' || tod === 'dawn' || mode === 'map') this.gull(); }, 5000, 12000);
     loop(() => { const tod = todNow(); if (mode !== 'map' && (tod === 'night' || tod === 'dusk')) this.cricket(); }, 700, 1600);
@@ -3768,8 +3769,8 @@ const Amb = {
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + .02); g.gain.exponentialRampToValueAtTime(.0005, t + dur);
     o.connect(g).connect(this.nodes.out); o.start(t); o.stop(t + dur + .05);
   },
-  gull() { const n = 2 + (Math.random() * 3 | 0), b = 1500 + Math.random() * 500; for (let i = 0; i < n; i++) this.blip(b * (i ? .95 : 1.1), b * .62, .26 + Math.random() * .08, 'triangle', .035, i * .32, 22); },
-  cricket() { const f = 4300 + Math.random() * 600; for (let i = 0; i < 3; i++) this.blip(f, f * .98, .035, 'sine', .012, i * .06); },
+  gull() { const n = 2 + (Math.random() * 3 | 0), b = 1500 + Math.random() * 500; for (let i = 0; i < n; i++) this.blip(b * (i ? .95 : 1.1), b * .62, .26 + Math.random() * .08, 'triangle', .09, i * .32, 22); },
+  cricket() { const f = 4300 + Math.random() * 600; for (let i = 0; i < 3; i++) this.blip(f, f * .98, .035, 'sine', .035, i * .06); },
   hammer() {
     const ctx = Snd.ctx; if (!ctx || !this.nodes) return;
     const n = 1 + (Math.random() * 2 | 0);
@@ -3777,11 +3778,16 @@ const Amb = {
       const t = ctx.currentTime + i * .28, len = Math.floor(ctx.sampleRate * .07), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
       for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 3);
       const s = ctx.createBufferSource(); s.buffer = buf; const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = 2;
-      const g = ctx.createGain(); g.gain.value = .09; s.connect(f).connect(g).connect(this.nodes.out); s.start(t);
-      this.blip(820, 760, .12, 'square', .012, i * .28);
+      const g = ctx.createGain(); g.gain.value = .25; s.connect(f).connect(g).connect(this.nodes.out); s.start(t);
+      this.blip(820, 760, .12, 'square', .03, i * .28);
     }
   },
 };
+document.addEventListener('pointerdown', () => {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+  if (!Snd.on) return; const c = Snd.ensure(); if (c && c.state !== 'running') c.resume();
+  if (!Amb.mode) ambSync();
+}, true);
 function ambSync() {
   const a = document.querySelector('.screen.active'), id = a && a.id;
   Amb.set(id === 'scr-fort' || id === 'scr-hub' ? 'fort' : id === 'scr-map' ? 'map' : null);
@@ -3970,7 +3976,9 @@ setInterval(() => {
 /* ==================== BOOT ==================== */
 Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => { document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {}));
+  let swReload = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (swReload && !document.body.classList.contains('in-game')) { swReload = false; location.reload(); } });
 }
 </script>
 <script>
