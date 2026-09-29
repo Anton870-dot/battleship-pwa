@@ -71,8 +71,12 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .tile.wide b{font-size:18px}.tile .go{font-size:30px;font-weight:300;line-height:1}
 .tile.primary{background:linear-gradient(135deg,rgba(255,214,90,.97),rgba(255,152,28,.97));color:#3b2300;text-shadow:none;border-color:rgba(255,255,255,.5);box-shadow:0 10px 28px rgba(255,140,20,.35)}
 .tile.primary small{color:#6b4300}
-.mbar{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mbar .btn{padding:11px 8px;font-size:14px;border-radius:16px}
+.mbar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mbar .badge{min-width:22px;height:22px;font-size:12px;padding:0 6px}
+.tile.camp{background:linear-gradient(135deg,rgba(18,64,120,.92),rgba(8,36,78,.94));border:1.5px solid rgba(255,207,74,.75);box-shadow:0 10px 28px rgba(0,20,60,.45),inset 0 0 18px rgba(255,207,74,.12)}
+.tile.camp b{color:#ffe08a}
+.tile.camp .go{color:var(--gold)}
+.mbar .btn{padding:11px 4px;font-size:13.5px;border-radius:16px;gap:5px;white-space:nowrap}
 .overlay.sheet{align-items:flex-end;padding:0}
 .overlay.sheet .card{width:min(520px,100%);border-radius:26px 26px 0 0;padding:14px 18px max(22px,env(safe-area-inset-bottom));text-align:left;gap:10px;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);max-height:90vh}
 .overlay.sheet h2{text-align:center;font-size:21px}
@@ -521,14 +525,14 @@ body.menu-on .logo{margin:0}
   <div class="mbottom">
     <div class="mgrid">
       <button class="tile wide primary" id="t-ai"><span class="ti">⚔️</span><span class="tt"><b>Против компьютера</b><small id="t-ai-sub">Средний · Классика</small></span><span class="go">›</span></button>
-      <button class="tile" id="btn-hunt"><span class="ti">🧭</span><b>Морской поход</b><small>флот, абордажи, боссы</small></button>
+      <button class="tile wide camp" id="btn-hunt"><span class="ti">🔱</span><span class="tt"><b>Хозяин морей</b><small>кампания: флот, крепость, боссы</small></span><span class="go">›</span></button>
       <button class="tile" id="t-duo"><span class="ti">👥</span><b>Вдвоём</b><small>на одном устройстве</small></button>
       <button class="tile" id="btn-adm"><span class="ti">🎩</span><b>Адмиралы</b><small id="t-adm-sub">6 противников</small></button>
       <button class="tile" id="btn-daily"><span class="ti">🗓</span><b>Вызов дня</b><small id="daily-sub">новая расстановка</small></button>
       <button class="tile" id="t-tasks"><span class="ti">📋</span><b>Задания дня</b><small id="t-tasks-sub">3 цели на сегодня</small><span class="badge" id="tasks-badge">0/3</span></button>
-      <button class="tile" id="btn-yard"><span class="ti">🛠</span><b>Верфь</b><small>древо улучшений</small><span class="badge" id="yard-pts">0</span></button>
     </div>
     <div class="mbar">
+      <button class="btn glass" id="btn-yard">🛠 Верфь <span class="badge" id="yard-pts">0</span></button>
       <button class="btn glass" id="btn-ach">🏆 Награды</button>
       <button class="btn glass" id="btn-help">📖 Правила</button>
     </div>
@@ -611,7 +615,7 @@ body.menu-on .logo{margin:0}
 
 <!-- ================= HUNT HUB ================= -->
 <section id="scr-hub" class="screen">
-  <div class="topbar"><button class="iconbtn glass" id="hub-back" aria-label="Назад">←</button><h2>Морской поход</h2><span style="width:44px"></span></div>
+  <div class="topbar"><button class="iconbtn glass" id="hub-back" aria-label="Назад">←</button><h2>Хозяин морей</h2><span style="width:44px"></span></div>
   <div class="glass hub-head"><div class="g"><span id="hub-gold">0</span> 💰</div><div><b>Гавань</b><small id="hub-stats"></small></div></div>
   <div class="seg hubtabs" id="hub-tabs"><button data-t="map"><i>🗺</i>Карта</button><button data-t="ships"><i>🚢</i>Корабли</button><button data-t="squad"><i>⚓</i>Эскадра</button><button data-t="crew"><i>👥</i>Люди</button><button data-t="fort"><i>🏰</i>Крепость</button></div>
   <div class="hub-body" id="hub-body"></div>
@@ -651,12 +655,12 @@ body.menu-on .logo{margin:0}
     <h3>🔥 Правила «Залпы»</h3>
     <p>Переключатель в меню. За ход вы делаете столько выстрелов, сколько у вас целых кораблей (в начале — 10). Попадание не даёт лишнего хода, зато каждый потопленный корабль противника отнимает у него один выстрел. Спецоружие тратит один выстрел залпа, радар — нет. Работает и против компьютера, и вдвоём.</p>
     <h3>🎩 Лестница адмиралов</h3>
-    <p>Шесть противников с характером: от Юнги Пита, который стреляет наугад, до Гранд-адмирала Нептуна с почти полным древом улучшений. Каждый по-своему ставит флот (у краёв, в углу, в центре, вразброс) и по-своему стреляет. Победа открывает следующего адмирала и приносит золото в казну Морского похода.</p>
+    <p>Шесть противников с характером: от Юнги Пита, который стреляет наугад, до Гранд-адмирала Нептуна с почти полным древом улучшений. Каждый по-своему ставит флот (у краёв, в углу, в центре, вразброс) и по-своему стреляет. Победа открывает следующего адмирала и приносит золото в казну флота.</p>
     <h3>🗓 Вызов дня и задания</h3>
     <p>Вызов дня — одна и та же расстановка для всех на весь день. Противник не стреляет: задача потопить флот за минимум выстрелов. Первое прохождение за день даёт 50 💰, дни подряд складываются в серию. Задания дня — три небольшие цели; за каждую платят золото, а за все три — очко на Верфь.</p>
     <h3>🛠 Верфь и прокачка</h3>
     <p>Каждая победа (над компьютером или в игре вдвоём) даёт 1 очко прокачки. Одно очко — одно улучшение на Верфи. Древо из четырёх веток: Корпус, Энергия, Разведка и Оружие. Улучшения открываются по порядку сверху вниз, а на самом дне ждёт «Флагман». Сброс древа возвращает все очки. Компьютер на сложном уровне получает столько же улучшений, сколько у вас, на среднем — половину.</p>
-    <h3>🧭 Морской поход</h3>
+    <h3>🔱 Хозяин морей</h3>
     <p>Отдельный режим: вы ведёте свой флот по архипелагу. Перед каждой миссией на карте выбираете, куда плыть: бой с заданием, торговец, тихая бухта, сигнал SOS или тайник. Каждые 5 миссий — босс, за победу над ним дают редкое оборудование.</p>
     <p><b>Задания:</b> охота (потопить всех), спасение шлюпок, перехват транспорта, проводка конвоя, штурм форта, оборона до подхода своих. <b>Погода:</b> шторм, туман и ночь меняют обзор и меткость. На карте бывают мели (крупным кораблям туда нельзя без штурмана), маяки и мины.</p>
     <p><b>Бой:</b> поле 12×12 с островами. Каждый ваш корабль за ход делает одно действие: плывёт, стреляет, идёт на абордаж, ставит мину или затаивается. Врагов видно только в радиусе обзора. Выстрел выдаёт стрелявшего (❗), движение шумит — акустики слышат зону. Подлодка невидима дальше 1 клетки, пока не выстрелит. Потопят флагман — миссия проиграна.</p>
@@ -1112,11 +1116,11 @@ const ACH = [
   { id: 'duel',      ic: '🤝', name: 'Дуэлянт',          desc: 'Победите в игре вдвоём',                  ok: c => c.won && c.mode === 'duo' },
   { id: 'engineer',  ic: '🛠️', name: 'Корабел',          desc: 'Изучите 5 улучшений на Верфи',            ok: c => c.prof.up.length >= 5 },
   { id: 'master',    ic: '⚙️', name: 'Главный инженер',  desc: 'Изучите 12 улучшений',                    ok: c => c.prof.up.length >= 12 },
-  { id: 'hunt1',     ic: '🧭', name: 'Первый поход',     desc: 'Пройдите миссию в Морском походе',        ok: c => !!(c.prof.hunt && c.prof.hunt.w >= 1) },
+  { id: 'hunt1',     ic: '🧭', name: 'Первый поход',     desc: 'Пройдите миссию в режиме «Хозяин морей»',        ok: c => !!(c.prof.hunt && c.prof.hunt.w >= 1) },
   { id: 'hunt10',    ic: '🏴‍☠️', name: 'Гроза морей',      desc: 'Дойдите до 10-й миссии похода',           ok: c => !!(c.prof.hunt && c.prof.hunt.mission >= 10) },
   { id: 'fleet5',    ic: '⚓', name: 'Адмиралтейство',   desc: 'Соберите в гавани все 5 кораблей',        ok: c => !!(c.prof.hunt && Object.keys(c.prof.hunt.ships).length >= 5) },
   { id: 'board1',    ic: '⚔️', name: 'На абордаж!',      desc: 'Захватите вражеский корабль абордажем',   ok: c => !!(c.prof.hunt && c.prof.hunt.caps >= 1) },
-  { id: 'boss1',     ic: '☠️', name: 'Гроза пиратов',    desc: 'Победите босса в Морском походе',         ok: c => !!(c.prof.hunt && c.prof.hunt.bosses >= 1) },
+  { id: 'boss1',     ic: '☠️', name: 'Гроза пиратов',    desc: 'Победите босса в режиме «Хозяин морей»',         ok: c => !!(c.prof.hunt && c.prof.hunt.bosses >= 1) },
   { id: 'legend',    ic: '🎖', name: 'Легенда флота',    desc: 'Доведите корабль до звания «Легенда»',    ok: c => !!(c.prof.hunt && Object.values(c.prof.hunt.ships).some(s => (s.xp || 0) >= 15)) },
   { id: 'salvowin',  ic: '🔥', name: 'Шквальный огонь',  desc: 'Победите компьютер по правилам «Залпы»',  ok: c => c.won && c.mode === 'ai' && G.rules === 'salvo' },
   { id: 'ladder3',   ic: '📜', name: 'Покоритель адмиралов', desc: 'Победите трёх адмиралов',             ok: c => (c.prof.adm || 0) >= 3 },
@@ -1725,7 +1729,7 @@ function endGame(winner) {
     const g = first ? G.adm.reward : Math.round(G.adm.reward / 4);
     if (first) pr.adm = i + 1;
     hdata(pr).gold += g;
-    admLine = ` · +${g} 💰 в казну похода${first && i + 1 < ADM.length ? ` · открыт: ${ADM[i + 1].ic} ${ADM[i + 1].name}` : ''}`;
+    admLine = ` · +${g} 💰 в казну флота${first && i + 1 < ADM.length ? ` · открыт: ${ADM[i + 1].ic} ${ADM[i + 1].name}` : ''}`;
   }
   G.p.forEach((pl, i) => { if (!pl.ai) unlocked.push(...recordFor(pl, i === winner, secs, pl.board.ships.filter(s => s.sunk).length)); });
   { const p0 = G.p[0]; dailyEvent('classic', { mode: G.mode, won: winner === 0, diff: G.diff, rules: G.rules, acc: p0.shots ? p0.hits / p0.shots : 0, sunk: p0.sunk, weapons: (p0.radar || 0) + (p0.salvo || 0) + (p0.torpedo || 0) + (p0.air || 0), adm: !!G.adm }); }
@@ -3315,7 +3319,7 @@ function renderAdm() {
       <button class="btn small ${open ? 'primary' : ''}" data-adm="${i}" ${open ? '' : 'disabled'}>${done ? 'Реванш' : 'Сразиться'}</button></div>`;
   }).join('');
   document.querySelectorAll('#adm-list [data-adm]').forEach(b => b.onclick = () => { Snd.play('click'); G.adm = ADM[+b.dataset.adm]; startGame('ai'); });
-  $('#adm-sub').textContent = beat >= ADM.length ? 'Все адмиралы повержены! Реванш — в любое время.' : `Побеждено: ${beat} из ${ADM.length}. Победа открывает следующего адмирала и приносит золото для Морского похода.`;
+  $('#adm-sub').textContent = beat >= ADM.length ? 'Все адмиралы повержены! Реванш — в любое время.' : `Побеждено: ${beat} из ${ADM.length}. Победа открывает следующего адмирала и приносит золото для казны флота.`;
 }
 /* ---- сид и даты ---- */
 function seededRun(seed, fn) {
@@ -3336,7 +3340,7 @@ const TASKS = [
   { id: 'daily',   ic: '🗓', t: 'Пройдите вызов дня', n: 1, gold: 60, ev: e => e.type === 'daily' ? 1 : 0 },
   { id: 'daily55', ic: '💎', t: 'Пройдите вызов дня не больше чем за 55 выстрелов', n: 1, gold: 120, ev: e => e.type === 'daily' && e.shots <= 55 ? 1 : 0 },
   { id: 'adm',     ic: '🎖', t: 'Сразитесь с адмиралом', n: 1, gold: 70, ev: e => e.type === 'classic' && e.adm ? 1 : 0 },
-  { id: 'hunt',    ic: '🧭', t: 'Пройдите миссию в Морском походе', n: 1, gold: 80, ev: e => e.type === 'hunt' && e.won ? 1 : 0 },
+  { id: 'hunt',    ic: '🧭', t: 'Пройдите миссию в режиме «Хозяин морей»', n: 1, gold: 80, ev: e => e.type === 'hunt' && e.won ? 1 : 0 },
   { id: 'hsink',   ic: '⚓', t: 'Потопите 5 кораблей в походе', n: 5, gold: 80, ev: e => e.type === 'hunt' ? e.sunk : 0 },
   { id: 'board',   ic: '🏴', t: 'Захватите корабль абордажем', n: 1, gold: 110, ev: e => e.type === 'hunt' ? e.caps : 0 },
   { id: 'duo',     ic: '👥', t: 'Сыграйте партию вдвоём', n: 1, gold: 50, ev: e => e.type === 'classic' && e.mode === 'duo' ? 1 : 0 },
@@ -3367,7 +3371,7 @@ function renderDaily() {
   $('#t-ai-sub').textContent = `${DIFF_NAME[store.get('bs-diff', 'normal')].replace(/^./, c => c.toUpperCase())} · ${G.rules === 'salvo' ? 'Залпы' : 'Классика'}`;
   if (!p) { $('#t-adm-sub').textContent = '6 противников'; $('#daily-sub').textContent = 'новая расстановка'; $('#tasks-badge').textContent = '0/3'; return; }
   $('#t-adm-sub').textContent = (p.adm || 0) >= ADM.length ? 'все побеждены 👑' : `побеждено ${p.adm || 0} из ${ADM.length}`;
-  { const hs = $('#btn-hunt small'), hh = p.hunt; let t = 'флот, абордажи, боссы', al = false;
+  { const hs = $('#btn-hunt small'), hh = p.hunt; let t = 'кампания: флот, крепость, боссы', al = false;
     if (hh && hh.fort) { fortTick(hh); if (hh.fort.raidDue) { t = '☠️ набег на крепость!'; al = true; } else if (hh.fort.build) t = `🏗 стройка: ${FB.find(b => b.id === hh.fort.build.id).name}`; else if (fStored(hh) > 0 && fRate(hh)) t = `💰 в казне ${fStored(hh)}`; }
     if (hs) { hs.textContent = t; $('#btn-hunt').classList.toggle('alert', al); } }
   const tk = ensureTasks(p), d = dayKey(), dl = p.daily && p.daily.day === d ? p.daily : null, sk = p.dstreak && (p.dstreak.last === d || p.dstreak.last === yesterdayKey()) ? p.dstreak.n : 0;
@@ -3376,7 +3380,7 @@ function renderDaily() {
   bd.textContent = `${done}/3`; bd.classList.toggle('zero', done === 3);
   $('#t-tasks-sub').textContent = tk.bonus ? 'бонус получен ✓' : 'золото и очко Верфи';
   $('#tasks').innerHTML = tk.list.map(x => { const t = TASKS.find(z => z.id === x.id); if (!t) return ''; return `<div class="task ${x.done ? 'done' : ''}"><span class="ic">${x.done ? '✅' : t.ic}</span><span class="tt">${t.t}${t.n > 1 ? ` (${x.prog}/${t.n})` : ''}<span class="bar"><i style="width:${x.prog / t.n * 100}%"></i></span></span><b>${x.done ? '✓' : '+' + t.gold + ' 💰'}</b></div>`; }).join('');
-  $('#tasks-foot').textContent = tk.bonus ? '🎁 Бонус получен. Новые задания — завтра!' : 'Выполните все три — получите +1 очко на Верфь. Золото идёт в казну Морского похода.';
+  $('#tasks-foot').textContent = tk.bonus ? '🎁 Бонус получен. Новые задания — завтра!' : 'Выполните все три — получите +1 очко на Верфь. Золото идёт в казну флота.';
 }
 /* ---- вызов дня ---- */
 function endDaily() {
@@ -3389,7 +3393,7 @@ function endDaily() {
   if (first) {
     const s = p.dstreak || { last: 0, n: 0 };
     s.n = s.last === yesterdayKey() ? s.n + 1 : 1; s.last = d; p.dstreak = s;
-    hdata(p).gold += 50; bonus = ' · +50 💰 в казну похода';
+    hdata(p).gold += 50; bonus = ' · +50 💰 в казну флота';
   }
   checkAch(p, ['daily1']);
   dailyEvent('daily', { shots });
