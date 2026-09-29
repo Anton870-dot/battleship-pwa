@@ -1,5 +1,5 @@
-const CACHE = 'battleship-v20';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './menu.webp', './fort_base.webp', './fort_base_dawn.webp', './fort_base_dusk.webp', './fort_base_night.webp', './fort_scaffold.webp', ...['citadel','treasury','barracks','walls','battery','academy','workshop','market','dock','lighthouse'].map(b => './fort_' + b + '_1.webp')];
+const CACHE = 'battleship-v21';
+const FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './menu.webp', './map.webp', './fort_base.webp', './fort_base_dawn.webp', './fort_base_dusk.webp', './fort_base_night.webp', './fort_scaffold.webp', ...['citadel','treasury','barracks','walls','battery','academy','workshop','market','dock','lighthouse'].map(b => './fort_' + b + '_1.webp')];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
 });

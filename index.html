@@ -266,6 +266,36 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .tod-night{--tf:brightness(.42) saturate(.6) contrast(1.1)}
 #scr-fort.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#07345f}
 body.fort-on #splash,body.fort-on #sea{display:none}
+#scr-map.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#0a3a66}
+.mstage{position:relative;line-height:0}
+.mbase{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none}
+.mpath{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mpath path{fill:none;stroke:rgba(255,255,255,.6);stroke-width:4;stroke-dasharray:2 12;stroke-linecap:round}
+.mpath path.done{stroke:#ffcf4a;stroke-width:5;stroke-dasharray:14 9;opacity:.9}
+.mpin{position:absolute;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1;z-index:2;
+  background:radial-gradient(circle at 50% 35%,#2a6fb0,#0b2f5c);border:2.5px solid #cfe3f3;color:#fff;font-weight:900;font-size:15px;box-shadow:0 3px 10px rgba(0,0,0,.55)}
+.mpin em{position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);font-style:normal;white-space:nowrap;font-size:11px;font-weight:800;background:rgba(0,20,50,.8);color:#ffe08a;border:1px solid rgba(255,207,74,.6);border-radius:8px;padding:3px 7px}
+.mpin.done{background:radial-gradient(circle at 50% 35%,#ffd75e,#e08a10);border-color:#fff3c0;color:#3b2300;width:34px;height:34px}
+.mpin.lock{opacity:.8;filter:saturate(.5)}
+.mpin.boss{border-color:#ff8a78;background:radial-gradient(circle at 50% 35%,#b3372b,#4a0f0a)}
+.mpin.boss.done{background:radial-gradient(circle at 50% 35%,#ffd75e,#e08a10)}
+.mpin.now{width:54px;height:54px;font-size:20px;background:radial-gradient(circle at 50% 35%,#ffd75e,#ff9a1c);color:#3b2300;border:3px solid #fff;animation:mpulse 1.6s infinite;z-index:3}
+.mpin.now.boss{background:radial-gradient(circle at 50% 35%,#ff7a5c,#c92a2a);color:#fff}
+@keyframes mpulse{0%{box-shadow:0 0 0 0 rgba(255,207,74,.8),0 3px 10px rgba(0,0,0,.5)}100%{box-shadow:0 0 0 18px rgba(255,207,74,0),0 3px 10px rgba(0,0,0,.5)}}
+.mpin.home{width:50px;height:50px;font-size:24px;background:radial-gradient(circle at 50% 35%,#3a8ad0,#0b2f5c);border-color:#ffcf4a}
+.mpin.free{width:38px;height:38px;font-size:19px;background:rgba(5,30,60,.7);border-style:dashed;border-color:#9fe3ff}
+.mship{position:absolute;transform:translate(-50%,-50%);font-size:30px;line-height:1;z-index:4;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5));animation:mbob 2.4s ease-in-out infinite}
+@keyframes mbob{0%,100%{transform:translate(-50%,-50%) rotate(-5deg)}50%{transform:translate(-50%,-62%) rotate(5deg)}}
+.msheet{position:absolute;left:0;right:0;bottom:0;z-index:8;max-height:78%;overflow:auto;padding:16px 12px max(16px,env(safe-area-inset-bottom));border-radius:22px 22px 0 0;
+  background:rgba(6,30,62,.96);border-top:2px solid rgba(255,207,74,.6);display:flex;flex-direction:column;align-items:center;gap:10px;animation:msup .25s ease-out;overscroll-behavior:contain}
+.msheet[hidden]{display:none}
+@keyframes msup{from{transform:translateY(40%);opacity:0}to{transform:none;opacity:1}}
+.msx{position:absolute;right:10px;top:10px}
+.mst{width:min(560px,100%);padding-right:44px}.mst b{font-size:19px;color:#ffe08a}.mst small{display:block;color:var(--muted);font-size:13px;margin-top:3px;line-height:1.35}
+.mfleet{width:min(560px,100%);margin:0}
+.fdiff.vhard{box-shadow:inset 0 0 0 2px rgba(255,107,87,.8)}.fdiff.hard{box-shadow:inset 0 0 0 2px rgba(255,160,60,.6)}
+.lhbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+
 .fview{position:absolute;inset:0;overflow:auto;scrollbar-width:none;overscroll-behavior:none;-webkit-overflow-scrolling:touch;cursor:grab}
 .fview::-webkit-scrollbar{display:none}
 .fview .fstage{position:relative;line-height:0}
@@ -711,11 +741,28 @@ body.menu-on .logo{margin:0}
   <div class="fhud-bot">
     <button class="fbtn" id="fg-tod"></button>
     <button class="fbtn" data-bld="citadel">⚓<small>Эскадра</small></button>
-    <button class="fbtn go" data-bld="lighthouse">🗺<b>В поход</b><small id="fg-mission"></small></button>
+    <button class="fbtn go" id="fg-go">🗺<b>В поход</b><small id="fg-mission"></small></button>
     <button class="fbtn" data-bld="dock">🚢<small>Корабли</small></button>
     <button class="fbtn" id="fg-collect">💰<small>казна</small></button>
     <button class="fbtn" id="fg-zoom">🔍<small>ближе</small></button>
   </div>
+</section>
+
+
+<!-- ================= ARCHIPELAGO MAP ================= -->
+<section id="scr-map" class="screen">
+  <div class="fview" id="mview"></div>
+  <div class="fhud-top">
+    <button class="iconbtn fhbtn" id="map-back" aria-label="В крепость">←</button>
+    <div class="fchip gold">💰 <b id="mg-gold">0</b></div>
+    <div class="fchip" id="mg-ch"></div>
+  </div>
+  <div class="fhud-bot">
+    <button class="fbtn" id="mg-home">🏰<small>Крепость</small></button>
+    <button class="fbtn go" id="mg-go">⚔️<b>Миссия</b><small id="mg-mis"></small></button>
+    <button class="fbtn" id="mg-free">🧭<small>Свободно</small></button>
+  </div>
+  <div class="msheet" id="msheet" hidden></div>
 </section>
 
 <!-- ================= BUILDING INTERIOR ================= -->
@@ -772,7 +819,8 @@ body.menu-on .logo{margin:0}
     <p><b>Люди:</b> на каждый корабль набирают морпехов и специалистов (артиллерист, штурман, инженер, врач, сигнальщик, боцман, минёр); специалистов обучают до 3-го уровня. Морпехи идут на абордаж: подойдите вплотную к врагу и нажмите ⚔️ — чем сильнее он повреждён, тем выше шанс. Захваченный корабль становится вашим. Так же можно взять штурмом форт.</p>
     <p>За миссии платят золото, каждая победа ещё и даёт очко на Верфь.</p>
     <h3>🏰 Крепость</h3>
-    <p>Кампания «Хозяин морей» начинается на вашем острове. Остров можно двигать пальцем, кнопка 🔍 приближает. Нажмите на здание — откроется его крупный план: там его улучшение и всё, что в нём делается. Сухой док — покупка, ремонт и выбор кораблей; Мастерская — улучшения и оборудование; Казармы — морпехи и учения; Академия — специалисты и экипаж; Торговая гавань — наёмники и доход; Казна — хранение золота; Маяк — карта архипелага и выход в поход; Цитадель — эскадра и набеги. Пока здание не построено, его функции недоступны. Здания строятся за золото в реальном времени, строитель один, уровень Цитадели ограничивает остальные.</p>
+    <p>Кампания «Хозяин морей» начинается на вашем острове. Остров можно двигать пальцем, кнопка 🔍 приближает. Нажмите на здание — откроется его крупный план: там его улучшение и всё, что в нём делается. Сухой док — покупка, ремонт и выбор кораблей; Мастерская — улучшения и оборудование; Казармы — морпехи и учения; Академия — специалисты и экипаж; Торговая гавань — наёмники и доход; Казна — хранение золота; Маяк — выход в поход; Цитадель — эскадра и набеги. Пока здание не построено, его функции недоступны. Здания строятся за золото в реальном времени, строитель один, уровень Цитадели ограничивает остальные.</p>
+    <p><b>Карта архипелага</b> (кнопка «В поход»): путь кампании идёт от вашей крепости к пиратской цитадели, 10 островов на главу, на 5-м и 10-м ждут боссы. Нажмите на мигающий остров, чтобы выбрать задание. Значки 🧭 и кнопка «Свободно» — <b>свободное плавание</b>: случайный бой на выбор из четырёх уровней сложности (лёгкий, средний, тяжёлый, очень тяжёлый). Кампания в нём не продвигается, зато чем сложнее, тем больше золота.</p>
     <p>Со 2-го уровня Цитадели крепость начинают навещать пираты. Пока идёт осада, торговля стоит. Набег можно отразить — бой, в котором ваша эскадра защищает цитадель вместе с береговыми батареями, — или откупиться. Проигрыш стоит части золота, Казна защищает долю от разграбления.</p>
     <h3>🏆 Капитаны и достижения</h3>
     <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 29 достижений и таблица всех капитанов на этом устройстве.</p>
@@ -1085,6 +1133,10 @@ const Snd = {
       case 'plane':  this.noise(.5, 400, 2400, .18, 'bandpass'); this.tone(180, 260, .45, 'sawtooth', .05); break;
       case 'buy':    [523, 784, 1046, 1568].forEach((f, i) => this.tone(f, f, .16, 'triangle', .14, i * .07)); break;
       case 'ach':    [880, 1175, 1568].forEach((f, i) => this.tone(f, f, .18, 'triangle', .14, i * .09)); break;
+      case 'horn':   this.tone(110, 108, 1.3, 'sawtooth', .07); this.tone(165, 162, 1.3, 'sawtooth', .05); this.tone(55, 55, 1.3, 'sine', .25); break;
+      case 'coins':  [1318, 1760, 1568, 2093, 1976].forEach((f, i) => this.tone(f, f * .97, .12, 'triangle', .1, i * .06)); break;
+      case 'build':  [0, .22, .44].forEach(d => { this.tone(900, 700, .09, 'square', .05, d); }); this.noise(.5, 2400, 300, .12, 'bandpass'); break;
+      case 'bell':   [0, .5, 1].forEach(d => { this.tone(880, 870, .45, 'sine', .18, d); this.tone(2200, 2150, .3, 'sine', .05, d); }); break;
       case 'win':    [523, 659, 784, 1046].forEach((f, i) => this.tone(f, f, .25, 'triangle', .18, i * .14)); break;
       case 'lose':   [392, 330, 262, 196].forEach((f, i) => this.tone(f, f * .98, .3, 'sine', .18, i * .18)); break;
     }
@@ -1317,7 +1369,7 @@ const viewer = () => G.mode === 'ai' ? 0 : G.turn;
 function newPlayer(name, ai, pid = null) {
   return { name, ai, pid, up: new Set(), board: newBoard(), energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false };
 }
-function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); document.body.classList.toggle('fort-on', id === 'scr-fort'); document.body.classList.toggle('in-game', ['scr-setup', 'scr-battle', 'scr-hunt'].includes(id)); if (id === 'scr-menu' && PR) refreshCaptain(); }
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); document.body.classList.toggle('fort-on', id === 'scr-fort' || id === 'scr-map'); if (typeof ambSync === 'function') setTimeout(ambSync, 0); document.body.classList.toggle('in-game', ['scr-setup', 'scr-battle', 'scr-hunt'].includes(id)); if (id === 'scr-menu' && PR) refreshCaptain(); }
 function overlay(id, on) { $(id).classList.toggle('show', on); }
 
 /* ==================== BOARD VIEW ==================== */
@@ -1413,7 +1465,7 @@ function initMenu() {
   });
   syncSoundUi(); refreshCaptain();
 }
-function toggleSound() { Snd.on = !Snd.on; store.set('bs-sound', Snd.on); syncSoundUi(); Snd.play('click'); }
+function toggleSound() { Snd.on = !Snd.on; store.set('bs-sound', Snd.on); syncSoundUi(); Snd.play('click'); if (typeof ambSync === 'function') ambSync(); }
 function syncSoundUi() { $('#btn-sound').classList.toggle('off', !Snd.on); $('#snd-ico').textContent = Snd.on ? '🔊' : '🔇'; $('#snd-txt').textContent = Snd.on ? 'Звук вкл' : 'Звук выкл'; $('#battle-sound').textContent = $('#hunt-sound').textContent = Snd.on ? '🔊' : '🔇'; }
 
 function startGame(mode, p2) {
@@ -2138,7 +2190,7 @@ function genRoute(h, noEvent) {
   if (!noEvent && m >= 2 && Math.random() < .8) opts.push({ kind: pick(['trade', 'bay', 'sos', 'cache']) });
   return { opts };
 }
-const nodeGold = (node, m) => Math.round((80 + 30 * m) * OBJ[node.obj].k * (node.sos ? 1.5 : 1));
+const nodeGold = (node, m) => Math.round((80 + 30 * m) * OBJ[node.obj].k * (node.sos ? 1.5 : 1) * (node.mult || 1));
 
 /* ---------- Гавань (hub) ---------- */
 const HB = { sel: null, tab: 'map', pick: false };
@@ -2303,6 +2355,8 @@ function hubAct(act, id) {
   const pay = n => { if (h.gold < n) return false; h.gold -= n; return true; };
   let snd = 'buy';
   if (act === 'go') return goNode(+id);
+  if (act === 'omap') { Snd.play('click'); return showMap(); }
+  if (act === 'ofree') { Snd.play('click'); return showMap(true); }
   if (act[0] === 'f') return fortAct(act, id);
   if (act === 'pick') { HB.pick = true; Snd.play('click'); return renderHub(); }
   if (act === 'buy' && !own && pay(pShip(h, sid))) { h.ships[sid] = { up: {}, eq: {}, marines: 0, spec: [], xp: 0, broken: false }; checkAch(p, HUNT_ACH); }
@@ -2497,7 +2551,7 @@ function genFoes(m, n, zone = [0, HN - 5, 5, 5]) {
 }
 function setupObjective(node) {
   const m = H.mission, esc = H.fleet.filter(u => u.side === 'me' && !u.auto).length - 1;
-  let n = Math.min(3, 1 + Math.floor((m - 1) / 3)) + Math.floor(esc / 2);
+  let n = Math.min(3, 1 + Math.floor((m - 1) / 3)) + Math.floor(esc / 2) + (node.extra || 0);
   const o = H.obj;
   if (o === 'raid') { raidSetup(hdata(curProfile())); return; }
   if (o === 'convoy') {
@@ -2539,7 +2593,8 @@ function spawnReinf() {
   hMakeEl(u); hMsg('⚠️ К врагу подошло подкрепление!', 'hit');
 }
 function startHunt(node) {
-  const p = curProfile(), h = hdata(p), m = h.mission;
+  const p = curProfile(), h = hdata(p), m = node.lvl || h.mission;
+  if (node.obj !== 'raid') Snd.play('horn');
   const own = h.ships[h.active];
   H.gen++;
   Object.assign(H, { phase: 'play', node, obj: node.obj, weather: node.weather || 'clear', mission: m, drill: h.drill, turn: 0, busy: false, mode: 'move',
@@ -2669,7 +2724,7 @@ function renderHunt() {
     b.onclick = () => hSelect(u);
     fb.appendChild(b);
   });
-  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : cmd.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : `Ваш ход · миссия ${H.mission}`;
+  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : cmd.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : (H.node && H.node.free ? `Ваш ход · ${FREE_D.find(d => d.id === H.node.free).ic} свободное плавание` : `Ваш ход · миссия ${H.mission}`);
   $('#hstatus').className = 'status ' + (H.busy ? 'theirs' : 'mine');
   // actions
   const acts = [
@@ -3045,7 +3100,7 @@ function hFinish(won, reason) {
   if (typeof dailyEvent === 'function') dailyEvent('hunt', { won, sunk, caps: H.captured.length, boss: won && H.obj === 'boss' });
   saveProfiles();
   $('#hov-ico').textContent = won ? (H.obj === 'boss' ? '👑' : '🏆') : '🌊';
-  $('#hov-title').textContent = won && H.obj === 'raid' ? 'Набег отбит!' : won ? (node.bonus ? `${OBJ[H.obj].name}: победа!` : `Миссия ${m} пройдена!`) : (reason || 'Поражение');
+  $('#hov-title').textContent = won && H.obj === 'raid' ? 'Набег отбит!' : won ? (node.free ? `Свободное плавание: победа!` : node.bonus ? `${OBJ[H.obj].name}: победа!` : `Миссия ${m} пройдена!`) : (reason || 'Поражение');
   $('#hov-text').innerHTML = `Потоплено врагов: ${sunk} из ${warships.length}${H.captured.length ? ` · захвачено: ${H.captured.length}` : ''}<br><b class="goldchip">+${gold} 💰</b>${won ? ' · +1 очко на Верфь 🛠' : ''}` +
     (lines.length ? `<br><span class="hlines">${lines.join('<br>')}</span>` : '') + `<br><small>Повреждения флагмана починят в гавани бесплатно</small>`;
   Snd.play(won ? 'win' : 'lose');
@@ -3053,13 +3108,13 @@ function hFinish(won, reason) {
 }
 function initHunt() {
   $('#btn-hunt').onclick = async () => { Snd.ensure(); await ensureCaptain(); HB.sel = null; showFort(); };
-  $('#hov-ok').onclick = () => { overlay('#ov-hunt', false); HB.sel = null; showFort(); };
+  $('#hov-ok').onclick = () => { overlay('#ov-hunt', false); backFromHunt(); };
   $('#hunt-sound').onclick = toggleSound;
   $('#hunt-exit').onclick = () => {
-    if (H.phase !== 'play') { showFort(); return; }
+    if (H.phase !== 'play') { backFromHunt(); return; }
     if (!H.exitArm) { H.exitArm = true; hMsg('Нажмите ✕ ещё раз, чтобы отступить (без награды)', 'hit'); setTimeout(() => H.exitArm = false, 3000); return; }
     if (H.obj === 'raid') { const h = hdata(curProfile()), loss = raidLoss(h); h.gold = Math.max(0, h.gold - loss); fRaidResolve(h, false); saveProfiles(); toast(`☠️ Крепость брошена: пираты унесли ${loss} 💰`); }
-    H.gen++; H.phase = 'menu'; HB.sel = null; showFort();
+    H.gen++; H.phase = 'menu'; backFromHunt();
   };
 }
 
@@ -3110,7 +3165,7 @@ function fortTick(h) {
     f.build = null; ch = true;
   }
   if (!f.nextRaid && (f.b.citadel || 0) >= 2) { f.nextRaid = now + (3 + Math.random() * 3) * 3600000; ch = true; }
-  if (f.nextRaid && !f.raidDue && now >= f.nextRaid) { f.raidDue = true; f.raidSince = f.nextRaid; ch = true; }
+  if (f.nextRaid && !f.raidDue && now >= f.nextRaid) { f.raidDue = true; f.raidSince = f.nextRaid; ch = true; if (now - f.nextRaid < 5000) Snd.play('bell'); }
   if (ch) saveProfiles();
   return ch;
 }
@@ -3181,11 +3236,11 @@ function fortAct(act, id) {
     if (act === 'fzoom') requestAnimationFrame(() => fortZoomTo()); else if (w2 && pos) { w2.scrollLeft = pos[0]; w2.scrollTop = pos[1]; }
     return;
   }
-  if (act === 'fcollect') { const g = fStored(h); if (!g) return; h.gold += g; f.last = f.raidDue ? f.raidSince : Date.now(); if (f.raidDue) f.last = Math.min(Date.now(), f.raidSince); Snd.play('buy'); toast(`💰 Собрано: +${g}`); }
+  if (act === 'fcollect') { const g = fStored(h); if (!g) return; h.gold += g; f.last = f.raidDue ? f.raidSince : Date.now(); if (f.raidDue) f.last = Math.min(Date.now(), f.raidSince); Snd.play('coins'); toast(`💰 Собрано: +${g}`); }
   else if (act === 'fbuild') {
     const l = (f.b[id] || 0) + 1; if (f.build || l > 5 || (id !== 'citadel' && l > (f.b.citadel || 0))) return;
     if (!pay(fCost(id, l))) return;
-    f.build = { id, lvl: l, end: Date.now() + fTime(id, l) }; Snd.play('place');
+    f.build = { id, lvl: l, end: Date.now() + fTime(id, l) }; Snd.play('build');
   }
   else if (act === 'fspeed') { if (!f.build) return; const c = speedCost(f.build.end - Date.now()); if (!pay(c)) return; f.build.end = Date.now(); fortTick(h); }
   else if (act === 'ftoll') { if (!f.raidDue) return; const t = Math.min(h.gold, raidToll(h)); h.gold -= t; fRaidResolve(h, false); toast(`☠️ Пираты ушли с выкупом: −${t} 💰`); Snd.play('bad'); }
@@ -3442,7 +3497,7 @@ function fortStage(h, W) {
     s += `<div class="fraidfx"></div>` + [[40, 84], [66, 91], [14, 89]].map(([x, y]) => `<div class="fpir" style="left:${x}%;top:${y}%">${ship}</div>`).join(''); }
   return s + `</div>`;
 }
-function showFort() { const p = curProfile(); if (!p) return; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); }
+function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); }
 function renderFort(center) {
   const p = curProfile(), h = hdata(p), f = fdata(h); fortTick(h);
   const v = $('#fview'), old = v.firstElementChild;
@@ -3518,7 +3573,7 @@ function raidPanel(h) {
 }
 function statsPanel(h) {
   return `<div class="glass hub-panel"><div class="fleetline">${fleetLine(h)}</div><small class="muted">Миссия ${h.mission} · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}${h.caps ? ` · трофеев ${h.caps}` : ''}</small>
-    <button class="btn primary" data-bld="lighthouse">🗺 К карте архипелага</button></div>`;
+    <button class="btn primary" data-act="omap">🗺 К карте архипелага</button></div>`;
 }
 function bldContent(h, id) {
   switch (id) {
@@ -3529,7 +3584,7 @@ function bldContent(h, id) {
     case 'academy': return hubShips(h, 'academy') + crewPanel(h) + specInfo();
     case 'market': return incomePanel(h) + hiredPanel(h);
     case 'treasury': return incomePanel(h);
-    case 'lighthouse': return hubMap(h);
+    case 'lighthouse': return `<div class="glass hub-panel"><div class="lhbtns"><button class="btn primary" data-act="omap">🗺 Карта архипелага</button><button class="btn" data-act="ofree">🧭 Свободное плавание</button></div></div>` + hubMap(h);
     default: return raidPanel(h);
   }
 }
@@ -3551,6 +3606,7 @@ function initFortUI() {
   document.querySelectorAll('#scr-fort [data-bld]').forEach(b => b.onclick = () => { if (b.dataset.bld) openBld(b.dataset.bld); });
   $('#fg-collect').onclick = () => fortAct('fcollect');
   $('#fg-raid').onclick = () => openBld('citadel');
+  $('#fg-go').onclick = () => { Snd.play('click'); showMap(); };
   $('#fg-tod').onclick = () => fortAct('ftod');
   $('#fg-zoom').onclick = () => { HB.fzoom = !HB.fzoom; Snd.play('click'); renderFort(); };
   // перетаскивание мышью (на компьютере)
@@ -3559,6 +3615,176 @@ function initFortUI() {
   addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 6) HB.dragged = true; v.scrollLeft = drag.l - dx; v.scrollTop = drag.t - dy; });
   addEventListener('pointerup', () => { drag = null; setTimeout(() => HB.dragged = false, 0); });
   addEventListener('resize', () => { if ($('#scr-fort').classList.contains('active')) renderFort(); });
+}
+
+
+/* ==================== КАРТА АРХИПЕЛАГА + СВОБОДНОЕ ПЛАВАНИЕ ==================== */
+const MAP_W = 941, MAP_H = 1672;
+const MISLE = [
+  { x: 200, y: 950, n: 'Рыбацкая деревня' }, { x: 790, y: 960, n: 'Сторожевой утёс' }, { x: 470, y: 780, n: 'Лесной остров' },
+  { x: 800, y: 740, n: 'Портовые склады' }, { x: 220, y: 590, n: 'Каменоломня' }, { x: 760, y: 520, n: 'Бухта кораблекрушений' },
+  { x: 450, y: 420, n: 'Песчаные отмели' }, { x: 170, y: 370, n: 'Радарная станция' }, { x: 790, y: 330, n: 'Туманный остров' },
+  { x: 490, y: 150, n: 'Пиратская цитадель' },
+];
+const MHOME = { x: 490, y: 1175 };
+const MFREE = [{ x: 180, y: 170 }, { x: 110, y: 780 }, { x: 120, y: 1350 }];
+const FREE_D = [
+  { id: 'easy', ic: '🟢', n: 'Лёгкий', d: 'Враги слабее вашего уровня, спокойная погода', dl: -2, extra: 0, mult: .6 },
+  { id: 'mid', ic: '🟡', n: 'Средний', d: 'Как в кампании', dl: 0, extra: 0, mult: 1 },
+  { id: 'hard', ic: '🟠', n: 'Тяжёлый', d: 'Враги сильнее, на одного больше', dl: 3, extra: 1, mult: 1.6 },
+  { id: 'vhard', ic: '🔴', n: 'Очень тяжёлый', d: 'Элита пиратов, на двоих больше. Только для сильной эскадры', dl: 6, extra: 2, mult: 2.5 },
+];
+const mpc = (p) => `left:${p.x / MAP_W * 100}%;top:${p.y / MAP_H * 100}%`;
+function freeNode(h, did) {
+  const d = FREE_D.find(x => x.id === did), lvl = Math.max(1, h.mission + d.dl);
+  const pool = ['hunt']; if (lvl >= 2) pool.push('rescue', 'intercept'); if (lvl >= 3) pool.push('convoy'); if (lvl >= 4) pool.push('fort'); if (lvl >= 6) pool.push('survive');
+  const weather = did === 'easy' ? 'clear' : pickW([['clear', 4], ['storm', 2], ['fog', 2], ['night', 2]]);
+  return { kind: 'battle', obj: pick(pool), weather, bonus: true, free: did, lvl, extra: d.extra, mult: d.mult };
+}
+function routeCards(h) {
+  const m = h.mission, a = h.ships[h.active];
+  return h.route.opts.map((n, i) => {
+    let ic, title, desc, chips = '';
+    if (n.kind === 'battle' || n.kind === 'boss') {
+      const o = OBJ[n.obj], w = WEATHER[n.weather];
+      if (n.kind === 'boss') { const b = bossOf(m), eq = HEQ.find(e => e.id === b.reward); ic = b.ic; title = `Босс: ${b.name}`; desc = `${b.desc} Трофей: ${eq.ic} ${eq.name}.`; }
+      else { ic = o.ic; title = o.name; desc = o.desc; }
+      chips = `<span>${w.ic} ${w.name}</span><span>≈ ${nodeGold(n, m)} 💰</span>`;
+    } else { const e = EVENTS[n.kind]; ic = e.ic; title = e.name; desc = e.desc; chips = '<span>без боя… наверное</span>'; }
+    return `<div class="rnode glass ${n.kind === 'boss' ? 'bossnode' : ''}"><div class="ni">${ic}</div><div class="nb"><b>${title}</b><small>${desc}</small><div class="chips">${chips}</div></div>
+      <button class="btn primary small" data-act="go" data-id="${i}" ${a.broken ? 'disabled' : ''}>${n.kind === 'battle' || n.kind === 'boss' ? 'Отплыть' : 'Зайти'}</button></div>`;
+  }).join('');
+}
+function mapStage(h, W) {
+  const m = h.mission, ch = Math.floor((m - 1) / 10), cur = (m - 1) % 10;
+  let s = `<div class="mstage" style="width:${W}px"><img class="mbase" src="map.webp" alt="" draggable="false">`;
+  const crv = pts => pts.map((p, i) => { if (!i) return `M${p.x},${p.y}`; const a = pts[i - 2] || pts[i - 1], b = pts[i - 1], d = pts[i + 1] || p; return `C${b.x + (p.x - a.x) / 6},${b.y + (p.y - a.y) / 6} ${p.x - (d.x - b.x) / 6},${p.y - (d.y - b.y) / 6} ${p.x},${p.y}`; }).join(' ');
+  s += `<svg class="mpath" viewBox="0 0 ${MAP_W} ${MAP_H}" preserveAspectRatio="none"><path d="${crv([MHOME, ...MISLE])}" /><path class="done" d="${crv([MHOME, ...MISLE.slice(0, cur + 1)])}" /></svg>`;
+  s += `<button class="mpin home" data-mp="home" style="${mpc(MHOME)}"><span>🏰</span><em>Ваша крепость</em></button>`;
+  MFREE.forEach(p => s += `<button class="mpin free" data-mp="free" style="${mpc(p)}"><span>🧭</span></button>`);
+  MISLE.forEach((p, i) => {
+    const num = ch * 10 + i + 1, boss = num % 5 === 0, st = i < cur ? 'done' : i === cur ? 'now' : 'lock';
+    s += `<button class="mpin ${st}${boss ? ' boss' : ''}" data-mp="${i}" style="${mpc(p)}"><span>${st === 'done' ? '✓' : boss ? '☠️' : num}</span>${st === 'now' || boss ? `<em>${boss && st !== 'now' ? bossOf(num).name : p.n}</em>` : ''}</button>`;
+  });
+  const me = MISLE[cur];
+  s += `<div class="mship" style="left:${me.x / MAP_W * 100 + 3.2}%;top:${me.y / MAP_H * 100 - 2.6}%">⛵</div>`;
+  return s + '</div>';
+}
+function showMap(free) {
+  const p = curProfile(); if (!p) return; Snd.ensure();
+  show('scr-map'); HB.ret = 'map'; renderMap(true);
+  if (free) mapSheet('free'); else $('#msheet').hidden = true;
+}
+function renderMap(center) {
+  const h = hdata(curProfile()), v = $('#mview');
+  const vw = v.clientWidth || innerWidth, vh = v.clientHeight || innerHeight;
+  const W = Math.round(Math.max(vw, vh * MAP_W / MAP_H));
+  const keep = !center && v.firstElementChild ? [v.scrollLeft, v.scrollTop] : null;
+  v.innerHTML = mapStage(h, W);
+  const st = v.firstElementChild, Hh = W * MAP_H / MAP_W, cur = MISLE[(h.mission - 1) % 10];
+  if (keep) { v.scrollLeft = keep[0]; v.scrollTop = keep[1]; }
+  else { v.scrollLeft = (W - vw) / 2; v.scrollTop = Math.max(0, Math.min(Hh - vh, cur.y / MAP_H * Hh - vh * .55)); }
+  v.querySelectorAll('[data-mp]').forEach(b => b.onclick = () => { if (HB.dragged) return; mapTap(b.dataset.mp); });
+  $('#mg-gold').textContent = h.gold;
+  $('#mg-ch').textContent = `📜 Глава ${Math.floor((h.mission - 1) / 10) + 1}`;
+  $('#mg-mis').textContent = `миссия ${h.mission}`;
+}
+function mapTap(k) {
+  const h = hdata(curProfile()), m = h.mission, cur = (m - 1) % 10;
+  if (k === 'home') { Snd.play('click'); return showFort(); }
+  if (k === 'free') { Snd.play('click'); return mapSheet('free'); }
+  const i = +k, num = Math.floor((m - 1) / 10) * 10 + i + 1;
+  if (i < cur) { toast(`✓ ${MISLE[i].n}: остров под вашим флагом`); return; }
+  if (i > cur) { Snd.play('bad'); toast(`🔒 Миссия ${num}: сначала пройдите ${m}-ю`); return; }
+  Snd.play('click'); mapSheet('route');
+}
+function mapSheet(kind) {
+  const h = hdata(curProfile()), sh = $('#msheet'), m = h.mission, isl = MISLE[(m - 1) % 10];
+  let s = `<button class="iconbtn msx" data-mx aria-label="Закрыть">✕</button>`;
+  if (kind === 'route') {
+    s += `<div class="mst"><b>${m % 5 === 0 ? '☠️' : '🏝'} ${isl.n}</b><small>Миссия ${m} · глава ${Math.floor((m - 1) / 10) + 1}${m % 5 === 0 ? ' · логово босса' : ''}. Выберите, куда плыть:</small></div>`;
+    s += `<div class="glass hub-panel mfleet"><div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман нуждается в ремонте! Загляните в Сухой док.</div>' : ''}</div>`;
+    s += routeCards(h);
+  } else {
+    s += `<div class="mst"><b>🧭 Свободное плавание</b><small>Случайное задание и случайные враги. Кампания не продвигается, но золото, опыт и трофеи — как обычно.</small></div>`;
+    s += FREE_D.map(d => { const lvl = Math.max(1, m + d.dl); return `<div class="rnode glass fdiff ${d.id}"><div class="ni">${d.ic}</div><div class="nb"><b>${d.n}</b><small>${d.d}</small><div class="chips"><span>сила врагов: ${lvl}</span><span>награда ×${d.mult}</span></div></div>
+      <button class="btn primary small" data-free="${d.id}" ${h.ships[h.active].broken ? 'disabled' : ''}>Отплыть</button></div>`; }).join('');
+  }
+  sh.innerHTML = s; sh.hidden = false; sh.scrollTop = 0;
+  sh.querySelector('[data-mx]').onclick = () => { Snd.play('click'); sh.hidden = true; };
+  sh.querySelectorAll('[data-act=go]').forEach(b => b.onclick = () => { sh.hidden = true; goNode(+b.dataset.id); });
+  sh.querySelectorAll('[data-free]').forEach(b => b.onclick = () => { sh.hidden = true; Snd.play('horn'); startHunt(freeNode(h, b.dataset.free)); });
+}
+function backFromHunt() { HB.sel = null; if (HB.ret === 'map') showMap(); else showFort(); }
+function initMap() {
+  $('#map-back').onclick = () => { Snd.play('click'); showFort(); };
+  $('#mg-home').onclick = () => { Snd.play('click'); showFort(); };
+  $('#mg-go').onclick = () => { Snd.play('click'); mapSheet('route'); };
+  $('#mg-free').onclick = () => { Snd.play('click'); mapSheet('free'); };
+  const v = $('#mview'); let drag = null;
+  v.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; drag = { x: e.clientX, y: e.clientY, l: v.scrollLeft, t: v.scrollTop }; HB.dragged = false; });
+  addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 6) HB.dragged = true; v.scrollLeft = drag.l - dx; v.scrollTop = drag.t - dy; });
+  addEventListener('pointerup', () => { drag = null; });
+  addEventListener('resize', () => { if ($('#scr-map').classList.contains('active')) renderMap(); });
+}
+
+/* ==================== ЗВУКИ ОСТРОВА (эмбиент) ==================== */
+const Amb = {
+  mode: null, nodes: null, timers: [],
+  set(mode) {
+    if (!Snd.on || document.hidden) mode = null;
+    if (mode === this.mode) return;
+    this.stop(); this.mode = mode; if (!mode) return;
+    const ctx = Snd.ensure(); if (!ctx) { this.mode = null; return; }
+    const out = ctx.createGain(); out.gain.value = 0; out.connect(ctx.destination);
+    out.gain.setTargetAtTime(1, ctx.currentTime, 1.2);
+    // прибой: коричневый шум + медленные «волны»
+    const len = ctx.sampleRate * 6, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0); let last = 0;
+    for (let i = 0; i < len; i++) { last = (last + .02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
+    const mk = (rate, fq, base, depth) => {
+      const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; src.playbackRate.value = rate;
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = fq;
+      const g = ctx.createGain(); g.gain.value = base;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = .07 + Math.random() * .05; const lg = ctx.createGain(); lg.gain.value = depth;
+      lfo.connect(lg).connect(g.gain); src.connect(f).connect(g).connect(out); src.start(); lfo.start();
+      return [src, lfo];
+    };
+    this.nodes = { out, list: [...mk(1, 420, .16, .1), ...mk(.8, 900, .05, .045)] };
+    const loop = (fn, a, b) => { const t = () => { if (this.mode !== mode) return; if (!document.hidden) fn(); this.timers.push(setTimeout(t, a + Math.random() * (b - a))); }; this.timers.push(setTimeout(t, a * .5 + Math.random() * a)); };
+    loop(() => { const tod = todNow(); if (tod === 'day' || tod === 'dawn' || mode === 'map') this.gull(); }, 5000, 12000);
+    loop(() => { const tod = todNow(); if (mode !== 'map' && (tod === 'night' || tod === 'dusk')) this.cricket(); }, 700, 1600);
+    loop(() => { const p = curProfile(); if (mode === 'fort' && p && p.hunt && fdata(p.hunt).build) this.hammer(); }, 1300, 2600);
+  },
+  stop() {
+    this.timers.forEach(clearTimeout); this.timers = [];
+    if (this.nodes) { const n = this.nodes, ctx = Snd.ctx; try { n.out.gain.setTargetAtTime(0, ctx.currentTime, .3); setTimeout(() => n.list.forEach(x => { try { x.stop(); } catch (e) {} }), 1200); } catch (e) {} }
+    this.nodes = null; this.mode = null;
+  },
+  blip(f0, f1, dur, type, gain, delay = 0, vib = 0) {
+    const ctx = Snd.ctx; if (!ctx || !this.nodes) return;
+    const t = ctx.currentTime + delay, o = ctx.createOscillator(), g = ctx.createGain(); o.type = type;
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    if (vib) { const l = ctx.createOscillator(), lg = ctx.createGain(); l.frequency.value = vib; lg.gain.value = f0 * .04; l.connect(lg).connect(o.frequency); l.start(t); l.stop(t + dur + .05); }
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + .02); g.gain.exponentialRampToValueAtTime(.0005, t + dur);
+    o.connect(g).connect(this.nodes.out); o.start(t); o.stop(t + dur + .05);
+  },
+  gull() { const n = 2 + (Math.random() * 3 | 0), b = 1500 + Math.random() * 500; for (let i = 0; i < n; i++) this.blip(b * (i ? .95 : 1.1), b * .62, .26 + Math.random() * .08, 'triangle', .035, i * .32, 22); },
+  cricket() { const f = 4300 + Math.random() * 600; for (let i = 0; i < 3; i++) this.blip(f, f * .98, .035, 'sine', .012, i * .06); },
+  hammer() {
+    const ctx = Snd.ctx; if (!ctx || !this.nodes) return;
+    const n = 1 + (Math.random() * 2 | 0);
+    for (let i = 0; i < n; i++) {
+      const t = ctx.currentTime + i * .28, len = Math.floor(ctx.sampleRate * .07), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+      for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 3);
+      const s = ctx.createBufferSource(); s.buffer = buf; const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = 2;
+      const g = ctx.createGain(); g.gain.value = .09; s.connect(f).connect(g).connect(this.nodes.out); s.start(t);
+      this.blip(820, 760, .12, 'square', .012, i * .28);
+    }
+  },
+};
+function ambSync() {
+  const a = document.querySelector('.screen.active'), id = a && a.id;
+  Amb.set(id === 'scr-fort' || id === 'scr-hub' ? 'fort' : id === 'scr-map' ? 'map' : null);
 }
 
 async function towerFire(u) {
@@ -3742,7 +3968,7 @@ setInterval(() => {
   document.querySelectorAll('[data-until]').forEach(e => e.textContent = fmtLeft(+e.dataset.until - Date.now()));
 }, 1000);
 /* ==================== BOOT ==================== */
-Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initExtra(); refreshCaptain();
+Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
