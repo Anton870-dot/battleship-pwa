@@ -259,6 +259,22 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .fort-head{gap:8px}
 .frow{display:flex;align-items:center;gap:10px}.frow .fic{font-size:24px;width:32px;text-align:center;flex:none}.frow .ftx{flex:1;min-width:0}.frow small{display:block;color:var(--muted);font-size:12px}
 .raidbar{background:rgba(255,80,60,.2);border:1px solid rgba(255,130,110,.6);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}.raidbar small{color:#ffe0da;font-size:12px;line-height:1.35}.raidbar .row{justify-content:flex-start}
+.ftod{position:absolute;inset:0;pointer-events:none;z-index:2}
+.flv,.fname,.ftimer,.fpad,.fpir,.fraidfx{z-index:3}
+.flight{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1;border-radius:50%;pointer-events:none;z-index:2;mix-blend-mode:screen;opacity:0;
+  background:radial-gradient(circle,rgba(255,214,140,.75) 0,rgba(255,170,80,.35) 32%,transparent 66%);animation:flightp 3.2s ease-in-out infinite alternate}
+.flight.beam{background:radial-gradient(circle,rgba(255,250,210,.95) 0,rgba(255,235,150,.45) 25%,transparent 62%);animation:fbeamp 1.8s ease-in-out infinite alternate}
+@keyframes flightp{from{filter:brightness(.85)}to{filter:brightness(1.15)}}
+@keyframes fbeamp{from{transform:translate(-50%,-50%) scale(.85)}to{transform:translate(-50%,-50%) scale(1.15)}}
+.tod-dawn .ftod{background:linear-gradient(200deg,rgba(255,160,140,.6),rgba(255,205,165,.4) 45%,rgba(140,150,210,.45));mix-blend-mode:multiply}
+.tod-dawn .fstage::after,.fstage.tod-dawn::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 88% 0%,rgba(255,196,130,.5),transparent 55%);mix-blend-mode:screen}
+.tod-dawn .flight{opacity:.35}
+.tod-dusk .ftod{background:linear-gradient(160deg,rgba(255,120,40,.55),rgba(255,90,60,.35) 50%,rgba(70,30,90,.55));mix-blend-mode:multiply}
+.tod-dusk .flight{opacity:.7}
+.tod-night .ftod{background:radial-gradient(ellipse at 22% 8%,rgba(160,190,255,.25),transparent 45%),linear-gradient(180deg,rgba(12,24,70,.78),rgba(6,14,45,.85));mix-blend-mode:multiply}
+.tod-night .flight{opacity:1}
+.ftodbtn{position:absolute;left:10px;bottom:10px;z-index:4;line-height:1;padding:9px 12px;border-radius:14px;background:rgba(5,30,60,.75);border:1.5px solid rgba(255,207,74,.6);color:#ffe08a;font-size:12px;font-weight:800}
+.fzoom{z-index:4}
 .fscene2{position:relative;width:min(560px,100%);padding:0;overflow:hidden;border-radius:22px;line-height:0}
 .fzoomwrap{overflow:auto;max-height:72vh;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain}
 .fzoomwrap::-webkit-scrollbar{display:none}
@@ -3095,6 +3111,7 @@ function hubFort(h) {
 function fortAct(act, id) {
   const p = curProfile(), h = hdata(p), f = fdata(h);
   const pay = n => { if (h.gold < n) return false; h.gold -= n; return true; };
+  if (act === 'ftod') { const seq = [null, 'dawn', 'day', 'dusk', 'night']; HB.tod = seq[(seq.indexOf(HB.tod || null) + 1) % seq.length]; Snd.play('click'); return renderHub(); }
   if (act === 'fsel' || act === 'fzoom') {
     const w = document.querySelector('.fzoomwrap'), pos = w ? [w.scrollLeft, w.scrollTop] : null;
     if (act === 'fsel') HB.fsel = id; else HB.fzoom = !HB.fzoom;
@@ -3299,10 +3316,13 @@ const FTIERS = { citadel: 1, treasury: 1, barracks: 1, walls: 1, battery: 1, aca
 let FIMG_OK = true;
 function fortImgFail() { if (!FIMG_OK) return; FIMG_OK = false; renderHub(); }
 const fTierImg = (id, l) => { const n = FTIERS[id] || 1, t = l >= 5 && n >= 3 ? 3 : l >= 3 && n >= 2 ? 2 : 1; return `fort_${id}_${t}.webp`; };
+const TOD = { dawn: { ic: '🌅', n: 'Рассвет' }, day: { ic: '☀️', n: 'День' }, dusk: { ic: '🌇', n: 'Закат' }, night: { ic: '🌙', n: 'Ночь' } };
+const todNow = () => { if (HB.tod) return HB.tod; const hr = new Date().getHours(); return hr >= 5 && hr < 8 ? 'dawn' : hr >= 8 && hr < 18 ? 'day' : hr >= 18 && hr < 21 ? 'dusk' : 'night'; };
 function fortSceneImg(h) {
   const f = fdata(h), sel = HB.fsel || 'citadel', now = Date.now();
   const order = Object.keys(FPL).sort((a, b) => (FPL[a].t + FPL[a].w) - (FPL[b].t + FPL[b].w));
-  let s = `<div class="fzoomwrap"><div class="fstage"><img class="fbase" src="fort_base.webp" alt="" onerror="fortImgFail()" draggable="false">`;
+  const tod = todNow();
+  let s = `<div class="fzoomwrap"><div class="fstage tod-${tod}"><img class="fbase" src="fort_base.webp" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>`;
   order.forEach(id => {
     const p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(z => z.id === id), on = sel === id ? ' sel' : '';
     if (bld) {
@@ -3311,11 +3331,12 @@ function fortSceneImg(h) {
     } else if (l) {
       s += `<img class="fbi${l >= 5 ? ' lv5' : l >= 3 ? ' lv3' : ''}${on}" src="${fTierImg(id, l)}" alt="${b.name}" draggable="false" data-fsel="${id}" style="left:${p.l}%;top:${p.t}%;width:${p.w}%">`;
     } else s += `<button class="fpad${on}" data-fsel="${id}" style="left:${p.cx}%;top:${p.cy}%"><span>${b.ic}</span><i>+</i></button>`;
+    if (l && !bld && tod !== 'day') s += `<i class="flight${id === 'lighthouse' ? ' beam' : ''}" style="left:${p.cx}%;top:${id === 'lighthouse' ? p.t + 4 : p.cy - p.pw * .12}%;width:${id === 'lighthouse' ? 22 : p.pw * (id === 'walls' ? .6 : 1.05)}%"></i>`;
     if (l && !bld) s += `<span class="flv" style="left:${p.l + p.w * .82}%;top:${Math.max(2, p.t + 4)}%">${l}</span>`;
     if (on) s += `<span class="fname" style="left:${p.cx}%;top:${Math.min(96, p.cy + (id === 'lighthouse' ? 5 : 4.5))}%">${b.name}</span>`;
   });
   if (f.raidDue) s += `<div class="fraidfx"></div><div class="fpir" style="left:40%;top:84%"><svg viewBox="-24 -34 48 44" width="38" height="35"><path d="M-22 0h44l-7 9h-30z" fill="#2b1d14" stroke="#000" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-32" stroke="#111" stroke-width="2"/><path d="M1 -30L19 -9H1z" fill="#1a1a1a"/><path d="M-1 -26L-15 -9H-1z" fill="#262626"/><circle cx="9" cy="-15" r="3" fill="#eee"/></svg></div><div class="fpir" style="left:66%;top:91%"><svg viewBox="-24 -34 48 44" width="38" height="35"><path d="M-22 0h44l-7 9h-30z" fill="#2b1d14" stroke="#000" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-32" stroke="#111" stroke-width="2"/><path d="M1 -30L19 -9H1z" fill="#1a1a1a"/><path d="M-1 -26L-15 -9H-1z" fill="#262626"/><circle cx="9" cy="-15" r="3" fill="#eee"/></svg></div><div class="fpir" style="left:14%;top:89%"><svg viewBox="-24 -34 48 44" width="38" height="35"><path d="M-22 0h44l-7 9h-30z" fill="#2b1d14" stroke="#000" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-32" stroke="#111" stroke-width="2"/><path d="M1 -30L19 -9H1z" fill="#1a1a1a"/><path d="M-1 -26L-15 -9H-1z" fill="#262626"/><circle cx="9" cy="-15" r="3" fill="#eee"/></svg></div>`;
-  s += `</div></div><button class="fzoom" data-act="fzoom" aria-label="Приблизить">${HB.fzoom ? '🔍−' : '🔍+'}</button>`;
+  s += `</div></div><button class="ftodbtn" data-act="ftod">${TOD[tod].ic} ${TOD[tod].n}${HB.tod ? '' : ' · авто'}</button><button class="fzoom" data-act="fzoom" aria-label="Приблизить">${HB.fzoom ? '🔍−' : '🔍+'}</button>`;
   return s;
 }
 function fortZoomTo(id) {
