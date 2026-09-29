@@ -220,6 +220,15 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .hc .mk{position:absolute;inset:36%;border-radius:50%;background:#fff;opacity:.75;z-index:2}.hc .mk.hit{background:#ff5a3c;opacity:.9}
 .hlayer{position:absolute;inset:0;pointer-events:none}
 .bfx{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.ocean{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
+.board>.ocean{left:var(--cw);top:var(--cw);width:calc(var(--cw)*10);height:calc(var(--cw)*10);border-radius:0 0 12px 0}
+.hunit.sinking .hpbar{display:none}
+.hunit.sinking .spr{animation:hsink 2.6s ease-in forwards}
+.hunit.sinking .spr>*{animation:hsinkd 2.6s ease-in forwards}
+@keyframes hsink{0%,30%{transform:none;opacity:1}55%{transform:rotate(9deg) scale(.95)}100%{transform:rotate(22deg) scale(.62) translateY(8%);opacity:0}}
+@keyframes hsinkd{0%{filter:none}25%{filter:brightness(1.3) sepia(.4)}60%{filter:brightness(.55) sepia(.3)}100%{filter:brightness(.2)}}
+.shipbox.sinking .stop img{animation:csink 2.8s ease-in forwards}
+@keyframes csink{0%,25%{transform:none;filter:brightness(1.2)}50%{transform:rotate(-3deg) scaleY(.92);filter:brightness(.8) sepia(.4)}100%{transform:rotate(4deg) scaleY(.8) translateY(6%);filter:brightness(.75);opacity:.8}}
 .hunit{position:absolute;width:var(--hc);height:var(--hc);transition:left .16s linear,top .16s linear;z-index:3}
 .hunit .rot{position:absolute;left:50%;top:50%;transition:transform .2s}
 .hunit .spr{filter:drop-shadow(0 3px 3px rgba(0,30,60,.55))}
@@ -1407,7 +1416,9 @@ function makeView(container, h = {}) {
   const ships = document.createElement('div'); ships.className = 'ships'; el.appendChild(ships);
   if (h.leave) el.addEventListener('mouseleave', () => h.leave());
   container.appendChild(el);
-  return { el, cells, ships, board: null, key: '', bob: !!h.bob };
+  Ocean.add(el, 60);
+  const fxl = new FxLayer({ grid: 11, off: 1, active: () => el.offsetParent !== null }).attach(el);
+  return { el, cells, ships, board: null, key: '', bob: !!h.bob, fx: fxl };
 }
 function renderShips(v, b, reveal, fresh) {
   const vis = b.ships.filter(s => reveal || s.sunk);
@@ -1416,7 +1427,8 @@ function renderShips(v, b, reveal, fresh) {
   v.key = key; v.ships.innerHTML = '';
   for (const s of vis) {
     const box = document.createElement('div');
-    box.className = 'shipbox' + (s.v ? ' vert' : '') + (s.sunk ? ' wreck' : (v.bob ? ' bob' : '')) + (fresh === s.id ? ' new' : '');
+    const sinkNow = s.sunk && !s._sk; if (s.sunk) s._sk = true;
+    box.className = 'shipbox' + (s.v ? ' vert' : '') + (s.sunk ? ' wreck' : (v.bob ? ' bob' : '')) + (sinkNow ? ' sinking' : '') + (fresh === s.id ? ' new' : '');
     const cw = 'var(--cw)';
     box.style.cssText = `left:calc(${cw} * ${s.c});top:calc(${cw} * ${s.r});width:calc(${cw} * ${s.v ? 1 : s.len});height:calc(${cw} * ${s.v ? s.len : 1});animation-delay:${-(s.r + s.c) * .37}s`;
     box.innerHTML = `<div class="stop l${s.len}" style="width:calc(${cw} * ${s.len});height:${cw}"><img src="top_${LEN_SHIP[s.len] || 'cruiser'}.webp" alt="" draggable="false"></div>`;
@@ -1444,6 +1456,7 @@ function updateView(v, b, reveal, fresh) {
   }
 }
 function fx(v, r, c, type) {
+  if (v.fx && v.fx.lo && (type === 'boom' || type === 'splash')) return v.fx[type](r, c);
   const cell = v.cells[idx(r, c)];
   const add = t => { const d = document.createElement('div'); d.className = 'fx ' + t; cell.appendChild(d); setTimeout(() => d.remove(), 1300); };
   add(type); if (type === 'splash') add('splash2');
@@ -1719,6 +1732,7 @@ async function doMove(kind, r, c) {
     if (res.res === 'miss') fx(v, res.r, res.c, 'splash');
     else if (res.res === 'block') { fx(v, res.r, res.c, 'spark'); shake(v); }
     else if (res.res === 'hit' || res.res === 'sunk' || res.res === 'mine') { fx(v, res.r, res.c, 'boom'); shake(v); }
+    if (res.res === 'sunk' && res.ship && v.fx && v.fx.lo) v.fx.wreck(Array.from({ length: res.ship.len }, (_, i) => v.fx.xy(res.ship.r + (res.ship.v ? i : 0), res.ship.c + (res.ship.v ? 0 : i))), 1);
   };
   if (kind === 'radar') {
     const k = has(me, 'bigRadar') ? 2 : 1;
@@ -1730,7 +1744,7 @@ async function doMove(kind, r, c) {
     if (!me.ai) G.busy = false; renderBattle(); return { keep: true };
   }
   Snd.play(kind === 'air' ? 'plane' : 'shot');
-  await sleep(kind === 'air' ? 420 : 220);
+  if (kind === 'shot' && v.fx && v.fx.lo) await v.fx.incoming(r, c); else await sleep(kind === 'air' ? 420 : 220);
   if (gen !== G.gen) return { stale: true };
   const one = (y, x) => { const res = fire(target, y, x); gain(res); showRes(res); sound(res); return res; };
   if (kind === 'shot') one(r, c);
@@ -2663,6 +2677,7 @@ function buildHuntMap() {
   H.els = {};
   hUnits().forEach(hMakeEl);
   wrap.appendChild(m);
+  Ocean.add(m, 72);
   BFX.attach(m);
 }
 function hMsg(t, cls) { const m = $('#hmsg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
@@ -2716,8 +2731,9 @@ function renderHunt() {
   H.marks.forEach(m => { const d = document.createElement('i'); d.className = 'mk ' + m.type; H.cells[hidx(m.r, m.c)].appendChild(d); });
   hUnits().forEach(u => {
     const el = H.els[u.id]; if (!el) return;
-    const vis = u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u));
-    el.classList.toggle('hidden', !vis);
+    const sinking = u.hp <= 0 && u.sinkAt && performance.now() - u.sinkAt < 2700 + (HS[u.type].len || 1) * 200;
+    const vis = sinking || (u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u)));
+    el.classList.toggle('hidden', !vis); el.classList.toggle('sinking', !!sinking);
     el.classList.toggle('smoked', u.smoke > 0);
     el.style.left = `calc(var(--hc) * ${u.c})`; el.style.top = `calc(var(--hc) * ${u.r})`;
     el.querySelector('.rot').style.transform = `translate(-50%,-50%) rotate(${u.dir}deg)`;
@@ -3817,57 +3833,69 @@ function ambSync() {
 
 
 /* ==================== ЭФФЕКТЫ БОЯ (Canvas 2D) ==================== */
-const BFX = {
-  on: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches),
-  lo: null, hi: null, cl: null, ch: null, W: 0, cs: 0, dpr: 1, P: [], raf: 0, t: 0, last: 0, shake: 0,
+// Слой эффектов поверх любого поля: grid — клеток по стороне (с подписями), off — сдвиг (подписи), active() — виден ли экран, tick(fx, dt) — фоновые эффекты
+function FxLayer(opt) { this.opt = opt; this.P = []; this.lo = null; this.W = 0; this.shake = 0; this.raf = 0; }
+FxLayer.prototype = {
   attach(map) {
-    this.stop(); if (!this.on) return;
+    this.stop(); if (reduceMotion) return this;
     const mk = z => { const c = document.createElement('canvas'); c.className = 'bfx'; c.style.zIndex = z; map.appendChild(c); return c; };
     this.lo = mk(2); this.hi = mk(4); this.map = map;
     this.cl = this.lo.getContext('2d'); this.ch = this.hi.getContext('2d');
     this.P = []; this.W = 0; this.last = performance.now(); this.loop();
+    return this;
   },
   stop() { cancelAnimationFrame(this.raf); this.raf = 0; this.P = []; },
   fit() {
     const w = this.map.clientWidth; if (!w) return false;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     if (w !== this.W || dpr !== this.dpr) {
-      this.W = w; this.dpr = dpr; this.cs = w / HN;
+      this.W = w; this.dpr = dpr; this.cs = w / this.opt.grid;
       [this.lo, this.hi].forEach(c => { c.width = Math.round(w * dpr); c.height = Math.round(w * dpr); });
     }
     return true;
   },
-  xy(r, c) { return [(c + .5) * this.cs, (r + .5) * this.cs]; },
-  add(p) { if (this.P.length > 700) this.P.shift(); p.age = 0; this.P.push(p); return p; },
+  xy(r, c) { const o = this.opt.off || 0; return [(c + o + .5) * this.cs, (r + o + .5) * this.cs]; },
+  add(p) { if (this.P.length > 900) this.P.shift(); p.age = 0; this.P.push(p); return p; },
   rnd(a, b) { return a + Math.random() * (b - a); },
+  later(ms, fn) { setTimeout(() => { if (this.raf) fn(); }, ms); },
   // ---------- события ----------
   shot(u, r, c, delay = 0) {
-    if (!this.lo) return Promise.resolve();
+    if (!this.lo || !this.fit()) return Promise.resolve();
     const [x0, y0] = this.xy(u.r, u.c), [x1, y1] = this.xy(r, c), cs = this.cs;
-    const d = Math.hypot(x1 - x0, y1 - y0), dur = 230 + d / cs * 38;
-    const ang = Math.atan2(y1 - y0, x1 - x0);
-    setTimeout(() => {
-      // вспышка у ствола и дымок
+    const d = Math.hypot(x1 - x0, y1 - y0), dur = 230 + d / cs * 38, ang = Math.atan2(y1 - y0, x1 - x0);
+    this.later(delay, () => {
       const mx = x0 + Math.cos(ang) * cs * .45, my = y0 + Math.sin(ang) * cs * .45;
-      this.add({ k: 'flash', x: mx, y: my, s: cs * .55, life: 140 });
-      for (let i = 0; i < 5; i++) this.add({ k: 'smoke', x: mx, y: my, vx: Math.cos(ang) * this.rnd(8, 22) + this.rnd(-6, 6), vy: Math.sin(ang) * this.rnd(8, 22) + this.rnd(-6, 6), s: cs * this.rnd(.12, .22), g: cs * .5, life: this.rnd(500, 900), c: 200 });
+      this.add({ k: 'flash', x: mx, y: my, s: cs * .6, life: 150 });
+      for (let i = 0; i < 6; i++) this.add({ k: 'smoke', x: mx, y: my, vx: Math.cos(ang) * this.rnd(8, 24) + this.rnd(-6, 6), vy: Math.sin(ang) * this.rnd(8, 24) + this.rnd(-6, 6), s: cs * this.rnd(.12, .22), g: cs * .5, life: this.rnd(500, 900), c: 205 });
       this.add({ k: 'shell', x0: mx, y0: my, x1, y1, h: Math.min(cs * 1.6, d * .35), life: dur });
-    }, delay);
+    });
+    return new Promise(res => setTimeout(res, delay + dur));
+  },
+  // снаряд прилетает «сверху» (классика: стреляем из-за края поля)
+  incoming(r, c, delay = 0) {
+    if (!this.lo || !this.fit()) return Promise.resolve();
+    const [x, y] = this.xy(r, c), cs = this.cs, dur = 300;
+    this.later(delay, () => this.add({ k: 'fall', x, y, h: cs * 3.2, dx: this.rnd(-1, 1) * cs * 1.2, life: dur }));
     return new Promise(res => setTimeout(res, delay + dur));
   },
   boom(r, c, big) {
-    if (!this.lo) return;
-    const [x, y] = this.xy(r, c), cs = this.cs, k = big ? 1.5 : 1;
-    this.add({ k: 'flash', x, y, s: cs * 1.1 * k, life: 180 });
-    this.add({ k: 'ring', x, y, s: cs * .2, s1: cs * 1.1 * k, life: 600, c: '255,220,160', w: 3, lo: true });
-    for (let i = 0; i < 18 * k; i++) { const a = Math.random() * 6.283, v = this.rnd(20, 75) * k; this.add({ k: 'fire', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: cs * this.rnd(.16, .32) * k, life: this.rnd(350, 650) }); }
-    for (let i = 0; i < 10 * k; i++) { const a = Math.random() * 6.283, v = this.rnd(60, 150) * k; this.add({ k: 'spark', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: this.rnd(250, 500) }); }
-    for (let i = 0; i < 4 * k; i++) this.add({ k: 'debris', x, y, vx: this.rnd(-50, 50), vy: this.rnd(-50, 50), z: 0, vz: this.rnd(40, 90), rot: Math.random() * 6, life: this.rnd(500, 800), s: cs * this.rnd(.05, .09) });
-    for (let i = 0; i < 7 * k; i++) this.add({ k: 'smoke', x: x + this.rnd(-.2, .2) * cs, y: y + this.rnd(-.2, .2) * cs, vx: this.rnd(-8, 8), vy: this.rnd(-20, -6), s: cs * this.rnd(.18, .32) * k, g: cs * .9, life: this.rnd(900, 1600), c: 60, dl: this.rnd(80, 300) });
-    this.shake = Math.max(this.shake, big ? 7 : 3);
+    if (!this.lo || !this.fit()) return;
+    const [x, y] = this.xy(r, c); this.boomXY(x, y, big ? 1.5 : 1);
+  },
+  boomXY(x, y, k = 1) {
+    const cs = this.cs;
+    this.add({ k: 'flash', x, y, s: cs * 1.3 * k, life: 220 });
+    this.add({ k: 'core', x, y, s: cs * .55 * k, life: 260 });
+    this.add({ k: 'ring', x, y, s: cs * .2, s1: cs * 1.4 * k, life: 650, c: '255,230,180', w: 3.5, lo: true });
+    this.add({ k: 'ring', x, y, s: cs * .1, s1: cs * .9 * k, life: 900, c: '255,255,255', w: 2, lo: true, dl: 90 });
+    for (let i = 0; i < 20 * k; i++) { const a = Math.random() * 6.283, v = this.rnd(20, 80) * k; this.add({ k: 'fire', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 10, s: cs * this.rnd(.16, .34) * k, life: this.rnd(380, 720) }); }
+    for (let i = 0; i < 14 * k; i++) { const a = Math.random() * 6.283, v = this.rnd(70, 180) * k; this.add({ k: 'spark', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: this.rnd(250, 550) }); }
+    for (let i = 0; i < 5 * k; i++) this.add({ k: 'debris', x, y, vx: this.rnd(-60, 60) * k, vy: this.rnd(-60, 60) * k, z: 0, vz: this.rnd(50, 110), rot: Math.random() * 6, life: this.rnd(600, 950), s: cs * this.rnd(.05, .1), trail: 1 });
+    for (let i = 0; i < 8 * k; i++) this.add({ k: 'smoke', x: x + this.rnd(-.25, .25) * cs, y: y + this.rnd(-.25, .25) * cs, vx: this.rnd(-8, 8), vy: this.rnd(-22, -6), s: cs * this.rnd(.2, .34) * k, g: cs * 1.0, life: this.rnd(1000, 1800), c: 55, dl: this.rnd(80, 320) });
+    this.shake = Math.max(this.shake, 4 * k);
   },
   splash(r, c) {
-    if (!this.lo) return;
+    if (!this.lo || !this.fit()) return;
     const [x, y] = this.xy(r, c), cs = this.cs;
     this.add({ k: 'ring', x, y, s: cs * .15, s1: cs * 1.1, life: 800, c: '255,255,255', w: 3, lo: true });
     this.add({ k: 'ring', x, y, s: cs * .08, s1: cs * .7, life: 1000, c: '220,245,255', w: 2, lo: true, dl: 160 });
@@ -3875,15 +3903,45 @@ const BFX = {
     for (let i = 0; i < 26; i++) { const a = Math.random() * 6.283, v = this.rnd(10, 55); this.add({ k: 'drop', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, z: this.rnd(0, cs * .4), vz: this.rnd(90, 190), life: this.rnd(600, 950), s: cs * this.rnd(.035, .07) }); }
     this.add({ k: 'foam', x, y, s: cs * .5, life: 1400, lo: true });
   },
+  // гибель корабля: цепочка взрывов вдоль корпуса, огненный шар, водяной столб, пузыри, пятно и обломки на воде
+  wreck(pts, big = 1) {
+    if (!this.lo || !this.fit() || !pts.length) return;
+    const cs = this.cs, cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+    const seq = pts.slice().sort(() => Math.random() - .5);
+    seq.forEach((p, i) => this.later(i * 190 + this.rnd(0, 60), () => { this.boomXY(p[0] + this.rnd(-.15, .15) * cs, p[1] + this.rnd(-.15, .15) * cs, 1.05); Snd.play(i % 2 ? 'hit' : 'shot'); }));
+    const T = seq.length * 190 + 150;
+    this.later(T, () => {
+      const k = 1.3 + .25 * pts.length * big;
+      this.boomXY(cx, cy, k);
+      this.add({ k: 'ring', x: cx, y: cy, s: cs * .3, s1: cs * (2 + pts.length * .5), life: 1100, c: '255,255,255', w: 4, lo: true });
+      this.add({ k: 'column', x: cx, y: cy, s: cs * .35 * Math.min(2, k), h: cs * 2.2, life: 1100 });
+      for (let i = 0; i < 30; i++) { const a = Math.random() * 6.283, v = this.rnd(20, 80); this.add({ k: 'drop', x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, z: this.rnd(0, cs * .6), vz: this.rnd(120, 230), life: this.rnd(700, 1100), s: cs * this.rnd(.04, .08) }); }
+      this.shake = Math.max(this.shake, 9);
+      vibrate([90, 50, 140]);
+    });
+    this.later(T + 300, () => {
+      pts.forEach(p => {
+        this.add({ k: 'oil', x: p[0], y: p[1], s: cs * .3, s1: cs * .85, life: 9000, lo: true });
+        for (let i = 0; i < 10; i++) this.add({ k: 'bubble', x: p[0] + this.rnd(-.4, .4) * cs, y: p[1] + this.rnd(-.4, .4) * cs, s: cs * this.rnd(.03, .08), life: this.rnd(900, 2000), dl: this.rnd(0, 2600), lo: true });
+        for (let i = 0; i < 3; i++) this.add({ k: 'float', x: p[0] + this.rnd(-.4, .4) * cs, y: p[1] + this.rnd(-.4, .4) * cs, vx: this.rnd(-3, 3), vy: this.rnd(-3, 3), rot: Math.random() * 6, s: cs * this.rnd(.05, .1), life: this.rnd(5000, 9000), lo: true });
+        for (let i = 0; i < 3; i++) this.add({ k: 'smoke', x: p[0], y: p[1], vx: this.rnd(-4, 4), vy: this.rnd(-14, -6), s: cs * .25, g: cs * 1.2, life: this.rnd(1800, 2800), c: 40, dl: this.rnd(0, 1500) });
+        this.add({ k: 'whirl', x: p[0], y: p[1], s: cs * .45, life: 2600, lo: true, dl: 200 });
+      });
+    });
+    return T + 300;
+  },
   sink(u) {
-    if (!this.lo) return;
-    const [x, y] = this.xy(u.r, u.c), cs = this.cs;
-    this.boom(u.r, u.c, true);
-    this.add({ k: 'oil', x, y, s: cs * .3, s1: cs * .9, life: 6000, lo: true });
-    for (let i = 0; i < 18; i++) this.add({ k: 'bubble', x: x + this.rnd(-.35, .35) * cs, y: y + this.rnd(-.35, .35) * cs, s: cs * this.rnd(.03, .07), life: this.rnd(800, 2200), dl: this.rnd(200, 1800), lo: true });
+    if (!this.lo || !this.fit()) return;
+    const len = HS[u.type].len || 1, a = (u.dir || 0) * Math.PI / 180, [x, y] = this.xy(u.r, u.c), cs = this.cs, pts = [];
+    const span = Math.min(1.4, .35 * len);
+    for (let i = 0; i < Math.max(2, len); i++) { const t = len > 1 ? i / (Math.max(2, len) - 1) - .5 : (i - .5) * .6; pts.push([x + Math.cos(a) * t * span * cs, y + Math.sin(a) * t * span * cs]); }
+    u.sinkAt = performance.now();
+    const T = this.wreck(pts, .6) || 0;
+    setTimeout(() => { if (H.cells) renderHunt(); }, T + 2700);
+    return T;
   },
   wake(u, fr, fc) {
-    if (!this.lo || !this.visible(u)) return;
+    if (!this.lo || !this.fit() || !BFX.visible(u)) return;
     const [x0, y0] = this.xy(fr, fc), [x1, y1] = this.xy(u.r, u.c), cs = this.cs, a = Math.atan2(y1 - y0, x1 - x0), sz = .6 + .15 * (HS[u.type].len || 1);
     for (let i = 0; i < 7; i++) {
       const t = i / 6, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t;
@@ -3891,35 +3949,32 @@ const BFX = {
     }
   },
   torp(y, x) {
-    if (!this.lo) return;
+    if (!this.lo || !this.fit()) return;
     const [px, py] = this.xy(y, x), cs = this.cs;
     for (let i = 0; i < 5; i++) this.add({ k: 'bubble', x: px + this.rnd(-.15, .15) * cs, y: py + this.rnd(-.15, .15) * cs, s: cs * this.rnd(.025, .05), life: this.rnd(600, 1100), lo: true, dl: i * 25 });
     this.add({ k: 'foam', x: px, y: py, s: cs * .18, life: 1200, lo: true });
   },
-  visible(u) { return u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u)); },
+  glint() {
+    const cs = this.cs, n = this.opt.grid - (this.opt.off || 0), c = Math.random() * n, r = Math.random() * n;
+    if (this.opt.water && !this.opt.water(r | 0, c | 0)) return;
+    const o = this.opt.off || 0;
+    this.add({ k: 'glint', x: (c + o) * cs, y: (r + o) * cs, s: cs * this.rnd(.08, .16), life: this.rnd(500, 900), lo: true });
+  },
   // ---------- цикл ----------
   loop() {
     this.raf = requestAnimationFrame(() => this.loop());
-    const now = performance.now(), dt = Math.min(50, now - this.last); this.last = now; this.t += dt;
-    if (document.hidden || !$('#scr-hunt').classList.contains('active') || !this.fit()) return;
-    const cs = this.cs, L = this.cl, Hc = this.ch, dpr = this.dpr, s = dt / 1000;
-    // фоновые эффекты: блики на воде, дым и огонь от повреждённых кораблей
-    if (Math.random() < dt / 90) {
-      const k = Math.random() * HN * HN | 0, cell = H.cells && H.cells[k];
-      if (cell && !H.land[k] && !cell.classList.contains('fog')) { const { r, c } = kRC(k); this.add({ k: 'glint', x: (c + Math.random()) * cs, y: (r + Math.random()) * cs, s: cs * this.rnd(.08, .16), life: this.rnd(500, 900), lo: true }); }
-    }
-    if (H.phase === 'play' || H.phase === 'over') hUnits().forEach(u => {
-      if (!u.st || u.hp <= 0 || u.gone || HS[u.type].npc && !HS[u.type].fort || !this.visible(u)) return;
-      const f = u.hp / u.st.hp; if (f >= .6) return;
-      const [x, y] = this.xy(u.r, u.c);
-      if (Math.random() < dt / (f < .3 ? 70 : 160)) this.add({ k: 'smoke', x: x + this.rnd(-.15, .15) * cs, y: y + this.rnd(-.15, .15) * cs, vx: this.rnd(-4, 6), vy: this.rnd(-16, -8), s: cs * this.rnd(.14, .22), g: cs * .6, life: this.rnd(900, 1500), c: f < .3 ? 45 : 110 });
-      if (f < .35 && Math.random() < dt / 110) this.add({ k: 'fire', x: x + this.rnd(-.18, .18) * cs, y: y + this.rnd(-.12, .12) * cs, vx: this.rnd(-3, 3), vy: this.rnd(-14, -6), s: cs * this.rnd(.06, .12), life: this.rnd(300, 550) });
-    });
-    // тряска карты
-    if (this.shake > .2) { this.map.style.transform = `translate(${this.rnd(-1, 1) * this.shake}px,${this.rnd(-1, 1) * this.shake}px)`; this.shake *= .86; }
+    if (!this.map.isConnected) { this.stop(); return; }
+    const now = performance.now(), dt = Math.min(50, now - this.last); this.last = now;
+    if (document.hidden || !this.opt.active() || !this.fit()) return;
+    if (Math.random() < dt / 110) this.glint();
+    if (this.opt.tick) this.opt.tick(this, dt);
+    if (this.shake > .2) { this.map.style.transform = `translate(${this.rnd(-1, 1) * this.shake}px,${this.rnd(-1, 1) * this.shake}px)`; this.shake *= .87; }
     else if (this.shake) { this.shake = 0; this.map.style.transform = ''; }
+    if (!this.P.length && !this.dirty) return;
+    this.dirty = this.P.length > 0;
+    const cs = this.cs, L = this.cl, Hc = this.ch, dpr = this.dpr, s = dt / 1000;
     [L, Hc].forEach(g => { g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, this.W, this.W); });
-    const night = H.weather === 'night';
+    const night = this.opt.night && this.opt.night();
     this.P = this.P.filter(p => {
       if (p.dl > 0) { p.dl -= dt; return true; }
       p.age += dt; if (p.age >= p.life) return false;
@@ -3937,18 +3992,31 @@ const BFX = {
           g.fillStyle = '#fff7d6'; g.beginPath(); g.arc(x, y - z, cs * .05, 0, 6.283); g.fill();
           break;
         }
+        case 'fall': {
+          const z = p.h * (1 - t), x = p.x + p.dx * (1 - t), y = p.y - z;
+          g.fillStyle = `rgba(0,0,0,${.15 + .25 * t})`; g.beginPath(); g.ellipse(p.x, p.y, cs * (.05 + .08 * t), cs * (.03 + .05 * t), 0, 0, 6.283); g.fill();
+          g.globalCompositeOperation = 'lighter';
+          const gr = g.createLinearGradient(x + p.dx * .15, y - cs * .7, x, y); gr.addColorStop(0, 'rgba(255,170,60,0)'); gr.addColorStop(1, 'rgba(255,235,170,.95)');
+          g.strokeStyle = gr; g.lineWidth = cs * .09; g.lineCap = 'round'; g.beginPath(); g.moveTo(x + p.dx * .15, y - cs * .7); g.lineTo(x, y); g.stroke();
+          g.fillStyle = '#fff7d6'; g.beginPath(); g.arc(x, y, cs * .06, 0, 6.283); g.fill(); break;
+        }
         case 'flash': {
           g.globalCompositeOperation = 'lighter'; const rr = p.s * (.6 + t * .6);
-          const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(255,250,220,${1 - t})`); gr.addColorStop(.4, `rgba(255,190,80,${(1 - t) * .8})`); gr.addColorStop(1, 'rgba(255,120,40,0)');
+          const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(255,250,220,${1 - t})`); gr.addColorStop(.4, `rgba(255,190,80,${(1 - t) * .85})`); gr.addColorStop(1, 'rgba(255,120,40,0)');
+          g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.fill(); break;
+        }
+        case 'core': {
+          const rr = p.s * (.5 + t), gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr);
+          gr.addColorStop(0, `rgba(255,255,245,${1 - t})`); gr.addColorStop(.5, `rgba(255,220,120,${(1 - t) * .9})`); gr.addColorStop(1, 'rgba(255,140,40,0)');
           g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.fill(); break;
         }
         case 'fire': {
-          g.globalCompositeOperation = 'lighter'; const rr = p.s * (1 - t * .5);
-          const col = t < .3 ? '255,235,170' : t < .6 ? '255,150,50' : '200,60,30';
+          g.globalCompositeOperation = t < .5 ? 'lighter' : 'source-over'; const rr = p.s * (1 - t * .4);
+          const col = t < .25 ? '255,240,180' : t < .55 ? '255,150,45' : t < .8 ? '190,60,25' : '70,40,30';
           const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(${col},${(1 - t) * .95})`); gr.addColorStop(1, `rgba(${col},0)`);
           g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.fill(); break;
         }
-        case 'spark': { g.globalCompositeOperation = 'lighter'; g.fillStyle = `rgba(255,220,140,${1 - t})`; g.fillRect(p.x - 1, p.y - 1, 2.2, 2.2); break; }
+        case 'spark': { g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(255,220,140,${1 - t})`; g.lineWidth = 1.6; g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(p.x - p.vx * .03, p.y - p.vy * .03); g.stroke(); break; }
         case 'smoke': {
           const rr = p.s + p.g * t, a = (t < .15 ? t / .15 : 1 - (t - .15) / .85) * (night ? .45 : .7);
           const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(${p.c},${p.c},${p.c + 8},${a})`); gr.addColorStop(1, `rgba(${p.c},${p.c},${p.c + 8},0)`);
@@ -3956,34 +4024,46 @@ const BFX = {
         }
         case 'debris': {
           p.vz -= 260 * s; p.z = Math.max(0, p.z + p.vz * s); p.rot += 8 * s;
+          if (p.trail && p.z > 2 && Math.random() < .35) this.add({ k: 'smoke', x: p.x, y: p.y - p.z, vx: 0, vy: -4, s: cs * .05, g: cs * .18, life: 500, c: 70 });
           g.save(); g.translate(p.x, p.y - p.z); g.rotate(p.rot); g.fillStyle = `rgba(40,35,30,${1 - t * t})`; g.fillRect(-p.s, -p.s / 2, p.s * 2, p.s); g.restore();
-          if (p.z === 0 && p.vz < 0 && !p.sp) { p.sp = 1; this.add({ k: 'ring', x: p.x, y: p.y, s: 1, s1: cs * .2, life: 400, c: '255,255,255', w: 1, lo: true }); }
+          if (p.z === 0 && p.vz < 0 && !p.sp) { p.sp = 1; this.add({ k: 'ring', x: p.x, y: p.y, s: 1, s1: cs * .25, life: 450, c: '255,255,255', w: 1.2, lo: true }); }
           break;
-        }
-        case 'column': {
-          const hh = p.h * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2) * (t < .5 ? 1 : 1 - (t - .5) * 1.4), w = p.s * (1 + t * .6), a = .85 * (1 - t);
-          const gr = g.createLinearGradient(p.x, p.y, p.x, p.y - hh); gr.addColorStop(0, `rgba(235,250,255,${a})`); gr.addColorStop(1, 'rgba(235,250,255,0)');
-          g.fillStyle = gr; g.beginPath(); g.moveTo(p.x - w, p.y); g.quadraticCurveTo(p.x - w * .4, p.y - hh * .6, p.x, p.y - hh); g.quadraticCurveTo(p.x + w * .4, p.y - hh * .6, p.x + w, p.y); g.closePath(); g.fill(); break;
         }
         case 'drop': {
           p.vz -= 300 * s; p.z = Math.max(0, p.z + p.vz * s);
           g.fillStyle = `rgba(235,250,255,${.9 * (1 - t)})`; g.beginPath(); g.arc(p.x, p.y - p.z, p.s, 0, 6.283); g.fill(); break;
+        }
+        case 'column': {
+          const hh = p.h * Math.sin(Math.min(1, t * 1.8) * Math.PI / 2) * (t < .45 ? 1 : 1 - (t - .45) * 1.3), w = p.s * (1 + t * .8), a = .8 * (1 - t);
+          for (let i = 0; i < 7; i++) {
+            const f = i / 6, yy = p.y - hh * f, rr = w * (1 - f * .55) * (.8 + .2 * Math.sin(i * 1.7 + p.age / 90));
+            const gr = g.createRadialGradient(p.x, yy, 0, p.x, yy, rr); gr.addColorStop(0, `rgba(240,252,255,${a * (1 - f * .6)})`); gr.addColorStop(1, 'rgba(240,252,255,0)');
+            g.fillStyle = gr; g.beginPath(); g.arc(p.x, yy, rr, 0, 6.283); g.fill();
+          }
+          break;
         }
         case 'ring': {
           const rr = p.s + (p.s1 - p.s) * (1 - (1 - t) * (1 - t));
           g.strokeStyle = `rgba(${p.c},${(1 - t) * .85})`; g.lineWidth = p.w * (1 - t * .5); g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.stroke(); break;
         }
         case 'foam': {
-          const rr = p.s * (1 + t * .8);
-          const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(240,252,255,${.55 * (1 - t)})`); gr.addColorStop(1, 'rgba(240,252,255,0)');
+          const rr = p.s * (1 + t * .8), gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr);
+          gr.addColorStop(0, `rgba(240,252,255,${.55 * (1 - t)})`); gr.addColorStop(1, 'rgba(240,252,255,0)');
           g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.fill(); break;
         }
-        case 'bubble': {
-          g.strokeStyle = `rgba(230,250,255,${.8 * (1 - t)})`; g.lineWidth = 1; g.beginPath(); g.arc(p.x, p.y - t * 3, p.s * (1 + t * .5), 0, 6.283); g.stroke(); break;
+        case 'bubble': { g.strokeStyle = `rgba(230,250,255,${.85 * (1 - t)})`; g.lineWidth = 1.2; g.beginPath(); g.arc(p.x, p.y - t * 3, p.s * (1 + t * .5), 0, 6.283); g.stroke(); break; }
+        case 'whirl': {
+          g.strokeStyle = `rgba(230,250,255,${.5 * (1 - t)})`; g.lineWidth = 1.5;
+          for (let i = 0; i < 3; i++) { const rr = p.s * (1 - t * .7) * (1 - i * .25), a0 = t * 9 + i * 2.1; g.beginPath(); g.arc(p.x, p.y, rr, a0, a0 + 3.4); g.stroke(); }
+          break;
+        }
+        case 'float': {
+          p.rot += .3 * s; const a = t < .8 ? .85 : .85 * (1 - t) / .2;
+          g.save(); g.translate(p.x, p.y + Math.sin(p.age / 400) * 1.2); g.rotate(p.rot); g.fillStyle = `rgba(70,50,35,${a})`; g.fillRect(-p.s, -p.s * .3, p.s * 2, p.s * .6); g.restore(); break;
         }
         case 'oil': {
-          const rr = p.s + (p.s1 - p.s) * Math.min(1, t * 3), a = .35 * (t < .8 ? 1 : (1 - t) / .2);
-          const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(15,15,25,${a})`); gr.addColorStop(.7, `rgba(40,30,60,${a * .6})`); gr.addColorStop(1, 'rgba(40,30,60,0)');
+          const rr = p.s + (p.s1 - p.s) * Math.min(1, t * 3), a = .38 * (t < .8 ? 1 : (1 - t) / .2);
+          const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(12,12,22,${a})`); gr.addColorStop(.6, `rgba(50,30,70,${a * .6})`); gr.addColorStop(.85, `rgba(20,90,90,${a * .35})`); gr.addColorStop(1, 'rgba(40,30,60,0)');
           g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.fill(); break;
         }
         case 'glint': {
@@ -3994,6 +4074,64 @@ const BFX = {
       return true;
     });
     [L, Hc].forEach(g => { g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; });
+  },
+};
+// эффекты морского похода
+const BFX = new FxLayer({
+  grid: HN, off: 0,
+  active: () => $('#scr-hunt').classList.contains('active'),
+  night: () => H.weather === 'night',
+  water: (r, c) => { const k = hidx(r, c), cell = H.cells && H.cells[k]; return cell && !H.land[k] && !cell.classList.contains('fog'); },
+  tick(fx, dt) {
+    if (H.phase !== 'play' && H.phase !== 'over') return;
+    const cs = fx.cs;
+    hUnits().forEach(u => {
+      if (!u.st || u.hp <= 0 || u.gone || (HS[u.type].npc && !HS[u.type].fort) || !BFX.visible(u)) return;
+      const f = u.hp / u.st.hp; if (f >= .6) return;
+      const [x, y] = fx.xy(u.r, u.c);
+      if (Math.random() < dt / (f < .3 ? 70 : 160)) fx.add({ k: 'smoke', x: x + fx.rnd(-.15, .15) * cs, y: y + fx.rnd(-.15, .15) * cs, vx: fx.rnd(-4, 6), vy: fx.rnd(-16, -8), s: cs * fx.rnd(.14, .22), g: cs * .6, life: fx.rnd(900, 1500), c: f < .3 ? 45 : 110 });
+      if (f < .35 && Math.random() < dt / 110) fx.add({ k: 'fire', x: x + fx.rnd(-.18, .18) * cs, y: y + fx.rnd(-.12, .12) * cs, vx: fx.rnd(-3, 3), vy: fx.rnd(-14, -6), s: cs * fx.rnd(.06, .12), life: fx.rnd(300, 550) });
+    });
+  },
+});
+BFX.visible = u => u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u));
+
+/* ==================== ЖИВАЯ ВОДА ==================== */
+// мягкие бегущие волны с бликами: низкое разрешение + сглаживание браузером
+const Ocean = {
+  list: [], last: 0, raf: 0,
+  W: [[3, .7, .42], [4, .2, .3], [5, 1.3, .22], [7, .5, .15], [9, -.4, .1], [12, .9, .07], [15, .1, .05]],
+  add(host, S = 64, cls = '') {
+    const c = document.createElement('canvas'); c.className = 'ocean ' + cls; c.width = c.height = S;
+    host.prepend(c);
+    const g = c.getContext('2d'), o = { c, g, img: g.createImageData(S, S), S, ph: Math.random() * 50 };
+    this.list.push(o); this.draw(o, performance.now() / 1000);
+    if (!this.raf && !reduceMotion) this.raf = requestAnimationFrame(t => this.frame(t));
+    return c;
+  },
+  frame(t) {
+    this.raf = requestAnimationFrame(t2 => this.frame(t2));
+    if (document.hidden || t - this.last < 66) return; this.last = t;
+    this.list = this.list.filter(o => o.c.isConnected);
+    this.list.forEach(o => { if (o.c.offsetParent) this.draw(o, t / 1000); });
+  },
+  draw(o, time) {
+    const S = o.S, d = o.img.data, tt = time + o.ph, W = this.W;
+    const wv = W.map(([k, ang, a]) => { const kx = Math.cos(ang) * k * 6.283 / S, ky = Math.sin(ang) * k * 6.283 / S; return [kx, ky, a, Math.sqrt(k) * 1.1 * tt, a * k * .9]; });
+    const Lx = -.45, Ly = -.55, Lz = .7, Hx = Lx * .5, Hy = Ly * .5, Hz = (Lz + 1) * .5, hn = Math.hypot(Hx, Hy, Hz);
+    let i = 0;
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+      let h = 0, gx = 0, gy = 0;
+      for (let j = 0; j < wv.length; j++) { const w = wv[j], ph = w[0] * x + w[1] * y - w[3], cs = Math.cos(ph); h += w[2] * Math.sin(ph); gx += w[2] * w[0] * cs; gy += w[2] * w[1] * cs; }
+      const nx = -gx * 1.5, ny = -gy * 1.5, nl = Math.hypot(nx, ny, 1), dif = Math.max(0, (nx * Lx + ny * Ly + Lz) / nl);
+      const spec = Math.pow(Math.max(0, (nx * Hx + ny * Hy + Hz) / (nl * hn)), 40);
+      const m = Math.min(1, Math.max(0, h * .8 + .5)), foam = h > .82 ? (h - .82) * 1.6 : 0;
+      d[i] = 5 + 22 * m + 30 * dif * m + 120 * spec + 110 * foam;
+      d[i + 1] = 44 + 50 * m + 45 * dif + 125 * spec + 115 * foam;
+      d[i + 2] = 82 + 62 * m + 42 * dif + 120 * spec + 95 * foam;
+      d[i + 3] = 255; i += 4;
+    }
+    o.g.putImageData(o.img, 0, 0);
   },
 };
 
