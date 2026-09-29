@@ -128,6 +128,10 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .shipbox{position:absolute;filter:drop-shadow(0 3px 3px rgba(0,30,60,.45))}
 .shipbox svg{position:absolute;left:0;top:0;overflow:visible}
 .shipbox.vert svg{transform-origin:0 0;transform:rotate(90deg) translateY(-100%)}
+.shipbox .stop{position:absolute;left:0;top:0;display:flex;align-items:center;justify-content:center}
+.shipbox .stop img{display:block;width:100%;height:auto;max-height:112%;object-fit:fill;flex:none;-webkit-user-drag:none;user-select:none}
+.shipbox .stop.l1 img{width:125%}
+.shipbox.vert .stop{transform-origin:0 0;transform:rotate(90deg) translateY(-100%)}
 .shipbox.bob{animation:bob 3.2s ease-in-out infinite}
 @keyframes bob{50%{translate:0 -1.5px}}
 .shipbox.wreck{filter:grayscale(.7) brightness(.5) sepia(.5) drop-shadow(0 2px 2px rgba(0,0,0,.4));opacity:.92}
@@ -219,6 +223,7 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .hunit .rot{position:absolute;left:50%;top:50%;transition:transform .2s}
 .hunit .spr{filter:drop-shadow(0 3px 3px rgba(0,30,60,.55))}
 .hunit .spr svg{width:100%;height:100%;display:block}
+.hunit .spr.simg img{display:block;width:100%;height:100%;-webkit-user-drag:none;user-select:none}
 .hunit.foe .spr{filter:sepia(.8) hue-rotate(-35deg) saturate(3.2) brightness(.72) drop-shadow(0 3px 3px rgba(0,0,0,.5))}
 .hunit .hpbar{position:absolute;left:8%;right:8%;top:-3px;height:4px;border-radius:2px;background:rgba(0,0,0,.45)}
 .hunit .hpbar i{display:block;height:100%;border-radius:2px;background:#5dff9a;transition:width .3s}.hunit.foe .hpbar i{background:#ff6b57}
@@ -1069,6 +1074,8 @@ const funnel = x => `<ellipse cx="${x}" cy="50" rx="10" ry="12" fill="#3b4650" s
 const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" fill="url(#gSup)" stroke="#8795a2" stroke-width="1.5"/>
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
+const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
+const TOP_AR = { boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98 };
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -1411,9 +1418,7 @@ function renderShips(v, b, reveal, fresh) {
     box.className = 'shipbox' + (s.v ? ' vert' : '') + (s.sunk ? ' wreck' : (v.bob ? ' bob' : '')) + (fresh === s.id ? ' new' : '');
     const cw = 'var(--cw)';
     box.style.cssText = `left:calc(${cw} * ${s.c});top:calc(${cw} * ${s.r});width:calc(${cw} * ${s.v ? 1 : s.len});height:calc(${cw} * ${s.v ? s.len : 1});animation-delay:${-(s.r + s.c) * .37}s`;
-    box.innerHTML = shipSVG(s.len, !s.sunk && v.bob);
-    const svg = box.firstElementChild;
-    svg.style.width = `calc(${cw} * ${s.len})`; svg.style.height = cw;
+    box.innerHTML = `<div class="stop l${s.len}" style="width:calc(${cw} * ${s.len});height:${cw}"><img src="top_${LEN_SHIP[s.len] || 'cruiser'}.webp" alt="" draggable="false"></div>`;
     v.ships.appendChild(box);
   }
 }
@@ -2641,7 +2646,8 @@ function hMakeEl(u) {
   const len = HS[u.type].len, w = HS[u.type].fort ? 1 : .8 + .2 * len;
   const el = document.createElement('div');
   el.className = 'hunit ' + u.side + (u.ally ? ' ally' : '') + (u.auto ? ' npc' : '') + (u.boss ? ' boss' : '') + (HS[u.type].fort ? ' fortu' : '');
-  el.innerHTML = `<div class="rot"><div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${HS[u.type].fort ? 1 : w / len})">${shipPic(u.type, u.side === 'me')}</div></div><div class="hpbar"><i></i></div>${u.boss ? '<div class="bosstag">☠️</div>' : ''}`;
+  const ar = TOP_AR[u.type], spr = ar ? `<div class="spr simg" style="width:calc(var(--hc)*${w * 1.05});height:calc(var(--hc)*${w * 1.05 / ar})"><img src="top_${u.type}.webp" alt="" draggable="false"></div>` : `<div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${HS[u.type].fort ? 1 : w / len})">${shipPic(u.type, u.side === 'me')}</div>`;
+  el.innerHTML = `<div class="rot">${spr}</div><div class="hpbar"><i></i></div>${u.boss ? '<div class="bosstag">☠️</div>' : ''}`;
   H.layer.appendChild(el); H.els[u.id] = el;
 }
 function buildHuntMap() {
