@@ -176,7 +176,15 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .shipcard{flex:none;width:100px;padding:10px 6px;border-radius:14px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;font-weight:800}
 .shipcard small{font-size:11px;color:var(--muted);font-weight:700}
 .shipcard.sel{box-shadow:inset 0 0 0 2px var(--gold);background:rgba(255,207,74,.15)}
-.shipcard.locked .pic{filter:grayscale(.7) brightness(.8)}
+.shipcard.locked .pic,.shipcard.locked .shimg{filter:grayscale(.8) brightness(.7)}
+.shipcard{width:118px}
+.shbox{display:flex;align-items:flex-end;justify-content:center;width:100%;height:40px}
+.shimg{display:block;width:calc(100% * var(--sc,1));height:auto;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5));-webkit-user-drag:none;user-select:none}
+.shimg.row{width:calc(60px * var(--sc,1));margin:auto}
+.shipshow{width:100%;height:150px;display:flex;align-items:flex-end;justify-content:center;padding:10px 8px 14px;margin-bottom:10px;border-radius:14px;
+  background:radial-gradient(ellipse at 50% 30%,rgba(255,236,190,.28),transparent 60%),linear-gradient(180deg,#123a66,#081f3d 70%,#0a2b50);box-shadow:inset 0 -18px 24px -12px rgba(120,200,255,.25)}
+.shimg.big{width:calc(96% * (.45 + var(--sc,1) * .55));max-height:100%;object-fit:contain;animation:shfloat 4s ease-in-out infinite}
+@keyframes shfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .pic{display:block;height:26px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
 .pic svg{width:100%;height:100%;display:block;overflow:visible}
 .pic.big{height:34px;flex:none}
@@ -2169,6 +2177,8 @@ function fortSVG(mine, tower) {
     <rect x="41" y="60" width="18" height="28" rx="9" fill="#3b2f22"/><rect x="24" y="48" width="9" height="9" fill="#3b2f22"/><rect x="67" y="48" width="9" height="9" fill="#3b2f22"/>
     <line x1="50" y1="22" x2="50" y2="3" stroke="#3b2f22" stroke-width="4"/><path d="M50 3h24l-7 6 7 6H50z" fill="${flag}"/></svg>`;
 }
+const SHIP_SC = { boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1 };
+const shipImg = (id, cls = '') => `<img class="shimg ${cls}" src="ship_${id}.webp" alt="" draggable="false" style="--sc:${SHIP_SC[id] || 1}" onerror="this.style.visibility='hidden'">`;
 const shipPic = (id, foam) => HS[id].fort ? fortSVG(HS[id].mine, HS[id].tower) : HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
 const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5', 'board1', 'boss1', 'legend'];
 function checkAch(p, ids) {
@@ -2233,11 +2243,11 @@ function hubShips(h, part = 'dock') {
   HS_ORDER.forEach(id => {
     const own = h.ships[id], s = HS[id];
     const st = !own ? `${pShip(h, id)} 💰` : h.active === id ? '⭐ флагман' : own.broken ? '🔧 ремонт' : h.squad.includes(id) ? '⚓ в эскадре' : 'в гавани';
-    html += `<button class="shipcard glass${HB.sel === id ? ' sel' : ''}${own ? '' : ' locked'}" data-sel="${id}"><span class="pic" style="width:${22 + s.len * 16}px">${shipPic(id, false)}</span><span>${s.name}${own && rankOf(own.xp) ? ' ' + RANKS[rankOf(own.xp)].ic : ''}</span><small>${st}</small></button>`;
+    html += `<button class="shipcard glass${HB.sel === id ? ' sel' : ''}${own ? '' : ' locked'}" data-sel="${id}"><span class="shbox">${shipImg(id)}</span><span>${s.name}${own && rankOf(own.xp) ? ' ' + RANKS[rankOf(own.xp)].ic : ''}</span><small>${st}</small></button>`;
   });
   html += '</div>';
   const id = HB.sel, s = HS[id], own = h.ships[id], st = ownStats(h, id);
-  let pn = `<div class="hp-title"><span class="pic big" style="width:${40 + s.len * 26}px">${shipPic(id, false)}</span><div><b>${s.name}</b><small>${s.desc}</small></div></div>`;
+  let pn = `<div class="shipshow">${shipImg(id, 'big')}</div><div class="hp-title"><div><b>${s.name}</b><small>${s.desc}</small></div></div>`;
   if (own) {
     const r = rankOf(own.xp), nx = RANKS[r + 1];
     pn += `<div class="rankline"><span>${RANKS[r].ic || '▫️'} ${RANKS[r].n}</span><span class="bar"><i style="width:${nx ? (own.xp - RANKS[r].xp) / (nx.xp - RANKS[r].xp) * 100 : 100}%"></i></span><small>${nx ? `опыт ${own.xp}/${nx.xp}` : 'максимум'}</small></div>`;
@@ -2321,7 +2331,7 @@ function hiredPanel(h) {
   });
   HS_ORDER.forEach(id => {
     const s = HS[id], v = h.hireVet[id] || 0, st = shipStats(id, hireUp(lvl), h.crew, { rank: v }), price = hirePrice(h, id), eq = hireEq(id);
-    hh += `<div class="uprow"><span class="ic" style="width:44px"><span class="pic" style="display:block;width:${16 + s.len * 7}px;margin:auto">${shipPic(id, false)}</span></span>
+    hh += `<div class="uprow"><span class="ic" style="width:64px">${shipImg(id, 'row')}</span>
       <span class="nm">${s.name}${v ? ` <span class="vet">${RANKS[v].ic} −${v * 10}%</span>` : ''}<small>❤${st.hp} 🛡${st.armor} ⚙${st.speed} 🎯${st.dmg} 📏${st.range} · 🪖${Math.floor(s.mar / 2)}${eq.salvo ? ' · 💥залп' : ''}${eq.torp ? ' · 🚀торпеды' : ''}</small></span>
       <button class="btn small ${full ? '' : 'primary'}" data-act="hire" data-id="${id}" ${full || h.gold < price ? 'disabled' : ''}>${price} 💰</button></div>`;
   });
