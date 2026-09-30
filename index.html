@@ -222,6 +222,12 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .bfx{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 .repbox{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:12px;background:rgba(255,140,60,.14);border:1px solid rgba(255,170,90,.45);margin:8px 0}.repbox b{font-size:14px}.repbox small{color:var(--muted);font-size:12px;line-height:1.35}
 .hurt{color:#ff9a7a}.reptm{font-weight:900;color:#ffe08a;font-size:14px;flex:none}
+.seatabs{position:absolute;left:0;right:0;top:calc(max(10px,env(safe-area-inset-top)) + 44px);z-index:6;display:flex;gap:6px;padding:0 10px;overflow-x:auto;scrollbar-width:none}.seatabs::-webkit-scrollbar{display:none}
+.seatab{flex:none;padding:6px 11px;border-radius:14px;background:rgba(5,30,60,.8);border:1px solid rgba(255,255,255,.3);color:#cfe3f3;font-size:12px;font-weight:800;white-space:nowrap}
+.seatab.on{background:linear-gradient(135deg,#ffd75e,#ff9a1c);color:#3b2300;border-color:#fff3c0}.seatab.locked{opacity:.55}
+.mpin.fog{background:rgba(5,30,60,.55);border:2px dashed rgba(255,255,255,.55);color:#cfe3f3;width:32px;height:32px;font-size:14px}
+.mpin.rep{animation:mpulse 1.6s infinite}
+.intelhead .lhbtns{margin-top:8px}
 .econ{font-weight:900;color:#7dffb0;flex:none;font-size:15px}.econ.neg{color:#ff8a78}
 #fg-inc.neg{color:#ff8a78;border-color:rgba(255,120,100,.7)}
 .newsrow{font-size:13px;line-height:1.35;padding:6px 0;border-top:1px solid rgba(255,255,255,.1)}.newsrow small{display:block;color:var(--muted);font-size:11px}
@@ -790,10 +796,11 @@ body.menu-on .logo{margin:0}
     <div class="fchip gold">💰 <b id="mg-gold">0</b></div>
     <div class="fchip" id="mg-ch"></div>
   </div>
+  <div class="seatabs" id="mg-tabs"></div>
   <div class="fhud-bot">
     <button class="fbtn" id="mg-home">🏰<small>Крепость</small></button>
-    <button class="fbtn go" id="mg-go">⚔️<b>Миссия</b><small id="mg-mis"></small></button>
-    <button class="fbtn" id="mg-free">🧭<small>Свободно</small></button>
+    <button class="fbtn go" id="mg-go">📜<b>Донесения</b><small id="mg-mis"></small></button>
+    <button class="fbtn" id="mg-free">🔭<small>Разведка</small></button>
   </div>
   <div class="msheet" id="msheet" hidden></div>
 </section>
@@ -849,11 +856,11 @@ body.menu-on .logo{margin:0}
     <p><b>Задания:</b> охота (потопить всех), спасение шлюпок, перехват транспорта, проводка конвоя, штурм форта, оборона до подхода своих. <b>Погода:</b> шторм, туман и ночь меняют обзор и меткость. На карте бывают мели (крупным кораблям туда нельзя без штурмана), маяки и мины.</p>
     <p><b>Бой:</b> поле 12×12 с островами. Каждый ваш корабль за ход делает одно действие: плывёт, стреляет, идёт на абордаж, ставит мину или затаивается. Врагов видно только в радиусе обзора. Выстрел выдаёт стрелявшего (❗), движение шумит — акустики слышат зону. Подлодка невидима дальше 1 клетки, пока не выстрелит. Потопят флагман — миссия проиграна.</p>
     <p><b>Флот:</b> кораблей можно покупать сколько угодно — на верфи в Сухом доке. Каждый корабль — отдельный: со своим именем, опытом, званием, улучшениями, морпехами и офицерами, всё прокачивается с нуля. В бой идут флагман и до 5 кораблей сопровождения. Остальные ждут в резерве: когда ваш корабль тонет, из резерва можно вызвать подкрепление (кнопка 🚩). У врага тоже бывает резерв. Потопленный корабль гибнет навсегда (офицеры с него спасаются лишь иногда), а подбитый уходит из боя с пробоинами: он может плавать и дальше, но с меньшей прочностью, пока его не отремонтируют в Сухом доке. Ремонт стоит золота и занимает время — чем сильнее повреждения и крупнее корабль, тем дольше; чем выше уровень дока, тем быстрее и больше стапелей. Лишний корабль можно продать. Флот стоит денег: каждый корабль и офицер получает жалованье каждый час (флагман бесплатно).</p>
-    <p><b>Люди:</b> на каждый корабль набирают морпехов (Казармы) и назначают офицеров (Академия): артиллериста, штурмана, инженера, врача, сигнальщика, боцмана, минёра. Офицеры копят опыт в боях своего корабля и растут в званиях от мичмана до капитана 1 ранга. Морпехи идут на абордаж: подойдите вплотную к врагу и нажмите ⚔️ — чем сильнее он повреждён, тем выше шанс. Захваченный корабль становится вашим. Так же можно взять штурмом форт.</p><p><b>Острова:</b> каждый пройденный остров — ваш. Оставьте на нём гарнизон до 3 кораблей (нажмите на остров на карте или загляните в Маяк) — остров начнёт приносить золото. Пираты время от времени нападают на гарнизоны; если гарнизон слабее, остров захватят, и его придётся отбивать в бою. Донесения о набегах — в Цитадели.</p>
+    <p><b>Люди:</b> на каждый корабль набирают морпехов (Казармы) и назначают офицеров (Академия): артиллериста, штурмана, инженера, врача, сигнальщика, боцмана, минёра. Офицеры копят опыт в боях своего корабля и растут в званиях от мичмана до капитана 1 ранга. Морпехи идут на абордаж: подойдите вплотную к врагу и нажмите ⚔️ — чем сильнее он повреждён, тем выше шанс. Захваченный корабль становится вашим. Так же можно взять штурмом форт.</p><p><b>Острова:</b> каждый пройденный остров — ваш. Оставьте на нём гарнизон до 3 кораблей (нажмите на свой остров на карте моря или загляните в Маяк) — остров начнёт приносить золото. Пираты время от времени нападают на гарнизоны; если гарнизон слабее, остров захватят, и его придётся отбивать в бою. Донесения о набегах — в Цитадели.</p>
     <p>За миссии платят золото, каждая победа ещё и даёт очко на Верфь.</p>
     <h3>🏰 Крепость</h3>
-    <p>Кампания «Хозяин морей» начинается на вашем острове. Остров можно двигать пальцем, кнопка 🔍 приближает. Нажмите на здание — откроется его крупный план: там его улучшение и всё, что в нём делается. Сухой док — покупка, ремонт и выбор кораблей; Мастерская — улучшения и оборудование; Казармы — морпехи и учения; Академия — специалисты и экипаж; Торговая гавань — наёмники и доход; Казна — хранение золота; Маяк — выход в поход; Цитадель — эскадра и набеги. Пока здание не построено, его функции недоступны. Здания строятся за золото в реальном времени, строитель один, уровень Цитадели ограничивает остальные.</p>
-    <p><b>Карта архипелага</b> (кнопка «В поход»): путь кампании идёт от вашей крепости к пиратской цитадели, 10 островов на главу, на 5-м и 10-м ждут боссы. Нажмите на мигающий остров, чтобы выбрать задание. Значки 🧭 и кнопка «Свободно» — <b>свободное плавание</b>: случайный бой на выбор из четырёх уровней сложности (лёгкий, средний, тяжёлый, очень тяжёлый). Кампания в нём не продвигается, зато чем сложнее, тем больше золота.</p>
+    <p>Кампания «Хозяин морей» начинается на вашем острове. Остров можно двигать пальцем, кнопка 🔍 приближает. Нажмите на здание — откроется его крупный план: там его улучшение и всё, что в нём делается. Сухой док — покупка, ремонт и выбор кораблей; Мастерская — улучшения и оборудование; Казармы — морпехи и учения; Академия — специалисты и экипаж; Торговая гавань — наёмники и доход; Казна — хранение золота; Маяк — штаб разведки и экспедиции; Цитадель — эскадра и набеги. Пока здание не построено, его функции недоступны. Здания строятся за золото в реальном времени, строитель один, уровень Цитадели ограничивает остальные.</p>
+    <p><b>Экспедиции и разведка</b> (кнопка «В поход» и Маяк): Штаб разведки присылает донесения о пиратах в четырёх морях — Лазурном, Янтарных Ветров, Седых Туманов и Обсидиановом океане. В донесении — остров, задание, прогноз погоды, сила врага и срок: устаревшие донесения исчезают. Выбирайте, куда плыть, на карте моря или в списке. Победа на острове делает его вашим — там можно оставить гарнизон. Захватите 5 островов моря, и разведка найдёт логово пиратов; разгромите его, чтобы открыть следующее море. Чем выше уровень Маяка, тем больше донесений и тем точнее оценка врага. Разведчиков можно послать и срочно — за золото.</p>
     <p>Со 2-го уровня Цитадели крепость начинают навещать пираты. Пока идёт осада, торговля стоит. Набег можно отразить — бой, в котором ваша эскадра защищает цитадель вместе с береговыми батареями, — или откупиться. Проигрыш стоит части золота, Казна защищает долю от разграбления.</p>
     <h3>🏆 Капитаны и достижения</h3>
     <p>Каждый капитан — отдельный профиль со своей статистикой и наградами. Выберите капитана в меню. В «Зале славы» — 29 достижений и таблица всех капитанов на этом устройстве.</p>
@@ -2152,8 +2159,9 @@ const BOSSES = [
   { name: 'Чёрный Корсар',  ic: '🏴‍☠️', type: 'battleship', ab: ['smoke', 'repair'], reward: 'smoke',   desc: 'Прячется в дымовой завесе и чинится прямо в бою.' },
   { name: 'Морской Дьявол', ic: '🦈',  type: 'sub',        ab: ['torp'],            reward: 'plating', desc: 'Подлодка-невидимка. Торпеды перезаряжает вдвое быстрее.' },
   { name: 'Адмирал Шторм',  ic: '🌪️', type: 'battleship', ab: ['fire'], weather: 'storm', reward: 'fire', desc: 'Приводит с собой шторм и бьёт огненными залпами 3×3.' },
+  { name: 'Владыка Корсаров', ic: '👑', type: 'battleship', ab: ['smoke', 'fire', 'torp'], weather: 'night', reward: null, desc: 'Хозяин Обсидианового океана: дымовые завесы, огненные залпы и быстрые торпеды.' },
 ];
-const bossOf = m => BOSSES[(Math.floor(m / 5) - 1) % BOSSES.length];
+const bossOf = m => BOSSES[Math.max(0, Math.floor(m / 5) - 1) % 3];
 const pickW = list => { let t = list.reduce((a, x) => a + x[1], 0) * Math.random(); for (const [v, w] of list) { t -= w; if (t < 0) return v; } return list[0][0]; };
 
 function hdata(p) {
@@ -2179,7 +2187,7 @@ function hdata(p) {
   h.officers.forEach(o => { if (o.ship && !h.ships[o.ship]) o.ship = null; });
   fdata(h); fortMigrate(h);
   if (h.rv !== 1) { Object.values(h.ships).forEach(s => { if (s.broken && !s.repEnd) { s.broken = false; s.hpLost = Math.max(0, shipMaxHp(h, s) - 1); } }); h.rv = 1; }
-  if (!h.route) h.route = genRoute(h);
+  delete h.route; expData(h);
   return h;
 }
 function shipStats(id, up = {}, crew = {}, x = {}) {
@@ -2275,18 +2283,18 @@ const reserveOf = h => Object.values(h.ships).filter(s => s.id !== h.active && !
 const upkeep = h => Object.values(h.ships).reduce((a, s) => a + (s.id === h.active ? 0 : UPK[s.type] || 0), 0) + h.officers.length * OFF_UPK;
 const sellPrice = (h, s) => Math.round(HS[s.type].price * .4) || 30;
 // острова
-const isleName = n => MISLE[(n - 1) % 10].n + (n > 10 ? ` (гл. ${Math.floor((n - 1) / 10) + 1})` : '');
-const isleOf = (h, n) => (h.isles[n] ||= { lost: false });
+const isleName = k => { const [a, b] = String(k).split(':').map(Number), S = SEAS[a]; return S && S.isles[b] ? S.isles[b].n : 'Остров'; };
+const isleOf = (h, n) => (h.isles[n] ||= { own: false, lost: false });
 const isleGarr = (h, n) => Object.values(h.ships).filter(s => s.isle === n);
-const isleInc = (h, n) => { const g = isleGarr(h, n); if (!g.length || isleOf(h, n).lost) return 0; return 8 + 2 * Math.floor((n - 1) / 10) + g.reduce((a, s) => a + 3 * HS[s.type].len, 0); };
-const islesOwned = h => { const r = []; for (let n = 1; n < h.mission; n++) r.push(n); return r; };
+const isleInc = (h, n) => { const g = isleGarr(h, n); if (!g.length || isleOf(h, n).lost) return 0; return 8 + 4 * (+String(n).split(':')[0] || 0) + g.reduce((a, s) => a + 3 * HS[s.type].len, 0); };
+const islesOwned = h => Object.keys(h.isles).filter(k => h.isles[k].own && k.includes(':'));
 const isleIncome = h => islesOwned(h).reduce((a, n) => a + isleInc(h, n), 0);
 const islePower = (h, n) => isleGarr(h, n).reduce((a, s) => { const st = ownStats(h, s.id); return a + st.hp + 2 * st.dmg + 3 * st.armor; }, 0);
 const isleThreat = h => Math.round(12 + 2.5 * h.mission);
 const netRate = h => fRate(h) + isleIncome(h) - upkeep(h);
 function news(h, txt) { h.news.unshift({ t: Date.now(), txt }); h.news.length = Math.min(h.news.length, 10); h.newsNew = (h.newsNew || 0) + 1; }
 function econTick(h) {
-  const now = Date.now(); let ch = repairTick(h);
+  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true;
   if (!h.econT) { h.econT = now; return true; }
   const dtH = Math.min(12, (now - h.econT) / 3600e3);
   if (dtH >= 1 / 120) {
@@ -2363,18 +2371,6 @@ function fleetAfterBattle(h, won, lines, xp) {
   dead.forEach(id => loseShip(h, id, lines));
 }
 
-/* ---------- Маршрут по архипелагу ---------- */
-function genRoute(h, noEvent) {
-  const m = h.mission;
-  const wth = () => m < 2 ? 'clear' : pickW([['clear', 5], ['storm', 2], ['fog', 2], ['night', 2]]);
-  if (m % 5 === 0) { const b = bossOf(m); return { opts: [{ kind: 'boss', obj: 'boss', weather: b.weather || wth() }] }; }
-  const pool = ['hunt']; if (m >= 2) pool.push('rescue', 'intercept'); if (m >= 3) pool.push('convoy'); if (m >= 4) pool.push('fort'); if (m >= 6) pool.push('survive');
-  const objs = []; let guard = 0;
-  while (objs.length < Math.min(fL(h, 'lighthouse') >= 1 ? 3 : 2, pool.length) && guard++ < 50) { const o = pick(pool); if (!objs.includes(o)) objs.push(o); }
-  const opts = objs.map(o => ({ kind: 'battle', obj: o, weather: wth() }));
-  if (!noEvent && m >= 2 && Math.random() < .8) opts.push({ kind: pick(['trade', 'bay', 'sos', 'cache']) });
-  return { opts };
-}
 const nodeGold = (node, m) => Math.round((80 + 30 * m) * OBJ[node.obj].k * (node.sos ? 1.5 : 1) * (node.mult || 1));
 
 /* ---------- Гавань (hub) ---------- */
@@ -2388,30 +2384,6 @@ function fleetLine(h) {
   h.hired.forEach(x => s += ` · 🤝 ${HS[x.type].name}`);
   const mar = [h.active, ...h.squad].reduce((t, id) => t + (h.ships[id].broken ? 0 : h.ships[id].marines), 0), res = reserveOf(h).length;
   return `${s}<small>морпехов: ${mar} · кораблей в походе: ${1 + squadCount(h)}${res ? ` · в резерве: ${res}` : ''}</small>`;
-}
-function hubMap(h) {
-  const m = h.mission, a = h.ships[h.active];
-  let html = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">Ваш флот</div><div class="fleetline">${fleetLine(h)}</div>
-    ${a.broken ? '<div class="warnline">Флагман нуждается в ремонте!</div>' : ''}${h.fort && h.fort.raidDue ? '<button class="btn small warn" data-bld="citadel">☠️ Пираты осаждают крепость — к обороне!</button>' : ''}</div>`;
-  let track = '';
-  for (let i = Math.max(1, m - 3); i <= m + 3; i++) {
-    const boss = i % 5 === 0, cls = i < m ? 'done' : i === m ? 'now' : '';
-    track += `${i > Math.max(1, m - 3) ? '<i class="rl"></i>' : ''}<span class="rn ${cls} ${boss ? 'boss' : ''}">${i < m ? '✓' : boss ? '☠️' : i}</span>`;
-  }
-  html += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">Архипелаг · миссия ${m}</div><div class="route">${track}</div>
-    <small class="muted">Каждые 5 миссий — босс. Выберите, куда плыть дальше:</small></div>`;
-  h.route.opts.forEach((n, i) => {
-    let ic, title, desc, chips = '';
-    if (n.kind === 'battle' || n.kind === 'boss') {
-      const o = OBJ[n.obj], w = WEATHER[n.weather];
-      if (n.kind === 'boss') { const b = bossOf(m), eq = HEQ.find(e => e.id === b.reward); ic = b.ic; title = `Босс: ${b.name}`; desc = `${b.desc} Трофей: ${eq.ic} ${eq.name}.`; }
-      else { ic = o.ic; title = o.name; desc = o.desc; }
-      chips = `<span>${w.ic} ${w.name}</span><span>≈ ${nodeGold(n, m)} 💰</span>`;
-    } else { const e = EVENTS[n.kind]; ic = e.ic; title = e.name; desc = e.desc; chips = '<span>без боя… наверное</span>'; }
-    html += `<div class="rnode glass ${n.kind === 'boss' ? 'bossnode' : ''}"><div class="ni">${ic}</div><div class="nb"><b>${title}</b><small>${desc}</small><div class="chips">${chips}</div></div>
-      <button class="btn primary small" data-act="go" data-id="${i}" ${a.broken ? 'disabled' : ''}>${n.kind === 'battle' || n.kind === 'boss' ? 'Отплыть' : 'Зайти'}</button></div>`;
-  });
-  return html;
 }
 function shipCard(h, s) {
   const post = shipPost(h, s.id), r = rankOf(s.xp), ic = { flag: '⭐', squad: '⚓', isle: '🏝', broken: '🔧', port: '' }[post];
@@ -2591,10 +2563,9 @@ function hubAct(act, id) {
   const p = curProfile(), h = hdata(p), sid = HB.sel, own = h.ships[sid];
   const pay = n => { if (h.gold < n) return false; h.gold -= n; return true; };
   let snd = 'buy';
-  if (act === 'go') return goNode(+id);
   if (act === 'omap') { Snd.play('click'); return showMap(); }
-  if (act === 'ofree') { Snd.play('click'); return showMap(true); }
-  if (act === 'isle') { Snd.play('click'); showMap(); return mapSheet('isle', +id); }
+  if (act === 'oreq') { if (urgentIntel(h)) renderHub(); return; }
+  if (act === 'isle') { Snd.play('click'); showMap(+String(id).split(':')[0]); return mapSheet('isle', id); }
   if (act[0] === 'f') return fortAct(act, id);
   if (act === 'pick') { HB.pick = true; Snd.play('click'); return renderHub(); }
   if (act === 'buy' && HB.cat) { const t = HB.cat; if (!pay(pShip(h, t))) return; const s = newShip(h, t); HB.sel = s.id; HB.cat = null; toast(`⚓ На воду спущен ${sName(s)}`); checkAch(p, HUNT_ACH); }
@@ -2632,12 +2603,13 @@ function showEv(ic, title, text, btns) {
   btns.forEach(b => { const e = document.createElement('button'); e.className = 'btn ' + (b.cls || ''); e.innerHTML = b.t; e.disabled = !!b.dis; e.onclick = () => b.fn(e); box.appendChild(e); });
   overlay('#ov-ev', true);
 }
-function closeEv(h) { overlay('#ov-ev', false); h.route = genRoute(h, true); saveProfiles(); renderHub(); }
-function goNode(i) {
-  const p = curProfile(), h = hdata(p), n = h.route.opts[i]; if (!n) return;
-  if (h.ships[h.active].broken) return;
-  Snd.play('click');
-  if (n.kind === 'battle' || n.kind === 'boss') return startHunt(n);
+function closeEv(h) {
+  overlay('#ov-ev', false);
+  if (HB.evRep) { h.exp.reports = h.exp.reports.filter(r => r.id !== HB.evRep); HB.evRep = null; }
+  saveProfiles(); if ($('#scr-map').classList.contains('active')) renderMap(); else if ($('#scr-hub').classList.contains('active')) renderHub();
+}
+function runEvent(h, n) {
+  HB.evRep = n.report || null;
   const a = h.ships[h.active], ast = ownStats(h, h.active);
   if (n.kind === 'bay') {
     let fixed = 0, mar = 0;
@@ -2648,7 +2620,7 @@ function goNode(i) {
   } else if (n.kind === 'cache') {
     const r = Math.random();
     if (r < .2) {
-      showEv('💥', 'Засада!', 'Тайник оказался ловушкой: из-за скал выходят пираты. Ночь, враги рядом — держитесь!', [{ t: 'К бою!', cls: 'primary', fn: () => { overlay('#ov-ev', false); startHunt({ kind: 'battle', obj: 'hunt', weather: 'night', ambush: true, bonus: true }); } }]);
+      showEv('💥', 'Засада!', 'Тайник оказался ловушкой: из-за скал выходят пираты. Ночь, враги рядом — держитесь!', [{ t: 'К бою!', cls: 'primary', fn: () => { overlay('#ov-ev', false); HB.evRep = null; startHunt({ ...n, kind: 'battle', obj: 'hunt', weather: 'night', ambush: true, bonus: true }); } }]);
     } else if (r < .45) {
       const d = pick(SPEC), o = giveOfficer(h, d.id, 1); Snd.play('ach');
       showEv('🧑‍✈️', 'Находка', `В тайнике прятался беглый моряк. Он просится на службу: ${d.ic} мичман <b>${o.name}</b>, ${d.name.toLowerCase()} (${d.txt(1)}) — ${o.ship ? 'уже на вашем флагмане' : 'ждёт назначения в Академии'}.`, [{ t: 'Отлично', cls: 'primary', fn: () => closeEv(h) }]);
@@ -2658,7 +2630,7 @@ function goNode(i) {
     }
   } else if (n.kind === 'sos') {
     showEv('🆘', 'Сигнал SOS', 'Пираты потопили рыбацкое судно, в воде шлюпки. Если поможете, награда будет в полтора раза выше обычной — и благодарные моряки запомнят вас.', [
-      { t: '🛟 Помочь', cls: 'primary', fn: () => { overlay('#ov-ev', false); startHunt({ kind: 'battle', obj: 'rescue', weather: pick(['clear', 'fog', 'storm']), sos: true, bonus: true }); } },
+      { t: '🛟 Помочь', cls: 'primary', fn: () => { overlay('#ov-ev', false); HB.evRep = null; startHunt({ ...n, kind: 'battle', obj: 'rescue', weather: n.weather || pick(['clear', 'fog', 'storm']), sos: true, bonus: true }); } },
       { t: 'Пройти мимо', fn: () => closeEv(h) },
     ]);
   } else if (n.kind === 'trade') {
@@ -2823,7 +2795,7 @@ function setupObjective(node) {
     genFoes(m, Math.max(1, n - 1));
     H.foes.forEach(f => f.known = { r: HN - 2, c: 1, exact: false, age: 0 });
   } else if (o === 'boss') {
-    const b = bossOf(m), pos = freeCell([0, HN - 4, 4, 4]);
+    const b = bossFor(node), pos = freeCell([0, HN - 4, 4, 4]);
     const u = mkUnit(b.type, 'foe', pos.r, pos.c, 135, { up: hireUp(Math.floor(m / 5)), crew: { gunners: 2, look: 1, acou: 2, mech: 0 }, eq: { salvo: true, torp: b.ab.includes('torp') || b.type === 'battleship', smoke: b.ab.includes('smoke'), fire: b.ab.includes('fire') } });
     u.boss = b; u.name = b.name; u.st.hp = u.hp = Math.round(u.st.hp * 1.1 + 2 * m); u.fastTorp = b.ab.includes('torp');
     H.foes.push(u);
@@ -2873,7 +2845,7 @@ function startHunt(node) {
   H.acted = new Set(); H.cur = H.me;
   buildHuntMap(); show('scr-hunt');
   const o = OBJ[H.obj], w = WEATHER[H.weather];
-  hMsg(H.obj === 'boss' ? `☠️ ${bossOf(m).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
+  hMsg(H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   hStartPlayerTurn(true);
 }
 function hMakeEl(u) {
@@ -2979,7 +2951,7 @@ function renderHunt() {
     fb.appendChild(b);
   });
   if (canReinf()) { const b = document.createElement('button'); b.className = 'glass reinf'; b.innerHTML = `🚩 Подкрепление<span class="mini none">${H.reserve.length} в резерве</span>`; b.onclick = hReinf; fb.appendChild(b); }
-  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : cmd.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : (H.node && H.node.free ? `Ваш ход · ${FREE_D.find(d => d.id === H.node.free).ic} свободное плавание` : `Ваш ход · миссия ${H.mission}`);
+  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : cmd.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : (H.node && H.node.report ? `Ваш ход · ${H.node.isle < 0 ? SEAS[H.node.sea].pir.n : SEAS[H.node.sea].isles[H.node.isle].n}` : `Ваш ход · сила врага ${H.mission}`);
   $('#hstatus').className = 'status ' + (H.busy ? 'theirs' : 'mine');
   // actions
   const acts = [
@@ -3341,14 +3313,20 @@ function hFinish(won, reason) {
     if (H.obj === 'convoy') { const s = H.fleet.filter(u => u.type === 'merchant' && u.gone).length; gold += 40 * s; lines.push(`🚢 Торговцев доведено: ${s}`); }
     if (H.obj === 'rescue') { gold += 40 * H.rescued; lines.push(`🛟 Спасено шлюпок: ${H.rescued}`); }
     if (H.obj === 'boss') {
-      const b = bossOf(m), e = HEQ.find(x => x.id === b.reward);
-      gold += 200; h.bosses++; h.unlock[b.reward] = true; h.ships[h.active].eq[b.reward] = true;
-      lines.push(`☠️ ${b.name} повержен! Трофей: ${e.ic} <b>${e.name}</b> — уже установлен на флагман, а для других кораблей появился в продаже`);
+      const b = bossFor(node), e = b.reward && HEQ.find(x => x.id === b.reward);
+      gold += 200; h.bosses++;
+      if (e) { h.unlock[b.reward] = true; h.ships[h.active].eq[b.reward] = true; lines.push(`☠️ ${b.name} повержен! Трофей: ${e.ic} <b>${e.name}</b> — уже установлен на флагман, а для других кораблей появился в продаже`); }
+      else { gold += 1000; lines.push(`☠️ ${b.name} повержен! Казна корсаров: +1000 💰`); }
     }
     if (H.obj === 'intercept') { const t = H.foes.find(x => x.type === 'transport'); if (!t.captured) lines.push('🎯 Транспорт потоплен'); }
     if (node.reclaim) { isleOf(h, node.reclaim).lost = false; lines.push(`🏝 Остров «${isleName(node.reclaim)}» снова под вашим флагом`); }
     if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 150; lines.push('🏰 Форт взят штурмом: +150 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
     h.w++; if (!node.bonus) h.mission = m + 1; p.st.huntW = (p.st.huntW || 0) + 1;
+    if (node.report) {
+      const E = expData(h); E.reports = E.reports.filter(r => r.id !== node.report); h.mission++;
+      if (node.bossIdx != null) { if (!E.cleared.includes(node.sea)) E.cleared.push(node.sea); if (E.open < SEAS.length && E.open === node.sea + 1) { E.open++; lines.push(`🗺 Путь открыт: ${SEAS[E.open - 1].n}! Разведка уже отправилась туда`); genReport(h); } }
+      else if (node.isle >= 0 && !node.reclaim) { const st = isleOf(h, iKey(node.sea, node.isle)); if (!st.own) { st.own = true; st.lost = false; lines.push(`🏝 Остров «${SEAS[node.sea].isles[node.isle].n}» теперь ваш! Оставьте на нём гарнизон — он начнёт приносить золото`); if (seaOwn(h, node.sea) === SEA_NEED && !E.cleared.includes(node.sea)) lines.push(`🔭 Разведка нашла подходы к логову «${SEAS[node.sea].pir.n}»`); } }
+    }
   } else { gold = 20 + 25 * sunk; h.l++; }
   if (H.obj === 'raid') {
     if (won) { gold = 100 + 40 * fL(h, 'citadel') + 25 * sunk; lines.push('🏰 Набег отбит! Пираты бежали, торговля возобновилась'); }
@@ -3379,12 +3357,11 @@ function hFinish(won, reason) {
     if (!h.unpaid) offOf(h, s.id).forEach(o => { if (o.lvl >= 5) return; const need = OFF_XP[o.lvl + 1], was = o.xp >= need; o.xp += gain; if (!was && o.xp >= need) lines.push(`🎓 ${o.name} готов к повышению — загляните в Академию`); });
   });
   h.gold += gold; h.sunk += sunk;
-  h.route = genRoute(h);
   checkAch(p, HUNT_ACH);
   if (typeof dailyEvent === 'function') dailyEvent('hunt', { won, sunk, caps: H.captured.length, boss: won && H.obj === 'boss' });
   saveProfiles();
   $('#hov-ico').textContent = won ? (H.obj === 'boss' ? '👑' : '🏆') : '🌊';
-  $('#hov-title').textContent = won && H.obj === 'raid' ? 'Набег отбит!' : won ? (node.free ? `Свободное плавание: победа!` : node.bonus ? `${OBJ[H.obj].name}: победа!` : `Миссия ${m} пройдена!`) : (reason || 'Поражение');
+  $('#hov-title').textContent = won && H.obj === 'raid' ? 'Набег отбит!' : won ? (node.report ? `${node.isle < 0 ? SEAS[node.sea].pir.n : SEAS[node.sea].isles[node.isle].n}: победа!` : node.bonus ? `${OBJ[H.obj].name}: победа!` : `Миссия ${m} пройдена!`) : (reason || 'Поражение');
   $('#hov-text').innerHTML = `Потоплено врагов: ${sunk} из ${warships.length}${H.captured.length ? ` · захвачено: ${H.captured.length}` : ''}<br><b class="goldchip">+${gold} 💰</b>${won ? ' · +1 очко на Верфь 🛠' : ''}` +
     (lines.length ? `<br><span class="hlines">${lines.join('<br>')}</span>` : '');
   Snd.play(won ? 'win' : 'lose');
@@ -3414,7 +3391,7 @@ const FB = [
   { id: 'barracks',   ic: '🪖', name: 'Казармы',           x: 66, y: 25, base: 150, desc: 'Дешевле морпехи и учения, на кораблях больше мест для десанта.', eff: l => `морпехи и учения −${10 * l}%${l >= 2 ? `, мест на корабле +${Math.floor(l / 2)}` : ''}` },
   { id: 'academy',    ic: '🎓', name: 'Морская академия',  x: 30, y: 56, base: 180, desc: 'Дешевле найм и обучение специалистов.', eff: l => `специалисты −${10 * l}%` },
   { id: 'workshop',   ic: '🔨', name: 'Мастерская',        x: 38, y: 79, base: 170, desc: 'Дешевле оборудование и улучшения кораблей.', eff: l => `оборудование −${10 * l}%, улучшения −${5 * l}%` },
-  { id: 'lighthouse', ic: '🗼', name: 'Маяк',              x: 85, y: 31, base: 140, desc: 'Разведка: больше путей на карте, точное время набегов, обзор в бою и мины.', eff: l => ['', '+1 вариант пути на карте', '+ точное время набега', '+1 к обзору в походе', '+1 к обзору, батареи бьют дальше', 'видны все мины на картах'][l] },
+  { id: 'lighthouse', ic: '🗼', name: 'Маяк',              x: 85, y: 31, base: 140, desc: 'Штаб разведки: донесения о пиратах, оценка их сил, точное время набегов, обзор в бою и мины.', eff: l => ['', 'донесений до 3, раз в 72 мин', 'донесений до 4 · разведка считает врагов', 'донесений до 5 · видно сильнейший корабль, +1 к обзору', 'донесений до 6 · батареи бьют дальше', 'донесений до 7, раз в 40 мин · видны все мины'][l] },
   { id: 'battery',    ic: '💥', name: 'Береговые батареи', x: 15, y: 44, base: 160, desc: 'Пушки на берегу. Во время набега сами стреляют по пиратам.', eff: l => `${BAT_N[l]} ${plural(BAT_N[l], 'батарея', 'батареи', 'батарей')}, урон ${3 + l}, дальность ${4 + (l >= 4 ? 1 : 0)}` },
   { id: 'walls',      ic: '🧱', name: 'Стены',             x: 52, y: 66, base: 120, desc: 'Прочность цитадели и батарей во время набега.', eff: l => `цитадель ❤${20 + 12 * l} 🛡${Math.floor(l / 2)}, батареи ❤${8 + 3 * l}` },
 ];
@@ -3750,7 +3727,7 @@ function fortZoomTo(id) {
 /* ---- Экран крепости на весь экран + интерьеры зданий ---- */
 const BLD_FREE = ['citadel', 'dock', 'lighthouse'];
 const BLD_FN = { citadel: 'эскадру и набеги', dock: 'покупку, ремонт и выбор кораблей', workshop: 'улучшения и оборудование кораблей', barracks: 'морпехов и учения', academy: 'специалистов и экипаж',
-  market: 'наёмников и торговый доход', treasury: 'хранение и защиту золота', lighthouse: 'карту архипелага и походы', battery: 'оборону при набегах', walls: 'оборону при набегах' };
+  market: 'наёмников и торговый доход', treasury: 'хранение и защиту золота', lighthouse: 'разведку и экспедиции', battery: 'оборону при набегах', walls: 'оборону при набегах' };
 const FASPECT = 1024 / 1144;
 function fortMigrate(h) {
   const f = fdata(h); if (f.v2) return;
@@ -3803,7 +3780,7 @@ function renderFort(center) {
   if (f.build) { const b = FB.find(x => x.id === f.build.id); bchip.innerHTML = `🏗 ${b.name} <span data-until="${f.build.end}">${fmtLeft(f.build.end - Date.now())}</span>`; bchip.dataset.bld = b.id; bchip.hidden = false; }
   else { bchip.innerHTML = '👷 свободен'; bchip.dataset.bld = ''; bchip.hidden = false; }
   $('#fg-raid').hidden = !f.raidDue;
-  $('#fg-mission').textContent = `миссия ${h.mission}`;
+  $('#fg-mission').textContent = `📜 донесений: ${expData(h).reports.length}`;
   const c = $('#fg-collect'); c.innerHTML = `💰<small>${stored ? '+' + stored : 'казна'}</small>`; c.classList.toggle('ready', stored > 0);
   HB.todShown = todNow();
   $('#fg-zoom').innerHTML = `🔍<small>${HB.fzoom ? 'общий' : 'ближе'}</small>`;
@@ -3859,7 +3836,7 @@ function raidPanel(h) {
 }
 function statsPanel(h) {
   return `<div class="glass hub-panel"><div class="fleetline">${fleetLine(h)}</div><small class="muted">Миссия ${h.mission} · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}${h.caps ? ` · трофеев ${h.caps}` : ''}</small>
-    <button class="btn primary" data-act="omap">🗺 К карте архипелага</button></div>`;
+    <button class="btn primary" data-bld="lighthouse">🔭 Штаб разведки и экспедиции</button></div>`;
 }
 function bldContent(h, id) {
   switch (id) {
@@ -3870,7 +3847,7 @@ function bldContent(h, id) {
     case 'academy': return hubShips(h, 'academy') + officersPanel(h) + crewPanel(h);
     case 'market': return incomePanel(h) + hiredPanel(h);
     case 'treasury': return incomePanel(h) + econPanel(h);
-    case 'lighthouse': return `<div class="glass hub-panel"><div class="lhbtns"><button class="btn primary" data-act="omap">🗺 Карта архипелага</button><button class="btn" data-act="ofree">🧭 Свободное плавание</button></div></div>` + hubMap(h) + islesPanel(h);
+    case 'lighthouse': return intelPanel(h) + islesPanel(h);
     default: return raidPanel(h);
   }
 }
@@ -3883,6 +3860,9 @@ function renderHub() {
   const body = $('#hub-body');
   body.innerHTML = fortCard(h, id) + (l ? bldContent(h, id) : `<div class="glass hub-panel lockp"><b>🔒 Здание ещё не построено</b><small class="muted">Постройте его, чтобы получить ${BLD_FN[id]}.</small></div>`);
   body.querySelectorAll('[data-sel]').forEach(x => x.onclick = () => { HB.sel = x.dataset.sel; HB.cat = null; HB.pick = false; Snd.play('click'); renderHub(); });
+  body.querySelectorAll('[data-sea]').forEach(x => x.onclick = () => { Snd.play('click'); showMap(+x.dataset.sea); });
+  body.querySelectorAll('[data-rgo]').forEach(x => x.onclick = () => runReport(x.dataset.rgo));
+  body.querySelectorAll('[data-rmap]').forEach(x => x.onclick = () => { const r = h.exp.reports.find(q => q.id === x.dataset.rmap); if (!r) return; Snd.play('click'); showMap(r.sea); mapSheet('rep', r.id); });
   body.querySelectorAll('[data-cat]').forEach(x => x.onclick = () => { HB.cat = x.dataset.cat; HB.pick = false; Snd.play('click'); renderHub(); });
   body.querySelectorAll('[data-act]').forEach(x => x.onclick = () => hubAct(x.dataset.act, x.dataset.id));
   body.querySelectorAll('[data-bld]').forEach(x => x.onclick = () => { if (x.dataset.sel) HB.sel = x.dataset.sel; openBld(x.dataset.bld); window.scrollTo(0, 0); });
@@ -3904,124 +3884,212 @@ function initFortUI() {
 }
 
 
-/* ==================== КАРТА АРХИПЕЛАГА + СВОБОДНОЕ ПЛАВАНИЕ ==================== */
-const MAP_W = 941, MAP_H = 1672;
-const MISLE = [
-  { x: 200, y: 950, n: 'Рыбацкая деревня' }, { x: 790, y: 960, n: 'Сторожевой утёс' }, { x: 470, y: 780, n: 'Лесной остров' },
-  { x: 800, y: 740, n: 'Портовые склады' }, { x: 220, y: 590, n: 'Каменоломня' }, { x: 760, y: 520, n: 'Бухта кораблекрушений' },
-  { x: 450, y: 420, n: 'Песчаные отмели' }, { x: 170, y: 370, n: 'Радарная станция' }, { x: 790, y: 330, n: 'Туманный остров' },
-  { x: 490, y: 150, n: 'Пиратская цитадель' },
+/* ==================== ЭКСПЕДИЦИИ И РАЗВЕДКА ==================== */
+const SEA_W = 1536, SEA_H = 1024, SEA_NEED = 5;
+const SEAS = [
+  { n: 'Лазурное море', img: 'sea1.webp', lvl: 1, boss: 0, wx: [['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]],
+    base: { x: 330, y: 690, n: 'Остров Рассвета' }, pir: { x: 215, y: 160, n: 'Чёрный Зуб' },
+    isles: [{ x: 740, y: 215, n: 'Зелёный Венец' }, { x: 1300, y: 235, n: 'Белый Утёс' }, { x: 740, y: 425, n: 'Песчанка' }, { x: 1170, y: 500, n: 'Порт Лазурный' }, { x: 1265, y: 790, n: 'Бухта Рыбаков' }, { x: 265, y: 360, n: 'Черепаший' }, { x: 850, y: 895, n: 'Пальмовый' }, { x: 1460, y: 470, n: 'Скала Чаек' }] },
+  { n: 'Море Янтарных Ветров', img: 'sea2.webp', lvl: 7, boss: 1, wx: [['clear', 6], ['storm', 1], ['night', 2]],
+    base: { x: 1330, y: 240, n: 'Солнечный Форт' }, pir: { x: 650, y: 165, n: 'Разбойничий Атолл' },
+    isles: [{ x: 140, y: 120, n: 'Янтарный Карьер' }, { x: 250, y: 390, n: 'Медовый' }, { x: 620, y: 475, n: 'Ласточки' }, { x: 290, y: 760, n: 'Порт Бриз' }, { x: 1010, y: 750, n: 'Шумящий Лес' }, { x: 1400, y: 630, n: 'Остров Запасов' }, { x: 1080, y: 130, n: 'Кокосовый' }, { x: 1045, y: 475, n: 'Жемчужный' }] },
+  { n: 'Море Седых Туманов', img: 'sea3.webp', lvl: 13, boss: 2, wx: [['clear', 2], ['fog', 5], ['storm', 2], ['night', 2]],
+    base: { x: 330, y: 250, n: 'Северный Щит' }, pir: { x: 1350, y: 210, n: 'Волчий Клык' },
+    isles: [{ x: 885, y: 245, n: 'Гранитный' }, { x: 1255, y: 440, n: 'Топливный' }, { x: 280, y: 560, n: 'Еловый' }, { x: 250, y: 800, n: 'Тихая Гавань' }, { x: 1200, y: 760, n: 'Порт Туманный' }, { x: 665, y: 420, n: 'Одинокий' }, { x: 710, y: 870, n: 'Серый Камень' }, { x: 1010, y: 925, n: 'Утёсник' }] },
+  { n: 'Обсидиановый океан', img: 'sea4.webp', lvl: 19, boss: 3, wx: [['clear', 2], ['storm', 3], ['night', 3], ['fog', 1]],
+    base: { x: 1285, y: 800, n: 'Оплот' }, pir: { x: 935, y: 200, n: 'Крепость Корсаров' },
+    isles: [{ x: 300, y: 230, n: 'Пепельный' }, { x: 1340, y: 320, n: 'Порт Искра' }, { x: 760, y: 460, n: 'Нефтяной' }, { x: 245, y: 660, n: 'Чёрный Карьер' }, { x: 805, y: 810, n: 'Зелёный Осколок' }, { x: 140, y: 420, n: 'Клык' }, { x: 1375, y: 545, n: 'Двойная Скала' }, { x: 690, y: 120, n: 'Чёрный Риф' }] },
 ];
-const MHOME = { x: 490, y: 1175 };
-const MFREE = [{ x: 180, y: 170 }, { x: 110, y: 780 }, { x: 120, y: 1350 }];
-const FREE_D = [
-  { id: 'easy', ic: '🟢', n: 'Лёгкий', d: 'Враги слабее вашего уровня, спокойная погода', dl: -2, extra: 0, mult: .6 },
-  { id: 'mid', ic: '🟡', n: 'Средний', d: 'Как в кампании', dl: 0, extra: 0, mult: 1 },
-  { id: 'hard', ic: '🟠', n: 'Тяжёлый', d: 'Враги сильнее, на одного больше', dl: 3, extra: 1, mult: 1.6 },
-  { id: 'vhard', ic: '🔴', n: 'Очень тяжёлый', d: 'Элита пиратов, на двоих больше. Только для сильной эскадры', dl: 6, extra: 2, mult: 2.5 },
-];
-const mpc = (p) => `left:${p.x / MAP_W * 100}%;top:${p.y / MAP_H * 100}%`;
-function freeNode(h, did) {
-  const d = FREE_D.find(x => x.id === did), lvl = Math.max(1, h.mission + d.dl);
+const iKey = (s, i) => `${s}:${i}`;
+const seaOwn = (h, s) => SEAS[s].isles.filter((_, i) => isleOf(h, iKey(s, i)).own).length;
+const seaLvl = (h, s) => SEAS[s].lvl + seaOwn(h, s) + (h.exp.cleared.includes(s) ? 2 : 0);
+const repMax = h => 2 + fL(h, 'lighthouse');
+const repEvery = h => (80 - 8 * fL(h, 'lighthouse')) * 60000;
+const repCost = h => 30 + 8 * h.mission;
+const bossFor = node => node && node.bossIdx != null ? BOSSES[node.bossIdx] : bossOf(H.mission || 5);
+function expData(h) {
+  if (h.exp) return h.exp;
+  h.exp = { open: 1, cleared: [], reports: [], nextAt: 0, seq: 0, sea: 0 };
+  // перенос старого прогресса: пройденные миссии → захваченные острова
+  const oldGarr = Object.values(h.ships).some(s => s.isle); Object.values(h.ships).forEach(s => { s.isle = 0; });
+  h.isles = {}; let left = (h.mission || 1) - 1;
+  for (let s = 0; s < SEAS.length && left > 0; s++) {
+    h.exp.open = s + 1;
+    for (let i = 0; i < SEAS[s].isles.length && left > 0; i++, left--) h.isles[iKey(s, i)] = { own: true, lost: false };
+    if (left > 0) { h.exp.cleared.push(s); left--; if (s < SEAS.length - 1) h.exp.open = s + 2; }
+  }
+  if (oldGarr) news(h, '🏝 Карта сменилась: гарнизоны вернулись в гавань. Расставьте их на острова заново — через экспедиции.');
+  genReport(h); genReport(h);
+  return h.exp;
+}
+function genReport(h) {
+  const E = h.exp, R = E.reports, open = E.open;
+  const sea = Math.random() < .65 ? open - 1 : rnd(open), S = SEAS[sea];
+  const taken = new Set(R.filter(r => r.sea === sea).map(r => r.isle));
+  const idx = S.isles.map((_, i) => i).filter(i => !taken.has(i));
+  const st = i => isleOf(h, iKey(sea, i));
+  const lvl = seaLvl(h, sea), now = Date.now();
+  const wx = () => pickW(S.wx);
   const pool = ['hunt']; if (lvl >= 2) pool.push('rescue', 'intercept'); if (lvl >= 3) pool.push('convoy'); if (lvl >= 4) pool.push('fort'); if (lvl >= 6) pool.push('survive');
-  const weather = did === 'easy' ? 'clear' : pickW([['clear', 4], ['storm', 2], ['fog', 2], ['night', 2]]);
-  return { kind: 'battle', obj: pick(pool), weather, bonus: true, free: did, lvl, extra: d.extra, mult: d.mult };
+  let r = null;
+  const lost = idx.filter(i => st(i).own && st(i).lost), free = idx.filter(i => !st(i).own);
+  if (lost.length && Math.random() < .7) r = { kind: 'battle', isle: pick(lost), obj: pick(['hunt', 'fort']), reclaim: true };
+  else if (!E.cleared.includes(sea) && seaOwn(h, sea) >= SEA_NEED && !taken.has(-1) && Math.random() < .6) r = { kind: 'boss', isle: -1, obj: 'boss' };
+  else if (free.length && Math.random() < .8) r = { kind: 'battle', isle: pick(free), obj: pick(pool) };
+  else if (idx.length && Math.random() < .6) { const k = pick(['trade', 'bay', 'sos', 'cache']); r = { kind: k, isle: pick(idx), obj: k === 'sos' ? 'rescue' : null }; }
+  else if (idx.length) r = { kind: 'battle', isle: pick(idx), obj: pick(pool), patrol: true };
+  if (!r) return null;
+  const B = BOSSES[S.boss];
+  Object.assign(r, { id: 'r' + (++E.seq), sea, lvl: r.kind === 'boss' ? lvl + 4 : r.patrol ? lvl + 1 : lvl, weather: r.kind === 'boss' ? (B.weather || wx()) : wx(), t: now, exp: now + (r.kind === 'boss' ? 16 : 7 + Math.random() * 5) * 3600e3 });
+  if (r.kind === 'boss') r.bossIdx = S.boss;
+  R.push(r); return r;
 }
-function routeCards(h) {
-  const m = h.mission, a = h.ships[h.active];
-  return h.route.opts.map((n, i) => {
-    let ic, title, desc, chips = '';
-    if (n.kind === 'battle' || n.kind === 'boss') {
-      const o = OBJ[n.obj], w = WEATHER[n.weather];
-      if (n.kind === 'boss') { const b = bossOf(m), eq = HEQ.find(e => e.id === b.reward); ic = b.ic; title = `Босс: ${b.name}`; desc = `${b.desc} Трофей: ${eq.ic} ${eq.name}.`; }
-      else { ic = o.ic; title = o.name; desc = o.desc; }
-      chips = `<span>${w.ic} ${w.name}</span><span>≈ ${nodeGold(n, m)} 💰</span>`;
-    } else { const e = EVENTS[n.kind]; ic = e.ic; title = e.name; desc = e.desc; chips = '<span>без боя… наверное</span>'; }
-    return `<div class="rnode glass ${n.kind === 'boss' ? 'bossnode' : ''}"><div class="ni">${ic}</div><div class="nb"><b>${title}</b><small>${desc}</small><div class="chips">${chips}</div></div>
-      <button class="btn primary small" data-act="go" data-id="${i}" ${a.broken ? 'disabled' : ''}>${n.kind === 'battle' || n.kind === 'boss' ? 'Отплыть' : 'Зайти'}</button></div>`;
-  }).join('');
+function intelTick(h) {
+  const E = expData(h), now = Date.now(); let ch = false;
+  const n0 = E.reports.length; E.reports = E.reports.filter(r => r.exp > now); if (E.reports.length !== n0) ch = true;
+  if (E.reports.length >= repMax(h)) { E.nextAt = 0; return ch; }
+  if (!E.nextAt) { E.nextAt = now + repEvery(h); return true; }
+  let got = 0;
+  while (now >= E.nextAt && E.reports.length < repMax(h)) { if (genReport(h)) got++; E.nextAt += repEvery(h); }
+  if (E.reports.length >= repMax(h)) E.nextAt = 0;
+  if (got) { toast(got > 1 ? `📜 Разведка прислала донесений: ${got}` : '📜 Новое донесение разведки'); Snd.play('radar'); ch = true; }
+  return ch;
 }
-function mapStage(h, W) {
-  const m = h.mission, ch = Math.floor((m - 1) / 10), cur = (m - 1) % 10;
-  let s = `<div class="mstage" style="width:${W}px"><img class="mbase" src="map.webp" alt="" draggable="false">`;
-  const crv = pts => pts.map((p, i) => { if (!i) return `M${p.x},${p.y}`; const a = pts[i - 2] || pts[i - 1], b = pts[i - 1], d = pts[i + 1] || p; return `C${b.x + (p.x - a.x) / 6},${b.y + (p.y - a.y) / 6} ${p.x - (d.x - b.x) / 6},${p.y - (d.y - b.y) / 6} ${p.x},${p.y}`; }).join(' ');
-  s += `<svg class="mpath" viewBox="0 0 ${MAP_W} ${MAP_H}" preserveAspectRatio="none"><path d="${crv([MHOME, ...MISLE])}" /><path class="done" d="${crv([MHOME, ...MISLE.slice(0, cur + 1)])}" /></svg>`;
-  s += `<button class="mpin home" data-mp="home" style="${mpc(MHOME)}"><span>🏰</span><em>Ваша крепость</em></button>`;
-  MFREE.forEach(p => s += `<button class="mpin free" data-mp="free" style="${mpc(p)}"><span>🧭</span></button>`);
-  MISLE.forEach((p, i) => {
-    const num = ch * 10 + i + 1, boss = num % 5 === 0, st = i < cur ? 'done' : i === cur ? 'now' : 'lock';
-    const lost = st === 'done' && isleOf(h, num).lost, garr = st === 'done' && !lost && isleGarr(h, num).length;
-    s += `<button class="mpin ${st}${boss ? ' boss' : ''}${lost ? ' lost' : garr ? ' garr' : ''}" data-mp="${i}" style="${mpc(p)}"><span>${lost ? '☠️' : garr ? '🚩' : st === 'done' ? '✓' : boss ? '☠️' : num}</span>${st === 'now' || boss ? `<em>${boss && st !== 'now' ? bossOf(num).name : p.n}</em>` : ''}</button>`;
+const repTitle = r => r.kind === 'boss' ? `☠️ ${SEAS[r.sea].pir.n}` : r.kind === 'battle' ? `${OBJ[r.obj].ic} ${OBJ[r.obj].name}` : `${EVENTS[r.kind].ic} ${EVENTS[r.kind].name}`;
+const repPlace = r => r.isle < 0 ? SEAS[r.sea].pir.n : SEAS[r.sea].isles[r.isle].n;
+function repDesc(h, r) {
+  const L = fL(h, 'lighthouse'), W = WEATHER[r.weather];
+  if (r.kind === 'boss') { const b = BOSSES[r.bossIdx], eq = b.reward && HEQ.find(e => e.id === b.reward); return `Логово: ${b.ic} <b>${b.name}</b>. ${b.desc}${eq ? ` Трофей: ${eq.ic} ${eq.name}.` : ' Трофей: казна пиратов.'} Победа откроет путь дальше.`; }
+  if (r.kind !== 'battle') return EVENTS[r.kind].desc;
+  let d = OBJ[r.obj].desc;
+  if (r.reclaim) d = 'Пираты захватили ваш остров. ' + d;
+  else if (r.patrol) d = 'Пиратская вылазка у ваших берегов. ' + d;
+  else d += ' Победа — и остров ваш.';
+  if (L >= 2) { const n = Math.min(3, 1 + Math.floor((r.lvl - 1) / 3)); d += ` Разведка: ${n}–${n + 2} ${plural(n + 2, 'корабль', 'корабля', 'кораблей')}`; if (L >= 3) d += `, сильнейший — ${HS[HS_ORDER[Math.min(4, Math.floor((r.lvl - 1) / 2))]].name.toLowerCase()}`; d += '.'; }
+  return d + (W ? '' : '');
+}
+function repCard(h, r, i) {
+  const W = WEATHER[r.weather], battle = r.kind === 'battle' || r.kind === 'boss' || r.kind === 'sos';
+  const gold = battle ? nodeGold({ obj: r.obj, sos: r.kind === 'sos' }, r.lvl) + (r.kind === 'boss' ? 200 : 0) : 0;
+  return `<div class="rnode glass ${r.kind === 'boss' ? 'bossnode' : ''}"><div class="ni">${r.kind === 'boss' ? BOSSES[r.bossIdx].ic : r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic}</div>
+    <div class="nb"><b>${repPlace(r)}</b><small>${repTitle(r).replace(/^\S+ /, '')} · ${SEAS[r.sea].n}</small><small>${repDesc(h, r)}</small>
+    <div class="chips">${battle ? `<span>${W.ic} ${W.name}</span><span>⚔️ сила ${r.lvl}</span><span>≈ ${gold} 💰</span>` : '<span>без боя… наверное</span>'}<span>⏳ <i data-until="${r.exp}">${fmtLeft(r.exp - Date.now())}</i></span></div></div>
+    <div class="col2"><button class="btn primary small" data-rgo="${r.id}" ${h.ships[h.active].broken ? 'disabled' : ''}>${battle ? 'Отплыть' : 'Зайти'}</button>${i !== 'map' ? `<button class="btn small" data-rmap="${r.id}">На карте</button>` : ''}</div></div>`;
+}
+function intelHead(h) {
+  const E = expData(h), L = fL(h, 'lighthouse');
+  return `<div class="glass hub-panel intelhead"><div class="sec-t" style="margin-top:0">🔭 Штаб разведки · донесений ${E.reports.length}/${repMax(h)}</div>
+    <small class="muted">Разведчики Маяка следят за морями и присылают донесения о пиратах. По ним вы решаете, куда плыть. Донесения устаревают — не тяните. ${E.nextAt ? `Следующее придёт через <b data-until="${E.nextAt}">${fmtLeft(E.nextAt - Date.now())}</b>.` : 'Места для новых донесений нет.'}${L < 2 ? ' С Маяком 2-го уровня разведка оценит силы врага.' : ''}</small>
+    <div class="lhbtns"><button class="btn primary" data-act="omap">🗺 Карта морей</button><button class="btn" data-act="oreq" ${h.gold < repCost(h) ? 'disabled' : ''}>🔭 Срочно · ${repCost(h)} 💰</button></div></div>`;
+}
+function intelPanel(h) {
+  const E = expData(h);
+  let s = intelHead(h);
+  if (!E.reports.length) s += `<div class="glass hub-panel"><small class="muted">Донесений пока нет. Ждите разведчиков или отправьте их срочно.</small></div>`;
+  E.reports.slice().sort((a, b) => a.exp - b.exp).forEach(r => { s += repCard(h, r); });
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🗺 Моря</div>${SEAS.map((S, i) => `<div class="uprow"><span class="ic">${i < E.open ? (E.cleared.includes(i) ? '🏳️' : '🧭') : '🔒'}</span><span class="nm">${S.n}<small>${i < E.open ? `островов ваших: ${seaOwn(h, i)} из ${S.isles.length}${E.cleared.includes(i) ? ' · пиратская база разбита' : ` · логово «${S.pir.n}» ${seaOwn(h, i) >= SEA_NEED ? 'разведано' : `откроется после ${SEA_NEED} островов`}`}` : 'путь откроется после разгрома пиратов в предыдущем море'}</small></span>${i < E.open ? `<button class="btn small" data-sea="${i}">Карта</button>` : ''}</div>`).join('')}</div>`;
+  return s;
+}
+/* ---- экран карты моря ---- */
+const spc = p => `left:${p.x / SEA_W * 100}%;top:${p.y / SEA_H * 100}%`;
+function seaStage(h, sea, W) {
+  const E = h.exp, S = SEAS[sea], reps = E.reports.filter(r => r.sea === sea), cleared = E.cleared.includes(sea);
+  let s = `<div class="mstage" style="width:${W}px"><img class="mbase" src="${S.img}" alt="" draggable="false">`;
+  s += `<button class="mpin home" data-sp="base" style="${spc(S.base)}"><span>🏰</span><em>${sea === 0 ? 'Ваша крепость' : 'Передовая база'}</em></button>`;
+  const br = reps.find(r => r.isle === -1);
+  s += `<button class="mpin ${br ? 'now boss rep' : cleared ? 'done' : 'lock boss'}" data-sp="-1" style="${spc(S.pir)}"><span>${cleared ? '🏳️' : '☠️'}</span>${br ? `<em>${BOSSES[S.boss].name}</em>` : ''}</button>`;
+  S.isles.forEach((p, i) => {
+    const st = isleOf(h, iKey(sea, i)), r = reps.find(x => x.isle === i), garr = st.own && !st.lost && isleGarr(h, iKey(sea, i)).length;
+    const cls = r ? 'now rep' : st.lost ? 'done lost' : st.own ? 'done' + (garr ? ' garr' : '') : 'lock fog';
+    const ic = r ? (r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic) : st.lost ? '☠️' : garr ? '🚩' : st.own ? '✓' : '?';
+    s += `<button class="mpin ${cls}" data-sp="${i}" style="${spc(p)}"><span>${ic}</span>${r ? `<em>${p.n}</em>` : ''}</button>`;
   });
-  const me = MISLE[cur];
-  s += `<div class="mship" style="left:${me.x / MAP_W * 100 + 3.2}%;top:${me.y / MAP_H * 100 - 2.6}%">⛵</div>`;
   return s + '</div>';
 }
-function showMap(free) {
-  const p = curProfile(); if (!p) return; Snd.ensure();
-  show('scr-map'); HB.ret = 'map'; renderMap(true);
-  if (free) mapSheet('free'); else $('#msheet').hidden = true;
+function showMap(sea) {
+  const p = curProfile(); if (!p) return; const h = hdata(p), E = expData(h); Snd.ensure();
+  if (sea != null) E.sea = sea; if (E.sea >= E.open) E.sea = E.open - 1;
+  show('scr-map'); HB.ret = 'map'; renderMap(true); $('#msheet').hidden = true;
 }
 function renderMap(center) {
-  const h = hdata(curProfile()), v = $('#mview');
+  const h = hdata(curProfile()), E = expData(h), v = $('#mview'), sea = E.sea || 0, S = SEAS[sea];
   const vw = v.clientWidth || innerWidth, vh = v.clientHeight || innerHeight;
-  const W = Math.round(Math.max(vw, vh * MAP_W / MAP_H));
+  const W = Math.round(Math.max(vw, vh * SEA_W / SEA_H));
   const keep = !center && v.firstElementChild ? [v.scrollLeft, v.scrollTop] : null;
-  v.innerHTML = mapStage(h, W);
-  const st = v.firstElementChild, Hh = W * MAP_H / MAP_W, cur = MISLE[(h.mission - 1) % 10];
+  v.innerHTML = seaStage(h, sea, W);
+  const Hh = W * SEA_H / SEA_W;
   if (keep) { v.scrollLeft = keep[0]; v.scrollTop = keep[1]; }
-  else { v.scrollLeft = (W - vw) / 2; v.scrollTop = Math.max(0, Math.min(Hh - vh, cur.y / MAP_H * Hh - vh * .55)); }
-  v.querySelectorAll('[data-mp]').forEach(b => b.onclick = () => { if (HB.dragged) return; mapTap(b.dataset.mp); });
+  else { const f = E.reports.find(r => r.sea === sea), tgt = f ? (f.isle < 0 ? S.pir : S.isles[f.isle]) : S.base; v.scrollLeft = Math.max(0, Math.min(W - vw, tgt.x / SEA_W * W - vw / 2)); v.scrollTop = Math.max(0, (Hh - vh) / 2); }
+  v.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { if (HB.dragged) return; mapTap(b.dataset.sp); });
   $('#mg-gold').textContent = h.gold;
-  $('#mg-ch').textContent = `📜 Глава ${Math.floor((h.mission - 1) / 10) + 1}`;
-  $('#mg-mis').textContent = `миссия ${h.mission}`;
+  $('#mg-ch').textContent = `🧭 ${S.n}`;
+  $('#mg-mis').textContent = `${E.reports.length} из ${repMax(h)}`;
+  $('#mg-tabs').innerHTML = SEAS.map((x, i) => `<button class="seatab${i === sea ? ' on' : ''}${i >= E.open ? ' locked' : ''}" data-tab="${i}">${i >= E.open ? '🔒' : E.reports.some(r => r.sea === i) ? '📜' : E.cleared.includes(i) ? '🏳️' : '🧭'} ${['Лазурное', 'Янтарное', 'Туманное', 'Обсидиан'][i]}</button>`).join('');
+  $('#mg-tabs').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { const i = +b.dataset.tab; if (i >= E.open) { Snd.play('bad'); toast('🔒 Путь туда откроется, когда разобьёте пиратскую базу в предыдущем море'); return; } Snd.play('click'); E.sea = i; saveProfiles(); renderMap(true); });
 }
 function mapTap(k) {
-  const h = hdata(curProfile()), m = h.mission, cur = (m - 1) % 10;
-  if (k === 'home') { Snd.play('click'); return showFort(); }
-  if (k === 'free') { Snd.play('click'); return mapSheet('free'); }
-  const i = +k, num = Math.floor((m - 1) / 10) * 10 + i + 1;
-  if (i < cur) { Snd.play('click'); return mapSheet('isle', num); }
-  if (i > cur) { Snd.play('bad'); toast(`🔒 Миссия ${num}: сначала пройдите ${m}-ю`); return; }
-  Snd.play('click'); mapSheet('route');
+  const h = hdata(curProfile()), E = h.exp, sea = E.sea || 0, S = SEAS[sea];
+  if (k === 'base') { Snd.play('click'); if (sea === 0) return showFort(); toast(`🏰 ${S.base.n} — ваша передовая база в этом море`); return; }
+  const i = +k, r = E.reports.find(x => x.sea === sea && x.isle === i);
+  if (r) { Snd.play('click'); return mapSheet('rep', r.id); }
+  if (i === -1) { toast(E.cleared.includes(sea) ? `🏳️ ${S.pir.n}: пиратская база разбита` : seaOwn(h, sea) >= SEA_NEED ? '☠️ Логово пиратов разведано — ждите донесения о времени атаки' : `☠️ ${S.pir.n}. Захватите ${SEA_NEED} островов, чтобы разведка нашла подходы`); return; }
+  const st = isleOf(h, iKey(sea, i));
+  if (st.own) { Snd.play('click'); return mapSheet('isle', iKey(sea, i)); }
+  Snd.play('bad'); toast(`❔ ${S.isles[i].n}: разведка пока молчит об этом острове`);
 }
 function mapSheet(kind, n) {
-  const h = hdata(curProfile()), sh = $('#msheet'), m = h.mission, isl = MISLE[(m - 1) % 10];
+  const h = hdata(curProfile()), E = expData(h), sh = $('#msheet');
   let s = `<button class="iconbtn msx" data-mx aria-label="Закрыть">✕</button>`;
-  if (kind === 'route') {
-    s += `<div class="mst"><b>${m % 5 === 0 ? '☠️' : '🏝'} ${isl.n}</b><small>Миссия ${m} · глава ${Math.floor((m - 1) / 10) + 1}${m % 5 === 0 ? ' · логово босса' : ''}. Выберите, куда плыть:</small></div>`;
-    s += `<div class="glass hub-panel mfleet"><div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман нуждается в ремонте! Загляните в Сухой док.</div>' : ''}</div>`;
-    s += routeCards(h);
+  if (kind === 'reps') {
+    s += `<div class="mst"><b>📜 Донесения разведки</b><small>${E.reports.length} из ${repMax(h)}. ${E.nextAt ? `Следующее — через <span data-until="${E.nextAt}">${fmtLeft(E.nextAt - Date.now())}</span>.` : 'Места для новых нет.'}</small></div>`;
+    s += `<div class="glass hub-panel mfleet"><div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
+    E.reports.slice().sort((a, b) => (b.sea === E.sea) - (a.sea === E.sea) || a.exp - b.exp).forEach(r => { s += repCard(h, r); });
+    if (!E.reports.length) s += `<small class="muted">Донесений нет. Разведчиков можно отправить срочно.</small>`;
+    s += `<button class="btn" data-req ${h.gold < repCost(h) ? 'disabled' : ''}>🔭 Срочная разведка · ${repCost(h)} 💰</button>`;
+  } else if (kind === 'rep') {
+    const r = E.reports.find(x => x.id === n); if (!r) return;
+    s += `<div class="mst"><b>${repTitle(r)}</b><small>${repPlace(r)} · ${SEAS[r.sea].n}</small></div>`;
+    s += `<div class="glass hub-panel mfleet"><div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
+    s += repCard(h, r, 'map');
   } else if (kind === 'isle') {
     const i = isleOf(h, n), g = isleGarr(h, n), pw = islePower(h, n), th = isleThreat(h), ch = pw ? Math.round(pw / (pw + th) * 100) : 0;
-    s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Отбейте его — и он снова ваш.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : 'Под вашим флагом, но без гарнизона: дохода нет. Оставьте здесь до ' + GARR_MAX + ' кораблей.'}</small></div>`;
-    if (i.lost) s += `<button class="btn primary" data-reclaim="${n}" ${h.ships[h.active].broken ? 'disabled' : ''}>⚔️ Отбить остров</button>`;
-    else {
+    s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Ждите донесения разведки, чтобы отбить его.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : 'Под вашим флагом, но без гарнизона: дохода нет. Оставьте здесь до ' + GARR_MAX + ' кораблей.'}</small></div>`;
+    if (!i.lost) {
       const row = (x, btn) => `<div class="uprow" style="width:min(560px,100%)"><span class="ic" style="width:56px">${shipImg(x.type, 'row')}</span><span class="nm">${sName(x)} ${RANKS[rankOf(x.xp)].ic}<small>+${3 * HS[x.type].len} 💰/ч к доходу острова</small></span>${btn}</div>`;
       g.forEach(x => { s += row(x, `<button class="btn small" data-ug="${x.id}">Вернуть</button>`); });
       const res = reserveOf(h);
       if (g.length < GARR_MAX) { s += `<div class="sec-t" style="width:min(560px,100%)">Можно оставить здесь (${res.length})</div>`; res.forEach(x => { s += row(x, `<button class="btn small primary" data-g="${x.id}">Оставить</button>`); }); if (!res.length) s += `<small class="muted">Свободных кораблей нет: все в эскадре, в ремонте или на других островах. Купите ещё в Сухом доке.</small>`; }
     }
-  } else {
-    s += `<div class="mst"><b>🧭 Свободное плавание</b><small>Случайное задание и случайные враги. Кампания не продвигается, но золото, опыт и трофеи — как обычно.</small></div>`;
-    s += FREE_D.map(d => { const lvl = Math.max(1, m + d.dl); return `<div class="rnode glass fdiff ${d.id}"><div class="ni">${d.ic}</div><div class="nb"><b>${d.n}</b><small>${d.d}</small><div class="chips"><span>сила врагов: ${lvl}</span><span>награда ×${d.mult}</span></div></div>
-      <button class="btn primary small" data-free="${d.id}" ${h.ships[h.active].broken ? 'disabled' : ''}>Отплыть</button></div>`; }).join('');
   }
   sh.innerHTML = s; sh.hidden = false; sh.scrollTop = 0;
   sh.querySelector('[data-mx]').onclick = () => { Snd.play('click'); sh.hidden = true; };
-  sh.querySelectorAll('[data-act=go]').forEach(b => b.onclick = () => { sh.hidden = true; goNode(+b.dataset.id); });
-  sh.querySelectorAll('[data-free]').forEach(b => b.onclick = () => { sh.hidden = true; Snd.play('horn'); startHunt(freeNode(h, b.dataset.free)); });
+  sh.querySelectorAll('[data-rgo]').forEach(b => b.onclick = () => { sh.hidden = true; runReport(b.dataset.rgo); });
+  sh.querySelectorAll('[data-rmap]').forEach(b => b.onclick = () => { const r = E.reports.find(x => x.id === b.dataset.rmap); if (!r) return; E.sea = r.sea; renderMap(); mapSheet('rep', r.id); });
+  sh.querySelectorAll('[data-req]').forEach(b => b.onclick = () => { if (!urgentIntel(h)) return; renderMap(); mapSheet('reps'); });
   const re = () => { saveProfiles(); renderMap(); mapSheet('isle', n); };
   sh.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { const x = h.ships[b.dataset.g]; if (!x || isleGarr(h, n).length >= GARR_MAX) return; x.isle = n; h.squad = h.squad.filter(k => k !== x.id); Snd.play('place'); re(); });
   sh.querySelectorAll('[data-ug]').forEach(b => b.onclick = () => { const x = h.ships[b.dataset.ug]; if (!x) return; x.isle = 0; Snd.play('click'); re(); });
-  sh.querySelectorAll('[data-reclaim]').forEach(b => b.onclick = () => { sh.hidden = true; startHunt({ kind: 'battle', obj: pick(['hunt', 'hunt', 'fort']), weather: pick(['clear', 'clear', 'fog', 'storm', 'night']), bonus: true, reclaim: n, lvl: Math.max(1, Math.round((n + h.mission) / 2)) }); });
+}
+function urgentIntel(h) {
+  if (h.exp.reports.length >= repMax(h)) { toast(`📜 Донесений и так ${repMax(h)} — больше штаб не удержит. Улучшите Маяк`); return false; }
+  if (h.gold < repCost(h)) return false;
+  h.gold -= repCost(h); const r = genReport(h); if (!r) return false;
+  Snd.play('radar'); toast(`🔭 Разведчики вернулись: ${repPlace(r)}`); saveProfiles(); return true;
+}
+function runReport(id) {
+  const p = curProfile(), h = hdata(p), r = h.exp.reports.find(x => x.id === id); if (!r) return;
+  if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
+  const base = { report: r.id, sea: r.sea, isle: r.isle, lvl: r.lvl, weather: r.weather, bonus: true };
+  if (r.kind === 'battle') { Snd.play('horn'); return startHunt({ kind: 'battle', obj: r.obj, ...base, reclaim: r.reclaim ? iKey(r.sea, r.isle) : null, patrol: r.patrol }); }
+  if (r.kind === 'boss') { Snd.play('horn'); return startHunt({ kind: 'boss', obj: 'boss', ...base, bossIdx: r.bossIdx }); }
+  Snd.play('click'); runEvent(h, { kind: r.kind, ...base });
 }
 function backFromHunt() { HB.sel = null; if (HB.ret === 'map') showMap(); else showFort(); }
 function initMap() {
   $('#map-back').onclick = () => { Snd.play('click'); showFort(); };
   $('#mg-home').onclick = () => { Snd.play('click'); showFort(); };
-  $('#mg-go').onclick = () => { Snd.play('click'); mapSheet('route'); };
-  $('#mg-free').onclick = () => { Snd.play('click'); mapSheet('free'); };
+  $('#mg-go').onclick = () => { Snd.play('click'); mapSheet('reps'); };
+  $('#mg-free').onclick = () => { Snd.play('click'); if (urgentIntel(hdata(curProfile()))) { renderMap(); mapSheet('reps'); } };
   const v = $('#mview'); let drag = null;
   v.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; drag = { x: e.clientX, y: e.clientY, l: v.scrollLeft, t: v.scrollTop }; HB.dragged = false; });
   addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 6) HB.dragged = true; v.scrollLeft = drag.l - dx; v.scrollTop = drag.t - dy; });
@@ -4097,6 +4165,7 @@ function ambSync() {
 
 /* ==================== ЭФФЕКТЫ БОЯ (Canvas 2D) ==================== */
 // Слой эффектов поверх любого поля: grid — клеток по стороне (с подписями), off — сдвиг (подписи), active() — виден ли экран, tick(fx, dt) — фоновые эффекты
+const SHIPIMG = {}; ['boat', 'destroyer', 'sub', 'cruiser', 'battleship'].forEach(k => { const i = new Image(); i.src = `top_${k}.webp`; SHIPIMG[k] = i; });
 function FxLayer(opt) { this.opt = opt; this.P = []; this.lo = null; this.W = 0; this.shake = 0; this.raf = 0; }
 FxLayer.prototype = {
   attach(map) {
@@ -4118,7 +4187,7 @@ FxLayer.prototype = {
     return true;
   },
   xy(r, c) { const o = this.opt.off || 0; return [(c + o + .5) * this.cs, (r + o + .5) * this.cs]; },
-  add(p) { if (this.P.length > 900) this.P.shift(); p.age = 0; this.P.push(p); return p; },
+  add(p) { if (this.P.length > 1400) { const i = this.P.findIndex(q => q.k !== 'hull' && q.k !== 'emit' && q.k !== 'oil'); this.P.splice(i < 0 ? 0 : i, 1); } p.age = 0; this.P.push(p); return p; },
   rnd(a, b) { return a + Math.random() * (b - a); },
   later(ms, fn) { setTimeout(() => { if (this.raf) fn(); }, ms); },
   // ---------- события ----------
@@ -4145,17 +4214,22 @@ FxLayer.prototype = {
     if (!this.lo || !this.fit()) return;
     const [x, y] = this.xy(r, c); this.boomXY(x, y, big ? 1.5 : 1);
   },
-  boomXY(x, y, k = 1) {
-    const cs = this.cs;
-    this.add({ k: 'flash', x, y, s: cs * 1.3 * k, life: 220 });
-    this.add({ k: 'core', x, y, s: cs * .55 * k, life: 260 });
-    this.add({ k: 'ring', x, y, s: cs * .2, s1: cs * 1.4 * k, life: 650, c: '255,230,180', w: 3.5, lo: true });
-    this.add({ k: 'ring', x, y, s: cs * .1, s1: cs * .9 * k, life: 900, c: '255,255,255', w: 2, lo: true, dl: 90 });
-    for (let i = 0; i < 20 * k; i++) { const a = Math.random() * 6.283, v = this.rnd(20, 80) * k; this.add({ k: 'fire', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 10, s: cs * this.rnd(.16, .34) * k, life: this.rnd(380, 720) }); }
-    for (let i = 0; i < 14 * k; i++) { const a = Math.random() * 6.283, v = this.rnd(70, 180) * k; this.add({ k: 'spark', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: this.rnd(250, 550) }); }
-    for (let i = 0; i < 5 * k; i++) this.add({ k: 'debris', x, y, vx: this.rnd(-60, 60) * k, vy: this.rnd(-60, 60) * k, z: 0, vz: this.rnd(50, 110), rot: Math.random() * 6, life: this.rnd(600, 950), s: cs * this.rnd(.05, .1), trail: 1 });
-    for (let i = 0; i < 8 * k; i++) this.add({ k: 'smoke', x: x + this.rnd(-.25, .25) * cs, y: y + this.rnd(-.25, .25) * cs, vx: this.rnd(-8, 8), vy: this.rnd(-22, -6), s: cs * this.rnd(.2, .34) * k, g: cs * 1.0, life: this.rnd(1000, 1800), c: 55, dl: this.rnd(80, 320) });
-    this.shake = Math.max(this.shake, 4 * k);
+  boomXY(x, y, k = 1, sec = true) {
+    const cs = this.cs, R = this.rnd.bind(this);
+    this.add({ k: 'sflash', life: 90 + 60 * Math.min(2, k), a: Math.min(.4, .12 * k) });
+    this.add({ k: 'flash', x, y, s: cs * 1.4 * k, life: 230 });
+    this.add({ k: 'core', x, y, s: cs * .6 * k, life: 280 });
+    this.add({ k: 'shock', x, y, s: cs * .15, s1: cs * 1.9 * k, life: 560, lo: true });
+    this.add({ k: 'ring', x, y, s: cs * .1, s1: cs * 1.1 * k, life: 950, c: '255,255,255', w: 2, lo: true, dl: 100 });
+    this.add({ k: 'scorch', x, y, s: cs * .5 * k, life: 3800, lo: true });
+    for (let i = 0; i < 7 * k; i++) this.add({ k: 'ball', x: x + R(-.22, .22) * cs * k, y: y + R(-.22, .22) * cs * k, vx: R(-14, 14), vy: R(-28, -6), s: cs * R(.22, .42) * k, life: R(520, 950), dl: R(0, 140) });
+    for (let i = 0; i < 16 * k; i++) { const a = Math.random() * 6.283, v = R(20, 85) * k; this.add({ k: 'fire', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 12, s: cs * R(.14, .3) * k, life: R(380, 760) }); }
+    for (let i = 0; i < 18 * k; i++) { const a = Math.random() * 6.283, v = R(80, 220) * k; this.add({ k: 'spark', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: R(260, 600) }); }
+    for (let i = 0; i < 10 * k; i++) { const a = Math.random() * 6.283, v = R(15, 55) * k; this.add({ k: 'ember', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, z: 0, vz: R(70, 170), life: R(900, 1700), s: R(1.2, 2.4) }); }
+    for (let i = 0; i < 6 * k; i++) this.add({ k: 'debris', x, y, vx: R(-70, 70) * k, vy: R(-70, 70) * k, z: 0, vz: R(60, 130), rot: Math.random() * 6, life: R(650, 1000), s: cs * R(.05, .11), trail: 1, burn: Math.random() < .5 });
+    for (let i = 0; i < 11 * k; i++) this.add({ k: 'smoke', x: x + R(-.25, .25) * cs, y: y + R(-.25, .25) * cs, vx: R(-9, 9), vy: R(-30, -8), s: cs * R(.2, .36) * k, g: cs * 1.15, life: R(1200, 2200), c: 30 + (Math.random() * 40 | 0), dl: R(80, 420) });
+    if (sec && k >= .9 && Math.random() < .6) { const n = 1 + (Math.random() * 2 | 0); for (let i = 0; i < n; i++) this.later(R(140, 460), () => { this.boomXY(x + R(-.55, .55) * cs, y + R(-.55, .55) * cs, k * .45, false); Snd.play('hit'); }); }
+    this.shake = Math.max(this.shake, 4.5 * k);
   },
   splash(r, c) {
     if (!this.lo || !this.fit()) return;
@@ -4179,12 +4253,13 @@ FxLayer.prototype = {
       this.add({ k: 'ring', x: cx, y: cy, s: cs * .3, s1: cs * (2 + pts.length * .5), life: 1100, c: '255,255,255', w: 4, lo: true });
       this.add({ k: 'column', x: cx, y: cy, s: cs * .35 * Math.min(2, k), h: cs * 2.2, life: 1100 });
       for (let i = 0; i < 30; i++) { const a = Math.random() * 6.283, v = this.rnd(20, 80); this.add({ k: 'drop', x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, z: this.rnd(0, cs * .6), vz: this.rnd(120, 230), life: this.rnd(700, 1100), s: cs * this.rnd(.04, .08) }); }
-      this.shake = Math.max(this.shake, 9);
+      this.shake = Math.max(this.shake, 11);
       vibrate([90, 50, 140]);
+      if (!this.opt.hull) pts.forEach(p => this.add({ k: 'emit', x: p[0], y: p[1], life: 7000 }));
     });
     this.later(T + 300, () => {
       pts.forEach(p => {
-        this.add({ k: 'oil', x: p[0], y: p[1], s: cs * .3, s1: cs * .85, life: 9000, lo: true });
+        this.add({ k: 'oil', x: p[0], y: p[1], s: cs * .3, s1: cs * .85, life: 9000, lo: true, dl: this.opt.hull ? 3200 : 0 });
         for (let i = 0; i < 10; i++) this.add({ k: 'bubble', x: p[0] + this.rnd(-.4, .4) * cs, y: p[1] + this.rnd(-.4, .4) * cs, s: cs * this.rnd(.03, .08), life: this.rnd(900, 2000), dl: this.rnd(0, 2600), lo: true });
         for (let i = 0; i < 3; i++) this.add({ k: 'float', x: p[0] + this.rnd(-.4, .4) * cs, y: p[1] + this.rnd(-.4, .4) * cs, vx: this.rnd(-3, 3), vy: this.rnd(-3, 3), rot: Math.random() * 6, s: cs * this.rnd(.05, .1), life: this.rnd(5000, 9000), lo: true });
         for (let i = 0; i < 3; i++) this.add({ k: 'smoke', x: p[0], y: p[1], vx: this.rnd(-4, 4), vy: this.rnd(-14, -6), s: cs * .25, g: cs * 1.2, life: this.rnd(1800, 2800), c: 40, dl: this.rnd(0, 1500) });
@@ -4198,9 +4273,11 @@ FxLayer.prototype = {
     const len = HS[u.type].len || 1, a = (u.dir || 0) * Math.PI / 180, [x, y] = this.xy(u.r, u.c), cs = this.cs, pts = [];
     const span = Math.min(1.4, .35 * len);
     for (let i = 0; i < Math.max(2, len); i++) { const t = len > 1 ? i / (Math.max(2, len) - 1) - .5 : (i - .5) * .6; pts.push([x + Math.cos(a) * t * span * cs, y + Math.sin(a) * t * span * cs]); }
-    u.sinkAt = performance.now();
+    const img = SHIPIMG[u.type], ok = img && img.complete && img.naturalWidth && TOP_AR[u.type];
     const T = this.wreck(pts, .6) || 0;
-    setTimeout(() => { if (H.cells) renderHunt(); }, T + 2700);
+    if (ok) { u.sinkHull = true; const w = (.8 + .2 * len) * 1.05, L = cs * w, W = L / TOP_AR[u.type]; this.add({ k: 'hull', img, x, y, a, L, W, split: len >= 2 && u.type !== 'sub', foe: u.side === 'foe', T0: T + 700, life: T + 5600, lo: true }); }
+    else u.sinkAt = performance.now();
+    setTimeout(() => { if (H.cells) renderHunt(); }, T + 5700);
     return T;
   },
   wake(u, fr, fc) {
@@ -4263,6 +4340,61 @@ FxLayer.prototype = {
           g.strokeStyle = gr; g.lineWidth = cs * .09; g.lineCap = 'round'; g.beginPath(); g.moveTo(x + p.dx * .15, y - cs * .7); g.lineTo(x, y); g.stroke();
           g.fillStyle = '#fff7d6'; g.beginPath(); g.arc(x, y, cs * .06, 0, 6.283); g.fill(); break;
         }
+        case 'sflash': { g.fillStyle = `rgba(255,236,200,${p.a * (1 - t)})`; g.fillRect(0, 0, this.W, this.W); break; }
+        case 'ball': {
+          const grow = t < .35 ? .6 + t / .35 * .5 : 1.1 - (t - .35) * .5, rr = p.s * grow;
+          const col = t < .2 ? [255, 245, 200] : t < .45 ? [255, 170, 60] : t < .7 ? [200, 70, 25] : [60, 45, 40], a = t < .7 ? .9 * (1 - t * .6) : .5 * (1 - t) / .3;
+          g.globalCompositeOperation = t < .45 ? 'lighter' : 'source-over';
+          const gr = g.createRadialGradient(p.x - rr * .2, p.y - rr * .2, rr * .1, p.x, p.y, rr); gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(.6, `rgba(${col.map(v => v * .8 | 0)},${a * .6})`); gr.addColorStop(1, `rgba(${col},0)`);
+          g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.fill(); break;
+        }
+        case 'ember': {
+          p.vz -= 180 * s; p.z = Math.max(0, p.z + p.vz * s); if (p.z === 0) { p.vx *= .8; p.vy *= .8; }
+          g.globalCompositeOperation = 'lighter'; const a = (1 - t) * (p.z > 0 ? 1 : .5);
+          g.fillStyle = `rgba(255,${150 + (1 - t) * 90 | 0},60,${a})`; g.beginPath(); g.arc(p.x, p.y - p.z, p.s, 0, 6.283); g.fill(); break;
+        }
+        case 'shock': {
+          const rr = p.s + (p.s1 - p.s) * (1 - (1 - t) * (1 - t) * (1 - t));
+          g.lineWidth = 5 * (1 - t) + 1; g.strokeStyle = `rgba(0,20,40,${.35 * (1 - t)})`; g.beginPath(); g.arc(p.x, p.y, rr * .94, 0, 6.283); g.stroke();
+          g.lineWidth = 2.5 * (1 - t) + .5; g.strokeStyle = `rgba(255,255,255,${.8 * (1 - t)})`; g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.stroke(); break;
+        }
+        case 'scorch': {
+          const a = .24 * (t < .1 ? t / .1 : 1 - (t - .1) / .9), gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s);
+          gr.addColorStop(0, `rgba(10,10,15,${a})`); gr.addColorStop(1, 'rgba(10,10,15,0)'); g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, p.s, 0, 6.283); g.fill(); break;
+        }
+        case 'emit': {
+          if (Math.random() < dt / 60 * (1 - t)) this.add({ k: 'fire', x: p.x + this.rnd(-.2, .2) * cs, y: p.y + this.rnd(-.15, .15) * cs, vx: this.rnd(-3, 3), vy: this.rnd(-16, -6), s: cs * this.rnd(.08, .15), life: this.rnd(300, 600) });
+          if (Math.random() < dt / 110 * (1 - t)) this.add({ k: 'smoke', x: p.x, y: p.y, vx: this.rnd(-3, 6), vy: this.rnd(-20, -10), s: cs * .12, g: cs * .7, life: this.rnd(1000, 1700), c: 35 });
+          break;
+        }
+        case 'hull': {
+          const s0 = Math.max(0, Math.min(1, (p.age - p.T0) / (p.life - p.T0))), dpr = this.dpr;
+          if (s0 > 0 && !p.started) {
+            p.started = 1;
+            this.add({ k: 'ring', x: p.x, y: p.y, s: p.L * .3, s1: p.L * 1.3, life: 1300, c: '255,255,255', w: 3, lo: true });
+            for (let i = 0; i < 24; i++) { const a = Math.random() * 6.283, v = this.rnd(15, 60); this.add({ k: 'drop', x: p.x, y: p.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, z: this.rnd(0, cs * .3), vz: this.rnd(80, 160), life: this.rnd(600, 1000), s: cs * this.rnd(.03, .06) }); }
+          }
+          const along = u => [p.x + Math.cos(p.a) * u * p.L, p.y + Math.sin(p.a) * u * p.L];
+          if (s0 < .45 && Math.random() < dt / 35) { const [fx, fy] = along(this.rnd(-.45, .45)); this.add({ k: 'fire', x: fx, y: fy, vx: this.rnd(-4, 4), vy: this.rnd(-18, -8), s: cs * this.rnd(.08, .17), life: this.rnd(300, 620) }); if (Math.random() < .45) this.add({ k: 'smoke', x: fx, y: fy, vx: this.rnd(-4, 6), vy: this.rnd(-22, -10), s: cs * .13, g: cs * .7, life: this.rnd(900, 1600), c: 38 }); }
+          if (s0 > 0 && s0 < .95 && Math.random() < dt / 30) { const [fx, fy] = along(this.rnd(-.5, .5)), side = Math.random() < .5 ? 1 : -1, nx = -Math.sin(p.a) * side * p.W * .6, ny = Math.cos(p.a) * side * p.W * .6; this.add({ k: Math.random() < .5 ? 'bubble' : 'foam', x: fx + nx, y: fy + ny, s: cs * this.rnd(.04, .09), life: this.rnd(600, 1200), lo: true }); }
+          const shakeA = s0 === 0 ? (Math.random() - .5) * .04 : 0, iw = p.img.naturalWidth, ih = p.img.naturalHeight;
+          (p.split ? [-1, 1] : [0]).forEach(side => {
+            const dw = side ? p.L / 2 : p.L, dh = p.W, key = 'oc' + side;
+            const oc = p[key] || (p[key] = document.createElement('canvas')); oc.width = Math.ceil(dw * dpr) + 2; oc.height = Math.ceil(dh * dpr) + 2;
+            const o = oc.getContext('2d'); o.setTransform(dpr, 0, 0, dpr, 0, 0);
+            if (p.foe && 'filter' in o) o.filter = 'sepia(.55) hue-rotate(-30deg) saturate(2) brightness(1)';
+            o.drawImage(p.img, side === 1 ? iw / 2 : 0, 0, side ? iw / 2 : iw, ih, 0, 0, dw, dh); if ('filter' in o) o.filter = 'none';
+            o.globalCompositeOperation = 'source-atop'; o.fillStyle = `rgba(6,26,48,${.03 + s0 * s0 * .5})`; o.fillRect(0, 0, dw, dh);
+            o.globalCompositeOperation = 'destination-out';
+            const f = Math.max(0, s0 - .15) * 1.45, fromX = side === 1 ? 0 : dw, toX = side === 1 ? dw : 0;
+            if (f > 0) { const a1 = Math.max(0, Math.min(.998, f - .25)), a2 = Math.min(1, Math.max(a1 + .001, f)), gr = o.createLinearGradient(fromX, 0, toX, 0); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(a1, 'rgba(0,0,0,1)'); gr.addColorStop(a2, 'rgba(0,0,0,0)'); o.fillStyle = gr; o.fillRect(0, 0, dw, dh); }
+            g.save(); g.translate(p.x, p.y); g.rotate(p.a + shakeA); g.shadowColor = `rgba(235,250,255,${.85 * (1 - s0 * .6)})`; g.shadowBlur = 7;
+            if (side) { g.translate(side * s0 * p.L * .12, 0); g.rotate(side * s0 * .5); const sc = 1 - s0 * .15; g.scale(sc, sc); g.drawImage(oc, 0, 0, oc.width, oc.height, side === 1 ? 0 : -dw, -dh / 2, oc.width / dpr, oc.height / dpr); }
+            else { g.rotate(s0 * .6); const sc = 1 - s0 * .22; g.scale(sc, sc); g.drawImage(oc, 0, 0, oc.width, oc.height, -dw / 2, -dh / 2, oc.width / dpr, oc.height / dpr); }
+            g.restore();
+          });
+          break;
+        }
         case 'flash': {
           g.globalCompositeOperation = 'lighter'; const rr = p.s * (.6 + t * .6);
           const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(255,250,220,${1 - t})`); gr.addColorStop(.4, `rgba(255,190,80,${(1 - t) * .85})`); gr.addColorStop(1, 'rgba(255,120,40,0)');
@@ -4281,15 +4413,15 @@ FxLayer.prototype = {
         }
         case 'spark': { g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(255,220,140,${1 - t})`; g.lineWidth = 1.6; g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(p.x - p.vx * .03, p.y - p.vy * .03); g.stroke(); break; }
         case 'smoke': {
-          const rr = p.s + p.g * t, a = (t < .15 ? t / .15 : 1 - (t - .15) / .85) * (night ? .45 : .7);
+          const rr = p.s + p.g * t, a = (t < .15 ? t / .15 : 1 - (t - .15) / .85) * (night ? .4 : .55);
           const gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr); gr.addColorStop(0, `rgba(${p.c},${p.c},${p.c + 8},${a})`); gr.addColorStop(1, `rgba(${p.c},${p.c},${p.c + 8},0)`);
           g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, rr, 0, 6.283); g.fill(); break;
         }
         case 'debris': {
           p.vz -= 260 * s; p.z = Math.max(0, p.z + p.vz * s); p.rot += 8 * s;
-          if (p.trail && p.z > 2 && Math.random() < .35) this.add({ k: 'smoke', x: p.x, y: p.y - p.z, vx: 0, vy: -4, s: cs * .05, g: cs * .18, life: 500, c: 70 });
+          if (p.trail && p.z > 2 && Math.random() < .4) this.add(p.burn && Math.random() < .6 ? { k: 'fire', x: p.x, y: p.y - p.z, vx: 0, vy: -3, s: cs * .06, life: 260 } : { k: 'smoke', x: p.x, y: p.y - p.z, vx: 0, vy: -4, s: cs * .05, g: cs * .18, life: 500, c: 70 });
           g.save(); g.translate(p.x, p.y - p.z); g.rotate(p.rot); g.fillStyle = `rgba(40,35,30,${1 - t * t})`; g.fillRect(-p.s, -p.s / 2, p.s * 2, p.s); g.restore();
-          if (p.z === 0 && p.vz < 0 && !p.sp) { p.sp = 1; this.add({ k: 'ring', x: p.x, y: p.y, s: 1, s1: cs * .25, life: 450, c: '255,255,255', w: 1.2, lo: true }); }
+          if (p.z === 0 && p.vz < 0 && !p.sp) { p.sp = 1; this.add({ k: 'ring', x: p.x, y: p.y, s: 1, s1: cs * .25, life: 450, c: '255,255,255', w: 1.2, lo: true }); for (let j = 0; j < 4; j++) this.add({ k: 'drop', x: p.x, y: p.y, vx: this.rnd(-12, 12), vy: this.rnd(-12, 12), z: 0, vz: this.rnd(40, 80), life: 400, s: cs * .03 }); }
           break;
         }
         case 'drop': {
@@ -4341,7 +4473,7 @@ FxLayer.prototype = {
 };
 // эффекты морского похода
 const BFX = new FxLayer({
-  grid: HN, off: 0,
+  grid: HN, off: 0, hull: true,
   active: () => $('#scr-hunt').classList.contains('active'),
   night: () => H.weather === 'night',
   water: (r, c) => { const k = hidx(r, c), cell = H.cells && H.cells[k]; return cell && !H.land[k] && !cell.classList.contains('fog'); },
