@@ -771,7 +771,6 @@ body.menu-on .logo{margin:0}
   </div>
   <button class="fraidchip" id="fg-raid" hidden>☠️ Пираты у стен! Оборона →</button>
   <div class="fhud-bot">
-    <button class="fbtn" id="fg-tod"></button>
     <button class="fbtn" data-bld="citadel">⚓<small>Эскадра</small></button>
     <button class="fbtn go" id="fg-go">🗺<b>В поход</b><small id="fg-mission"></small></button>
     <button class="fbtn" data-bld="dock">🚢<small>Корабли</small></button>
@@ -3453,7 +3452,6 @@ function hubFort(h) {
 function fortAct(act, id) {
   const p = curProfile(), h = hdata(p), f = fdata(h);
   const pay = n => { if (h.gold < n) return false; h.gold -= n; return true; };
-  if (act === 'ftod') { const seq = ['dawn', 'day', 'dusk', 'night']; HB.tod = seq[(seq.indexOf(todNow()) + 1) % seq.length]; try { localStorage.setItem('bs-tod', HB.tod); } catch (e) {} Snd.play('click'); return refreshCur(); }
   if (act === 'fsel') return openBld(id);
   if (act === 'fsel' || act === 'fzoom') {
     const w = document.querySelector('.fzoomwrap'), pos = w ? [w.scrollLeft, w.scrollTop] : null;
@@ -3661,7 +3659,7 @@ function fortImgFail() { if (!FIMG_OK) return; FIMG_OK = false; renderHub(); }
 const fTierImg = (id, l) => { const n = FTIERS[id] || 1, t = l >= 5 && n >= 3 ? 3 : l >= 3 && n >= 2 ? 2 : 1; return `fort_${id}_${t}.webp`; };
 const TOD = { dawn: { ic: '🌅', n: 'Рассвет' }, day: { ic: '☀️', n: 'День' }, dusk: { ic: '🌇', n: 'Закат' }, night: { ic: '🌙', n: 'Ночь' } };
 const fBaseImg = t => t === 'day' ? 'fort_base.webp' : `fort_base_${t}.webp`;
-const todNow = () => { if (!HB.tod) { try { HB.tod = localStorage.getItem('bs-tod') || ''; } catch (e) {} } if (HB.tod) return HB.tod; const hr = new Date().getHours(); return hr >= 5 && hr < 8 ? 'dawn' : hr >= 8 && hr < 18 ? 'day' : hr >= 18 && hr < 21 ? 'dusk' : 'night'; };
+const todNow = () => { const hr = new Date().getHours(); return hr >= 5 && hr < 8 ? 'dawn' : hr >= 8 && hr < 18 ? 'day' : hr >= 18 && hr < 21 ? 'dusk' : 'night'; };
 function fortSceneImg(h) {
   const f = fdata(h), sel = HB.fsel || 'citadel', now = Date.now();
   const order = Object.keys(FPL).sort((a, b) => (FPL[a].t + FPL[a].w) - (FPL[b].t + FPL[b].w));
@@ -3680,7 +3678,7 @@ function fortSceneImg(h) {
     if (on) s += `<span class="fname" style="left:${p.cx}%;top:${Math.min(96, p.cy + (id === 'lighthouse' ? 5 : 4.5))}%">${b.name}</span>`;
   });
   if (f.raidDue) s += `<div class="fraidfx"></div><div class="fpir" style="left:40%;top:84%"><svg viewBox="-24 -34 48 44" width="38" height="35"><path d="M-22 0h44l-7 9h-30z" fill="#2b1d14" stroke="#000" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-32" stroke="#111" stroke-width="2"/><path d="M1 -30L19 -9H1z" fill="#1a1a1a"/><path d="M-1 -26L-15 -9H-1z" fill="#262626"/><circle cx="9" cy="-15" r="3" fill="#eee"/></svg></div><div class="fpir" style="left:66%;top:91%"><svg viewBox="-24 -34 48 44" width="38" height="35"><path d="M-22 0h44l-7 9h-30z" fill="#2b1d14" stroke="#000" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-32" stroke="#111" stroke-width="2"/><path d="M1 -30L19 -9H1z" fill="#1a1a1a"/><path d="M-1 -26L-15 -9H-1z" fill="#262626"/><circle cx="9" cy="-15" r="3" fill="#eee"/></svg></div><div class="fpir" style="left:14%;top:89%"><svg viewBox="-24 -34 48 44" width="38" height="35"><path d="M-22 0h44l-7 9h-30z" fill="#2b1d14" stroke="#000" stroke-width="1.5"/><line x1="0" y1="0" x2="0" y2="-32" stroke="#111" stroke-width="2"/><path d="M1 -30L19 -9H1z" fill="#1a1a1a"/><path d="M-1 -26L-15 -9H-1z" fill="#262626"/><circle cx="9" cy="-15" r="3" fill="#eee"/></svg></div>`;
-  s += `</div></div><button class="ftodbtn" data-act="ftod">${TOD[tod].ic} ${TOD[tod].n}</button><button class="fzoom" data-act="fzoom" aria-label="Приблизить">${HB.fzoom ? '🔍−' : '🔍+'}</button>`;
+  s += `</div></div><button class="fzoom" data-act="fzoom" aria-label="Приблизить">${HB.fzoom ? '🔍−' : '🔍+'}</button>`;
   return s;
 }
 function fortZoomTo(id) {
@@ -3748,7 +3746,7 @@ function renderFort(center) {
   $('#fg-raid').hidden = !f.raidDue;
   $('#fg-mission').textContent = `миссия ${h.mission}`;
   const c = $('#fg-collect'); c.innerHTML = `💰<small>${stored ? '+' + stored : 'казна'}</small>`; c.classList.toggle('ready', stored > 0);
-  const tod = todNow(); $('#fg-tod').innerHTML = `${TOD[tod].ic}<small>${TOD[tod].n}</small>`;
+  HB.todShown = todNow();
   $('#fg-zoom').innerHTML = `🔍<small>${HB.fzoom ? 'общий' : 'ближе'}</small>`;
 }
 function openBld(id) { HB.bld = id; HB.pick = false; HB.cat = null; const h = hdata(curProfile()); if (!h.ships[HB.sel]) HB.sel = h.active; Snd.play('click'); show('scr-hub'); document.body.classList.remove('fort-on'); renderHub(); }
@@ -3837,7 +3835,6 @@ function initFortUI() {
   $('#fg-collect').onclick = () => fortAct('fcollect');
   $('#fg-raid').onclick = () => openBld('citadel');
   $('#fg-go').onclick = () => { Snd.play('click'); showMap(); };
-  $('#fg-tod').onclick = () => fortAct('ftod');
   $('#fg-zoom').onclick = () => { HB.fzoom = !HB.fzoom; Snd.play('click'); renderFort(); };
   // перетаскивание мышью (на компьютере)
   const v = $('#fview'); let drag = null;
@@ -4687,6 +4684,7 @@ function syncRulesHint() {
 
 setInterval(() => {
   const p = curProfile(); if (!p || !p.hunt) return;
+  if (HB.todShown && HB.todShown !== todNow() && $('#scr-fort').classList.contains('active')) { renderFort(); return; }
   if (fortTick(p.hunt)) { if ($('#scr-fort').classList.contains('active')) renderFort(); else if ($('#scr-hub').classList.contains('active')) renderHub(); else if (document.body.classList.contains('menu-on')) renderDaily(); return; }
   document.querySelectorAll('[data-until]').forEach(e => e.textContent = fmtLeft(+e.dataset.until - Date.now()));
 }, 1000);
