@@ -3529,7 +3529,7 @@ const FB = [
   { id: 'academy',    ic: '🎓', name: 'Морская академия',  x: 30, y: 56, base: 180, desc: 'Дешевле найм и обучение специалистов.', eff: l => `специалисты −${10 * l}%` },
   { id: 'workshop',   ic: '🔨', name: 'Мастерская',        x: 38, y: 79, base: 170, desc: 'Дешевле оборудование и улучшения кораблей.', eff: l => `оборудование −${10 * l}%, улучшения −${5 * l}%` },
   { id: 'lighthouse', ic: '🗼', name: 'Маяк',              x: 85, y: 31, base: 140, desc: 'Штаб разведки: донесения о пиратах, оценка их сил, точное время набегов, обзор в бою и мины.', eff: l => ['', 'донесений до 3, раз в 72 мин', 'донесений до 4 · разведка считает врагов', 'донесений до 5 · видно сильнейший корабль, +1 к обзору', 'донесений до 6 · батареи бьют дальше', 'донесений до 7, раз в 40 мин · видны все мины'][l] },
-  { id: 'battery',    ic: '💥', name: 'Береговые батареи', x: 15, y: 44, base: 160, desc: 'Пушки на берегу. Во время набега сами стреляют по пиратам.', eff: l => `${BAT_N[l]} ${plural(BAT_N[l], 'батарея', 'батареи', 'батарей')}, урон ${3 + l}, дальность ${4 + (l >= 4 ? 1 : 0)}` },
+  { id: 'battery',    ic: '💥', name: 'Береговые батареи', x: 15, y: 44, base: 160, desc: 'Пушки на берегу. Во время набега сами стреляют по пиратам.', eff: l => `${BAT_N[l]} ${plural(BAT_N[l], 'батарея', 'батареи', 'батарей')}, урон ${3 + l}, дальность 10 клеток` },
   { id: 'walls',      ic: '🧱', name: 'Стены',             x: 52, y: 66, base: 120, desc: 'Прочность цитадели и батарей во время набега.', eff: l => `цитадель ❤${20 + 12 * l} 🛡${Math.floor(l / 2)}, батареи ❤${8 + 3 * l}` },
 ];
 const FB_MULT = [0, 1, 2.2, 4.5, 8, 14], FB_MIN = [0, 2, 15, 60, 180, 480];
@@ -3654,7 +3654,7 @@ function raidSetup(h) {
   const ci = Object.assign(mkUnit('citadel', 'me', cc[0], cc[1], 0), { name: 'Цитадель' });
   ci.st.hp = ci.hp = 20 + 12 * wl; ci.st.armor = Math.floor(wl / 2); ci.st.sight = 3;
   H.fleet.push(ci); H.citadel = ci;
-  bat.forEach(([r, c]) => { const b = Object.assign(mkUnit('battery', 'me', r, c, 0), { name: 'Батарея' }); b.st.hp = b.hp = 8 + 3 * wl; b.st.dmg = 3 + bl; b.st.range = 4 + (fL(h, 'lighthouse') >= 4 ? 1 : 0); b.st.sight = Math.max(b.st.sight, b.st.range); b.st.scatter = .15; H.fleet.push(b); });
+  bat.forEach(([r, c]) => { const b = Object.assign(mkUnit('battery', 'me', r, c, 0), { name: 'Батарея' }); b.st.hp = b.hp = 8 + 3 * wl; b.st.dmg = 3 + bl; b.st.range = 10 + (fL(h, 'lighthouse') >= 4 ? 1 : 0); b.st.sight = Math.max(b.st.sight, b.st.range); b.st.scatter = .15; H.fleet.push(b); });
   const m = Math.max(2, H.mission);
   genFoes(m, 2 + Math.floor(cit / 2));
   H.wavesLeft = 2; H.waveSize = 1 + Math.floor(cit / 3);
