@@ -647,7 +647,7 @@ body.menu-on .logo{margin:0}
 <body class="menu-on">
 <canvas id="sea"></canvas>
 <div id="splash" aria-hidden="true"></div>
-<audio id="bgm" src="music.mp3" loop preload="none"></audio>
+<audio id="bgm" loop preload="none"></audio><audio id="bgm2" loop preload="none"></audio>
 
 <!-- shared SVG gradients for ships -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1513,7 +1513,7 @@ function initMenu() {
   });
   syncSoundUi(); refreshCaptain();
 }
-function toggleSound() { Snd.on = !Snd.on; store.set('bs-sound', Snd.on); syncSoundUi(); Snd.play('click'); if (typeof ambSync === 'function') ambSync(); }
+function toggleSound() { Snd.on = !Snd.on; store.set('bs-sound', Snd.on); syncSoundUi(); Snd.play('click'); if (typeof ambSync === 'function') ambSync(); if (window.bgmSync) bgmSync(); }
 function syncSoundUi() { $('#btn-sound').classList.toggle('off', !Snd.on); $('#snd-ico').textContent = Snd.on ? '🔊' : '🔇'; $('#snd-txt').textContent = Snd.on ? 'Звук вкл' : 'Звук выкл'; $('#battle-sound').textContent = $('#hunt-sound').textContent = Snd.on ? '🔊' : '🔇'; }
 
 function startGame(mode, p2) {
@@ -5028,14 +5028,35 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 </script>
 <script>
 (function(){
-  var a=document.getElementById('bgm'), b=document.getElementById('bgmBtn');
-  a.volume=0.5;
+  // музыка по экранам: меню/крепость, карта экспедиций, бой (2 трека по очереди)
+  var A=[document.getElementById('bgm'),document.getElementById('bgm2')], b=document.getElementById('bgmBtn');
+  var cur=0, track=null, battleN=Math.floor(Math.random()*2), fadeT=null;
+  var TR={menu:{src:'music.mp3',v:.5}, map:{src:'music_map.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}};
+  var a={pause:function(){A.forEach(function(x){x.pause();});}};
   var on=localStorage.getItem('bgm')!=='off';
-  function menu(){return !document.body.classList.contains('in-game');}
-  function sync(){ b.classList.toggle('off',!on); if(on&&menu()&&!document.hidden) a.play().catch(function(){}); else a.pause(); }
+  function want(){
+    var s=document.querySelector('.screen.active'), id=s&&s.id;
+    if(id==='scr-battle'||id==='scr-hunt') return 'battle';
+    if(id==='scr-map') return 'map';
+    return 'menu';
+  }
+  function fade(el,to,ms,done){ var from=el.volume, t0=performance.now(); (function st(){ var k=Math.min(1,(performance.now()-t0)/ms); el.volume=Math.max(0,Math.min(1,from+(to-from)*k)); if(k<1) el._f=requestAnimationFrame(st); else if(done) done(); })(); }
+  function sync(){
+    b.classList.toggle('off',!on);
+    if(!on||document.hidden||(want()==='battle'&&typeof Snd!=='undefined'&&!Snd.on)){ track=null; A.forEach(function(x){x.pause();}); return; }
+    var w=want(), id=w;
+    if(w==='battle'){ if(track==='battle1'||track==='battle2') id=track; else { battleN++; id='battle'+(battleN%2+1); } }
+    if(id===track){ if(A[cur].paused) A[cur].play().catch(function(){}); return; }
+    var old=A[cur]; cur^=1; var nx=A[cur], T=TR[id]; track=id;
+    cancelAnimationFrame(old._f); cancelAnimationFrame(nx._f);
+    if(!old.paused) fade(old,0,700,function(){ old.pause(); });
+    if(nx.getAttribute('src')!==T.src){ nx.src=T.src; } nx.currentTime=0; nx.volume=0;
+    nx.play().then(function(){ fade(nx,T.v,900); }).catch(function(){ track=null; });
+  }
+  window.bgmSync=sync;
   b.onclick=function(e){ e.stopPropagation(); on=!on; localStorage.setItem('bgm',on?'on':'off'); sync(); };
-  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
-  document.addEventListener('pointerdown',function(){ if(on&&menu()&&a.paused&&!document.hidden) a.play().catch(function(){}); });
+  var mo=new MutationObserver(function(){ if(want()!==(track&&track.indexOf('battle')===0?'battle':track)) sync(); }); document.querySelectorAll('.screen').forEach(function(s){ mo.observe(s,{attributes:true,attributeFilter:['class']}); });
+  document.addEventListener('pointerdown',function(){ if(on&&!document.hidden&&(track===null||A[cur].paused)) sync(); });
   function away(){ a.pause(); try{ if(typeof Snd!=='undefined'&&Snd.ctx) Snd.ctx.suspend(); }catch(e){} }
   document.addEventListener('visibilitychange',function(){ if(document.hidden) away(); else { try{ if(typeof Snd!=='undefined'&&Snd.ctx&&Snd.on) Snd.ctx.resume(); }catch(e){} sync(); } });
   window.addEventListener('pagehide',away);
