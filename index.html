@@ -3866,6 +3866,7 @@ const BLD_FREE = ['citadel', 'dock', 'lighthouse', 'workshop'];
 const BLD_FN = { citadel: 'эскадру и набеги', dock: 'покупку, ремонт и выбор кораблей', workshop: 'улучшения и оборудование кораблей', barracks: 'морпехов и учения', academy: 'специалистов и экипаж',
   market: 'наёмников и торговый доход', treasury: 'хранение и защиту золота', lighthouse: 'разведку и экспедиции', battery: 'оборону при набегах', walls: 'оборону при набегах' };
 const FASPECT = 1024 / 1144;
+const fortVis = () => document.body.classList.contains('fort-on') && !document.hidden;
 function fortMigrate(h) {
   const f = fdata(h); if (f.v2) return;
   const b = f.b, sh = Object.values(h.ships), up = id => b[id] = Math.max(b[id] || 0, 1);
@@ -4715,8 +4716,9 @@ const FortLife = {
   // состав: свои корабли + торговец; при набеге — пираты
   sync(h) {
     const f = fdata(h), own = Object.values(h.ships).filter(s => !s.broken && !s.isle).slice(0, 6).map(s => s.id);
-    const sig = own.join(',') + '|' + (f.b.market ? 1 : 0) + '|' + (f.raidDue ? 1 : 0);
+    const sig = own.join(',') + '|' + (f.b.market ? 1 : 0) + '|' + (f.raidDue ? 1 : 0) + '|' + (f.b.battery || 0);
     if (sig === this.sig && this.boats.length) return; this.sig = sig;
+    this.guns = f.raidDue ? [...(f.b.battery ? Array.from({ length: BAT_N[f.b.battery] || 1 }, (_, i) => ({ x: FPL.battery.cx / 100 + (i % 2 ? .025 : -.02), y: (FPL.battery.cy / 100 + (i > 1 ? .025 : 0)) / FASPECT, cd: 1 + i * .8 })) : []), { x: FPL.citadel.cx / 100, y: FPL.citadel.cy / 100 / FASPECT, cd: 2.5, slow: !!f.b.battery }] : [];
     this.boats = this.boats.filter(b => b.type === 'merchant' || own.includes(b.sid));
     own.forEach(k => { if (!this.boats.some(b => b.sid === k)) this.boats.push({ sid: k, type: h.ships[k].type }); });
     if (f.b.market && !this.boats.some(b => b.type === 'merchant')) this.boats.push({ type: 'merchant' });
@@ -4773,6 +4775,21 @@ const FortLife = {
         this.P.push({ k: 'shell', x0: q.x, y0: q.y, x1: tx, y1: ty, life: .7, age: 0, onEnd: () => { this.P.push({ k: 'flash', x: tx, y: ty, life: .25, age: 0, s: .04 }); for (let j = 0; j < 5; j++) this.P.push({ k: 'smoke', x: tx, y: ty, vx: this.rnd(-.006, .006), vy: -.006, s: .01, gs: .035, life: this.rnd(1.5, 2.5), age: 0, c: 50 }); } });
         if (i === 0) Snd.play('shot');
       }
+    });
+    // --- ответный огонь крепости: батареи (и пушка цитадели) бьют по пиратам
+    if (this.mask && this.guns && this.guns.length) this.guns.forEach((gn, i) => {
+      if ((gn.cd -= dt) > 0) return;
+      const ts = this.pir.filter(q => q.x !== undefined); if (!ts.length) { gn.cd = 1; return; }
+      gn.cd = gn.slow ? this.rnd(6, 10) : this.rnd(2, 4.5);
+      const q = ts[Math.floor(Math.random() * ts.length)], hit = Math.random() < .45;
+      const tx = q.x + (hit ? this.rnd(-.008, .008) : this.rnd(-.05, .05)), ty = q.y + (hit ? this.rnd(-.008, .008) : this.rnd(-.04, .04));
+      this.P.push({ k: 'flash', x: gn.x, y: gn.y, life: .2, age: 0, s: .035 });
+      for (let j = 0; j < 3; j++) this.P.push({ k: 'smoke', x: gn.x, y: gn.y, vx: this.rnd(-.004, .004), vy: -.005, s: .008, gs: .03, life: this.rnd(1, 1.8), age: 0, c: 200 });
+      this.P.push({ k: 'shell', x0: gn.x, y0: gn.y, x1: tx, y1: ty, life: .75, age: 0, onEnd: () => {
+        if (hit) { this.P.push({ k: 'flash', x: tx, y: ty, life: .3, age: 0, s: .05 }); for (let j = 0; j < 6; j++) this.P.push({ k: 'smoke', x: tx, y: ty, vx: this.rnd(-.006, .006), vy: -.007, s: .01, gs: .04, life: this.rnd(1.6, 2.8), age: 0, c: 40 }); if (fortVis()) Snd.play('hit'); }
+        else { for (let j = 0; j < 4; j++) this.P.push({ k: 'foam', x: tx + this.rnd(-.008, .008), y: ty + this.rnd(-.008, .008), life: this.rnd(.9, 1.5), age: 0, s: this.rnd(.012, .022) }); }
+      } });
+      if (fortVis()) Snd.play('shot');
     });
     // --- чайки (днём), лучи маяка (вечером и ночью)
     if (!night) {
