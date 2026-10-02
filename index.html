@@ -651,6 +651,14 @@ body.menu-on .logo{margin:0}
 .trsum{margin:8px 0;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.2);font-size:13px;line-height:1.45}
 .shipcard.future{box-shadow:0 0 0 1px rgba(80,230,255,.6),0 0 14px rgba(80,230,255,.35)}.shipcard.locked .shbox{filter:grayscale(.7) brightness(.7)}
 .futureline{margin:6px 0;padding:6px 10px;border-radius:10px;background:rgba(40,200,255,.12);border:1px solid rgba(80,230,255,.4);color:#9ff0ff;font-size:13px;font-weight:700}
+.tutcard{position:absolute;left:10px;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 50px);z-index:5;padding:10px 12px;border-radius:16px;background:linear-gradient(135deg,rgba(18,52,92,.94),rgba(10,30,60,.94));border:1px solid rgba(255,210,110,.55);box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:560px;margin:0 auto}
+.tutcard.low{top:calc(max(10px,env(safe-area-inset-top)) + 96px)}
+.tutcard .th{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.tutcard .th button{background:none;border:0;color:#fff;opacity:.6;font-size:16px;padding:0 4px}
+.tutcard b{display:block;font-size:15px;margin:3px 0 2px}.tutcard p{margin:0 0 8px;font-size:13px;line-height:1.35;opacity:.9}
+.tutcard .tbar{height:4px;border-radius:3px;background:rgba(255,255,255,.15);margin:6px 0 0;overflow:hidden}.tutcard .tbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.tutcard .row{display:flex;gap:8px;align-items:center}.tutcard .rw{font-size:12px;font-weight:800;color:var(--gold)}
+.tutline{padding:10px 12px;border-radius:14px;background:rgba(255,210,110,.14);border:1px solid rgba(255,210,110,.5);font-size:13.5px;line-height:1.35}
 </style>
 </head>
 <body class="menu-on">
@@ -680,6 +688,7 @@ body.menu-on .logo{margin:0}
       <span class="cn"><small>Капитан</small><span id="captain-name">—</span></span>
       <span class="chev">▾</span>
     </button>
+    <button class="iconbtn glass" id="btn-save" aria-label="Сохранение">💾</button>
     <button class="iconbtn glass" id="bgmBtn" aria-label="Музыка">🎵</button>
     <button class="iconbtn glass" id="btn-sound" aria-label="Звуки"><span id="snd-ico">🔊</span><em id="snd-txt" hidden></em></button>
   </div>
@@ -790,6 +799,7 @@ body.menu-on .logo{margin:0}
     <div class="fchip" id="fg-inc"></div>
     <button class="fchip" id="fg-build" data-bld=""></button>
   </div>
+  <div class="tutcard" id="tutcard" hidden></div>
   <button class="fraidchip" id="fg-raid" hidden>☠️ Пираты у стен! Оборона →</button>
   <div class="fhud-bot">
     <button class="fbtn" data-bld="citadel">⚓<small>Эскадра</small></button>
@@ -869,6 +879,7 @@ body.menu-on .logo{margin:0}
     <p><b>Задания:</b> охота (потопить всех), спасение шлюпок, перехват транспорта, проводка конвоя, штурм форта, оборона до подхода своих. <b>Погода:</b> шторм, туман и ночь меняют обзор и меткость. На карте бывают мели (крупным кораблям туда нельзя без штурмана), маяки и мины.</p>
     <p><b>Бой:</b> поле 12×12 с островами. Каждый ваш корабль за ход делает одно действие: плывёт, стреляет, идёт на абордаж, ставит мину или затаивается. Врагов видно только в радиусе обзора. Выстрел выдаёт стрелявшего (❗), движение шумит — акустики слышат зону. Подлодка невидима дальше 1 клетки, пока не выстрелит. Потопят флагман — миссия проиграна.</p>
     <p><b>Флот:</b> кораблей можно покупать сколько угодно — на верфи в Сухом доке. Каждый корабль — отдельный: со своим именем, опытом, званием, улучшениями, морпехами и офицерами, всё прокачивается с нуля. В бой идут флагман и до 5 кораблей сопровождения. Остальные ждут в резерве: когда ваш корабль тонет, из резерва можно вызвать подкрепление (кнопка 🚩). У врага тоже бывает резерв. Потопленный корабль гибнет навсегда (офицеры с него спасаются лишь иногда), а подбитый уходит из боя с пробоинами: он может плавать и дальше, но с меньшей прочностью, пока его не отремонтируют в Сухом доке. Ремонт стоит золота и занимает время — чем сильнее повреждения и крупнее корабль, тем дольше; чем выше уровень дока, тем быстрее и больше стапелей. Лишний корабль можно продать. Флот стоит денег: каждый корабль и офицер получает жалованье каждый час (флагман бесплатно).</p>
+    <p><b>Сохранение:</b> кнопка 💾 в главном меню сохраняет весь прогресс в файл и загружает его обратно. Делайте это время от времени: без файла прогресс пропадёт, если очистить данные браузера.</p>
     <p><b>Новые подлодки:</b> на Верфи можно заложить Ударную подлодку (Сухой док ур. 2), Ракетоносец (ур. 3) и Подлодку будущего (ур. 4, только одна). У подлодки будущего есть ⚡ импульсная пушка: бьёт по линии сквозь всех врагов, игнорирует броню и не тратит снаряды. Стелс-поле прячет её даже после выстрела, а корпус сам чинится. У врагов таких нет.</p>
     <p><b>Торговля:</b> в Торговой гавани есть склад и биржа. Покупайте провиант, топливо, снаряды, золото и самоцветы, а продавайте их в портах других морей — караваном из своих кораблей. Цены меняются каждые 3 часа, иногда в порту бывает ажиотаж 🔥. Корабли каравана — его охрана: чем она сильнее, тем реже нападают пираты. При нападении можно принять бой самому, положиться на охрану или отдать часть груза. Ящик снарядов со склада можно сдать в Арсенал.</p>
     <p><b>Снаряды и верфь:</b> корабли стреляют только снарядами из Арсенала (Мастерская). Снаряды делаются по реальному времени: обычные — быстро, бронебойные (пробивают броню, +1 урон) — дольше, зажигательные (поджог: −2 ❤ три хода) — ещё дольше, сверхтяжёлые (двойной урон и осколки по соседям) — дольше всех. Торпеды тоже производятся. В бою тип снарядов переключается кнопкой рядом с «Огонь»; залп тратит 3 снаряда, огненный залп — 5. Новые корабли строятся на стапелях Сухого дока — от 10 минут (катер) до 3 часов (линкор); стапели общие для стройки и ремонта.</p><p><b>Команда:</b> у каждого корабля своя команда — матросы (на подлодке — подводники): катер 10, эсминец 30, подлодка 24, крейсер 60, линкор 100. При попадании часть команды и морпехов может погибнуть, а может и никто — как повезёт; врач на борту бережёт людей. Чем меньше команда, тем хуже корабль стреляет, а без половины людей он ещё и медленнее ходит. Пополнить команду можно в Казармах. Погибшие корабли и их экипажи увековечены на стене Мемориала в Цитадели.</p><p><b>Люди:</b> на каждый корабль набирают морпехов (Казармы) и назначают офицеров (Академия): артиллериста, штурмана, инженера, врача, сигнальщика, боцмана, минёра. Офицеры копят опыт в боях своего корабля и растут в званиях от мичмана до капитана 1 ранга. Морпехи идут на абордаж: подойдите вплотную к врагу и нажмите ⚔️ — чем сильнее он повреждён, тем выше шанс. Захваченный корабль становится вашим. Так же можно взять штурмом форт.</p><p><b>Острова:</b> каждый пройденный остров — ваш. Оставьте на нём гарнизон до 3 кораблей (нажмите на свой остров на карте моря или загляните в Маяк) — остров начнёт приносить золото. Пираты время от времени нападают на гарнизоны; если гарнизон слабее, остров захватят, и его придётся отбивать в бою. Донесения о набегах — в Цитадели.</p>
@@ -1515,6 +1526,7 @@ function initMenu() {
   };
   $('#btn-ach').onclick = async () => { await ensureCaptain(); renderHall(); show('scr-ach'); };
   $('#btn-help').onclick = () => show('scr-help');
+  $('#btn-save').onclick = () => { Snd.play('click'); saveDialog(); };
   $('#btn-sound').onclick = $('#battle-sound').onclick = toggleSound;
   document.querySelectorAll('.back-menu').forEach(b => b.onclick = () => show('scr-menu'));
   document.querySelectorAll('#ach-tabs button').forEach(b => b.onclick = () => {
@@ -2888,6 +2900,7 @@ function hubAct(act, id) {
   if (act === 'omap') { Snd.play('click'); return showMap(); }
   if (act === 'oreq') { if (urgentIntel(h)) renderHub(); return; }
   if (act === 'isle') { Snd.play('click'); showMap(+String(id).split(':')[0]); return mapSheet('isle', id); }
+  if (act === 'tutre') { h.tut = 0; saveProfiles(); Snd.play('click'); return showFort(); }
   if (act.startsWith('tr')) return tradeAct(act, id);
   if (act[0] === 'f') return fortAct(act, id);
   if (act === 'pick') { HB.pick = true; Snd.play('click'); return renderHub(); }
@@ -2921,6 +2934,92 @@ function hubAct(act, id) {
   else if (act === 'ofire') { const i = h.officers.findIndex(x => x.id === id); if (i < 0) return; h.officers.splice(i, 1); snd = 'click'; }
   else return;
   saveProfiles(); Snd.play(snd); vibrate(30); renderHub();
+}
+
+/* ---------- Наставник: обучение по шагам ---------- */
+const TUT = [
+  { t: 'Добро пожаловать, капитан!', d: 'Это ваша крепость. Отсюда вы строите флот, ходите в экспедиции и торгуете. Я проведу вас по первым шагам — за каждый шаг дают золото.', btn: 'Начать', manual: true, gold: 0 },
+  { t: 'Закажите снаряды', d: 'Без снарядов корабль не стреляет. Откройте Мастерскую и закажите в Арсенале обычные снаряды.', bld: 'workshop', hub: 'Пролистайте до «Арсенала» и нажмите кнопку с ценой у обычных снарядов. Они будут готовы через несколько минут.', ok: h => h.ammoQ.length > 0 || h.ammo.he > 40, gold: 40 },
+  { t: 'Выиграйте первый бой', d: 'Нажмите «В поход», выберите донесение разведки и дайте бой. В бою: «Плыть» — двигаться, «Огонь» — стрелять по клетке. Враг виден только рядом.', go: 'map', ok: h => h.w >= 1, gold: 80 },
+  { t: 'Почините корабли', d: 'После боя корабли приходят побитыми. Откройте Сухой док, выберите корабль и отправьте его в ремонт. Если всё цело — шаг засчитается сам.', bld: 'dock', hub: 'Выберите побитый корабль в списке флота и нажмите «Ремонт». Ремонт идёт по настоящему времени.', ok: h => !Object.values(h.ships).some(s => s.hpLost && !s.repEnd), gold: 40 },
+  { t: 'Постройте Торговую гавань', d: 'Гавань приносит золото каждый час, даже когда игра закрыта. Нажмите на площадку гавани в крепости и постройте её.', bld: 'market', hub: 'Нажмите кнопку с ценой в строке «Построить». Стройка займёт пару минут.', ok: h => fL(h, 'market') >= 1 || (fdata(h).build && fdata(h).build.id === 'market'), gold: 50 },
+  { t: 'Заложите второй корабль', d: 'Один в море не воин. В Сухом доке выберите корабль на Верфи и заложите его. Катер самый дешёвый.', bld: 'dock', hub: 'Вверху — «Верфь». Нажмите на катер, затем «Заложить».', ok: h => Object.keys(h.ships).length >= 2, gold: 50 },
+  { t: 'Соберите эскадру', d: 'Когда корабль спустят на воду, возьмите его в эскадру — он пойдёт в бой вместе с флагманом.', bld: 'dock', hub: 'Выберите новый корабль в списке и нажмите «В эскадру». Если он ещё строится — подождите.', ok: h => h.squad.length >= 1, gold: 40 },
+  { t: 'Захватите остров', d: 'В экспедиции выберите донесение про остров и победите. Потом нажмите на остров на карте и оставьте гарнизон — он приносит золото.', go: 'map', ok: h => islesOwned(h).length >= 1, gold: 80 },
+  { t: 'Наймите офицера', d: 'Офицеры делают корабль сильнее и растут в званиях. Постройте Морскую академию и наймите первого.', bld: 'academy', hub: 'Постройте здание, затем наймите специалиста и назначьте его на корабль.', ok: h => h.officers.length >= 1, gold: 60 },
+  { t: 'Отправьте караван', d: 'В Торговой гавани купите товар на склад и снарядите караван в порт, где цена выше. Нужен свободный корабль, кроме флагмана.', bld: 'market', hub: 'Купите товар, посмотрите таблицу цен, затем «Снарядить караван».', ok: h => tradeData(h).runs.length > 0, gold: 100 },
+];
+function tutData(h) { if (h.tut == null) h.tut = (h.w + h.l > 2 || Object.keys(h.ships).length > 2) ? -1 : 0; return h.tut; }
+function tutCheck(h) {
+  let i = tutData(h), ch = false;
+  while (i >= 0 && i < TUT.length && !TUT[i].manual && TUT[i].ok(h)) {
+    const s = TUT[i]; h.gold += s.gold; i = h.tut = i + 1; ch = true;
+    toast(`✅ Наставник: «${s.t}» — выполнено! +${s.gold} 💰`); Snd.play('ach');
+    if (i >= TUT.length) { h.tut = -1; setTimeout(() => toast('🎓 Обучение пройдено! Не забывайте сохранять игру: кнопка 💾 в главном меню'), 1800); }
+  }
+  if (ch) saveProfiles();
+  return ch;
+}
+function tutRender(h) {
+  const el = $('#tutcard'); if (!el) return;
+  tutCheck(h); const i = h.tut;
+  if (i < 0 || i >= TUT.length) { el.hidden = true; return; }
+  const s = TUT[i];
+  el.hidden = false; el.classList.toggle('low', !!fdata(h).raidDue);
+  el.innerHTML = `<div class="th"><span>📘 Наставник · шаг ${i + 1} из ${TUT.length}</span><button data-tx aria-label="Пропустить">✕</button></div><b>${s.t}</b><p>${s.d}</p>
+    <div class="row"><button class="btn small primary" data-tg>${s.btn || (s.go === 'map' ? '🗺 В поход' : 'Перейти →')}</button>${s.gold ? `<span class="rw">награда ${s.gold} 💰</span>` : ''}</div><div class="tbar"><i style="width:${i / TUT.length * 100}%"></i></div>`;
+  $('#fg-gold').textContent = h.gold;
+  el.querySelector('[data-tg]').onclick = () => { Snd.play('click'); if (s.manual) { h.tut = i + 1; saveProfiles(); return tutRender(h); } if (s.go === 'map') return showMap(); openBld(s.bld); };
+  el.querySelector('[data-tx]').onclick = () => { if (!HB.tutArm) { HB.tutArm = true; toast('Нажмите ✕ ещё раз, чтобы закрыть обучение. Вернуть его можно в Цитадели'); setTimeout(() => HB.tutArm = false, 3000); return; } h.tut = -1; saveProfiles(); el.hidden = true; };
+}
+const tutLine = (h, id) => { const i = tutData(h), s = TUT[i]; return s && s.bld === id ? `<div class="tutline">📘 <b>${s.t}.</b> ${s.hub || s.d}</div>` : ''; };
+
+/* ---------- Сохранение в файл ---------- */
+const SAVE_KEYS = ['bs-sound', 'bs-diff', 'bs-rules'];
+function saveToFile() {
+  saveProfiles();
+  const data = { app: 'battleship-pwa', v: 1, t: Date.now(), profiles: PR, settings: Object.fromEntries(SAVE_KEYS.map(k => [k, store.get(k, null)])) };
+  const d = new Date(), name = `morskoy-boy-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
+  const json = JSON.stringify(data), done = () => { store.set('bs-backup-t', Date.now()); toast(`💾 Сохранено в файл ${name}`); };
+  try {
+    const file = new File([json], name, { type: 'application/json' });
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file], title: 'Морской бой — сохранение' }).then(done).catch(() => {}); return; }
+  } catch (e) {}
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); done();
+}
+function loadFromFile() {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json,application/json';
+  inp.onchange = () => {
+    const f = inp.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      let d; try { d = JSON.parse(rd.result); } catch (e) { d = null; }
+      const L = d && d.app === 'battleship-pwa' && d.profiles && Array.isArray(d.profiles.list) ? d.profiles.list.filter(p => p && p.id && p.name) : null;
+      if (!L || !L.length) { toast('⚠️ Это не файл сохранения «Морского боя»'); Snd.play('bad'); return; }
+      const apply = merge => {
+        if (merge) { L.forEach(p => { const i = PR.list.findIndex(x => x.id === p.id); if (i >= 0) PR.list[i] = p; else PR.list.push(p); }); if (!PR.cur) PR.cur = d.profiles.cur; }
+        else { PR.list = L; PR.cur = L.some(p => p.id === d.profiles.cur) ? d.profiles.cur : L[0].id; }
+        saveProfiles(); if (d.settings) SAVE_KEYS.forEach(k => { if (d.settings[k] != null) store.set(k, d.settings[k]); });
+        overlay('#ov-ev', false); toast('📂 Сохранение загружено'); setTimeout(() => location.reload(), 700);
+      };
+      const names = L.map(p => p.name).join(', '), when = d.t ? new Date(d.t).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' }) : '?';
+      showEv('📂', 'Загрузить сохранение?', `В файле от ${when}: ${L.length} ${plural(L.length, 'капитан', 'капитана', 'капитанов')} — <b>${names}</b>.<br>«Заменить всё» сотрёт нынешний прогресс на этом устройстве.`, [
+        { t: 'Заменить всё', cls: 'primary', fn: () => apply(false) },
+        PR.list.length && { t: 'Добавить к нынешним капитанам', fn: () => apply(true) },
+        { t: 'Отмена', cls: 'small', fn: () => overlay('#ov-ev', false) },
+      ].filter(Boolean));
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+function saveDialog() {
+  const last = store.get('bs-backup-t', 0);
+  showEv('💾', 'Сохранение', `Весь прогресс хранится только в этом браузере. Сохраните его в файл — и сможете вернуть после очистки кэша или перенести на другое устройство.<br><small>${last ? 'Последнее сохранение в файл: ' + new Date(last).toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' }) : 'В файл вы ещё не сохранялись'}</small>`, [
+    { t: '💾 Сохранить в файл', cls: 'primary', dis: !PR.list.length, fn: () => { saveToFile(); overlay('#ov-ev', false); } },
+    { t: '📂 Загрузить из файла', fn: () => loadFromFile() },
+    { t: 'Закрыть', cls: 'small', fn: () => overlay('#ov-ev', false) },
+  ]);
 }
 
 /* ---------- События архипелага ---------- */
@@ -4142,6 +4241,7 @@ function renderFort(center) {
   $('#fg-mission').textContent = `📜 донесений: ${expData(h).reports.length}`;
   const c = $('#fg-collect'); c.innerHTML = `💰<small>${stored ? '+' + stored : 'казна'}</small>`; c.classList.toggle('ready', stored > 0);
   HB.todShown = todNow();
+  tutRender(h);
   $('#fg-zoom').innerHTML = `🔍<small>${HB.fzoom ? 'общий' : 'ближе'}</small>`;
 }
 function openBld(id) { HB.bld = id; HB.pick = false; HB.cat = null; const h = hdata(curProfile()); if (!h.ships[HB.sel]) HB.sel = h.active; Snd.play('click'); show('scr-hub'); document.body.classList.remove('fort-on'); renderHub(); }
@@ -4195,7 +4295,7 @@ function raidPanel(h) {
 }
 function statsPanel(h) {
   return `<div class="glass hub-panel"><div class="fleetline">${fleetLine(h)}</div><small class="muted">Миссия ${h.mission} · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}${h.caps ? ` · трофеев ${h.caps}` : ''}</small>
-    <button class="btn primary" data-bld="lighthouse">🔭 Штаб разведки и экспедиции</button></div>`;
+    <button class="btn primary" data-bld="lighthouse">🔭 Штаб разведки и экспедиции</button>${h.tut < 0 ? '<button class="btn small" data-act="tutre">📘 Пройти обучение заново</button>' : ''}</div>`;
 }
 function bldContent(h, id) {
   switch (id) {
@@ -4217,7 +4317,8 @@ function renderHub() {
   $('#hub-title').textContent = b.name; $('#hub-gold').textContent = h.gold;
   const hero = $('#bhero'); hero.className = 'bhero glass tod-' + todNow(); hero.innerHTML = bldHero(h, id);
   const body = $('#hub-body');
-  body.innerHTML = fortCard(h, id) + (l ? bldContent(h, id) : `<div class="glass hub-panel lockp"><b>🔒 Здание ещё не построено</b><small class="muted">Постройте его, чтобы получить ${BLD_FN[id]}.</small></div>`);
+  tutCheck(h); $('#hub-gold').textContent = h.gold;
+  body.innerHTML = tutLine(h, id) + fortCard(h, id) + (l ? bldContent(h, id) : `<div class="glass hub-panel lockp"><b>🔒 Здание ещё не построено</b><small class="muted">Постройте его, чтобы получить ${BLD_FN[id]}.</small></div>`);
   body.querySelectorAll('[data-sel]').forEach(x => x.onclick = () => { HB.sel = x.dataset.sel; HB.cat = null; HB.pick = false; Snd.play('click'); renderHub(); });
   body.querySelectorAll('[data-sea]').forEach(x => x.onclick = () => { Snd.play('click'); showMap(+x.dataset.sea); });
   body.querySelectorAll('[data-rgo]').forEach(x => x.onclick = () => runReport(x.dataset.rgo));
