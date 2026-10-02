@@ -645,6 +645,7 @@ body.menu-on .logo{margin:0}
 .trrow{display:flex;flex-direction:column;gap:6px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08)}
 .trrow .trn{display:grid;grid-template-columns:30px 1fr;column-gap:8px;align-items:center}.trrow .trn .ic{grid-row:span 3;font-size:22px;text-align:center}.trrow .trn small{grid-column:2;opacity:.75;font-size:12px}
 .trb{display:flex;flex-wrap:wrap;gap:6px}.trb .btn{min-width:40px}
+.trrow .trn small.trgood{color:#7ee08a;opacity:1;font-weight:700}.trrow .trn small.trbad{color:#ff9b8a;opacity:1}.trrow .trn .ic{grid-row:span 4}
 .trtabw{overflow-x:auto}.trtab{border-collapse:collapse;width:100%;font-size:13px;text-align:center}.trtab th{font-size:11px;opacity:.8;padding:4px 3px;font-weight:600}.trtab td{padding:5px 3px;border-top:1px solid rgba(255,255,255,.08);white-space:nowrap}
 .trtab td.up{color:#7ee08a;font-weight:700}.trtab td.hot{color:#ffb347;font-weight:800}.trtab i{font-style:normal;color:#7ee08a;font-size:10px}.trtab em{font-style:normal;color:#ff7b6b;font-size:10px}.trtab td small{display:block;font-size:10px;opacity:.7}
 .trchips{display:flex;flex-wrap:wrap;gap:6px}.trchips .btn{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2}.trchips .btn small{font-size:10px;opacity:.8}
@@ -2124,7 +2125,7 @@ const HS = {
   battleship: { name: 'Линкор',   len: 4, price: 1400, hp: 22, armor: 3, speed: 1, dmg: 6, range: 6, sight: 3, mar: 10, slots: 3, desc: 'Плавучая крепость. Медленный, но сокрушительный.' },
   sub2:       { name: 'Ударная подлодка', len: 2, price: 950, hp: 11, armor: 1, speed: 2, dmg: 5, range: 5, sight: 2, mar: 3, slots: 2, sub: true, need: 2, eqBase: { torp: true }, desc: 'Атомная охотница: крепче и дальнобойнее обычной подлодки. Торпедный аппарат — с завода.' },
   sub3:       { name: 'Ракетоносец', len: 3, price: 1800, hp: 16, armor: 2, speed: 1, dmg: 6, range: 6, sight: 2, mar: 4, slots: 2, sub: true, need: 3, eqBase: { torp: true, salvo: true }, desc: 'Огромный подводный крейсер. Торпеды и ракетный залп — с завода. Медленный, но бьёт издалека и из-под воды.' },
-  subx:       { name: 'Подлодка будущего', len: 3, price: 3600, hp: 18, armor: 3, speed: 3, dmg: 6, range: 6, sight: 4, mar: 4, slots: 3, sub: true, need: 4, unique: true, future: true, eqBase: { torp: true }, desc: 'Пришла из будущего — такая есть только у вас и только одна. ⚡ Импульсная пушка бьёт сквозь всех врагов на линии без снарядов. 👻 Стелс-поле: не видна даже после выстрела. 🔋 Корпус сам чинится каждые 2 хода.' },
+  subx:       { name: 'Подлодка будущего', len: 3, price: 4500, hp: 18, armor: 3, speed: 3, dmg: 6, range: 6, sight: 4, mar: 4, slots: 3, sub: true, need: 4, unique: true, future: true, eqBase: { torp: true }, desc: 'Пришла из будущего — такая есть только у вас и только одна. ⚡ Импульсная пушка бьёт сквозь всех врагов на линии без снарядов. 👻 Стелс-поле: не видна даже после выстрела. 🔋 Корпус сам чинится каждые 3 хода.' },
   merchant:   { name: 'Торговец', len: 2, price: 0, hp: 8,  armor: 0, speed: 1, dmg: 0, range: 0, sight: 1, mar: 0, slots: 0, npc: true },
   transport:  { name: 'Транспорт', len: 3, price: 0, hp: 12, armor: 1, speed: 1, dmg: 0, range: 0, sight: 2, mar: 0, slots: 0, npc: true },
   citadel:    { name: 'Цитадель', len: 1, price: 0, hp: 20, armor: 0, speed: 0, dmg: 0, range: 0, sight: 3, mar: 0, slots: 0, npc: true, fort: true, mine: true },
@@ -2262,7 +2263,7 @@ function shipStats(id, up = {}, crew = {}, x = {}) {
   });
   const rk = RANKS[x.rank || 0]; s.hp += rk.hp || 0; s.dmg += rk.dmg || 0; s.armor += rk.armor || 0;
   if (x.eq && x.eq.plating) s.armor += 1;
-  if (b.future) { s.regen = s.regen ? Math.min(s.regen, 2) : 2; s.cloak = true; s.pulse = true; }
+  if (b.future) { s.regen = s.regen ? Math.min(s.regen, 3) : 3; s.cloak = true; s.pulse = true; }
   return s;
 }
 const ownStats = (h, id) => { const s = h.ships[id]; if (!s) return shipStats(id, {}, h.crew); const st = shipStats(s.type, s.up, h.crew, { spec: offSpec(h, id), rank: rankOf(s.xp), eq: s.eq }); st.cap += Math.floor(fL(h, 'barracks') / 2); return st; };
@@ -2296,7 +2297,7 @@ function checkAch(p, ids) {
 }
 
 /* ---------- Флот без ограничений: корабли-экземпляры, офицеры, острова ---------- */
-const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 9 }, OFF_UPK = 1, GARR_MAX = 3;
+const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 }, OFF_UPK = 1, GARR_MAX = 3;
 const SHIP_POOL = {
   boat: ['Стриж', 'Чайка', 'Вьюн', 'Ласточка', 'Кречет', 'Сокол', 'Ястреб', 'Баклан', 'Бриз', 'Шквал', 'Пчела', 'Вихрь'],
   destroyer: ['Стремительный', 'Грозный', 'Бесстрашный', 'Быстрый', 'Резвый', 'Смелый', 'Верный', 'Лихой', 'Дерзкий', 'Громкий'],
@@ -2415,12 +2416,12 @@ const TGOODS = [
   { id: 'gold',   ic: '🪙', n: 'Золото',     base: 60 },
   { id: 'gems',   ic: '💎', n: 'Самоцветы',  base: 110 },
 ];
-const TR_HOME = { n: 'Торговая гавань', mul: { food: .8, fuel: .85, shells: .9, gold: 1.1, gems: 1.15 } };
+const TR_HOME = { n: 'Торговая гавань', mul: { food: .9, fuel: .9, shells: .95, gold: 1, gems: 1 } };
 const TPORTS = [
-  { n: 'Порт Лазурный',      sea: 0, min: 30,  risk: .12, threat: 18, mul: { food: 1.15, fuel: 1.1, shells: 1.05, gold: 1.05, gems: 1 } },
-  { n: 'Порт Бриз',          sea: 1, min: 60,  risk: .2,  threat: 30, mul: { food: 1.3, fuel: 1.4, shells: 1.2, gold: .95, gems: 1.1 } },
-  { n: 'Туманная Гавань',    sea: 2, min: 90,  risk: .28, threat: 45, mul: { food: 1.5, fuel: 1.6, shells: 1.5, gold: 1.2, gems: .9 } },
-  { n: 'Обсидиановый Рынок', sea: 3, min: 120, risk: .36, threat: 60, mul: { food: 1.7, fuel: 1.4, shells: 1.9, gold: 1.4, gems: 1.45 } },
+  { n: 'Порт Лазурный',      sea: 0, min: 30,  risk: .12, threat: 18, mul: { food: 1.1, fuel: 1.1, shells: 1.1, gold: 1.08, gems: 1.05 } },
+  { n: 'Порт Бриз',          sea: 1, min: 60,  risk: .2,  threat: 30, mul: { food: 1.25, fuel: 1.3, shells: 1.2, gold: 1.15, gems: 1.12 } },
+  { n: 'Туманная Гавань',    sea: 2, min: 90,  risk: .28, threat: 45, mul: { food: 1.3, fuel: 1.35, shells: 1.3, gold: 1.25, gems: 1.22 } },
+  { n: 'Обсидиановый Рынок', sea: 3, min: 120, risk: .36, threat: 60, mul: { food: 1.38, fuel: 1.35, shells: 1.42, gold: 1.4, gems: 1.45 } },
 ];
 const CARGO = { boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 };
 const SHELL_BOX = 8, TR_PER = 3 * 3600e3;
@@ -2551,7 +2552,7 @@ function tradePanel(h) {
     <small class="muted">Покупайте товар здесь, а выгоднее продавайте в портах других морей — караваном. Цены меняются каждые 3 часа: обновятся через <b data-until="${next}">${fmtLeft(next - now)}</b>.</small>`;
   TGOODS.forEach(g => {
     const st = T.stock[g.id], b = trBuy(h, g.id), sl = trSellHome(g.id);
-    s += `<div class="trrow"><div class="trn"><span class="ic">${g.ic}</span><b>${g.n}</b><small>на складе ${st}${st && T.cost[g.id] ? ` · куплено по ~${T.cost[g.id]}` : ''}</small><small>купить ${b} · продать ${sl} 💰</small></div>
+    s += `<div class="trrow"><div class="trn"><span class="ic">${g.ic}</span><b>${g.n}</b><small>на складе ${st}${st && T.cost[g.id] ? ` · куплено по ~${T.cost[g.id]}` : ''}</small><small>купить ${b} · продать ${sl} 💰</small>${(() => { let bp = -1, bv = 0; open.forEach(pi => { const v = trPrice(pi, g.id); if (v > bv) { bv = v; bp = pi; } }); if (bp < 0) return ''; const m = Math.round((bv - b) / b * 100); return m > 0 ? `<small class="trgood">📈 выгоднее всего везти в «${TPORTS[bp].n}»: +${m}%</small>` : `<small class="trbad">📉 сейчас везти невыгодно — лучше подождать</small>`; })()}</div>
       <div class="trb"><button class="btn small primary" data-act="trbuy" data-id="${g.id}:1" ${h.gold < b || used >= cap ? 'disabled' : ''}>+1</button><button class="btn small primary" data-act="trbuy" data-id="${g.id}:5" ${h.gold < b * 5 || used + 5 > cap ? 'disabled' : ''}>+5 · ${b * 5}</button><button class="btn small" data-act="trsell" data-id="${g.id}:1" ${st ? '' : 'disabled'}>−1</button><button class="btn small" data-act="trsell" data-id="${g.id}:all" ${st ? '' : 'disabled'}>Продать все</button>${g.id === 'shells' ? `<button class="btn small" data-act="trars" ${st ? '' : 'disabled'} title="1 ящик = ${SHELL_BOX} обычных снарядов">→ Арсенал</button>` : ''}</div></div>`;
   });
   s += `</div>`;
@@ -3229,11 +3230,12 @@ function foeCfg(m) {
 }
 function addFoe(type, pos, m, weak = 1) {
   const u = mkUnit(type, 'foe', pos.r, pos.c, 135, foeCfg(m));
-  u.st.hp = Math.max(3, Math.round(u.st.hp * (m === 1 ? .67 : m === 2 ? .8 : .88) * weak)); u.hp = u.st.hp;
+  u.st.hp = Math.max(3, Math.round(u.st.hp * (m === 1 ? .5 : m === 2 ? .65 : m === 3 ? .8 : m <= 6 ? .9 : 1) * weak)); u.hp = u.st.hp; if (m <= 2) u.st.scatter = m === 1 ? .5 : .4;
   H.foes.push(u); return u;
 }
+const foeTop = m => m >= 13 ? 4 : Math.min(3, Math.floor((m - 1) / 2.5));
 function genFoes(m, n, zone = [0, HN - 5, 5, 5]) {
-  const top = Math.min(4, Math.floor((m - 1) / 2));
+  const top = foeTop(m);
   for (let i = 0; i < n; i++) {
     const type = i === 0 ? HS_ORDER[top] : HS_ORDER[rnd(top + 1)];
     const pos = freeCell(zone, H.foes) || freeCell(zone); if (!pos) break;
@@ -3278,7 +3280,7 @@ function setupObjective(node) {
 }
 function spawnReinf() {
   const pos = freeCell([0, HN - 3, 3, 3]); if (!pos) return;
-  const top = Math.min(4, Math.floor((H.mission - 1) / 2));
+  const top = foeTop(H.mission);
   const u = addFoe(HS_ORDER[rnd(top + 1)], pos, H.mission);
   u.known = { r: H.me.r, c: H.me.c, exact: false, age: 0 };
   hMakeEl(u); hMsg('⚠️ К врагу подошло подкрепление!', 'hit');
@@ -3621,7 +3623,7 @@ async function hFire(u, kind, r, c) {
     u.cd.fire = 4; const cells = []; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) cells.push([dr, dc]);
     await area(cells, Math.max(1, effDmg(u) - 1));
   } else if (kind === 'pulse') {
-    u.cd.pulse = 2;
+    u.cd.pulse = 3;
     const dr = Math.sign(r - u.r), dc = Math.sign(c - u.c); let y = u.r, x = u.c, ey = y, ex = x;
     for (let i = 0; i < u.st.range + 2; i++) { const ny = y + dr, nx = x + dc; if (!hin(ny, nx) || H.land[hidx(ny, nx)]) break; y = ny; x = nx; ey = y; ex = x; }
     if (BFX.lo) BFX.beam(u.r, u.c, ey, ex); await sleep(180);
@@ -3899,7 +3901,7 @@ const FB = [
   { id: 'academy',    ic: '🎓', name: 'Морская академия',  x: 30, y: 56, base: 180, desc: 'Дешевле найм и обучение специалистов.', eff: l => `специалисты −${10 * l}%` },
   { id: 'workshop',   ic: '🔨', name: 'Мастерская',        x: 38, y: 79, base: 170, desc: 'Дешевле оборудование и улучшения кораблей.', eff: l => `оборудование −${10 * l}%, улучшения −${5 * l}%` },
   { id: 'lighthouse', ic: '🗼', name: 'Маяк',              x: 85, y: 31, base: 140, desc: 'Штаб разведки: донесения о пиратах, оценка их сил, точное время набегов, обзор в бою и мины.', eff: l => ['', 'донесений до 3, раз в 72 мин', 'донесений до 4 · разведка считает врагов', 'донесений до 5 · видно сильнейший корабль, +1 к обзору', 'донесений до 6 · батареи бьют дальше', 'донесений до 7, раз в 40 мин · видны все мины'][l] },
-  { id: 'battery',    ic: '💥', name: 'Береговые батареи', x: 15, y: 44, base: 160, desc: 'Пушки на берегу. Во время набега сами стреляют по пиратам.', eff: l => `${BAT_N[l]} ${plural(BAT_N[l], 'батарея', 'батареи', 'батарей')}, урон ${3 + l}, дальность 10 клеток` },
+  { id: 'battery',    ic: '💥', name: 'Береговые батареи', x: 15, y: 44, base: 160, desc: 'Пушки на берегу. Во время набега сами стреляют по пиратам.', eff: l => `${BAT_N[l]} ${plural(BAT_N[l], 'батарея', 'батареи', 'батарей')}, урон ${2 + l}, дальность 10 клеток (чем дальше цель, тем чаще промах)` },
   { id: 'walls',      ic: '🧱', name: 'Стены',             x: 52, y: 66, base: 120, desc: 'Прочность цитадели и батарей во время набега.', eff: l => `цитадель ❤${20 + 12 * l} 🛡${Math.floor(l / 2)}, батареи ❤${8 + 3 * l}` },
 ];
 const FB_MULT = [0, 1, 2.2, 4.5, 8, 14], FB_MIN = [0, 2, 15, 60, 180, 480];
@@ -4024,9 +4026,9 @@ function raidSetup(h) {
   const ci = Object.assign(mkUnit('citadel', 'me', cc[0], cc[1], 0), { name: 'Цитадель' });
   ci.st.hp = ci.hp = 20 + 12 * wl; ci.st.armor = Math.floor(wl / 2); ci.st.sight = 3;
   H.fleet.push(ci); H.citadel = ci;
-  bat.forEach(([r, c]) => { const b = Object.assign(mkUnit('battery', 'me', r, c, 0), { name: 'Батарея' }); b.st.hp = b.hp = 8 + 3 * wl; b.st.dmg = 3 + bl; b.st.range = 10 + (fL(h, 'lighthouse') >= 4 ? 1 : 0); b.st.sight = Math.max(b.st.sight, b.st.range); b.st.scatter = .15; H.fleet.push(b); });
-  const m = Math.max(2, H.mission);
-  genFoes(m, 2 + Math.floor(cit / 2));
+  bat.forEach(([r, c]) => { const b = Object.assign(mkUnit('battery', 'me', r, c, 0), { name: 'Батарея' }); b.st.hp = b.hp = 8 + 3 * wl; b.st.dmg = 2 + bl; b.st.range = 10 + (fL(h, 'lighthouse') >= 4 ? 1 : 0); b.st.sight = Math.max(b.st.sight, b.st.range); b.st.scatter = .2; H.fleet.push(b); });
+  const m = Math.max(2, H.mission, 2 * cit); H.mission = m;
+  genFoes(m, 2 + Math.floor(cit * .75));
   H.wavesLeft = 2; H.waveSize = 1 + Math.floor(cit / 3);
   H.foes.forEach(f => f.known = { r: cc[0], c: cc[1], exact: false, age: 0 });
 }
@@ -4342,7 +4344,7 @@ function raidPanel(h) {
   else if (f.nextRaid) s += `<small class="muted">🔭 ${fL(h, 'lighthouse') >= 2 ? `Маяк: пираты нападут через <span data-until="${f.nextRaid}">${fmtLeft(f.nextRaid - now)}</span>` : `Разведка: пираты рыщут неподалёку, набег возможен ${f.nextRaid - now < 3600000 ? 'совсем скоро' : 'в ближайшие часы'}`}</small>`;
   else s += `<small class="muted">Пока Цитадель 1-го уровня, пираты крепость не замечают.</small>`;
   const bl = fL(h, 'battery'), wl = fL(h, 'walls');
-  s += `<small class="muted">Оборона: ${BAT_N[bl] ? `${BAT_N[bl]} ${plural(BAT_N[bl], 'батарея', 'батареи', 'батарей')} (урон ${3 + bl})` : 'батарей нет'} · цитадель ❤${20 + 12 * wl} 🛡${Math.floor(wl / 2)} · отбито набегов: ${f.raids.w}, проиграно: ${f.raids.l}</small></div>`;
+  s += `<small class="muted">Оборона: ${BAT_N[bl] ? `${BAT_N[bl]} ${plural(BAT_N[bl], 'батарея', 'батареи', 'батарей')} (урон ${2 + bl})` : 'батарей нет'} · цитадель ❤${20 + 12 * wl} 🛡${Math.floor(wl / 2)} · отбито набегов: ${f.raids.w}, проиграно: ${f.raids.l}</small></div>`;
   return s;
 }
 function statsPanel(h) {
@@ -4480,7 +4482,7 @@ function repDesc(h, r) {
   if (r.reclaim) d = 'Пираты захватили ваш остров. ' + d;
   else if (r.patrol) d = 'Пиратская вылазка у ваших берегов. ' + d;
   else d += ' Победа — и остров ваш.';
-  if (L >= 2) { const n = Math.min(3, 1 + Math.floor((r.lvl - 1) / 3)); d += ` Разведка: ${n}–${n + 2} ${plural(n + 2, 'корабль', 'корабля', 'кораблей')}`; if (L >= 3) d += `, сильнейший — ${HS[HS_ORDER[Math.min(4, Math.floor((r.lvl - 1) / 2))]].name.toLowerCase()}`; d += '.'; }
+  if (L >= 2) { const n = Math.min(3, 1 + Math.floor((r.lvl - 1) / 3)); d += ` Разведка: ${n}–${n + 2} ${plural(n + 2, 'корабль', 'корабля', 'кораблей')}`; if (L >= 3) d += `, сильнейший — ${HS[HS_ORDER[foeTop(r.lvl)]].name.toLowerCase()}`; d += '.'; }
   return d + (W ? '' : '');
 }
 function repCard(h, r, i) {
@@ -5249,9 +5251,10 @@ const FortLife = {
 };
 
 async function towerFire(u) {
-  const ts = H.foes.filter(f => f.hp > 0 && !f.gone && foeVisible(f) && cheb(u, f) <= u.st.range).sort((a, b) => a.hp - b.hp);
+  const ts = H.foes.filter(f => f.hp > 0 && !f.gone && foeVisible(f) && cheb(u, f) <= u.st.range).sort((a, b) => cheb(u, a) - cheb(u, b) || a.hp - b.hp);
   if (!ts.length) return;
-  const res = await hFire(u, 'gun', ts[0].r, ts[0].c); hMsg(`${shipName(u)}: ${res.text.replace(/^[^:]*: /, '')}`, res.cls);
+  const sc0 = u.st.scatter; u.st.scatter = Math.min(.75, sc0 + .1 * Math.max(0, cheb(u, ts[0]) - 4));
+  const res = await hFire(u, 'gun', ts[0].r, ts[0].c); u.st.scatter = sc0; hMsg(`${shipName(u)}: ${res.text.replace(/^[^:]*: /, '')}`, res.cls);
   renderHunt(); await sleep(250);
 }
 
