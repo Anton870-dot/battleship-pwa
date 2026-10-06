@@ -490,11 +490,22 @@ body.fort-on #splash,body.fort-on #sea{display:none}
 .hunit.boss .spr{filter:sepia(1) hue-rotate(-50deg) saturate(4) brightness(.55) drop-shadow(0 0 6px #ff3b2f)}
 .hunit.smoked .spr{opacity:.45;filter:blur(1px) grayscale(.6)}
 .bosstag{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:13px}
-.wx{position:absolute;inset:0;pointer-events:none;z-index:5}
-.wx.night{background:radial-gradient(ellipse at 20% 85%,rgba(0,0,25,.08),rgba(0,5,30,.42))}
-.wx.fog{background:linear-gradient(180deg,rgba(225,238,248,.2),rgba(225,238,248,.08))}
-.wx.storm{background-image:repeating-linear-gradient(105deg,rgba(255,255,255,.13) 0 1px,transparent 1px 9px);background-size:120px 120px;animation:rain .45s linear infinite}
-@keyframes rain{to{background-position:-30px 120px}}
+.wxc{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.hmap.w-night .terrain{filter:brightness(.6) saturate(.7) hue-rotate(12deg)}.hmap.w-storm .terrain{filter:brightness(.72) saturate(.75)}.hmap.w-fog .terrain{filter:saturate(.7) brightness(.95)}
+.hunit .spr{position:relative;animation:bob 3.6s ease-in-out var(--bd,0s) infinite alternate}
+.hunit.fortu .spr,.hunit.npc.fortu .spr{animation:none}
+.hmap.w-storm .hunit:not(.fortu) .spr{animation:bobS 1.9s ease-in-out var(--bd,0s) infinite alternate}
+.hunit.crit:not(.fortu) .spr{animation:bobC 2.6s ease-in-out var(--bd,0s) infinite alternate}
+@keyframes bob{from{transform:translateY(-1.6%) rotate(-.9deg) scale(1)}to{transform:translateY(1.6%) rotate(.9deg) scale(1.02)}}
+@keyframes bobS{from{transform:translate(-2%,-4%) rotate(-3deg) scale(.99)}to{transform:translate(2%,4%) rotate(3deg) scale(1.04)}}
+@keyframes bobC{from{transform:translateY(-1%) rotate(3deg) scale(.98)}to{transform:translateY(2%) rotate(5.5deg) scale(.97)}}
+.hunit .spr>.recoil{animation:recoil .38s cubic-bezier(.2,.7,.3,1)}
+@keyframes recoil{0%{transform:none;filter:brightness(1.5)}18%{transform:translateX(-9%)}100%{transform:none}}
+.hunit .spr.simg::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s;-webkit-mask:var(--mk) center/100% 100% no-repeat;mask:var(--mk) center/100% 100% no-repeat;
+  background:radial-gradient(circle at 32% 45%,rgba(15,10,8,.9) 0 7%,transparent 17%),radial-gradient(circle at 63% 58%,rgba(15,10,8,.85) 0 6%,transparent 15%),radial-gradient(circle at 80% 40%,rgba(20,12,8,.7) 0 4%,transparent 11%)}
+.hunit.hurt .spr.simg::after{opacity:.85}
+.hunit.crit .spr.simg::after{opacity:1;background:radial-gradient(circle at 32% 45%,rgba(255,150,40,.95) 0 4%,rgba(15,10,8,.9) 8%,transparent 20%),radial-gradient(circle at 63% 58%,rgba(255,120,30,.9) 0 3%,rgba(15,10,8,.9) 7%,transparent 18%),radial-gradient(circle at 80% 40%,rgba(20,12,8,.8) 0 6%,transparent 14%),radial-gradient(circle at 48% 50%,rgba(20,12,8,.5) 0 10%,transparent 26%);animation:burnfl .5s steps(2) infinite}
+@keyframes burnfl{50%{filter:brightness(1.5)}}
 .hlegend{font-size:12px;color:var(--muted);text-align:center;max-width:470px;line-height:1.4}
 
 /* shipyard */
@@ -3418,6 +3429,7 @@ function hMakeEl(u) {
   const el = document.createElement('div');
   el.className = 'hunit ' + u.side + (u.ally ? ' ally' : '') + (u.auto ? ' npc' : '') + (u.boss ? ' boss' : '') + (HS[u.type].fort ? ' fortu' : '');
   const ar = TOP_AR[u.type], spr = ar ? `<div class="spr simg" style="width:calc(var(--hc)*${w * 1.05});height:calc(var(--hc)*${w * 1.05 / ar})"><img src="top_${u.type}.webp" alt="" draggable="false"${u.skin && SKINS[u.skin] ? ` style="filter:${SKINS[u.skin].f}"` : ''}></div>` : `<div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${HS[u.type].fort ? 1 : w / len})">${shipPic(u.type, u.side === 'me')}</div>`;
+  el.style.setProperty('--bd', (-Math.random() * 4).toFixed(2) + 's'); if (ar) el.style.setProperty('--mk', `url(top_${u.type}.webp)`);
   el.innerHTML = `<div class="rot">${spr}</div><div class="hpbar"><i></i></div>${u.boss ? '<div class="bosstag">☠️</div>' : ''}`;
   H.layer.appendChild(el); H.els[u.id] = el;
 }
@@ -3429,13 +3441,13 @@ function buildHuntMap() {
     const d = document.createElement('div'); d.className = 'hc'; d.onclick = () => hClick(r, c); m.appendChild(d); H.cells.push(d);
   }
   const layer = document.createElement('div'); layer.className = 'hlayer'; m.appendChild(layer); H.layer = layer;
-  const wx = document.createElement('div'); wx.className = 'wx ' + H.weather; m.appendChild(wx);
   H.els = {};
   hUnits().forEach(hMakeEl);
   wrap.appendChild(m);
-  Ocean.add(m, 112);
+  Ocean.add(m, 112); Ocean.list[Ocean.list.length - 1].mood = H.weather;
   Terrain.build(m, H.land, H.shoal, HN);
   BFX.attach(m);
+  Weather.attach(m, H.weather);
 }
 function hMsg(t, cls) { const m = $('#hmsg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
 function boardTargets(u) { return H.foes.filter(f => f.hp > 0 && !f.gone && !f.boss && cheb(u, f) <= 1 && (foeVisible(f) || HS[f.type].fort)); }
@@ -3491,7 +3503,7 @@ function renderHunt() {
     const sinking = u.hp <= 0 && u.sinkAt && performance.now() - u.sinkAt < 2700 + (HS[u.type].len || 1) * 200;
     const vis = sinking || (u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u)));
     el.classList.toggle('hidden', !vis); el.classList.toggle('sinking', !!sinking);
-    el.classList.toggle('smoked', u.smoke > 0);
+    el.classList.toggle('smoked', u.smoke > 0); { const f = u.hp / u.st.hp; el.classList.toggle('hurt', f < .6 && u.hp > 0); el.classList.toggle('crit', f < .3 && u.hp > 0); }
     el.style.left = `calc(var(--hc) * ${u.c})`; el.style.top = `calc(var(--hc) * ${u.r})`;
     el.querySelector('.rot').style.transform = `translate(-50%,-50%) rotate(${u.dir}deg)`;
     el.querySelector('.hpbar i').style.width = (Math.max(0, u.hp) / u.st.hp * 100) + '%';
@@ -3680,6 +3692,7 @@ async function hFire(u, kind, r, c) {
   else { H.flashes.push({ r: u.r, c: u.c, age: 0 }); if (H.weather === 'night') u.revealed = Math.max(u.revealed, 1); }
   if (!u.st.fort) u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI;
   Snd.play(kind === 'torp' ? 'plane' : kind === 'pulse' ? 'radar' : 'shot'); renderHunt();
+  if (kind === 'gun' || kind === 'salvo' || kind === 'fire') { const sp = H.els[u.id] && H.els[u.id].querySelector('.spr > *'); if (sp) { sp.classList.remove('recoil'); void sp.offsetWidth; sp.classList.add('recoil'); } }
   let gy = r, gx = c, scatterHit = false;
   if (kind === 'gun' && Math.random() < u.st.scatter + (1 - crewEff(u)) * .3) { const [dr, dc] = pick(DIR8); if (hin(r + dr, c + dc)) { gy = r + dr; gx = c + dc; scatterHit = true; } }
   if (BFX.lo && kind === 'gun') await BFX.shot(u, gy, gx);
@@ -5128,8 +5141,13 @@ const BFX = new FxLayer({
     hUnits().forEach(u => {
       if (!u.st || u.hp <= 0 || u.gone || (HS[u.type].npc && !HS[u.type].fort) || !BFX.visible(u)) return;
       if (u.burn > 0 && Math.random() < dt / 45) { const [bx, by] = fx.xy(u.r, u.c); fx.add({ k: 'fire', x: bx + fx.rnd(-.2, .2) * cs, y: by + fx.rnd(-.15, .15) * cs, vx: fx.rnd(-3, 3), vy: fx.rnd(-16, -6), s: cs * fx.rnd(.08, .16), life: fx.rnd(300, 600) }); }
+      const [x, y] = fx.xy(u.r, u.c), fort = HS[u.type].fort;
+      if (!fort && fx.P.length < 500) {   // пена у бортов и дымок из труб
+        const a = (u.dir || 0) * Math.PI / 180, len = HS[u.type].len || 1, storm = H.weather === 'storm';
+        if (Math.random() < dt / (storm ? 260 : 520)) { const s = Math.random() < .5 ? 1 : -1, al = fx.rnd(-.3, .38) * (.5 + .2 * len); fx.add({ k: 'foam', x: x + (Math.cos(a) * al - Math.sin(a) * .13 * s) * cs, y: y + (Math.sin(a) * al + Math.cos(a) * .13 * s) * cs, vx: -Math.sin(a) * s * 4, vy: Math.cos(a) * s * 4, s: cs * fx.rnd(.07, .13), life: fx.rnd(900, 1500), lo: true }); }
+        if (!u.st.sub && Math.random() < dt / 1100) fx.add({ k: 'smoke', x: x - Math.cos(a) * cs * .05, y: y - Math.sin(a) * cs * .05, vx: fx.rnd(2, 9), vy: fx.rnd(-12, -5), s: cs * .05, g: cs * .22, life: fx.rnd(900, 1400), c: 190 });
+      }
       const f = u.hp / u.st.hp; if (f >= .6) return;
-      const [x, y] = fx.xy(u.r, u.c);
       if (Math.random() < dt / (f < .3 ? 70 : 160)) fx.add({ k: 'smoke', x: x + fx.rnd(-.15, .15) * cs, y: y + fx.rnd(-.15, .15) * cs, vx: fx.rnd(-4, 6), vy: fx.rnd(-16, -8), s: cs * fx.rnd(.14, .22), g: cs * .6, life: fx.rnd(900, 1500), c: f < .3 ? 45 : 110 });
       if (f < .35 && Math.random() < dt / 110) fx.add({ k: 'fire', x: x + fx.rnd(-.18, .18) * cs, y: y + fx.rnd(-.12, .12) * cs, vx: fx.rnd(-3, 3), vy: fx.rnd(-14, -6), s: cs * fx.rnd(.06, .12), life: fx.rnd(300, 550) });
     });
@@ -5217,6 +5235,58 @@ const Terrain = {
   },
 };
 
+/* ==================== ПОГОДА НА ПОЛЕ БОЯ ==================== */
+const Weather = {
+  raf: 0, last: 0,
+  attach(map, kind) {
+    cancelAnimationFrame(this.raf); this.raf = 0;
+    map.classList.add('w-' + kind);
+    if (reduceMotion) return;
+    const cv = document.createElement('canvas'); cv.className = 'wxc'; map.appendChild(cv);
+    const g = cv.getContext('2d'), R = (a, b) => a + Math.random() * (b - a);
+    const st = { rain: Array.from({ length: 110 }, () => ({ x: Math.random(), y: Math.random(), v: R(1.5, 2.4), l: R(.03, .06) })),
+      puffs: Array.from({ length: kind === 'fog' ? 13 : 4 }, () => ({ x: Math.random(), y: Math.random(), r: kind === 'fog' ? R(.18, .34) : R(.22, .4), vx: R(.006, .02) * (kind === 'fog' ? 1 : 1.6), ph: Math.random() * 6 })),
+      bolt: null, nextBolt: R(3, 8), flash: 0, t: 0, moon: R(.25, .75) };
+    const draw = dt => {
+      const w = map.clientWidth; if (!w) return; const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      if (cv.width !== Math.round(w * dpr)) { cv.width = cv.height = Math.round(w * dpr); }
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, w); st.t += dt;
+      const cs = w / HN;
+      if (kind === 'clear') {       // тени облаков плывут по воде
+        st.puffs.forEach(p => { p.x += p.vx * dt; if (p.x - p.r > 1.1) { p.x = -p.r - .1; p.y = Math.random(); } const gr = g.createRadialGradient(p.x * w, p.y * w, 0, p.x * w, p.y * w, p.r * w); gr.addColorStop(0, 'rgba(0,20,50,.2)'); gr.addColorStop(1, 'rgba(0,20,50,0)'); g.fillStyle = gr; g.beginPath(); g.ellipse(p.x * w, p.y * w, p.r * w, p.r * w * .6, 0, 0, 6.283); g.fill(); });
+      } else if (kind === 'fog') {
+        g.fillStyle = 'rgba(214,228,238,.13)'; g.fillRect(0, 0, w, w);
+        st.puffs.forEach(p => { p.x += p.vx * dt; if (p.x - p.r > 1.05) { p.x = -p.r; p.y = Math.random(); } const yy = (p.y + Math.sin(st.t * .25 + p.ph) * .02) * w, a = .2 + .07 * Math.sin(st.t * .4 + p.ph); const gr = g.createRadialGradient(p.x * w, yy, 0, p.x * w, yy, p.r * w); gr.addColorStop(0, `rgba(235,243,248,${a})`); gr.addColorStop(.6, `rgba(235,243,248,${a * .45})`); gr.addColorStop(1, 'rgba(235,243,248,0)'); g.fillStyle = gr; g.beginPath(); g.ellipse(p.x * w, yy, p.r * w, p.r * w * .55, 0, 0, 6.283); g.fill(); });
+      } else if (kind === 'storm') {
+        const vg = g.createLinearGradient(0, 0, 0, w); vg.addColorStop(0, 'rgba(8,16,34,.42)'); vg.addColorStop(1, 'rgba(8,16,34,.2)'); g.fillStyle = vg; g.fillRect(0, 0, w, w);
+        g.strokeStyle = 'rgba(215,232,255,.5)'; g.lineWidth = 1.1; g.lineCap = 'round'; g.beginPath();
+        st.rain.forEach(d => { d.y += d.v * dt; d.x -= d.v * dt * .28; if (d.y > 1.05) { d.y = -.05; d.x = Math.random() * 1.3; } const x = d.x * w, y = d.y * w; g.moveTo(x, y); g.lineTo(x - d.l * w * .28, y + d.l * w); });
+        g.stroke();
+        // круги от капель
+        for (let i = 0; i < 3; i++) if (Math.random() < dt * 9) BFX.lo && BFX.add({ k: 'ring', x: Math.random() * w, y: Math.random() * w, s: 1, s1: cs * .22, life: 420, c: '225,240,255', w: 1, lo: true });
+        st.nextBolt -= dt;
+        if (st.nextBolt <= 0) { st.nextBolt = R(5, 13); st.flash = 1; let x = R(.15, .85) * w, y = 0; const pts = [[x, y]]; while (y < w * R(.35, .7)) { y += R(.03, .07) * w; x += R(-.05, .05) * w; pts.push([x, y]); } st.bolt = { pts, t: .22 }; if (typeof Snd !== 'undefined' && Snd.on && $('#scr-hunt').classList.contains('active')) setTimeout(() => { Snd.noise(1.6, 260, 40, .55); Snd.tone(70, 32, 1.4, 'sine', .35); }, 350); }
+        if (st.flash > .02) { g.fillStyle = `rgba(225,235,255,${st.flash * .42})`; g.fillRect(0, 0, w, w); st.flash *= Math.pow(.02, dt); }
+        if (st.bolt && (st.bolt.t -= dt) > 0) { g.shadowColor = '#bcd6ff'; g.shadowBlur = 14; g.strokeStyle = `rgba(255,255,255,${Math.min(1, st.bolt.t / .1)})`; g.lineWidth = 2.2; g.beginPath(); st.bolt.pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); g.shadowBlur = 0; }
+      } else if (kind === 'night') {
+        const vg = g.createRadialGradient(w * .5, w * .5, w * .15, w * .5, w * .5, w * .8); vg.addColorStop(0, 'rgba(2,8,30,.18)'); vg.addColorStop(1, 'rgba(1,4,20,.5)'); g.fillStyle = vg; g.fillRect(0, 0, w, w);
+        g.globalCompositeOperation = 'lighter';
+        // лунная дорожка
+        for (let i = 0; i < 26; i++) { const yy = (i + .5) / 26 * w, wob = Math.sin(st.t * 1.1 + i * 1.7) * .012 + Math.sin(st.t * .5 + i) * .008, len = (.05 + .09 * (i / 26)) * w * (.6 + .4 * Math.sin(st.t * 2 + i * 2.3)), a = .05 + .1 * Math.abs(Math.sin(st.t * 1.6 + i * .9)), mx = (st.moon + wob) * w, mg = g.createRadialGradient(mx, yy, 0, mx, yy, len); mg.addColorStop(0, `rgba(190,215,255,${a * 2})`); mg.addColorStop(1, 'rgba(190,215,255,0)'); g.fillStyle = mg; g.beginPath(); g.ellipse(mx, yy, len, w * .012, 0, 0, 6.283); g.fill(); }
+        // огни кораблей и луч маяка
+        if (typeof H !== 'undefined' && H.fleet) {
+          hUnits().forEach(u => { if (!u.st || u.hp <= 0 || u.gone || !BFX.visible(u)) return; const x = (u.c + .5) * cs, y = (u.r + .5) * cs, fort = HS[u.type].fort, rr = cs * (fort ? 1.1 : .85), gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, u.side === 'me' ? 'rgba(255,214,130,.4)' : 'rgba(255,120,90,.34)'); gr.addColorStop(1, 'rgba(255,200,120,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rr, 0, 6.283); g.fill();
+            if (!fort) { const a = (u.dir || 0) * Math.PI / 180, l = cs * (.22 + .1 * (HS[u.type].len || 1)); [[1, '255,255,235'], [-1, u.side === 'me' ? '120,255,160' : '255,90,70']].forEach(([s, c]) => { const lx = x + Math.cos(a) * l * s, ly = y + Math.sin(a) * l * s, tw = .65 + .35 * Math.sin(st.t * 5 + u.r * 3 + s); const lg = g.createRadialGradient(lx, ly, 0, lx, ly, cs * .16); lg.addColorStop(0, `rgba(${c},${tw})`); lg.addColorStop(1, `rgba(${c},0)`); g.fillStyle = lg; g.beginPath(); g.arc(lx, ly, cs * .16, 0, 6.283); g.fill(); }); } });
+          (H.lights || []).forEach(k => { const { r, c } = kRC(k), x = (c + .5) * cs, y = (r + .5) * cs, a = st.t * .7 + k; for (let s = 0; s < 2; s++) { const aa = a + s * Math.PI, L = cs * 4.2; const bg = g.createRadialGradient(x, y, 0, x, y, L); bg.addColorStop(0, 'rgba(255,240,190,.5)'); bg.addColorStop(1, 'rgba(255,240,190,0)'); g.fillStyle = bg; g.beginPath(); g.moveTo(x, y); g.arc(x, y, L, aa - .16, aa + .16); g.closePath(); g.fill(); } });
+        }
+        g.globalCompositeOperation = 'source-over';
+      }
+    };
+    const loop = t => { if (!cv.isConnected) { this.raf = 0; return; } this.raf = requestAnimationFrame(loop); const dt = t - this.last; if (document.hidden || dt < 40 || !cv.offsetParent) return; this.last = t; draw(Math.min(.1, dt / 1000)); };
+    this.last = performance.now(); draw(.03); this.raf = requestAnimationFrame(loop);
+  },
+};
+
 /* ==================== ЖИВАЯ ВОДА ==================== */
 // мягкие бегущие волны с бликами: низкое разрешение + сглаживание браузером
 const Ocean = {
@@ -5237,7 +5307,8 @@ const Ocean = {
     this.list.forEach(o => { if (o.c.offsetParent) this.draw(o, t / 1000); });
   },
   draw(o, time) {
-    const S = o.S, d = o.img.data, tt = time + o.ph, W = o.W;
+    const S = o.S, d = o.img.data, md = o.mood, storm = md === 'storm', tt = time * (storm ? 1.7 : md === 'fog' ? .7 : 1) + o.ph, W = o.W;
+    const cr = md === 'night' ? .42 : storm ? .7 : 1, cg = md === 'night' ? .5 : storm ? .76 : 1, cb = md === 'night' ? .78 : storm ? .8 : 1, hk = storm ? 1.35 : 1, gk = md === 'fog' ? .3 : 0;
     const nw = W.length;
     if (!o.tb) { o.tb = W.map(() => [new Float32Array(S), new Float32Array(S), new Float32Array(S), new Float32Array(S)]); o.kk = W.map(([k, ang, a]) => { const kx = Math.cos(ang) * k * 6.283 / S, ky = Math.sin(ang) * k * 6.283 / S; return [kx, ky, a, Math.sqrt(k) * 1.1]; }); W.forEach((w, j) => { const kx = o.kk[j][0], T = o.tb[j]; for (let x = 0; x < S; x++) { T[0][x] = Math.sin(kx * x); T[1][x] = Math.cos(kx * x); } }); }
     for (let j = 0; j < nw; j++) { const K = o.kk[j], T = o.tb[j], wt = K[3] * tt; for (let y = 0; y < S; y++) { const p = K[1] * y - wt; T[2][y] = Math.sin(p); T[3][y] = Math.cos(p); } }
@@ -5248,10 +5319,10 @@ const Ocean = {
       for (let j = 0; j < nw; j++) { const T = tb[j], K = kk[j], sx = T[0][x], cx = T[1][x], sy = T[2][y], cy = T[3][y], sn = sx * cy + cx * sy, cs = cx * cy - sx * sy, a = K[2]; h += a * sn; gx += a * K[0] * cs; gy += a * K[1] * cs; }
       const nx = -gx * 1.5, ny = -gy * 1.5, nl = Math.sqrt(nx * nx + ny * ny + 1), dif = Math.max(0, (nx * Lx + ny * Ly + Lz) / nl);
       let sp = Math.max(0, (nx * Hx + ny * Hy + Hz) / (nl * hn)); sp *= sp; sp *= sp; sp *= sp; const s8 = sp; sp *= sp; sp *= sp; const spec = sp * s8;
-      const m = Math.min(1, Math.max(0, h * .8 + .5)), foam = h > .82 ? (h - .82) * 1.6 : 0;
-      d[i] = 5 + 22 * m + 30 * dif * m + 120 * spec + 110 * foam;
-      d[i + 1] = 44 + 50 * m + 45 * dif + 125 * spec + 115 * foam;
-      d[i + 2] = 82 + 62 * m + 42 * dif + 120 * spec + 95 * foam;
+      h *= hk; const m = Math.min(1, Math.max(0, h * .8 + .5)), foam = h > .82 ? (h - .82) * 1.6 : 0;
+      let r0 = (5 + 22 * m + 30 * dif * m + 120 * spec + 110 * foam) * cr, g0 = (44 + 50 * m + 45 * dif + 125 * spec + 115 * foam) * cg, b0 = (82 + 62 * m + 42 * dif + 120 * spec + 95 * foam) * cb;
+      if (gk) { r0 += (128 - r0) * gk; g0 += (150 - g0) * gk; b0 += (168 - b0) * gk; }
+      d[i] = r0; d[i + 1] = g0; d[i + 2] = b0;
       d[i + 3] = 255; i += 4;
     }
     o.g.putImageData(o.img, 0, 0);
