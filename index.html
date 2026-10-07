@@ -908,6 +908,7 @@ body.menu-on .logo{margin:0}
     <p><b>Особые кредиты 💠:</b> ими мгновенно заканчивают стройку, ремонт, постройку корабля, заказ снарядов и рейс каравана — 1 💠 за каждые 20 минут ожидания. Дают за боссов (+5), захват острова (+2), отбитый набег (+1), каждую третью победу (+1), задания дня (+1) и обучение (+5).</p>
     <p><b>Журнал капитана:</b> кнопка 📖 в крепости. В журнал попадают бои, потери, караваны, набеги, стройки и ремонты. Если вас долго не было, при входе в крепость покажут сводку.</p>
     <p><b>Сохранение:</b> кнопка 💾 в главном меню сохраняет весь прогресс в файл и загружает его обратно. Делайте это время от времени: без файла прогресс пропадёт, если очистить данные браузера.</p>
+    <p><b>Грузовое судно:</b> закладывается на Верфи, когда построена Торговая гавань. Трюм на 40 мест, но в бою оно почти беззащитно — отправляйте его в караван вместе с боевыми кораблями.</p>
     <p><b>Новые подлодки:</b> на Верфи можно заложить Ударную подлодку (Сухой док ур. 2), Ракетоносец (ур. 3) и Подлодку будущего (ур. 4, только одна). У подлодки будущего есть ⚡ импульсная пушка: бьёт по линии сквозь всех врагов, игнорирует броню и не тратит снаряды. Стелс-поле прячет её даже после выстрела, а корпус сам чинится. У врагов таких нет.</p>
     <p><b>Торговля:</b> в Торговой гавани есть склад и биржа. Покупайте провиант, топливо, снаряды, золото и самоцветы, а продавайте их в портах других морей — караваном из своих кораблей. Цены меняются каждые 3 часа, иногда в порту бывает ажиотаж 🔥. Корабли каравана — его охрана: чем она сильнее, тем реже нападают пираты. При нападении можно принять бой самому, положиться на охрану или отдать часть груза. Ящик снарядов со склада можно сдать в Арсенал.</p>
     <p><b>Снаряды и верфь:</b> корабли стреляют только снарядами из Арсенала (Мастерская). Снаряды делаются по реальному времени: обычные — быстро, бронебойные (пробивают броню, +1 урон) — дольше, зажигательные (поджог: −2 ❤ три хода) — ещё дольше, сверхтяжёлые (двойной урон и осколки по соседям) — дольше всех. Торпеды тоже производятся. В бою тип снарядов переключается кнопкой рядом с «Огонь»; залп тратит 3 снаряда, огненный залп — 5. Новые корабли строятся на стапелях Сухого дока — от 10 минут (катер) до 3 часов (линкор); стапели общие для стройки и ремонта.</p><p><b>Команда:</b> у каждого корабля своя команда — матросы (на подлодке — подводники): катер 10, эсминец 30, подлодка 24, крейсер 60, линкор 100. При попадании часть команды и морпехов может погибнуть, а может и никто — как повезёт; врач на борту бережёт людей. Чем меньше команда, тем хуже корабль стреляет, а без половины людей он ещё и медленнее ходит. Пополнить команду можно в Казармах. Погибшие корабли и их экипажи увековечены на стене Мемориала в Цитадели.</p><p><b>Люди:</b> на каждый корабль набирают морпехов (Казармы) и назначают офицеров (Академия): артиллериста, штурмана, инженера, врача, сигнальщика, боцмана, минёра. Офицеры копят опыт в боях своего корабля и растут в званиях от мичмана до капитана 1 ранга. Морпехи идут на абордаж: подойдите вплотную к врагу и нажмите ⚔️ — чем сильнее он повреждён, тем выше шанс. Захваченный корабль становится вашим. Так же можно взять штурмом форт.</p><p><b>Острова:</b> каждый пройденный остров — ваш. Оставьте на нём гарнизон до 3 кораблей (нажмите на свой остров на карте моря или загляните в Маяк) — остров начнёт приносить золото. Пираты время от времени нападают на гарнизоны; если гарнизон слабее, остров захватят, и его придётся отбивать в бою. Донесения о набегах — в Цитадели.</p>
@@ -1164,7 +1165,7 @@ const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" 
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
 const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
-const TOP_AR = { boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 };
+const TOP_AR = { boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78};
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -2143,6 +2144,7 @@ const HS = {
   sub2:       { name: 'Ударная подлодка', len: 2, price: 950, hp: 11, armor: 1, speed: 2, dmg: 5, range: 5, sight: 2, mar: 3, slots: 2, sub: true, need: 2, eqBase: { torp: true }, desc: 'Атомная охотница: крепче и дальнобойнее обычной подлодки. Торпедный аппарат — с завода.' },
   sub3:       { name: 'Ракетоносец', len: 3, price: 1800, hp: 16, armor: 2, speed: 1, dmg: 6, range: 6, sight: 2, mar: 4, slots: 2, sub: true, need: 3, eqBase: { torp: true, salvo: true }, desc: 'Огромный подводный крейсер. Торпеды и ракетный залп — с завода. Медленный, но бьёт издалека и из-под воды.' },
   subx:       { name: 'Подлодка будущего', len: 3, price: 4500, hp: 18, armor: 3, speed: 3, dmg: 6, range: 6, sight: 4, mar: 4, slots: 3, sub: true, need: 4, unique: true, future: true, eqBase: { torp: true }, desc: 'Пришла из будущего — такая есть только у вас и только одна. ⚡ Импульсная пушка бьёт сквозь всех врагов на линии без снарядов. 👻 Стелс-поле: не видна даже после выстрела. 🔋 Корпус сам чинится каждые 3 хода.' },
+  cargo:      { name: 'Грузовое судно', len: 3, price: 650, hp: 14, armor: 0, speed: 1, dmg: 1, range: 2, sight: 2, mar: 2, slots: 1, hauler: true, desc: 'Огромный трюм на 40 мест — в два с половиной раза больше, чем у крейсера. В бою почти беззащитно: водите его в караване под охраной боевых кораблей.' },
   merchant:   { name: 'Торговец', len: 2, price: 0, hp: 8,  armor: 0, speed: 1, dmg: 0, range: 0, sight: 1, mar: 0, slots: 0, npc: true },
   transport:  { name: 'Транспорт', len: 3, price: 0, hp: 12, armor: 1, speed: 1, dmg: 0, range: 0, sight: 2, mar: 0, slots: 0, npc: true },
   citadel:    { name: 'Цитадель', len: 1, price: 0, hp: 20, armor: 0, speed: 0, dmg: 0, range: 0, sight: 3, mar: 0, slots: 0, npc: true, fort: true, mine: true },
@@ -2150,7 +2152,7 @@ const HS = {
   fort:       { name: 'Форт',     len: 1, price: 0, hp: 18, armor: 2, speed: 0, dmg: 3, range: 4, sight: 4, mar: 0, slots: 0, npc: true, fort: true },
 };
 const HS_ORDER = ['boat', 'destroyer', 'sub', 'cruiser', 'battleship'];
-const BUY_ORDER = [...HS_ORDER, 'sub2', 'sub3', 'subx'];
+const BUY_ORDER = [...HS_ORDER, 'cargo', 'sub2', 'sub3', 'subx'];
 const HUP = [
   { id: 'gun',    ic: '🎯', name: 'Орудия',         max: 4, eff: l => `урон +${l}` },
   { id: 'range',  ic: '📏', name: 'Дальнобойность', max: 2, eff: l => `дальность +${l}` },
@@ -2173,7 +2175,7 @@ const HCREW = [
   { id: 'acou',    ic: '🎧', name: 'Акустики',   max: 2, eff: l => `слух ${4 + l * 2} клеток` },
 ];
 const CREW_COST = [100, 200, 350];
-const UP_BASE = { boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 };
+const UP_BASE = { boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60};
 const HIRE = { boat: 50, destroyer: 110, sub: 160, cruiser: 230, battleship: 380 }, HIRE_MAX = 2, SQUAD_MAX = 5;
 const hireLvl = m => Math.floor((m - 1) / 3);
 const hirePrice = (h, id) => Math.round((HIRE[id] + 25 * hireLvl(h.mission)) * (1 - .1 * (h.hireVet[id] || 0)));
@@ -2302,7 +2304,7 @@ function fortSVG(mine, tower) {
     <rect x="41" y="60" width="18" height="28" rx="9" fill="#3b2f22"/><rect x="24" y="48" width="9" height="9" fill="#3b2f22"/><rect x="67" y="48" width="9" height="9" fill="#3b2f22"/>
     <line x1="50" y1="22" x2="50" y2="3" stroke="#3b2f22" stroke-width="4"/><path d="M50 3h24l-7 6 7 6H50z" fill="${flag}"/></svg>`;
 }
-const SHIP_SC = { boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 };
+const SHIP_SC = { boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95};
 const shipImg = (id, cls = '', own) => `<img class="shimg ${cls}" src="ship_${id}.webp" alt="" draggable="false" style="--sc:${SHIP_SC[id] || 1};${skinF(own)}" onerror="this.style.visibility='hidden'">`;
 const shipPic = (id, foam) => HS[id].fort ? fortSVG(HS[id].mine, HS[id].tower) : HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
 const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5', 'board1', 'boss1', 'legend'];
@@ -2314,10 +2316,11 @@ function checkAch(p, ids) {
 }
 
 /* ---------- Флот без ограничений: корабли-экземпляры, офицеры, острова ---------- */
-const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 }, OFF_UPK = 1, GARR_MAX = 3;
+const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3}, OFF_UPK = 1, GARR_MAX = 3;
 const SHIP_POOL = {
   boat: ['Стриж', 'Чайка', 'Вьюн', 'Ласточка', 'Кречет', 'Сокол', 'Ястреб', 'Баклан', 'Бриз', 'Шквал', 'Пчела', 'Вихрь'],
   destroyer: ['Стремительный', 'Грозный', 'Бесстрашный', 'Быстрый', 'Резвый', 'Смелый', 'Верный', 'Лихой', 'Дерзкий', 'Громкий'],
+  cargo: ['Труженик', 'Купец', 'Каравелла', 'Богатырь моря', 'Меркурий', 'Садко', 'Афанасий Никитин', 'Золотая лань', 'Товарищ', 'Полярная звезда'],
   sub2: ['Гепард', 'Барс', 'Вепрь', 'Пантера', 'Ягуар', 'Рысь', 'Волк', 'Тигр'],
   sub3: ['Тайфун', 'Акула-М', 'Дмитрий Донской', 'Северсталь', 'Архангельск', 'Кит'],
   subx: ['Левиафан', 'Наутилус', 'Фантом', 'Призрак', 'Химера'],
@@ -2357,6 +2360,7 @@ const upkeep = h => evOn(h, 'feast') ? 0 : Object.values(h.ships).reduce((a, s) 
 function buyLock(h, t) {
   const b = HS[t];
   if (b.unique && Object.values(h.ships).some(s => s.type === t)) return { short: 'уже есть', long: 'Такая подлодка может быть только одна — и она уже в вашем флоте' };
+  if (b.hauler && !fL(h, 'market')) return { short: 'нужна гавань', long: 'Сначала постройте Торговую гавань' };
   if (b.need && fL(h, 'dock') < b.need) return { short: `Док ур. ${b.need}`, long: `Нужен Сухой док ${b.need}-го уровня` };
   return null;
 }
@@ -2440,7 +2444,7 @@ const TPORTS = [
   { n: 'Туманная Гавань',    sea: 2, min: 90,  risk: .28, threat: 45, mul: { food: 1.3, fuel: 1.35, shells: 1.3, gold: 1.25, gems: 1.22 } },
   { n: 'Обсидиановый Рынок', sea: 3, min: 120, risk: .36, threat: 60, mul: { food: 1.38, fuel: 1.35, shells: 1.42, gold: 1.4, gems: 1.45 } },
 ];
-const CARGO = { boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 };
+const CARGO = { boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 40};
 const SHELL_BOX = 8, TR_PER = 3 * 3600e3;
 const tGood = id => TGOODS.find(g => g.id === id);
 function trRand(a, b, c) { let x = (Math.imul(a, 73856093) ^ Math.imul(b, 19349663) ^ Math.imul(c, 83492791)) >>> 0; x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return (x % 10007) / 10007; }
@@ -2597,6 +2601,7 @@ function tradePanel(h) {
     let est = 0, cost = 0; TGOODS.forEach(g => { est += (S.load[g.id] || 0) * trPrice(S.port, g.id); cost += (S.load[g.id] || 0) * (T.cost[g.id] || trBuy(h, g.id)); });
     s += `<div class="sec-t">Куда</div><div class="trchips">${open.map(pi => `<button class="btn small ${pi === S.port ? 'primary' : ''}" data-act="trport" data-id="${pi}">${evOn(h, 'storm') && evOn(h, 'storm').sea === TPORTS[pi].sea ? '🌪 ' : ''}${TPORTS[pi].n}<small>⏱ ${fmtMin(trDur(h, pi) / 60000)} · риск ${Math.round(TPORTS[pi].risk * 100)}%</small></button>`).join('')}</div>`;
     s += `<div class="sec-t">Корабли (трюм ${capS}) — они же охрана</div>`;
+    if (!Object.values(h.ships).some(x => x.type === 'cargo')) s += `<small class="muted">💡 На Верфи можно заложить Грузовое судно: трюм на ${CARGO.cargo} мест.</small>`;
     if (!cand.length) s += `<small class="muted">Нет свободных кораблей: флагман остаётся дома, а остальные в ремонте, на островах или уже в пути.</small>`;
     cand.forEach(x => { const on = S.ships.includes(x.id); s += `<div class="uprow"><span class="ic" style="width:56px">${shipImg(x.type, 'row')}</span><span class="nm">${sName(x)}<small>📦 трюм ${CARGO[x.type]} · ⚔️ сила ${Math.round(trShipPow(h, x))}${x.hpLost ? ' · 🩹 повреждён' : ''}${h.squad.includes(x.id) ? ' · уйдёт из эскадры' : ''}</small></span><button class="btn small ${on ? 'primary' : ''}" data-act="trship" data-id="${x.id}">${on ? '✓ Идёт' : 'Взять'}</button></div>`; });
     s += `<div class="sec-t">Груз ${load}/${capS}</div>`;
@@ -2684,7 +2689,7 @@ function cshopAct(act, id) {
 }
 
 /* ---------- Команда кораблей и Мемориал ---------- */
-const CREW = { boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 };
+const CREW = { boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20};
 const crewWord = (t, n) => HS[t].sub ? plural(n, 'подводник', 'подводника', 'подводников') : plural(n, 'матрос', 'матроса', 'матросов');
 const crewEff = u => u && u.crewMax ? Math.max(0, Math.min(1, u.crew / u.crewMax)) : 1;
 const effDmg = u => Math.max(1, Math.round(u.st.dmg * (.5 + .5 * crewEff(u))));
@@ -2719,7 +2724,7 @@ function memorialPanel(h) {
 }
 
 /* ---------- Гибель и ремонт кораблей ---------- */
-const REP_MIN = { boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 };
+const REP_MIN = { boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60};
 const shipMaxHp = (h, s) => ownStats(h, s.id).hp;
 const shipHp = (h, s) => Math.max(1, shipMaxHp(h, s) - (s.hpLost || 0));
 function repairInfo(h, s) {
@@ -2793,7 +2798,7 @@ const ammoOf = id => AMMO.find(a => a.id === id);
 const arsLines = h => 1 + Math.floor(fL(h, 'workshop') / 2);
 const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'workshop'))));
 const ammoGold = (h, a) => Math.round(a.gold * (1 - .08 * fL(h, 'workshop')));
-const SHIP_MIN = { boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 };
+const SHIP_MIN = { boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60};
 const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock'))));
 const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || s.buildEnd).length;
 function ammoData(h) {
@@ -2880,7 +2885,7 @@ function hubShips(h, part = 'dock') {
   if (part === 'dock' && HB.cat) {
     const t = HB.cat, s = HS[t], st = shipStats(t, {}, h.crew);
     let pn = `<div class="shipshow">${shipImg(t, 'big')}</div><div class="hp-title"><div><b>${s.name}</b><small>${s.desc}</small></div></div>${statGrid(st)}
-      <small class="muted">Корабль строится на стапеле ${fmtMin(shipMin(h, t))} и приходит без опыта, улучшений и офицеров — всё это набирается с нуля. Мест для офицеров: ${s.slots}. Содержание: ${UPK[t]} 💰/ч. Стапелей занято: ${slipBusy(h)}/${repSlots(h)}.</small>
+      <small class="muted">Корабль строится на стапеле ${fmtMin(shipMin(h, t))} и приходит без опыта, улучшений и офицеров — всё это набирается с нуля. Мест для офицеров: ${s.slots}. Трюм для каравана: ${CARGO[t]} 📦. Содержание: ${UPK[t]} 💰/ч. Стапелей занято: ${slipBusy(h)}/${repSlots(h)}.</small>
       ${buyLock(h, t) ? `<div class="warnline">🔒 ${buyLock(h, t).long}</div>` : ''}<button class="btn primary" data-act="buy" ${h.gold < pShip(h, t) || slipBusy(h) >= repSlots(h) || buyLock(h, t) ? 'disabled' : ''}>${slipBusy(h) >= repSlots(h) ? 'Все стапели заняты' : `🏗 Заложить · ${pShip(h, t)} 💰 · ⏱ ${fmtMin(shipMin(h, t))}`}</button>`;
     return html + `<div class="glass hub-panel">${pn}</div>`;
   }
@@ -2890,6 +2895,7 @@ function hubShips(h, part = 'dock') {
   let pn = `<div class="shipshow">${shipImg(t, 'big', own)}</div><div class="hp-title"><div><b>${sName(own)}</b><small>${POST_TXT[post]}${own.isle ? ` · остров «${isleName(own.isle)}»` : ''} · ${post === 'flag' ? 'флагман содержится бесплатно' : `содержание ${UPK[t]} 💰/ч`}</small></div></div>`;
   pn += `<div class="rankline"><span>${RANKS[r].ic || '▫️'} ${RANKS[r].n}</span><span class="bar"><i style="width:${nx ? (own.xp - RANKS[r].xp) / (nx.xp - RANKS[r].xp) * 100 : 100}%"></i></span><small>${nx ? `опыт ${own.xp}/${nx.xp}` : 'максимум'}</small></div>`;
   pn += statGrid(st, shipHp(h, own)) + crewLine(h, own);
+  pn += `<small class="muted">📦 Трюм для каравана: ${CARGO[t]}</small>`;
   if (s.future) pn += `<div class="futureline">⚡ Импульсная пушка · 👻 стелс-поле · 🔋 самовосстановление</div>`;
   const offs = offOf(h, id);
   if (part !== 'academy' && offs.length) pn += `<small class="muted">🧑‍✈️ ${offs.map(o => `${SPEC.find(z => z.id === o.t).ic} ${o.name}`).join(', ')}</small>`;
