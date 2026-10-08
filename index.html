@@ -310,8 +310,22 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .tod-dusk{--tf:sepia(.35) saturate(1.2) brightness(.82) hue-rotate(-14deg)}
 .tod-night{--tf:brightness(.42) saturate(.6) contrast(1.1)}
 #scr-fort.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#07345f}
-body.fort-on #splash,body.fort-on #sea{display:none}
-#scr-map.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#0a3a66}
+body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.atlm-on #sea{display:none}
+#scr-map.active,#scr-atlmap.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#0a3a66}
+.amstage{position:relative;line-height:0}.amstage>img.amimg{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.amglint{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.10) 45%,transparent 60%);background-size:300% 100%;animation:amglint 9s linear infinite;mix-blend-mode:screen}
+@keyframes amglint{from{background-position:120% 0}to{background-position:-120% 0}}
+.amcity{position:absolute;left:50.5%;top:45%;width:72%;aspect-ratio:2.1/1;transform:translate(-50%,-50%);border-radius:50%;cursor:pointer;background:none;border:0;padding:0;-webkit-tap-highlight-color:transparent}
+.amcity::before,.amcity::after{content:'';position:absolute;inset:-2%;border-radius:50%;border:3px solid rgba(255,225,130,.85);box-shadow:0 0 22px rgba(255,210,90,.6),inset 0 0 22px rgba(255,210,90,.35);animation:amring 2.6s ease-out infinite}
+.amcity::after{animation-delay:1.3s}
+@keyframes amring{0%{transform:scale(.9);opacity:0}25%{opacity:1}100%{transform:scale(1.12);opacity:0}}
+.amcity:active{filter:brightness(1.15)}
+.amlabel{position:absolute;left:50.5%;top:69%;transform:translateX(-50%);z-index:2;line-height:1.2;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:16px;white-space:nowrap;cursor:pointer;
+  background:linear-gradient(135deg,rgba(40,120,200,.92),rgba(12,50,110,.92));border:1.5px solid rgba(255,225,130,.85);box-shadow:0 6px 18px rgba(0,20,60,.5);animation:ambob 3s ease-in-out infinite}
+.amlabel b{font-size:18px;color:#fff}.amlabel small{font-size:11.5px;color:#ffe08a;font-weight:800}
+@keyframes ambob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-5px)}}
+.amjobs{position:absolute;left:10px;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 48px);z-index:6;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.amjobs .fchip{font-weight:700;font-size:12px;height:30px}
 .mstage{position:relative;line-height:0}
 .mbase{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none}
 .mpath{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -865,6 +879,21 @@ body.menu-on .logo{margin:0}
   <div class="topbar"><button class="iconbtn glass" id="hub-back" aria-label="К острову">←</button><h2 id="hub-title">Цитадель</h2><span class="goldpill">💰 <b id="hub-gold">0</b></span></div>
   <div class="bhero glass" id="bhero"></div>
   <div class="hub-body" id="hub-body"></div>
+</section>
+
+<section id="scr-atlmap" class="screen">
+  <div class="fview" id="amview"></div>
+  <div class="fhud-top">
+    <button class="iconbtn fhbtn" id="am-back" aria-label="К карте">←</button>
+    <div class="fchip gold">💰 <b id="am-gold">0</b></div>
+    <div class="fchip" id="am-rank"></div>
+  </div>
+  <div class="amjobs" id="am-jobs"></div>
+  <div class="fhud-bot">
+    <button class="fbtn" id="am-map">🧭<small>Моря</small></button>
+    <button class="fbtn go" id="am-go">🏛<b>В город</b><small>Совет</small></button>
+    <button class="fbtn" id="am-home">🏰<small>Крепость</small></button>
+  </div>
 </section>
 
 <section id="scr-atl" class="screen">
@@ -1488,7 +1517,7 @@ const viewer = () => G.mode === 'ai' ? 0 : G.turn;
 function newPlayer(name, ai, pid = null) {
   return { name, ai, pid, up: new Set(), board: newBoard(), energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false };
 }
-function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); document.body.classList.toggle('fort-on', id === 'scr-fort' || id === 'scr-map'); if (typeof ambSync === 'function') setTimeout(ambSync, 0); document.body.classList.toggle('in-game', ['scr-setup', 'scr-battle', 'scr-hunt'].includes(id)); if (id === 'scr-menu' && PR) refreshCaptain(); }
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); document.body.classList.toggle('fort-on', id === 'scr-fort' || id === 'scr-map'); document.body.classList.toggle('atlm-on', id === 'scr-atlmap'); if (typeof ambSync === 'function') setTimeout(ambSync, 0); document.body.classList.toggle('in-game', ['scr-setup', 'scr-battle', 'scr-hunt'].includes(id)); if (id === 'scr-menu' && PR) refreshCaptain(); }
 function overlay(id, on) { $(id).classList.toggle('show', on); }
 
 /* ==================== BOARD VIEW ==================== */
@@ -2770,14 +2799,35 @@ function atlDeliver(h, r, per) {
   });
   return { gold: Math.max(0, gold), txt };
 }
+function showAtlMap() { const p = curProfile(); if (!p) return; Snd.ensure(); HB.ret = 'atlmap'; show('scr-atlmap'); renderAtlMap(true); }
+function renderAtlMap(center) {
+  const h = hdata(curProfile()), A = atlData(h); fortTick(h); atlTick(h);
+  const v = $('#amview'), vw = v.clientWidth || innerWidth, vh = v.clientHeight || innerHeight, W = Math.round(Math.max(vw, vh * 1.5));
+  const now = Date.now(), rk = atlRank(h);
+  if (!v.firstElementChild || v.firstElementChild.dataset.w != W) {
+    v.innerHTML = `<div class="amstage" data-w="${W}" style="width:${W}px"><img class="amimg" src="atlantis.webp" alt="Атлантис"><div class="amglint"></div><button class="amcity" data-city aria-label="Войти в Атлантис"></button><div class="amlabel" data-city><b>🏙 Атлантис</b><small>нажмите на город, чтобы войти</small></div></div>`;
+    v.querySelectorAll('[data-city]').forEach(b => b.onclick = () => { if (HB.dragged) return; Snd.play('click'); showAtl(); });
+    center = true;
+  }
+  if (center) { const Hh = W / 1.5; v.scrollLeft = Math.max(0, (W - vw) / 2); v.scrollTop = Math.max(0, Math.min(Hh - vh, Hh * .45 - vh / 2)); }
+  $('#am-gold').textContent = h.gold;
+  $('#am-rank').textContent = `🤝 ${ATL_RANKS[rk].n}`;
+  const chips = A.jobs.map(j => { const O = ATL_OFFERS[j.kind];
+    if ((j.kind === 'escort' || j.kind === 'bounty') && j.st === 'go') return `${O.ic} флот в пути: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`;
+    if (j.kind === 'escort' || j.kind === 'bounty') return `${O.ic} флот на месте — ждёт приказа`;
+    if (j.kind === 'smuggle') return `${O.ic} рейс: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`;
+    return `${O.ic} довезти ещё ${j.left}`; });
+  if (A.board.length) chips.push(`📜 на доске поручений: ${A.board.length}`);
+  $('#am-jobs').innerHTML = chips.map(c => `<span class="fchip">${c}</span>`).join('');
+}
 function showAtl() { const p = curProfile(); if (!p) return; Snd.ensure(); HB.ret = 'atl'; HB.atlPick = null; show('scr-atl'); renderAtl(); }
 function renderAtl() {
   const h = hdata(curProfile()), A = atlData(h); fortTick(h); atlTick(h);
   const now = Date.now(), rk = atlRank(h), nx = ATL_RANKS[rk + 1];
   $('#atl-gold').textContent = `${h.gold} · 💠 ${h.cred || 0}`;
-  let s = `<div class="atlhero"><img src="atlantis.webp" alt=""><div class="atlcap"><b>Атлантис</b><small>свободный торговый город · правит Совет торговцев</small></div></div>`;
+  let s = `<div class="atlhero"><img src="atl_council.webp" alt=""><div class="atlcap"><b>🏛 Совет торговцев</b><small>Атлантис · свободный торговый город</small></div></div>`;
   // Совет
-  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏛 Совет торговцев</div><img class="atlcouncil" src="atl_council.webp" alt="">
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🤝 Ваше положение в Совете</div>
     <div class="rankline"><span>🤝 ${ATL_RANKS[rk].n}</span><span class="bar"><i style="width:${nx ? (A.rep - ATL_RANKS[rk].r) / (nx.r - ATL_RANKS[rk].r) * 100 : 100}%"></i></span><small>${nx ? `доверие ${A.rep}/${nx.r}` : 'высший ранг'}</small></div>
     <small class="muted">${['«Атлантис открыт всем, у кого есть товар и честное слово. Докажите, что ваше слово чего-то стоит, капитан».', '«Вы уже не чужой в этих стенах. Совет присматривается к вам».', '«Партнёр Гильдии всегда получит лучший заказ и лучшую цену».', '«Совет доверяет вам дела, о которых не говорят на площади».', '«Добро пожаловать за стол Совета. Атлантис — и ваш город тоже».'][rk]}</small>
     <small class="muted">Каждый ранг: награды за поручения +10%, скидка в городе 5%, задания сложнее и богаче. Выполнено поручений: ${A.done}.</small></div>`;
@@ -3224,7 +3274,7 @@ function hubAct(act, id) {
   if (act === 'oreq') { if (urgentIntel(h)) renderHub(); return; }
   if (act === 'isle') { Snd.play('click'); showMap(+String(id).split(':')[0]); return mapSheet('isle', id); }
   if (act === 'cbuy' || act === 'cskin') return cshopAct(act, id);
-  if (act === 'oatl') { Snd.play('click'); return showAtl(); }
+  if (act === 'oatl') { Snd.play('click'); return showAtlMap(); }
   if (act === 'jlog') { Snd.play('click'); return showLog(); }
   if (act === 'tutre') { h.tut = 0; saveProfiles(); Snd.play('click'); return showFort(); }
   if (act.startsWith('tr')) return tradeAct(act, id);
@@ -4671,7 +4721,15 @@ function initFortUI() {
   document.querySelectorAll('#scr-fort [data-bld]').forEach(b => b.onclick = () => { if (b.dataset.bld) openBld(b.dataset.bld); });
   $('#fg-collect').onclick = () => fortAct('fcollect');
   $('#fg-raid').onclick = () => openBld('citadel');
-  $('#atl-back').onclick = () => { Snd.play('click'); showMap(); };
+  $('#atl-back').onclick = () => { Snd.play('click'); showAtlMap(); };
+  $('#am-back').onclick = $('#am-map').onclick = () => { Snd.play('click'); showMap(); };
+  $('#am-home').onclick = () => { Snd.play('click'); showFort(); };
+  $('#am-go').onclick = () => { Snd.play('click'); showAtl(); };
+  { const v = $('#amview'); let drag = null;
+    v.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; drag = { x: e.clientX, y: e.clientY, l: v.scrollLeft, t: v.scrollTop }; HB.dragged = false; });
+    addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 6) HB.dragged = true; v.scrollLeft = drag.l - dx; v.scrollTop = drag.t - dy; });
+    addEventListener('pointerup', () => { drag = null; setTimeout(() => HB.dragged = false, 0); });
+    addEventListener('resize', () => { if ($('#scr-atlmap').classList.contains('active')) renderAtlMap(); }); }
   $('#fg-ev').onclick = () => { Snd.play('click'); evInfo(hdata(curProfile())); };
   $('#fg-log').onclick = () => { Snd.play('click'); showLog(); };
   $('#fg-cred').onclick = () => { Snd.play('click'); credInfo(hdata(curProfile())); };
@@ -4828,7 +4886,7 @@ function renderMap(center) {
   $('#mg-ch').textContent = `🧭 ${S.n}`;
   $('#mg-mis').textContent = `${E.reports.length} из ${repMax(h)}`;
   $('#mg-tabs').innerHTML = SEAS.map((x, i) => `<button class="seatab${i === sea ? ' on' : ''}${i >= E.open ? ' locked' : ''}" data-tab="${i}">${i >= E.open ? '🔒' : E.reports.some(r => r.sea === i) ? '📜' : E.cleared.includes(i) ? '🏳️' : '🧭'} ${['Лазурное', 'Янтарное', 'Туманное', 'Обсидиан'][i]}</button>`).join('') + `<button class="seatab atltab" data-atl>🏙 Атлантис</button>`;
-  $('#mg-tabs').querySelector('[data-atl]').onclick = () => { Snd.play('click'); showAtl(); };
+  $('#mg-tabs').querySelector('[data-atl]').onclick = () => { Snd.play('click'); showAtlMap(); };
   $('#mg-tabs').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { const i = +b.dataset.tab; if (i >= E.open) { Snd.play('bad'); toast('🔒 Путь туда откроется, когда разобьёте пиратскую базу в предыдущем море'); return; } Snd.play('click'); E.sea = i; saveProfiles(); renderMap(true); });
 }
 function mapTap(k) {
@@ -4966,7 +5024,7 @@ document.addEventListener('pointerdown', () => {
 }, true);
 function ambSync() {
   const a = document.querySelector('.screen.active'), id = a && a.id;
-  Amb.set(id === 'scr-fort' || id === 'scr-hub' ? 'fort' : id === 'scr-map' ? 'map' : null);
+  Amb.set(id === 'scr-fort' || id === 'scr-hub' ? 'fort' : id === 'scr-map' || id === 'scr-atlmap' ? 'map' : null);
 }
 
 
@@ -5879,7 +5937,7 @@ function syncRulesHint() {
 setInterval(() => {
   const p = curProfile(); if (!p || !p.hunt) return;
   if (HB.todShown && HB.todShown !== todNow() && $('#scr-fort').classList.contains('active')) { renderFort(); return; }
-  if (fortTick(p.hunt)) { if ($('#scr-fort').classList.contains('active')) renderFort(); else if ($('#scr-hub').classList.contains('active')) renderHub(); else if (document.body.classList.contains('menu-on')) renderDaily(); return; }
+  if (fortTick(p.hunt)) { if ($('#scr-fort').classList.contains('active')) renderFort(); else if ($('#scr-hub').classList.contains('active')) renderHub(); else if ($('#scr-atlmap').classList.contains('active')) renderAtlMap(); else if (document.body.classList.contains('menu-on')) renderDaily(); return; }
   document.querySelectorAll('[data-until]').forEach(e => e.textContent = fmtLeft(+e.dataset.until - Date.now()));
 }, 1000);
 /* ==================== BOOT ==================== */
@@ -5901,7 +5959,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   function want(){
     var s=document.querySelector('.screen.active'), id=s&&s.id;
     if(id==='scr-battle'||id==='scr-hunt') return 'battle';
-    if(id==='scr-atl') return 'atl';
+    if(id==='scr-atl'||id==='scr-atlmap') return 'atl';
     if(id==='scr-map') return 'map';
     return 'menu';
   }
