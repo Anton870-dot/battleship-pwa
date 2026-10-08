@@ -4272,7 +4272,7 @@ function initHunt() {
 }
 
 /* ==================== КРЕПОСТЬ ==================== */
-const MARKET = [0, 25, 45, 70, 100, 140], PROTECT = [0, 20, 35, 50, 65, 80], BAT_N = [0, 1, 2, 2, 3, 4];
+const MARKET = [0, 25, 45, 70, 100, 140], PROTECT = [0, 20, 35, 50, 65, 80], BAT_N = [0, 1, 2, 3, 3, 4];
 const capH = l => 6 + 2 * l;
 const FB = [
   { id: 'citadel',    ic: '🏰', name: 'Цитадель',          x: 50, y: 42, base: 250, desc: 'Сердце крепости. Её уровень ограничивает уровень остальных зданий, а со 2-го уровня крепость начинают навещать пираты.', eff: l => `остальные здания до ур. ${l}` },
@@ -4283,7 +4283,7 @@ const FB = [
   { id: 'academy',    ic: '🎓', name: 'Морская академия',  x: 30, y: 56, base: 180, desc: 'Дешевле найм и обучение специалистов.', eff: l => `специалисты −${10 * l}%` },
   { id: 'workshop',   ic: '🔨', name: 'Мастерская',        x: 38, y: 79, base: 170, desc: 'Дешевле оборудование и улучшения кораблей.', eff: l => `оборудование −${10 * l}%, улучшения −${5 * l}%` },
   { id: 'lighthouse', ic: '🗼', name: 'Маяк',              x: 85, y: 31, base: 140, desc: 'Штаб разведки: донесения о пиратах, оценка их сил, точное время набегов, обзор в бою и мины.', eff: l => ['', 'донесений до 3, раз в 72 мин', 'донесений до 4 · разведка считает врагов', 'донесений до 5 · видно сильнейший корабль, +1 к обзору', 'донесений до 6 · батареи бьют дальше', 'донесений до 7, раз в 40 мин · видны все мины'][l] },
-  { id: 'battery',    ic: '💥', name: 'Береговые батареи', x: 15, y: 44, base: 160, desc: 'Пушки на берегу. Во время набега сами стреляют по пиратам.', eff: l => `${BAT_N[l]} ${plural(BAT_N[l], 'батарея', 'батареи', 'батарей')}, урон ${2 + l}, дальность 10 клеток (чем дальше цель, тем чаще промах)` },
+  { id: 'battery',    ic: '💥', name: 'Береговые батареи', x: 15, y: 44, base: 160, desc: 'Пушки на берегу. Во время набега сами стреляют по пиратам.', eff: l => `${BAT_N[l]} ${plural(BAT_N[l], 'батарея', 'батареи', 'батарей')}, урон ${3 + l}, дальность 10 клеток (чем дальше цель, тем чаще промах)` },
   { id: 'walls',      ic: '🧱', name: 'Стены',             x: 52, y: 66, base: 120, desc: 'Прочность цитадели и батарей во время набега.', eff: l => `цитадель ❤${20 + 12 * l} 🛡${Math.floor(l / 2)}, батареи ❤${8 + 3 * l}` },
 ];
 const FB_MULT = [0, 1, 2.2, 4.5, 8, 14], FB_MIN = [0, 2, 15, 60, 180, 480];
@@ -4408,7 +4408,7 @@ function raidSetup(h) {
   const ci = Object.assign(mkUnit('citadel', 'me', cc[0], cc[1], 0), { name: 'Цитадель' });
   ci.st.hp = ci.hp = 20 + 12 * wl; ci.st.armor = Math.floor(wl / 2); ci.st.sight = 3;
   H.fleet.push(ci); H.citadel = ci;
-  bat.forEach(([r, c]) => { const b = Object.assign(mkUnit('battery', 'me', r, c, 0), { name: 'Батарея' }); b.st.hp = b.hp = 8 + 3 * wl; b.st.dmg = 2 + bl; b.st.range = 10 + (fL(h, 'lighthouse') >= 4 ? 1 : 0); b.st.sight = Math.max(b.st.sight, b.st.range); b.st.scatter = .2; H.fleet.push(b); });
+  bat.forEach(([r, c]) => { const b = Object.assign(mkUnit('battery', 'me', r, c, 0), { name: 'Батарея' }); b.st.hp = b.hp = 12 + 4 * wl; b.st.armor = 2; b.st.dmg = 3 + bl; b.st.range = 10 + (fL(h, 'lighthouse') >= 4 ? 1 : 0); b.st.sight = Math.max(b.st.sight, b.st.range); b.st.scatter = .14; H.fleet.push(b); });
   const m = Math.max(2, H.mission, 2 * cit); H.mission = m;
   genFoes(m, 2 + Math.floor(cit * .75));
   H.wavesLeft = 2; H.waveSize = 1 + Math.floor(cit / 3);
@@ -4702,13 +4702,14 @@ function renderFort(center) {
 }
 function openBld(id) { HB.bld = id; HB.pick = false; HB.cat = null; const h = hdata(curProfile()); if (!h.ships[HB.sel]) HB.sel = h.active; Snd.play('click'); show('scr-hub'); document.body.classList.remove('fort-on'); renderHub(); }
 function refreshCur() { if ($('#scr-fort').classList.contains('active')) renderFort(); else renderHub(); }
+const BLD_HALL = { citadel: 'fort_hall.webp', dock: 'dock_hall.webp', treasury: 'treasury_hall.webp', battery: 'battery_hall.webp' };
 function bldHero(h, id) {
   const f = fdata(h), p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(x => x.id === id), now = Date.now();
   const S = id === 'walls' ? 2.6 : 4.2, Hs = S / FASPECT, Hc = 11 / 16;
   const px = Math.max(0, Math.min(100, (p.cx / 100 * S - .5) / (S - 1) * 100)), py = Math.max(0, Math.min(100, (p.cy / 100 * Hs - Hc / 2) / (Hs - Hc) * 100));
   const wpc = id === 'walls' ? 88 : id === 'lighthouse' ? 44 : 62;
   let s = `<div class="bh-bg" style="background-image:url(${fBaseImg(todNow())});background-size:${S * 100}% auto;background-position:${px}% ${py}%"></div><div class="ftod"></div>`;
-  if (id === 'citadel' || id === 'dock') s = `<img class="bh-hall" src="${id === 'dock' ? 'dock_hall.webp' : 'fort_hall.webp'}" alt="${b.name}">${bld ? `<span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>` : ''}`;
+  if (BLD_HALL[id]) s = `<img class="bh-hall" src="${BLD_HALL[id]}" alt="${b.name}">${bld ? `<span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>` : ''}`;
   else if (!FIMG_OK) s = `<div class="bh-svg">${b.ic}</div>`;
   else if (bld) s += `<img class="bh-img" src="fort_scaffold.webp" alt="" style="width:${Math.min(wpc, 62)}%"><span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>`;
   else if (l) s += `<img class="bh-img${l >= 5 ? ' lv5' : l >= 3 ? ' lv3' : ''}" src="${fTierImg(id, l)}" alt="${b.name}" style="width:${wpc}%">`;
@@ -4747,7 +4748,7 @@ function raidPanel(h) {
   else if (f.nextRaid) s += `<small class="muted">🔭 ${fL(h, 'lighthouse') >= 2 ? `Маяк: пираты нападут через <span data-until="${f.nextRaid}">${fmtLeft(f.nextRaid - now)}</span>` : `Разведка: пираты рыщут неподалёку, набег возможен ${f.nextRaid - now < 3600000 ? 'совсем скоро' : 'в ближайшие часы'}`}</small>`;
   else s += `<small class="muted">Пока Цитадель 1-го уровня, пираты крепость не замечают.</small>`;
   const bl = fL(h, 'battery'), wl = fL(h, 'walls');
-  s += `<small class="muted">Оборона: ${BAT_N[bl] ? `${BAT_N[bl]} ${plural(BAT_N[bl], 'батарея', 'батареи', 'батарей')} (урон ${2 + bl})` : 'батарей нет'} · цитадель ❤${20 + 12 * wl} 🛡${Math.floor(wl / 2)} · отбито набегов: ${f.raids.w}, проиграно: ${f.raids.l}</small></div>`;
+  s += `<small class="muted">Оборона: ${BAT_N[bl] ? `${BAT_N[bl]} ${plural(BAT_N[bl], 'батарея', 'батареи', 'батарей')} (урон ${3 + bl})` : 'батарей нет'} · цитадель ❤${20 + 12 * wl} 🛡${Math.floor(wl / 2)} · отбито набегов: ${f.raids.w}, проиграно: ${f.raids.l}</small></div>`;
   return s;
 }
 function statsPanel(h) {
@@ -5820,7 +5821,7 @@ const FortLife = {
 async function towerFire(u) {
   const ts = H.foes.filter(f => f.hp > 0 && !f.gone && foeVisible(f) && cheb(u, f) <= u.st.range).sort((a, b) => cheb(u, a) - cheb(u, b) || a.hp - b.hp);
   if (!ts.length) return;
-  const sc0 = u.st.scatter; u.st.scatter = Math.min(.75, sc0 + .1 * Math.max(0, cheb(u, ts[0]) - 4));
+  const sc0 = u.st.scatter; u.st.scatter = Math.min(.6, sc0 + .07 * Math.max(0, cheb(u, ts[0]) - 4));
   const res = await hFire(u, 'gun', ts[0].r, ts[0].c); u.st.scatter = sc0; hMsg(`${shipName(u)}: ${res.text.replace(/^[^:]*: /, '')}`, res.cls);
   renderHunt(); await sleep(250);
 }
