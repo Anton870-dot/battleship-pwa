@@ -237,7 +237,7 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .shipcard .scn{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fleet-t{width:min(560px,100%);margin:6px 0 0}
 .mpin.garr{border-color:#7dffb0}.mpin.lost{background:radial-gradient(circle at 50% 35%,#6b1e16,#2a0806)!important;border-color:#ff6b57!important;color:#fff!important}
-.fflag{position:absolute;left:50.1%;top:12.4%;width:8.5%;aspect-ratio:1;transform:translate(-6%,-100%);z-index:6;pointer-events:none;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.citflag{position:absolute;left:49.8%;top:13.8%;width:7.2%;height:auto;aspect-ratio:1;transform:translate(-6%,-100%);animation:none;z-index:6;pointer-events:none;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
 .flife{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .ocean{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
 .board>.ocean{left:var(--cw);top:var(--cw);width:calc(var(--cw)*10);height:calc(var(--cw)*10);border-radius:0 0 12px 0}
@@ -386,6 +386,26 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .bh-img.lv5{filter:var(--tf) drop-shadow(0 10px 14px rgba(0,0,0,.5)) drop-shadow(0 0 14px rgba(255,210,90,.85))}
 @keyframes bhin{from{opacity:0;transform:translateX(-50%) scale(.8)}}
 .bhero .ftod{z-index:2}
+.sqsea{position:relative;width:100%;aspect-ratio:1/1.02;max-height:470px;margin:8px 0 10px;border-radius:16px;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 0%,rgba(120,210,255,.35),transparent 60%),repeating-linear-gradient(170deg,rgba(255,255,255,.05) 0 2px,transparent 2px 22px),linear-gradient(180deg,#0f5d97,#0a3765);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),inset 0 0 40px rgba(0,10,40,.5)}
+.sqsea::before{content:'';position:absolute;inset:-50%;background:repeating-linear-gradient(100deg,rgba(255,255,255,.06) 0 3px,transparent 3px 40px);animation:sqwave 14s linear infinite}
+@keyframes sqwave{to{transform:translateY(40px)}}
+.sqdir{position:absolute;left:10px;top:8px;font-size:10.5px;font-weight:800;color:rgba(255,255,255,.6);line-height:1}
+.sqs{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;width:31%;line-height:1.15;z-index:1}
+.sqs[data-sel]{cursor:pointer}.sqs[data-sel]:active{filter:brightness(1.2)}
+.sqpic{position:relative;display:grid;place-items:center;animation:shfloat 3.2s ease-in-out infinite}
+.sqs:nth-child(2n) .sqpic{animation-delay:-1.4s}
+.sqpic img{transform:rotate(-90deg);filter:drop-shadow(3px 4px 3px rgba(0,10,30,.55))}
+.sqwake{position:absolute;left:50%;bottom:-10px;width:16px;height:22px;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.55),transparent 70%);border-radius:50%;z-index:-1}
+.sqemo{font-size:30px}
+.sqlab{display:flex;flex-direction:column;align-items:center;text-align:center;background:rgba(3,20,45,.78);border:1px solid rgba(255,255,255,.22);border-radius:10px;padding:4px 7px;max-width:100%}
+.sqlab b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.sqlab small{font-size:9.5px;color:#cfe3f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sqhp{display:block;width:100%;min-width:50px;height:4px;border-radius:2px;background:rgba(255,255,255,.18);margin-top:3px;overflow:hidden}.sqhp i{display:block;height:100%}
+.sqs.flag .sqlab{border-color:#ffcf4a;box-shadow:0 0 10px rgba(255,207,74,.45)}.sqs.flag .sqlab b{color:#ffe08a}
+.sqs.hire .sqlab{border-style:dashed;border-color:rgba(125,255,176,.7)}
+.sqs.broken{opacity:.55;filter:grayscale(.6)}
+.sqs.empty{opacity:.55}.sqe{width:44px;height:44px;border-radius:50%;border:2px dashed rgba(255,255,255,.55);display:grid;place-items:center;font-size:20px;font-weight:900}.sqs.empty small{font-size:10px;font-weight:700}
+.sqsum{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.sqsum span{padding:5px 9px;border-radius:10px;background:rgba(0,0,0,.22);font-size:12.5px}
 .bh-hall{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .bh-cap{position:absolute;left:12px;bottom:10px;z-index:3;background:rgba(0,20,50,.75);border:1px solid rgba(255,207,74,.6);border-radius:12px;padding:6px 10px;line-height:1.2}
 .bh-cap b{display:block;font-size:15px;color:#ffe08a}.bh-cap small{font-size:11px;color:var(--muted)}
@@ -3190,6 +3210,33 @@ function officersPanel(h) {
   SPEC.forEach(d => { s += `<div class="uprow"><span class="ic">${d.ic}</span><span class="nm">${d.name}<small>${d.txt(1)} → ${d.txt(3)}</small></span><button class="btn small primary" data-act="ohire" data-id="${d.id}" ${h.gold < pSpec(h) ? 'disabled' : ''}>${pSpec(h)} 💰</button></div>`; });
   return s + `<small class="muted">Нанятый офицер ждёт в Академии. Назначить его на корабль — выберите корабль вверху. У катера, эсминца и подлодки одно место, у крейсера два, у линкора три. Двух одинаковых специалистов на одном корабле быть не может.</small></div>`;
 }
+const SQ_POS = [[50, 3], [27, 34], [73, 34], [17, 65], [83, 65], [50, 65]];
+function squadShow(h) {
+  const lvl = hireLvl(h.mission), units = [];
+  const fl = h.ships[h.active]; if (fl) units.push({ s: fl, flag: 1 });
+  h.squad.forEach(id => { const s = h.ships[id]; if (s) units.push({ s }); });
+  h.hired.forEach(x => units.push({ hire: x }));
+  let pow = 0, hp = 0, hpm = 0, mar = 0;
+  const slot = (u, i) => {
+    const [x, y] = SQ_POS[i] || [50, 50];
+    if (!u) return `<div class="sqs empty" style="left:${x}%;top:${y}%"><span class="sqe">＋</span><small>свободно</small></div>`;
+    let t, nm, sub, cur, max, broken = false, sid = '';
+    if (u.hire) { t = u.hire.type; const st = shipStats(t, hireUp(lvl), h.crew, { rank: h.hireVet[t] || 0 }); nm = HS[t].name; sub = '🤝 наёмник'; cur = max = st.hp; pow += st.dmg; }
+    else { const s = u.s, st = ownStats(h, s.id); t = s.type; sid = s.id; nm = `«${s.name}»`; sub = (u.flag ? '⭐ флагман · ' : '') + HS[t].name; cur = shipHp(h, s); max = shipMaxHp(h, s); broken = !!s.broken; mar += s.marines || 0; if (!broken) pow += st.dmg; }
+    hp += broken ? 0 : cur; hpm += max;
+    const len = HS[t].len || 1, L = 30 + len * 11, ar = TOP_AR[t] || 4, k = cur / max;
+    const pic = TOP_AR[t] ? `<img src="top_${t}.webp" alt="" draggable="false" style="width:${L * 1.0}px;height:${L / ar}px">` : `<span class="sqemo">${HS[t].sub ? '🤿' : '🚢'}</span>`;
+    return `<div class="sqs${u.flag ? ' flag' : ''}${u.hire ? ' hire' : ''}${broken ? ' broken' : ''}" style="left:${x}%;top:${y}%"${sid ? ` data-sel="${sid}" data-bld="dock"` : ''}>
+      <div class="sqpic" style="height:${L}px">${pic}<i class="sqwake"></i></div>
+      <div class="sqlab"><b>${nm}</b><small>${broken ? '🔧 в ремонте' : sub}</small><span class="sqhp"><i style="width:${Math.round(k * 100)}%;background:${k > .6 ? '#5fd38a' : k > .3 ? '#ffcf4a' : '#ff6b57'}"></i></span></div></div>`;
+  };
+  let inner = '';
+  for (let i = 0; i <= SQUAD_MAX; i++) inner += slot(units[i], i);
+  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Состав эскадры · ${units.length - 1}/${SQUAD_MAX} в сопровождении</div>
+    <div class="sqsea">${inner}<div class="sqdir">⬆ курс эскадры</div></div>
+    <div class="sqsum"><span>⚔️ залп <b>${pow}</b></span><span>❤ прочность <b>${hp}/${hpm}</b></span><span>🪖 морпехов <b>${mar}</b></span><span>🚢 кораблей <b>${units.length}</b></span></div>
+    <small class="muted">Нажмите на свой корабль, чтобы открыть его в Сухом доке. Добавить или убрать корабли можно ниже, в списке эскадры.</small></div>`;
+}
 function squadPanel(h) {
   const n = squadCount(h), res = reserveOf(h);
   let html = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Эскадра (${n}/${SQUAD_MAX})</div>
@@ -4535,9 +4582,9 @@ function fortScene(h) {
 const FPL = {"citadel": {"l": 38.45, "t": 0.73, "w": 22.7, "sl": 40.02, "st": 4.03, "sw": 19.57, "cx": 49.8, "cy": 15.21, "pw": 19.53}, "treasury": {"l": 21.88, "t": 16.5, "w": 15.32, "sl": 22.94, "st": 16.98, "sw": 13.21, "cx": 29.54, "cy": 23.95, "pw": 13.18}, "barracks": {"l": 64.38, "t": 17.16, "w": 15.31, "sl": 65.42, "st": 17.86, "sw": 13.21, "cx": 72.02, "cy": 24.61, "pw": 13.18}, "walls": {"l": 35.41, "t": 29.09, "w": 32.19, "sl": 43.31, "st": 26.66, "sw": 16.42, "cx": 51.51, "cy": 36.41, "pw": 29.79}, "battery": {"l": 2.85, "t": 36.56, "w": 15.31, "sl": 3.89, "st": 36.65, "sw": 13.21, "cx": 10.5, "cy": 43.18, "pw": 13.18}, "academy": {"l": 23.32, "t": 38.72, "w": 15.88, "sl": 24.4, "st": 40.63, "sw": 13.7, "cx": 31.25, "cy": 47.77, "pw": 13.67}, "workshop": {"l": 65.35, "t": 40.87, "w": 15.31, "sl": 66.39, "st": 42.33, "sw": 13.21, "cx": 73.0, "cy": 48.86, "pw": 13.18}, "market": {"l": 57.51, "t": 59.9, "w": 12.92, "sl": 58.09, "st": 58.71, "sw": 11.74, "cx": 63.96, "cy": 64.82, "pw": 11.72}, "dock": {"l": 17.0, "t": 58.93, "w": 15.32, "sl": 18.05, "st": 59.38, "sw": 13.21, "cx": 24.66, "cy": 65.91, "pw": 13.18}, "lighthouse": {"l": 82.18, "t": 62.8, "w": 16.29, "sl": 83.97, "st": 69.3, "sw": 12.72, "cx": 90.33, "cy": 75.96, "pw": 12.7}};
 const fortFlag = f => {
   if (!f.b.citadel || (f.build && f.build.id === 'citadel')) return '';
-  const A = 'M6 9 C30 2,62 17,96 9 L85 30 L96 51 C62 59,30 44,6 50 Z', B = 'M6 9 C30 17,62 1,96 12 L85 33 L96 54 C62 43,30 58,6 50 Z', C = 'M6 9 C32 6,60 10,96 6 L85 27 L96 48 C60 52,32 50,6 50 Z';
+  const A = 'M6 9 C30 5,62 13,96 9 L86 29.5 L96 50 C62 54,30 46,6 50 Z', B = 'M6 9 C30 13,62 5,96 9 L86 29.5 L96 50 C62 46,30 54,6 50 Z', C = 'M6 9 C32 8,60 10,96 9 L86 29.5 L96 50 C60 51,32 49,6 50 Z';
   const raid = f.raidDue, c1 = raid ? '#e04434' : '#2a6fc4', c2 = raid ? '#7a120c' : '#0b2c5e';
-  return `<svg class="fflag${raid ? ' raid' : ''}" viewBox="0 0 100 100" aria-hidden="true"><defs>
+  return `<svg class="citflag${raid ? ' raid' : ''}" viewBox="0 0 100 100" aria-hidden="true"><defs>
     <linearGradient id="ffc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
     <linearGradient id="ffs" x1="0" y1="0" x2="1" y2="0" spreadMethod="repeat"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".6" stop-color="#001" stop-opacity=".32"/><stop offset="1" stop-color="#fff" stop-opacity=".28"/>
       <animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="1 0" dur="${raid ? 1 : 1.6}s" repeatCount="indefinite"/></linearGradient>
@@ -4547,7 +4594,7 @@ const fortFlag = f => {
     <g><path fill="rgba(0,10,30,.28)" transform="translate(2.5 3)" d="${A}"><animate attributeName="d" values="${A};${B};${C};${A}" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/></path>
     <path fill="url(#ffc)" stroke="#ffcf4a" stroke-width="1.6" stroke-linejoin="round" d="${A}"><animate attributeName="d" values="${A};${B};${C};${A}" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/></path>
     <path fill="url(#ffs)" d="${A}"><animate attributeName="d" values="${A};${B};${C};${A}" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/></path>
-    <g><animateTransform attributeName="transform" type="translate" values="0 0;0 3;0 -1;0 0" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/>
+    <g><animateTransform attributeName="transform" type="translate" values="0 0;0 1;0 -.5;0 0" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/>
       <circle cx="38" cy="30" r="11" fill="${raid ? '#4a0a06' : '#08224a'}" stroke="#ffcf4a" stroke-width="2"/>
       <g fill="none" stroke="#ffcf4a" stroke-width="2" stroke-linecap="round"><circle cx="38" cy="22.6" r="1.6"/><path d="M38 24.4 V37.5 M33.8 27.4 H42.2 M31.8 31.6 Q32.6 37.8 38 37.6 Q43.4 37.8 44.2 31.6"/></g></g></g>
     <circle cx="6" cy="4" r="3.4" fill="#ffd970" stroke="#a3741d" stroke-width="1"/></svg>`;
@@ -4661,7 +4708,7 @@ function bldHero(h, id) {
   const px = Math.max(0, Math.min(100, (p.cx / 100 * S - .5) / (S - 1) * 100)), py = Math.max(0, Math.min(100, (p.cy / 100 * Hs - Hc / 2) / (Hs - Hc) * 100));
   const wpc = id === 'walls' ? 88 : id === 'lighthouse' ? 44 : 62;
   let s = `<div class="bh-bg" style="background-image:url(${fBaseImg(todNow())});background-size:${S * 100}% auto;background-position:${px}% ${py}%"></div><div class="ftod"></div>`;
-  if (id === 'citadel') s = `<img class="bh-hall" src="fort_hall.webp" alt="Штаб в цитадели">${bld ? `<span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>` : ''}`;
+  if (id === 'citadel' || id === 'dock') s = `<img class="bh-hall" src="${id === 'dock' ? 'dock_hall.webp' : 'fort_hall.webp'}" alt="${b.name}">${bld ? `<span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>` : ''}`;
   else if (!FIMG_OK) s = `<div class="bh-svg">${b.ic}</div>`;
   else if (bld) s += `<img class="bh-img" src="fort_scaffold.webp" alt="" style="width:${Math.min(wpc, 62)}%"><span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>`;
   else if (l) s += `<img class="bh-img${l >= 5 ? ' lv5' : l >= 3 ? ' lv3' : ''}" src="${fTierImg(id, l)}" alt="${b.name}" style="width:${wpc}%">`;
@@ -4709,7 +4756,7 @@ function statsPanel(h) {
 }
 function bldContent(h, id) {
   switch (id) {
-    case 'citadel': return evLine(h) + statsPanel(h) + newsPanel(h) + econPanel(h) + raidPanel(h) + squadPanel(h) + memorialPanel(h);
+    case 'citadel': return evLine(h) + squadShow(h) + squadPanel(h) + statsPanel(h) + newsPanel(h) + econPanel(h) + raidPanel(h) + memorialPanel(h);
     case 'dock': return hubShips(h, 'dock');
     case 'workshop': return arsenalPanel(h) + hubShips(h, 'workshop');
     case 'barracks': return hubShips(h, 'barracks') + drillPanel(h);
