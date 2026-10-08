@@ -4702,7 +4702,7 @@ function renderFort(center) {
 }
 function openBld(id) { HB.bld = id; HB.pick = false; HB.cat = null; const h = hdata(curProfile()); if (!h.ships[HB.sel]) HB.sel = h.active; Snd.play('click'); show('scr-hub'); document.body.classList.remove('fort-on'); renderHub(); }
 function refreshCur() { if ($('#scr-fort').classList.contains('active')) renderFort(); else renderHub(); }
-const BLD_HALL = { citadel: 'fort_hall.webp', dock: 'dock_hall.webp', treasury: 'treasury_hall.webp', battery: 'battery_hall.webp' };
+const BLD_HALL = { citadel: 'fort_hall.webp', dock: 'dock_hall.webp', treasury: 'treasury_hall.webp', battery: 'battery_hall.webp', academy: 'academy_hall.webp', walls: 'walls_hall.webp' };
 function bldHero(h, id) {
   const f = fdata(h), p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(x => x.id === id), now = Date.now();
   const S = id === 'walls' ? 2.6 : 4.2, Hs = S / FASPECT, Hc = 11 / 16;
