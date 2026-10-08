@@ -237,6 +237,7 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .shipcard .scn{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fleet-t{width:min(560px,100%);margin:6px 0 0}
 .mpin.garr{border-color:#7dffb0}.mpin.lost{background:radial-gradient(circle at 50% 35%,#6b1e16,#2a0806)!important;border-color:#ff6b57!important;color:#fff!important}
+.fflag{position:absolute;left:50.1%;top:12.4%;width:8.5%;aspect-ratio:1;transform:translate(-6%,-100%);z-index:6;pointer-events:none;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
 .flife{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .ocean{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
 .board>.ocean{left:var(--cw);top:var(--cw);width:calc(var(--cw)*10);height:calc(var(--cw)*10);border-radius:0 0 12px 0}
@@ -385,6 +386,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .bh-img.lv5{filter:var(--tf) drop-shadow(0 10px 14px rgba(0,0,0,.5)) drop-shadow(0 0 14px rgba(255,210,90,.85))}
 @keyframes bhin{from{opacity:0;transform:translateX(-50%) scale(.8)}}
 .bhero .ftod{z-index:2}
+.bh-hall{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .bh-cap{position:absolute;left:12px;bottom:10px;z-index:3;background:rgba(0,20,50,.75);border:1px solid rgba(255,207,74,.6);border-radius:12px;padding:6px 10px;line-height:1.2}
 .bh-cap b{display:block;font-size:15px;color:#ffe08a}.bh-cap small{font-size:11px;color:var(--muted)}
 .bh-lv{position:absolute;right:12px;top:10px;z-index:3;min-width:30px;height:34px;display:grid;place-items:center;font-weight:900;color:#3b2300;text-shadow:none;background:linear-gradient(135deg,#ffe07a,#ffab2e);clip-path:polygon(0 0,100% 0,100% 72%,50% 100%,0 72%);font-size:16px;padding-bottom:4px}
@@ -4531,6 +4533,25 @@ function fortScene(h) {
 
 /* ---- Крепость на картинках (остров + здания) ---- */
 const FPL = {"citadel": {"l": 38.45, "t": 0.73, "w": 22.7, "sl": 40.02, "st": 4.03, "sw": 19.57, "cx": 49.8, "cy": 15.21, "pw": 19.53}, "treasury": {"l": 21.88, "t": 16.5, "w": 15.32, "sl": 22.94, "st": 16.98, "sw": 13.21, "cx": 29.54, "cy": 23.95, "pw": 13.18}, "barracks": {"l": 64.38, "t": 17.16, "w": 15.31, "sl": 65.42, "st": 17.86, "sw": 13.21, "cx": 72.02, "cy": 24.61, "pw": 13.18}, "walls": {"l": 35.41, "t": 29.09, "w": 32.19, "sl": 43.31, "st": 26.66, "sw": 16.42, "cx": 51.51, "cy": 36.41, "pw": 29.79}, "battery": {"l": 2.85, "t": 36.56, "w": 15.31, "sl": 3.89, "st": 36.65, "sw": 13.21, "cx": 10.5, "cy": 43.18, "pw": 13.18}, "academy": {"l": 23.32, "t": 38.72, "w": 15.88, "sl": 24.4, "st": 40.63, "sw": 13.7, "cx": 31.25, "cy": 47.77, "pw": 13.67}, "workshop": {"l": 65.35, "t": 40.87, "w": 15.31, "sl": 66.39, "st": 42.33, "sw": 13.21, "cx": 73.0, "cy": 48.86, "pw": 13.18}, "market": {"l": 57.51, "t": 59.9, "w": 12.92, "sl": 58.09, "st": 58.71, "sw": 11.74, "cx": 63.96, "cy": 64.82, "pw": 11.72}, "dock": {"l": 17.0, "t": 58.93, "w": 15.32, "sl": 18.05, "st": 59.38, "sw": 13.21, "cx": 24.66, "cy": 65.91, "pw": 13.18}, "lighthouse": {"l": 82.18, "t": 62.8, "w": 16.29, "sl": 83.97, "st": 69.3, "sw": 12.72, "cx": 90.33, "cy": 75.96, "pw": 12.7}};
+const fortFlag = f => {
+  if (!f.b.citadel || (f.build && f.build.id === 'citadel')) return '';
+  const A = 'M6 9 C30 2,62 17,96 9 L85 30 L96 51 C62 59,30 44,6 50 Z', B = 'M6 9 C30 17,62 1,96 12 L85 33 L96 54 C62 43,30 58,6 50 Z', C = 'M6 9 C32 6,60 10,96 6 L85 27 L96 48 C60 52,32 50,6 50 Z';
+  const raid = f.raidDue, c1 = raid ? '#e04434' : '#2a6fc4', c2 = raid ? '#7a120c' : '#0b2c5e';
+  return `<svg class="fflag${raid ? ' raid' : ''}" viewBox="0 0 100 100" aria-hidden="true"><defs>
+    <linearGradient id="ffc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+    <linearGradient id="ffs" x1="0" y1="0" x2="1" y2="0" spreadMethod="repeat"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".6" stop-color="#001" stop-opacity=".32"/><stop offset="1" stop-color="#fff" stop-opacity=".28"/>
+      <animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="1 0" dur="${raid ? 1 : 1.6}s" repeatCount="indefinite"/></linearGradient>
+    <linearGradient id="ffp" gradientUnits="userSpaceOnUse" x1="4.2" y1="0" x2="7.8" y2="0"><stop offset="0" stop-color="#7a5a1e"/><stop offset=".5" stop-color="#ffe9a0"/><stop offset="1" stop-color="#5e4415"/></linearGradient></defs>
+    <path d="M7 100 L7 4" stroke="rgba(0,0,0,.35)" stroke-width="3.6" transform="translate(1.6 1)"/>
+    <path d="M6 100 L6 4" stroke="url(#ffp)" stroke-width="3.2" stroke-linecap="round"/>
+    <g><path fill="rgba(0,10,30,.28)" transform="translate(2.5 3)" d="${A}"><animate attributeName="d" values="${A};${B};${C};${A}" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/></path>
+    <path fill="url(#ffc)" stroke="#ffcf4a" stroke-width="1.6" stroke-linejoin="round" d="${A}"><animate attributeName="d" values="${A};${B};${C};${A}" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/></path>
+    <path fill="url(#ffs)" d="${A}"><animate attributeName="d" values="${A};${B};${C};${A}" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/></path>
+    <g><animateTransform attributeName="transform" type="translate" values="0 0;0 3;0 -1;0 0" dur="${raid ? 1.1 : 1.8}s" repeatCount="indefinite"/>
+      <circle cx="38" cy="30" r="11" fill="${raid ? '#4a0a06' : '#08224a'}" stroke="#ffcf4a" stroke-width="2"/>
+      <g fill="none" stroke="#ffcf4a" stroke-width="2" stroke-linecap="round"><circle cx="38" cy="22.6" r="1.6"/><path d="M38 24.4 V37.5 M33.8 27.4 H42.2 M31.8 31.6 Q32.6 37.8 38 37.6 Q43.4 37.8 44.2 31.6"/></g></g></g>
+    <circle cx="6" cy="4" r="3.4" fill="#ffd970" stroke="#a3741d" stroke-width="1"/></svg>`;
+};
 const FTIERS = { citadel: 1, treasury: 1, barracks: 1, walls: 1, battery: 1, academy: 1, workshop: 1, market: 1, dock: 1, lighthouse: 1 };
 let FIMG_OK = true;
 function fortImgFail() { if (!FIMG_OK) return; FIMG_OK = false; renderHub(); }
@@ -4542,7 +4563,7 @@ function fortSceneImg(h) {
   const f = fdata(h), sel = HB.fsel || 'citadel', now = Date.now();
   const order = Object.keys(FPL).sort((a, b) => (FPL[a].t + FPL[a].w) - (FPL[b].t + FPL[b].w));
   const tod = todNow();
-  let s = `<div class="fzoomwrap"><div class="fstage tod-${tod}"><img class="fbase" src="${fBaseImg(tod)}" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>`;
+  let s = `<div class="fzoomwrap"><div class="fstage tod-${tod}"><img class="fbase" src="${fBaseImg(tod)}" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>${fortFlag(f)}`;
   order.forEach(id => {
     const p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(z => z.id === id), on = sel === id ? ' sel' : '';
     if (bld) {
@@ -4585,7 +4606,7 @@ function fortMigrate(h) {
 function fortStage(h, W) {
   const f = fdata(h), now = Date.now(), tod = todNow();
   const order = Object.keys(FPL).sort((a, b) => (FPL[a].t + FPL[a].w) - (FPL[b].t + FPL[b].w));
-  let s = `<div class="fstage tod-${tod}" style="width:${W}px"><img class="fbase" src="${fBaseImg(tod)}" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>`;
+  let s = `<div class="fstage tod-${tod}" style="width:${W}px"><img class="fbase" src="${fBaseImg(tod)}" alt="" onerror="fortImgFail()" draggable="false"><div class="ftod"></div>${fortFlag(f)}`;
   order.forEach(id => {
     const p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(z => z.id === id);
     if (bld) {
@@ -4640,7 +4661,8 @@ function bldHero(h, id) {
   const px = Math.max(0, Math.min(100, (p.cx / 100 * S - .5) / (S - 1) * 100)), py = Math.max(0, Math.min(100, (p.cy / 100 * Hs - Hc / 2) / (Hs - Hc) * 100));
   const wpc = id === 'walls' ? 88 : id === 'lighthouse' ? 44 : 62;
   let s = `<div class="bh-bg" style="background-image:url(${fBaseImg(todNow())});background-size:${S * 100}% auto;background-position:${px}% ${py}%"></div><div class="ftod"></div>`;
-  if (!FIMG_OK) s = `<div class="bh-svg">${b.ic}</div>`;
+  if (id === 'citadel') s = `<img class="bh-hall" src="fort_hall.webp" alt="Штаб в цитадели">${bld ? `<span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>` : ''}`;
+  else if (!FIMG_OK) s = `<div class="bh-svg">${b.ic}</div>`;
   else if (bld) s += `<img class="bh-img" src="fort_scaffold.webp" alt="" style="width:${Math.min(wpc, 62)}%"><span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>`;
   else if (l) s += `<img class="bh-img${l >= 5 ? ' lv5' : l >= 3 ? ' lv3' : ''}" src="${fTierImg(id, l)}" alt="${b.name}" style="width:${wpc}%">`;
   else s += `<div class="bh-empty"><span>${b.ic}</span><b>Пустая площадка</b></div>`;
@@ -5738,16 +5760,6 @@ const FortLife = {
       wing(x + s * 1.2 * dir, y + s * 2.4, 'rgba(0,20,40,.18)', 2);
       wing(x, y, dusk ? 'rgba(60,40,40,.9)' : 'rgba(255,255,255,.95)', 2.2);
     });
-    // флаг на цитадели
-    if (f.b.citadel) {
-      const q = FPL.citadel, px = (q.cx + q.pw * .03) / 100 * W, py = (q.t + 10) / 100 * Hh, L = .05 * W, Hf = L * .6;
-      g.strokeStyle = '#3a2f25'; g.lineWidth = 2; g.beginPath(); g.moveTo(px, py + L * .5); g.lineTo(px, py - L * .25); g.stroke();
-      g.fillStyle = f.raidDue ? '#b3261e' : '#1d4f91'; g.beginPath(); g.moveTo(px, py - L * .25);
-      for (let i = 0; i <= 8; i++) { const u = i / 8; g.lineTo(px + u * L, py - L * .25 + Math.sin(this.t * 5 - u * 5) * u * L * .1); }
-      for (let i = 8; i >= 0; i--) { const u = i / 8; g.lineTo(px + u * L, py - L * .25 + Hf + Math.sin(this.t * 5 - u * 5) * u * L * .1); }
-      g.closePath(); g.fill();
-      g.fillStyle = '#ffcf4a'; g.beginPath(); g.arc(px + L * .45, py - L * .25 + Hf * .5 + Math.sin(this.t * 5 - 2.2) * .45 * L * .1, Hf * .18, 0, 6.283); g.fill();
-    }
     // луч маяка
     if ((night || dusk) && f.b.lighthouse) {
       const q = FPL.lighthouse, lx = q.cx / 100 * W, ly = (q.t + 4) / 100 * Hh, a = this.t * .8, R = .9 * W;
