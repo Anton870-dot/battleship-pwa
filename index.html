@@ -682,6 +682,14 @@ body.menu-on .logo{margin:0}
 .evline{padding:10px 12px;border-radius:14px;background:rgba(80,200,255,.13);border:1px solid rgba(120,220,255,.5);font-size:13.5px;line-height:1.35}.evline small{opacity:.85}
 #fg-ev{background:linear-gradient(135deg,rgba(20,90,150,.95),rgba(12,50,100,.95));border:1px solid rgba(120,220,255,.6);max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .owned{font-size:12px;font-weight:800;color:#7ee08a;white-space:nowrap}
+.atlhero{position:relative;width:min(560px,100%);border-radius:22px;overflow:hidden;box-shadow:0 10px 26px rgba(0,30,70,.35)}.atlhero img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
+.atlcap{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 10px;background:linear-gradient(transparent,rgba(4,20,45,.85));display:flex;flex-direction:column}.atlcap b{font-size:22px;letter-spacing:.02em}.atlcap small{opacity:.85;font-size:12.5px}
+.atlcouncil{width:100%;border-radius:14px;display:block;aspect-ratio:3/2;object-fit:cover}
+.atloffer .det{color:var(--gold);font-weight:700}.atlpick{display:flex;flex-wrap:wrap;gap:6px;padding:6px 0 10px 44px}.atlsoon{opacity:.6}
+.atlpr{padding:5px 9px;border-radius:10px;background:rgba(0,0,0,.2);font-size:13px}.seatab.atltab{background:linear-gradient(135deg,rgba(40,120,200,.95),rgba(20,70,140,.95));border-color:rgba(160,220,255,.7);color:#fff}
+.atlbtn{width:min(560px,100%);background:linear-gradient(135deg,#2a83c9,#16559c)!important;color:#fff!important}
+#scr-atl .hub-body{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+.atlship{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid rgba(255,255,255,.1)}
 </style>
 </head>
 <body class="menu-on">
@@ -859,6 +867,11 @@ body.menu-on .logo{margin:0}
   <div class="hub-body" id="hub-body"></div>
 </section>
 
+<section id="scr-atl" class="screen">
+  <div class="topbar"><button class="iconbtn glass" id="atl-back" aria-label="Назад">←</button><h2>🏙 Атлантис</h2><span class="goldpill">💰 <b id="atl-gold">0</b></span></div>
+  <div class="hub-body" id="atl-body"></div>
+</section>
+
 <!-- ================= HUNT BATTLE ================= -->
 <section id="scr-hunt" class="screen">
   <div class="topbar">
@@ -908,6 +921,7 @@ body.menu-on .logo{margin:0}
     <p><b>Особые кредиты 💠:</b> ими мгновенно заканчивают стройку, ремонт, постройку корабля, заказ снарядов и рейс каравана — 1 💠 за каждые 20 минут ожидания. Дают за боссов (+5), захват острова (+2), отбитый набег (+1), каждую третью победу (+1), задания дня (+1) и обучение (+5).</p>
     <p><b>Журнал капитана:</b> кнопка 📖 в крепости. В журнал попадают бои, потери, караваны, набеги, стройки и ремонты. Если вас долго не было, при входе в крепость покажут сводку.</p>
     <p><b>Сохранение:</b> кнопка 💾 в главном меню сохраняет весь прогресс в файл и загружает его обратно. Делайте это время от времени: без файла прогресс пропадёт, если очистить данные браузера.</p>
+    <p><b>Атлантис:</b> свободный торговый город, которым правит Совет торговцев. Вход — вкладка «🏙 Атлантис» на карте экспедиций или кнопка в Торговой гавани. На доске Гильдии — поручения: сопровождение торговых судов и охота за пиратами (бой, но до города плыть 20 минут), контрабанда (один корабль уходит в тайный рейс, могут поймать патрули) и поставки товара по высокой цене. За поручения растёт доверие Совета: награды больше, в городе скидки. Там же продают свежую информацию и корабли торгового флота.</p>
     <p><b>Грузовое судно:</b> закладывается на Верфи, когда построена Торговая гавань. Трюм на 40 мест, но в бою оно почти беззащитно — отправляйте его в караван вместе с боевыми кораблями.</p>
     <p><b>Новые подлодки:</b> на Верфи можно заложить Ударную подлодку (Сухой док ур. 2), Ракетоносец (ур. 3) и Подлодку будущего (ур. 4, только одна). У подлодки будущего есть ⚡ импульсная пушка: бьёт по линии сквозь всех врагов, игнорирует броню и не тратит снаряды. Стелс-поле прячет её даже после выстрела, а корпус сам чинится. У врагов таких нет.</p>
     <p><b>Торговля:</b> в Торговой гавани есть склад и биржа. Покупайте провиант, топливо, снаряды, золото и самоцветы, а продавайте их в портах других морей — караваном из своих кораблей. Цены меняются каждые 3 часа, иногда в порту бывает ажиотаж 🔥. Корабли каравана — его охрана: чем она сильнее, тем реже нападают пираты. При нападении можно принять бой самому, положиться на охрану или отдать часть груза. Ящик снарядов со склада можно сдать в Арсенал.</p>
@@ -1165,7 +1179,7 @@ const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" 
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
 const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
-const TOP_AR = { boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78};
+const TOP_AR = { boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0};
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -2145,6 +2159,8 @@ const HS = {
   sub3:       { name: 'Ракетоносец', len: 3, price: 1800, hp: 16, armor: 2, speed: 1, dmg: 6, range: 6, sight: 2, mar: 4, slots: 2, sub: true, need: 3, eqBase: { torp: true, salvo: true }, desc: 'Огромный подводный крейсер. Торпеды и ракетный залп — с завода. Медленный, но бьёт издалека и из-под воды.' },
   subx:       { name: 'Подлодка будущего', len: 3, price: 4500, hp: 18, armor: 3, speed: 3, dmg: 6, range: 6, sight: 4, mar: 4, slots: 3, sub: true, need: 4, unique: true, future: true, eqBase: { torp: true }, desc: 'Пришла из будущего — такая есть только у вас и только одна. ⚡ Импульсная пушка бьёт сквозь всех врагов на линии без снарядов. 👻 Стелс-поле: не видна даже после выстрела. 🔋 Корпус сам чинится каждые 3 хода.' },
   cargo:      { name: 'Грузовое судно', len: 3, price: 650, hp: 14, armor: 0, speed: 1, dmg: 1, range: 2, sight: 2, mar: 2, slots: 1, hauler: true, desc: 'Огромный трюм на 40 мест — в два с половиной раза больше, чем у крейсера. В бою почти беззащитно: водите его в караване под охраной боевых кораблей.' },
+  atl_cargo:  { name: 'Грузовоз Атлантиса', len: 3, price: 1150, hp: 20, armor: 2, speed: 2, dmg: 3, range: 4, sight: 3, mar: 3, slots: 2, hauler: true, atl: 1, desc: 'Гордость торгового флота Атлантиса: трюм на 60 мест, крепкий корпус и собственные пушки. Может постоять за себя в караване.' },
+  atl_bb:     { name: 'Линкор Атлантиса', len: 4, price: 2700, hp: 26, armor: 4, speed: 2, dmg: 7, range: 7, sight: 3, mar: 8, slots: 3, atl: 2, eqBase: { salvo: true }, desc: 'Флагман охраны Гильдии. Толще брони и длиннее стволы, чем у обычного линкора, и при этом быстрее. Залповая батарея — с верфи. Трюм на 14 мест.' },
   merchant:   { name: 'Торговец', len: 2, price: 0, hp: 8,  armor: 0, speed: 1, dmg: 0, range: 0, sight: 1, mar: 0, slots: 0, npc: true },
   transport:  { name: 'Транспорт', len: 3, price: 0, hp: 12, armor: 1, speed: 1, dmg: 0, range: 0, sight: 2, mar: 0, slots: 0, npc: true },
   citadel:    { name: 'Цитадель', len: 1, price: 0, hp: 20, armor: 0, speed: 0, dmg: 0, range: 0, sight: 3, mar: 0, slots: 0, npc: true, fort: true, mine: true },
@@ -2175,7 +2191,7 @@ const HCREW = [
   { id: 'acou',    ic: '🎧', name: 'Акустики',   max: 2, eff: l => `слух ${4 + l * 2} клеток` },
 ];
 const CREW_COST = [100, 200, 350];
-const UP_BASE = { boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60};
+const UP_BASE = { boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90};
 const HIRE = { boat: 50, destroyer: 110, sub: 160, cruiser: 230, battleship: 380 }, HIRE_MAX = 2, SQUAD_MAX = 5;
 const hireLvl = m => Math.floor((m - 1) / 3);
 const hirePrice = (h, id) => Math.round((HIRE[id] + 25 * hireLvl(h.mission)) * (1 - .1 * (h.hireVet[id] || 0)));
@@ -2252,7 +2268,7 @@ function hdata(p) {
     h.fv = 3;
   }
   for (const id in h.ships) { const s = h.ships[id]; s.up ||= {}; s.eq ||= {}; s.marines ||= 0; s.xp ||= 0; s.broken ||= false; s.isle ||= 0; s.trade ||= 0; s.hpLost ||= 0; s.repEnd ||= 0; s.buildEnd ||= 0; if (s.crew == null) s.crew = CREW[s.type]; }
-  { const R = tradeData(h).runs; for (const id in h.ships) { const s = h.ships[id]; if (s.trade && !R.some(r => r.id === s.trade)) s.trade = 0; } }
+  { const R = tradeData(h).runs, J = atlData(h).jobs; for (const id in h.ships) { const s = h.ships[id]; if (s.trade && !R.some(r => r.id === s.trade) && !J.some(j => j.id === s.trade)) s.trade = 0; } }
   if (!h.ships[h.active] || h.ships[h.active].isle || h.ships[h.active].trade) h.active = (Object.values(h.ships).find(s => !s.isle && !s.trade) || newShip(h, 'boat')).id;
   h.squad = h.squad.filter((id, i, a) => h.ships[id] && !h.ships[id].isle && !h.ships[id].trade && id !== h.active && a.indexOf(id) === i);
   h.officers.forEach(o => { if (o.ship && !h.ships[o.ship]) o.ship = null; });
@@ -2304,7 +2320,7 @@ function fortSVG(mine, tower) {
     <rect x="41" y="60" width="18" height="28" rx="9" fill="#3b2f22"/><rect x="24" y="48" width="9" height="9" fill="#3b2f22"/><rect x="67" y="48" width="9" height="9" fill="#3b2f22"/>
     <line x1="50" y1="22" x2="50" y2="3" stroke="#3b2f22" stroke-width="4"/><path d="M50 3h24l-7 6 7 6H50z" fill="${flag}"/></svg>`;
 }
-const SHIP_SC = { boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95};
+const SHIP_SC = { boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95};
 const shipImg = (id, cls = '', own) => `<img class="shimg ${cls}" src="ship_${id}.webp" alt="" draggable="false" style="--sc:${SHIP_SC[id] || 1};${skinF(own)}" onerror="this.style.visibility='hidden'">`;
 const shipPic = (id, foam) => HS[id].fort ? fortSVG(HS[id].mine, HS[id].tower) : HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
 const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5', 'board1', 'boss1', 'legend'];
@@ -2316,10 +2332,12 @@ function checkAch(p, ids) {
 }
 
 /* ---------- Флот без ограничений: корабли-экземпляры, офицеры, острова ---------- */
-const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3}, OFF_UPK = 1, GARR_MAX = 3;
+const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4}, OFF_UPK = 1, GARR_MAX = 3;
 const SHIP_POOL = {
   boat: ['Стриж', 'Чайка', 'Вьюн', 'Ласточка', 'Кречет', 'Сокол', 'Ястреб', 'Баклан', 'Бриз', 'Шквал', 'Пчела', 'Вихрь'],
   destroyer: ['Стремительный', 'Грозный', 'Бесстрашный', 'Быстрый', 'Резвый', 'Смелый', 'Верный', 'Лихой', 'Дерзкий', 'Громкий'],
+  atl_bb: ['Тиамат', 'Аврелиана', 'Посейдония', 'Леди Ксанаду', 'Сапфировая Корона', 'Эль-Дорадо'],
+  atl_cargo: ['Селестина', 'Калипсо', 'Зефирина', 'Мараджа', 'Нефертари', 'Ориана'],
   cargo: ['Труженик', 'Купец', 'Каравелла', 'Богатырь моря', 'Меркурий', 'Садко', 'Афанасий Никитин', 'Золотая лань', 'Товарищ', 'Полярная звезда'],
   sub2: ['Гепард', 'Барс', 'Вепрь', 'Пантера', 'Ягуар', 'Рысь', 'Волк', 'Тигр'],
   sub3: ['Тайфун', 'Акула-М', 'Дмитрий Донской', 'Северсталь', 'Архангельск', 'Кит'],
@@ -2401,7 +2419,7 @@ function awaySummary(h, ms, un) {
   h.seenT = Date.now(); h.newsNew = 0; saveProfiles();
 }
 function econTick(h) {
-  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (ammoTick(h)) ch = true;
+  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (atlTick(h)) ch = true; if (ammoTick(h)) ch = true;
   if (!h.econT) { h.econT = now; return true; }
   if (now - h.econT > 10 * 60000) h.away = Math.max(h.away || 0, now - h.econT);
   const dtH = Math.min(12, (now - h.econT) / 3600e3);
@@ -2443,8 +2461,9 @@ const TPORTS = [
   { n: 'Порт Бриз',          sea: 1, min: 60,  risk: .2,  threat: 30, mul: { food: 1.25, fuel: 1.3, shells: 1.2, gold: 1.15, gems: 1.12 } },
   { n: 'Туманная Гавань',    sea: 2, min: 90,  risk: .28, threat: 45, mul: { food: 1.3, fuel: 1.35, shells: 1.3, gold: 1.25, gems: 1.22 } },
   { n: 'Обсидиановый Рынок', sea: 3, min: 120, risk: .36, threat: 60, mul: { food: 1.38, fuel: 1.35, shells: 1.42, gold: 1.4, gems: 1.45 } },
+  { n: 'Атлантис', sea: -1, min: 150, risk: .22, threat: 40, mul: { food: 1.32, fuel: 1.36, shells: 1.36, gold: 1.38, gems: 1.4 } },
 ];
-const CARGO = { boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 40};
+const CARGO = { boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 40, atl_bb: 14, atl_cargo: 60};
 const SHELL_BOX = 8, TR_PER = 3 * 3600e3;
 const tGood = id => TGOODS.find(g => g.id === id);
 function trRand(a, b, c) { let x = (Math.imul(a, 73856093) ^ Math.imul(b, 19349663) ^ Math.imul(c, 83492791)) >>> 0; x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return (x % 10007) / 10007; }
@@ -2491,6 +2510,7 @@ function tradeTick(h) {
     }
     if (r.st === 'go' && now >= r.arrive) {
       let gold = 0, xtra = ''; const per2 = trPer(r.arrive); TGOODS.forEach(g => { if (r.cargo[g.id]) gold += r.cargo[g.id] * trPrice(r.port, g.id, per2); });
+      { const ad = atlDeliver(h, r, per2); gold += ad.gold; xtra += ad.txt; }
       { const o = h.ev && h.ev.id === 'order' && h.ev.port === r.port && r.arrive <= h.ev.end && r.cargo[h.ev.g] ? h.ev : null; if (o) { const n = Math.min(o.left, r.cargo[o.g]), b = n * trPrice(r.port, o.g, per2); gold += b; o.left -= n; xtra = ` Срочный заказ: +${b} 💰 сверху.`; if (o.left <= 0) { h.cred = (h.cred || 0) + 2; xtra += ' Заказ выполнен целиком: +2 💠!'; h.ev.end = now; } } }
       h.gold += gold; r.gold = gold; r.st = 'ret'; ch = true;
       news(h, `💰 Караван продал груз в «${P.n}» (${cargoTxt(r.cargo)}): +${gold} 💰. Корабли возвращаются домой.${xtra}`); toast(`💰 Караван в «${P.n}»: +${gold} 💰`); Snd.play('coins');
@@ -2509,7 +2529,7 @@ function trSend(h) {
   const load = {}; let n = 0; TGOODS.forEach(g => { const v = Math.min(S.load[g.id] || 0, T.stock[g.id]); if (v > 0) { load[g.id] = v; n += v; } });
   if (!ids.length || !n || n > cap || T.runs.length >= trRunsMax(h)) return false;
   if (evOn(h, 'storm') && evOn(h, 'storm').sea === TPORTS[S.port].sea) { toast('🌪 В этом море шторм — караван не выйдет, пока он не утихнет'); return false; }
-  const pi = S.port, dur = trDur(h, pi), now = Date.now(), pow = trPower(h, ids), ch = Math.min(.9, trChance(pi, pow) * (evOn(h, 'armada') ? 1.5 : 1));
+  const pi = S.port, dur = trDur(h, pi), now = Date.now(), pow = trPower(h, ids), ch = Math.min(.9, trChance(pi, pow) * (evOn(h, 'armada') ? 1.5 : 1)) * (atlData(h).safe > 0 ? (atlData(h).safe--, .33) : 1);
   TGOODS.forEach(g => { if (load[g.id]) T.stock[g.id] -= load[g.id]; });
   ids.forEach(k => { h.ships[k].trade = 'r' + now; }); h.squad = h.squad.filter(k => !ids.includes(k));
   T.runs.push({ id: 'r' + now, port: pi, ships: ids, cargo: load, start: now, arrive: now + dur, back: now + 2 * dur, dur, st: 'go', ambAt: Math.random() < ch ? now + dur * (.25 + Math.random() * .5) : 0, pow });
@@ -2557,13 +2577,13 @@ function tradeAct(act, id) {
   } else if (act === 'trgo') { if (!trSend(h)) return; snd = 'horn'; }
   else if (act === 'trfight' || act === 'trguard' || act === 'trpay') {
     const r = T.runs.find(x => x.id === id); if (!r || r.st !== 'amb') return;
-    if (act === 'trfight') { saveProfiles(); return startHunt({ kind: 'battle', obj: 'convoy', weather: pick(SEAS[TPORTS[r.port].sea].wx.flatMap(([w, n]) => Array(n).fill(w))), bonus: true, lvl: SEAS[TPORTS[r.port].sea].lvl + 2, trade: r.id }); }
+    if (act === 'trfight') { saveProfiles(); return startHunt({ kind: 'battle', obj: 'convoy', weather: pick(SEAS[Math.max(0, TPORTS[r.port].sea)].wx.flatMap(([w, n]) => Array(n).fill(w))), bonus: true, lvl: (TPORTS[r.port].sea < 0 ? atlLvl(h) : SEAS[TPORTS[r.port].sea].lvl + 2), trade: r.id }); }
     const lines = []; trResolve(h, r, act === 'trguard' ? 'guard' : 'pay', false, lines); news(h, lines.join('. ')); lines.forEach((t, i) => setTimeout(() => toast(t), i * 1600)); snd = act === 'trguard' ? 'hit' : 'click';
   } else return;
   saveProfiles(); Snd.play(snd); vibrate(20); renderHub();
 }
 function tradePanel(h) {
-  const T = tradeData(h), now = Date.now(), per = trPer(), next = (per + 1) * TR_PER, used = trUsed(T), cap = trCap(h), open = trPortsOpen(h), seer = fL(h, 'lighthouse') >= 3;
+  const T = tradeData(h), now = Date.now(), per = trPer(), next = (per + 1) * TR_PER, used = trUsed(T), cap = trCap(h), open = trPortsOpen(h), seer = fL(h, 'lighthouse') >= 3 || atlData(h).fore === trPer();
   let s = '';
   T.runs.filter(r => r.st === 'amb').forEach(r => {
     const P = TPORTS[r.port], pow = trPower(h, r.ships), pw = Math.round(pow / (pow + P.threat) * 100);
@@ -2688,8 +2708,162 @@ function cshopAct(act, id) {
   saveProfiles(); Snd.play('buy'); vibrate(20); renderHub();
 }
 
+/* ==================== АТЛАНТИС: свободный торговый город ==================== */
+const ATL_PORT = 4;
+const ATL_NAMES = ['Селестина', 'Калипсо', 'Тиамат', 'Аль-Мирадж', 'Нефертари', 'Зефирина', 'Эль-Дорадо', 'Ксанаду', 'Аврелиана', 'Сирена Ореаль', 'Иштар', 'Кетцаль', 'Ориана', 'Валь-Люмьер', 'Эсмеральда', 'Мараджа', 'Сапфира', 'Леван-Тэ', 'Шахразада', 'Бирюзовая Лань', 'Ла Перла', 'Мистраль', 'Анкор-Ваат', 'Опаловая Звезда', 'Лунный Жемчуг', 'Тадж-Аль-Бахр', 'Корал Мэй', 'Альгамбра'];
+const ATL_YARD = [{ t: 'cargo', rk: 0 }, { t: 'atl_cargo', rk: 1 }, { t: 'atl_bb', rk: 2 }];
+function atlName(h) { const A = atlData(h), used = new Set(Object.values(h.ships).map(s => s.name)); for (let i = 0; i < ATL_NAMES.length * 2; i++) { const n = ATL_NAMES[(A.nm = (A.nm || 0) + 1) % ATL_NAMES.length] + (A.nm > ATL_NAMES.length ? ' ' + (Math.floor(A.nm / ATL_NAMES.length) + 1) : ''); if (!used.has(n)) return n; } return 'Странница'; }
+const ATL_RANKS = [{ r: 0, n: 'Чужак' }, { r: 3, n: 'Гость Совета' }, { r: 8, n: 'Партнёр' }, { r: 15, n: 'Доверенное лицо' }, { r: 25, n: 'Член Совета' }];
+const atlRank = h => { const r = atlData(h).rep; let i = 0; ATL_RANKS.forEach((x, k) => { if (r >= x.r) i = k; }); return i; };
+const ATL_TRAVEL = 20;          // минут до Атлантиса для боевых поручений
+const ATL_SHIP_MIN = 40;        // доставка корабля с верфи Атлантиса
+const atlLvl = h => { const E = expData(h); return SEAS[Math.max(0, (E.open || 1) - 1)].lvl + 1 + atlRank(h); };
+const atlDisc = h => 1 - .05 * atlRank(h);
+function atlData(h) {
+  h.atl ||= {}; const A = h.atl;
+  A.rep ||= 0; A.board ||= []; A.jobs ||= []; A.seq ||= 0; A.safe ||= 0; A.fore ||= 0; A.done ||= 0;
+  return A;
+}
+const ATL_OFFERS = {
+  escort:  { ic: '🚢', n: 'Сопровождение', d: 'Проведите торговые суда Гильдии через опасные воды. Бой: конвой должен дойти до края карты.' },
+  bounty:  { ic: '🎯', n: 'Охота за головами', d: 'Совет платит за потопленных пиратов, что грабят его караваны. Бой: потопите всех.' },
+  smuggle: { ic: '🕶', n: 'Контрабанда', d: 'Тайный груз, о котором лучше не спрашивать. Отправьте один корабль. Платят щедро, но могут поймать патрули — подлодки и катера попадаются реже.' },
+  deliver: { ic: '📦', n: 'Поставка', d: 'Гильдия срочно закупает товар по высокой цене. Довезите его караваном в Атлантис до срока.' },
+};
+function atlOffer(h) {
+  const A = atlData(h), lvl = atlLvl(h), k = 1 + .1 * atlRank(h), now = Date.now();
+  const kind = pick(['escort', 'bounty', 'smuggle', 'deliver', 'escort', 'smuggle']);
+  const o = { id: 'a' + (++A.seq), kind, lvl, exp: now + 8 * 3600e3 };
+  if (kind === 'escort') Object.assign(o, { gold: Math.round((160 + 32 * lvl) * k), rep: 2 });
+  if (kind === 'bounty') Object.assign(o, { gold: Math.round((130 + 36 * lvl) * k), rep: 1, lvl: lvl + 1 });
+  if (kind === 'smuggle') Object.assign(o, { gold: Math.round((380 + 45 * lvl) * k), rep: 1, min: 80 + rnd(5) * 15, risk: .22 + Math.random() * .16 });
+  if (kind === 'deliver') { const g = pick(TGOODS); Object.assign(o, { g: g.id, n: 8 + rnd(15), pay: Math.round(g.base * 1.9 * k), rep: 2, hrs: 10 }); }
+  return o;
+}
+function atlTick(h) {
+  const A = atlData(h), now = Date.now(); let ch = false;
+  if (!A.boardT || now - A.boardT > 4 * 3600e3) { A.board = [atlOffer(h), atlOffer(h), atlOffer(h)]; A.boardT = now; ch = true; }
+  A.board = A.board.filter(o => o.exp > now);
+  for (const j of [...A.jobs]) {
+    if ((j.kind === 'escort' || j.kind === 'bounty') && j.st === 'go' && now >= j.at) { j.st = 'ready'; ch = true; toast(`🏙 Флот прибыл к Атлантису: «${ATL_OFFERS[j.kind].n}» — можно начинать бой`); news(h, `🏙 Флот прибыл к Атлантису для поручения «${ATL_OFFERS[j.kind].n}». Бой ждёт в городе.`, true); }
+    if (j.kind === 'smuggle' && now >= j.at) {
+      const s = h.ships[j.ship]; A.jobs.splice(A.jobs.indexOf(j), 1); ch = true;
+      if (!s) continue; s.trade = 0;
+      const ch2 = j.risk * (HS[s.type].sub ? .4 : s.type === 'boat' ? .7 : HS[s.type].hauler ? 1.2 : 1);
+      if (Math.random() > ch2) { h.gold += j.gold; A.rep += j.rep; A.done++; news(h, `🕶 Контрабанда доставлена, ${sName(s)} снова в гавани. +${j.gold} 💰`); Snd.play('coins'); }
+      else { const fine = Math.round(j.gold * .4); h.gold = Math.max(0, h.gold - fine); s.hpLost = Math.min(shipMaxHp(h, s) - 1, (s.hpLost || 0) + Math.round(shipMaxHp(h, s) * .5)); A.rep = Math.max(0, A.rep - 1); news(h, `🚨 Патруль перехватил контрабанду! ${sName(s)} ушёл из-под огня с тяжёлыми повреждениями, штраф −${fine} 💰, доверие Совета −1`); Snd.play('bad'); }
+    }
+    if (j.kind === 'deliver' && now > j.end) { A.jobs.splice(A.jobs.indexOf(j), 1); A.rep = Math.max(0, A.rep - 1); news(h, `📦 Срок поставки в Атлантис истёк — заказ сорван, доверие Совета −1`); ch = true; }
+  }
+  return ch;
+}
+// караван пришёл в Атлантис: засчитать поставки по контракту
+function atlDeliver(h, r, per) {
+  if (r.port !== ATL_PORT) return { gold: 0, txt: '' };
+  const A = atlData(h); let gold = 0, txt = '';
+  A.jobs.filter(j => j.kind === 'deliver' && j.left > 0 && r.arrive <= j.end && r.cargo[j.g]).forEach(j => {
+    const n = Math.min(j.left, r.cargo[j.g]); gold += n * (j.pay - trPrice(ATL_PORT, j.g, per)); j.left -= n;
+    txt += ` Поставка для Гильдии: ${n} × ${tGood(j.g).ic} по ${j.pay} 💰.`;
+    if (j.left <= 0) { A.rep += j.rep; A.done++; A.jobs.splice(A.jobs.indexOf(j), 1); txt += ` Заказ выполнен, доверие Совета +${j.rep}!`; }
+  });
+  return { gold: Math.max(0, gold), txt };
+}
+function showAtl() { const p = curProfile(); if (!p) return; Snd.ensure(); HB.ret = 'atl'; HB.atlPick = null; show('scr-atl'); renderAtl(); }
+function renderAtl() {
+  const h = hdata(curProfile()), A = atlData(h); fortTick(h); atlTick(h);
+  const now = Date.now(), rk = atlRank(h), nx = ATL_RANKS[rk + 1];
+  $('#atl-gold').textContent = `${h.gold} · 💠 ${h.cred || 0}`;
+  let s = `<div class="atlhero"><img src="atlantis.webp" alt=""><div class="atlcap"><b>Атлантис</b><small>свободный торговый город · правит Совет торговцев</small></div></div>`;
+  // Совет
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏛 Совет торговцев</div><img class="atlcouncil" src="atl_council.webp" alt="">
+    <div class="rankline"><span>🤝 ${ATL_RANKS[rk].n}</span><span class="bar"><i style="width:${nx ? (A.rep - ATL_RANKS[rk].r) / (nx.r - ATL_RANKS[rk].r) * 100 : 100}%"></i></span><small>${nx ? `доверие ${A.rep}/${nx.r}` : 'высший ранг'}</small></div>
+    <small class="muted">${['«Атлантис открыт всем, у кого есть товар и честное слово. Докажите, что ваше слово чего-то стоит, капитан».', '«Вы уже не чужой в этих стенах. Совет присматривается к вам».', '«Партнёр Гильдии всегда получит лучший заказ и лучшую цену».', '«Совет доверяет вам дела, о которых не говорят на площади».', '«Добро пожаловать за стол Совета. Атлантис — и ваш город тоже».'][rk]}</small>
+    <small class="muted">Каждый ранг: награды за поручения +10%, скидка в городе 5%, задания сложнее и богаче. Выполнено поручений: ${A.done}.</small></div>`;
+  // активные поручения
+  if (A.jobs.length) {
+    s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📋 Ваши поручения</div>`;
+    A.jobs.forEach(j => { const O = ATL_OFFERS[j.kind];
+      let st = '', btn = '';
+      if (j.kind === 'escort' || j.kind === 'bounty') { if (j.st === 'go') { st = `флот идёт к Атлантису: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`; btn = spdBtn(h, 'atlspd', j.at, j.id); } else { st = 'флот на месте — можно в бой'; btn = `<button class="btn small primary" data-act="atlgo" data-id="${j.id}">⚔️ В бой</button>`; } }
+      if (j.kind === 'smuggle') { st = `${h.ships[j.ship] ? sName(h.ships[j.ship]) : 'корабль'} в пути: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b> · риск ~${Math.round(j.risk * 100)}%`; btn = spdBtn(h, 'atlspd', j.at, j.id); }
+      if (j.kind === 'deliver') { st = `осталось довезти ${j.left} × ${tGood(j.g).ic} ${tGood(j.g).n.toLowerCase()} по ${j.pay} 💰 · срок <b data-until="${j.end}">${fmtLeft(j.end - now)}</b>`; btn = `<button class="btn small primary" data-act="atlcar">⛵ Караван</button>`; }
+      s += `<div class="uprow"><span class="ic">${O.ic}</span><span class="nm">${O.n}${j.gold ? ` · ${j.gold} 💰` : ''}<small>${st}</small></span>${btn}</div>`; });
+    s += `</div>`;
+  }
+  // доска контрактов
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📜 Доска поручений Гильдии</div><small class="muted">Новые поручения — каждые 4 часа: обновятся через <b data-until="${A.boardT + 4 * 3600e3}">${fmtLeft(A.boardT + 4 * 3600e3 - now)}</b>. Атлантис далеко: до боя флоту плыть ${ATL_TRAVEL} мин.</small>`;
+  if (!A.board.length) s += `<small class="muted">Все поручения разобраны. Загляните позже.</small>`;
+  A.board.forEach(o => { const O = ATL_OFFERS[o.kind];
+    let det = o.kind === 'escort' || o.kind === 'bounty' ? `бой, сила врага ${o.lvl} · награда ${o.gold} 💰 · доверие +${o.rep}` : o.kind === 'smuggle' ? `рейс ${fmtMin(o.min)} · риск ~${Math.round(o.risk * 100)}% · награда ${o.gold} 💰` : `${o.n} × ${tGood(o.g).ic} ${tGood(o.g).n.toLowerCase()} по ${o.pay} 💰 (на рынке ~${trPrice(ATL_PORT, o.g)}) · срок ${o.hrs} ч · доверие +${o.rep}`;
+    s += `<div class="uprow atloffer"><span class="ic">${O.ic}</span><span class="nm">${O.n}<small>${O.d}</small><small class="det">${det}</small></span><button class="btn small primary" data-act="atltake" data-id="${o.id}">Взять</button></div>`;
+    if (HB.atlPick === o.id) {
+      const ships = Object.values(h.ships).filter(x => trCanSail(h, x));
+      s += `<div class="atlpick"><small>Какой корабль повезёт груз?</small>${ships.length ? ships.map(x => `<button class="btn small" data-act="atlship" data-id="${x.id}">${HS[x.type].sub ? '🤫 ' : ''}${sName(x)}</button>`).join('') : '<small class="muted">Нет свободных кораблей (флагман остаётся дома).</small>'}</div>`;
+    }
+  });
+  s += `</div>`;
+  // разведданные
+  const ip = n => Math.round(n * atlDisc(h)), per = trPer();
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🗞 Свежая информация</div><small class="muted">Шпионы и маклеры Атлантиса знают всё — за деньги.</small>
+    <div class="uprow"><span class="ic">📈</span><span class="nm">Прогноз цен<small>Какими будут цены во всех портах в следующие 3 часа — в таблице торговли.${A.fore === per ? ' <b>Куплено на этот срок ✓</b>' : ''}</small></span><button class="btn small primary" data-act="atlinfo" data-id="fore" ${A.fore === per || h.gold < ip(80) ? 'disabled' : ''}>${ip(80)} 💰</button></div>
+    <div class="uprow"><span class="ic">🗺</span><span class="nm">Тихие маршруты<small>Следующие 3 каравана пойдут в обход пиратских засад: нападают втрое реже.${A.safe ? ` Осталось: ${A.safe}.` : ''}</small></span><button class="btn small primary" data-act="atlinfo" data-id="safe" ${h.gold < ip(160) ? 'disabled' : ''}>${ip(160)} 💰</button></div>
+    <div class="uprow"><span class="ic">💰</span><span class="nm">Наводка на богатую цель<small>Разведка получит донесение о бое с добычей в полтора раза больше обычной.</small></span><button class="btn small primary" data-act="atlinfo" data-id="tip" ${h.gold < ip(220) || expData(h).reports.length >= repMax(h) + 1 ? 'disabled' : ''}>${ip(220)} 💰</button></div></div>`;
+  // верфь торгового флота
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Верфь торгового флота</div><small class="muted">Корабли Атлантиса не занимают ваши стапели: их пригоняют в вашу гавань за ${fmtMin(ATL_SHIP_MIN)}. Каждый получает имя по обычаю Атлантиса.</small>`;
+  ATL_YARD.forEach(y => { const b = HS[y.t], cp = Math.round(b.price * atlDisc(h)), lk = rk < y.rk;
+    s += `<div class="atlship"><div class="shipshow">${shipImg(y.t, 'big')}</div><div class="hp-title"><div><b>${b.name}</b><small>${b.desc}${y.t === 'cargo' ? ' Здесь его можно купить и без Торговой гавани.' : ''}</small></div></div>${statGrid(shipStats(y.t, {}, h.crew, { eq: b.eqBase }))}<small class="muted">📦 трюм ${CARGO[y.t]} · 👥 команда ${CREW[y.t]} · содержание ${UPK[y.t]} 💰/ч</small>
+      ${lk ? `<div class="warnline">🔒 Совет продаёт его только с ранга «${ATL_RANKS[y.rk].n}»</div>` : `<button class="btn primary" data-act="atlbuy" data-id="${y.t}" ${h.gold < cp ? 'disabled' : ''}>Купить · ${cp} 💰 · пригонят за ${fmtMin(ATL_SHIP_MIN)}</button>`}</div>`; });
+  s += `</div>`;
+  // рынок
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚖️ Рынок Атлантиса</div><small class="muted">Здесь дорого покупают всё. Путь караваном — ${fmtMin(trDur(h, ATL_PORT) / 60000)} в одну сторону.</small><div class="trchips">${TGOODS.map(g => `<span class="atlpr">${g.ic} <b>${trPrice(ATL_PORT, g.id)}</b></span>`).join('')}</div>
+    <button class="btn primary" data-act="atlcar">⛵ Снарядить караван в Атлантис</button></div>`;
+  $('#atl-body').innerHTML = s;
+  $('#atl-body').querySelectorAll('[data-act]').forEach(b => b.onclick = () => atlAct(b.dataset.act, b.dataset.id));
+}
+function atlAct(act, id) {
+  const h = hdata(curProfile()), A = atlData(h), now = Date.now(); let snd = 'click';
+  const pay = n => { if (h.gold < n) { toast('Не хватает золота'); return false; } h.gold -= n; return true; };
+  if (act === 'atltake') {
+    const o = A.board.find(x => x.id === id); if (!o) return;
+    if (o.kind === 'smuggle') { HB.atlPick = HB.atlPick === id ? null : id; Snd.play('click'); return renderAtl(); }
+    if ((o.kind === 'escort' || o.kind === 'bounty') && A.jobs.some(j => j.kind === 'escort' || j.kind === 'bounty')) { toast('Флот уже выполняет боевое поручение Совета'); return; }
+    A.board = A.board.filter(x => x !== o);
+    if (o.kind === 'deliver') A.jobs.push({ ...o, left: o.n, end: now + o.hrs * 3600e3 });
+    else A.jobs.push({ ...o, st: 'go', at: now + ATL_TRAVEL * 60000 * (evOn(h, 'wind') ? .67 : 1) });
+    news(h, `🏙 Взято поручение Совета Атлантиса: ${ATL_OFFERS[o.kind].n}`, true); snd = 'horn';
+  } else if (act === 'atlship') {
+    const o = A.board.find(x => x.id === HB.atlPick), s = h.ships[id]; if (!o || !s || !trCanSail(h, s)) return;
+    A.board = A.board.filter(x => x !== o); HB.atlPick = null;
+    A.jobs.push({ ...o, ship: s.id, at: now + o.min * 60000 }); s.trade = o.id; h.squad = h.squad.filter(k => k !== s.id);
+    news(h, `🕶 ${sName(s)} отправлен с тайным грузом Атлантиса`, true); snd = 'horn';
+  } else if (act === 'atlspd') {
+    const j = A.jobs.find(x => x.id === id); if (!j || !j.at || j.st === 'ready') return;
+    if (!payCred(h, credCost(j.at - now))) return; j.at = now; atlTick(h);
+  } else if (act === 'atlgo') {
+    const j = A.jobs.find(x => x.id === id); if (!j || j.st !== 'ready') return;
+    if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
+    if (!SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале'); return; }
+    saveProfiles(); HB.ret = 'atl';
+    return startHunt({ kind: 'battle', obj: j.kind === 'escort' ? 'convoy' : 'hunt', lvl: j.lvl, weather: pickW([['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]]), bonus: true, atl: j.id, extra: j.kind === 'bounty' ? 1 : 0 });
+  } else if (act === 'atlinfo') {
+    const ip = n => Math.round(n * atlDisc(h));
+    if (id === 'fore') { if (!pay(ip(80))) return; A.fore = trPer(); toast('📈 Прогноз цен куплен — смотрите стрелки в таблице торговли'); }
+    if (id === 'safe') { if (!pay(ip(160))) return; A.safe += 3; toast('🗺 Тихие маршруты: следующие 3 каравана пойдут в обход засад'); }
+    if (id === 'tip') { let r = null; for (let i = 0; i < 20 && !r; i++) { const x = genReport(h); if (!x) break; if (x.kind === 'battle') r = x; else h.exp.reports = h.exp.reports.filter(z => z !== x); } if (!r) { toast('Шпионы ничего не нашли — попробуйте позже'); return; } if (!pay(ip(220))) { h.exp.reports = h.exp.reports.filter(z => z !== r); return; } r.mult = 1.5; r.tip = true; toast(`💰 Наводка: богатая цель у острова «${repPlace(r)}» — донесение уже в штабе разведки`); }
+    snd = 'buy';
+  } else if (act === 'atlbuy') {
+    const y = ATL_YARD.find(z => z.t === id); if (!y || atlRank(h) < y.rk) return;
+    const cp = Math.round(HS[id].price * atlDisc(h)); if (!pay(cp)) return;
+    const s = newShip(h, id); s.name = atlName(h); s.buildEnd = now + ATL_SHIP_MIN * 60000; s.broken = true; s.deliv = true;
+    toast(`⚓ ${sName(s)} куплен — его пригонят в вашу гавань через ${fmtMin(ATL_SHIP_MIN)}`); snd = 'buy';
+  } else if (act === 'atlcar') {
+    HB.tr = { port: ATL_PORT, ships: [], load: {} }; Snd.play('click'); return openBld('market');
+  } else return;
+  saveProfiles(); Snd.play(snd); renderAtl();
+}
+
 /* ---------- Команда кораблей и Мемориал ---------- */
-const CREW = { boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20};
+const CREW = { boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30};
 const crewWord = (t, n) => HS[t].sub ? plural(n, 'подводник', 'подводника', 'подводников') : plural(n, 'матрос', 'матроса', 'матросов');
 const crewEff = u => u && u.crewMax ? Math.max(0, Math.min(1, u.crew / u.crewMax)) : 1;
 const effDmg = u => Math.max(1, Math.round(u.st.dmg * (.5 + .5 * crewEff(u))));
@@ -2711,7 +2885,7 @@ function hCasualty(t, d) {
   t.crew -= k; t.marines -= m; H.fallen = (H.fallen || 0) + k + m;
   (H.casNow ||= []).push(`☠️ ${t.name || HS[t.type].name}: ${k === 1 && !m ? 'погиб' : 'погибли'} ${k} ${crewWord(t.type, k)}${m ? ` и ${m} ${plural(m, 'морпех', 'морпеха', 'морпехов')}` : ''}`);
 }
-const battlePlace = () => { const n = H.node || {}; if (n.trade) { const r = hdata(curProfile()).trade.runs.find(x => x.id === n.trade); return r ? TPORTS[r.port].n + ', караван' : 'торговый путь'; } return n.report ? (n.isle < 0 ? SEAS[n.sea].pir.n : SEAS[n.sea].isles[n.isle].n) + ', ' + SEAS[n.sea].n : H.obj === 'raid' ? 'у стен родной крепости' : 'в открытом море'; };
+const battlePlace = () => { const n = H.node || {}; if (n.atl) return 'у берегов Атлантиса'; if (n.trade) { const r = hdata(curProfile()).trade.runs.find(x => x.id === n.trade); return r ? TPORTS[r.port].n + ', караван' : 'торговый путь'; } return n.report ? (n.isle < 0 ? SEAS[n.sea].pir.n : SEAS[n.sea].isles[n.isle].n) + ', ' + SEAS[n.sea].n : H.obj === 'raid' ? 'у стен родной крепости' : 'в открытом море'; };
 function memorialPanel(h) {
   const M = h.memorial || [];
   let s = `<div class="glass hub-panel memorial"><div class="sec-t" style="margin-top:0">🕯 Мемориал</div>`;
@@ -2724,7 +2898,7 @@ function memorialPanel(h) {
 }
 
 /* ---------- Гибель и ремонт кораблей ---------- */
-const REP_MIN = { boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60};
+const REP_MIN = { boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70};
 const shipMaxHp = (h, s) => ownStats(h, s.id).hp;
 const shipHp = (h, s) => Math.max(1, shipMaxHp(h, s) - (s.hpLost || 0));
 function repairInfo(h, s) {
@@ -2798,9 +2972,9 @@ const ammoOf = id => AMMO.find(a => a.id === id);
 const arsLines = h => 1 + Math.floor(fL(h, 'workshop') / 2);
 const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'workshop'))));
 const ammoGold = (h, a) => Math.round(a.gold * (1 - .08 * fL(h, 'workshop')));
-const SHIP_MIN = { boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60};
+const SHIP_MIN = { boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80};
 const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock'))));
-const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || s.buildEnd).length;
+const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv)).length;
 function ammoData(h) {
   if (!h.ammo) h.ammo = { he: 40, ap: 0, inc: 0, heavy: 0, torp: 4 };
   h.ammoQ ||= [];
@@ -2817,7 +2991,7 @@ function ammoTick(h) {
     h.ammoQ.splice(h.ammoQ.indexOf(fin), 1); const nx = h.ammoQ.find(z => !z.end); if (nx) nx.from = fin.end; ch = true;
   }
   if (done.length) { toast(`⚙️ Арсенал: готово — ${done.join(', ')}`); news(h, `⚙️ Арсенал: готово — ${done.join(', ')}`, true); }
-  Object.values(h.ships).forEach(s => { if (s.buildEnd && now >= s.buildEnd) { s.buildEnd = 0; s.broken = false; ch = true; toast(`⚓ На воду спущен ${sName(s)}!`); news(h, `⚓ На воду спущен ${sName(s)}`, true); } });
+  Object.values(h.ships).forEach(s => { if (s.buildEnd && now >= s.buildEnd) { s.buildEnd = 0; s.broken = false; s.deliv = false; ch = true; toast(`⚓ На воду спущен ${sName(s)}!`); news(h, `⚓ На воду спущен ${sName(s)}`, true); } });
   return ch;
 }
 function orderAmmo(h, id) {
@@ -3048,6 +3222,7 @@ function hubAct(act, id) {
   if (act === 'oreq') { if (urgentIntel(h)) renderHub(); return; }
   if (act === 'isle') { Snd.play('click'); showMap(+String(id).split(':')[0]); return mapSheet('isle', id); }
   if (act === 'cbuy' || act === 'cskin') return cshopAct(act, id);
+  if (act === 'oatl') { Snd.play('click'); return showAtl(); }
   if (act === 'jlog') { Snd.play('click'); return showLog(); }
   if (act === 'tutre') { h.tut = 0; saveProfiles(); Snd.play('click'); return showFort(); }
   if (act.startsWith('tr')) return tradeAct(act, id);
@@ -3932,12 +4107,13 @@ function hFinish(won, reason) {
     if (node.reclaim) { isleOf(h, node.reclaim).lost = false; lines.push(`🏝 Остров «${isleName(node.reclaim)}» снова под вашим флагом`); }
     if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 150; lines.push('🏰 Форт взят штурмом: +150 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
     h.w++; if (h.w % 3 === 0) cr++; if (evOn(h, 'armada') && H.obj !== 'raid') cr++; if (!node.bonus) h.mission = m + 1; p.st.huntW = (p.st.huntW || 0) + 1;
+    if (node.atl) { const A = atlData(h), j = A.jobs.find(x => x.id === node.atl); if (j) { gold += j.gold; A.rep += j.rep; A.done++; A.jobs = A.jobs.filter(x => x !== j); lines.push(`🏙 Совет Атлантиса доволен: +${j.gold} 💰, доверие +${j.rep}`); } }
     if (node.report) {
       const E = expData(h); E.reports = E.reports.filter(r => r.id !== node.report); h.mission++;
       if (node.bossIdx != null) { if (!E.cleared.includes(node.sea)) E.cleared.push(node.sea); if (E.open < SEAS.length && E.open === node.sea + 1) { E.open++; lines.push(`🗺 Путь открыт: ${SEAS[E.open - 1].n}! Разведка уже отправилась туда`); genReport(h); } }
       else if (node.isle >= 0 && !node.reclaim) { const st = isleOf(h, iKey(node.sea, node.isle)); if (!st.own) { st.own = true; st.lost = false; cr += 2; lines.push(`🏝 Остров «${SEAS[node.sea].isles[node.isle].n}» теперь ваш! Оставьте на нём гарнизон — он начнёт приносить золото`); if (seaOwn(h, node.sea) === SEA_NEED && !E.cleared.includes(node.sea)) lines.push(`🔭 Разведка нашла подходы к логову «${SEAS[node.sea].pir.n}»`); } }
     }
-  } else { gold = 20 + 25 * sunk; h.l++; }
+  } else { gold = 20 + 25 * sunk; h.l++; if (node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== node.atl); A.rep = Math.max(0, A.rep - 1); lines.push('🏙 Поручение Совета провалено — доверие −1'); } }
   if (node.trade) { const r = tradeData(h).runs.find(x => x.id === node.trade); if (r && r.st === 'amb') H.trRun = r; }
   if (H.obj === 'raid') {
     if (won) { cr++; gold = 100 + 40 * fL(h, 'citadel') + 25 * sunk; lines.push('🏰 Набег отбит! Пираты бежали, торговля возобновилась'); }
@@ -3989,7 +4165,7 @@ function initHunt() {
     if (H.phase !== 'play') { backFromHunt(); return; }
     if (!H.exitArm) { H.exitArm = true; hMsg('Нажмите ✕ ещё раз, чтобы отступить (без награды)', 'hit'); setTimeout(() => H.exitArm = false, 3000); return; }
     if (H.obj === 'raid') { const h = hdata(curProfile()), loss = raidLoss(h); h.gold = Math.max(0, h.gold - loss); fRaidResolve(h, false); saveProfiles(); toast(`☠️ Крепость брошена: пираты унесли ${loss} 💰`); }
-    { const h = hdata(curProfile()), ln = []; const tr = H.node && H.node.trade && tradeData(h).runs.find(x => x.id === H.node.trade && x.st === 'amb'); fleetAfterBattle(h, false, ln); if (tr) trResolve(h, tr, 'battle', false, ln); news(h, `🏳 Отступление — ${battlePlace()}${ln.map(l => '<br>' + l).join('')}`, true); saveProfiles(); if (ln.length) setTimeout(() => ln.forEach((t, i) => setTimeout(() => toast(t), i * 1800)), 300); }
+    { const h = hdata(curProfile()), ln = []; const tr = H.node && H.node.trade && tradeData(h).runs.find(x => x.id === H.node.trade && x.st === 'amb'); fleetAfterBattle(h, false, ln); if (tr) trResolve(h, tr, 'battle', false, ln); if (H.node && H.node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== H.node.atl); A.rep = Math.max(0, A.rep - 1); ln.push('🏙 Поручение Совета провалено — доверие −1'); } news(h, `🏳 Отступление — ${battlePlace()}${ln.map(l => '<br>' + l).join('')}`, true); saveProfiles(); if (ln.length) setTimeout(() => ln.forEach((t, i) => setTimeout(() => toast(t), i * 1800)), 300); }
     H.gen++; H.phase = 'menu'; backFromHunt();
   };
 }
@@ -4455,7 +4631,7 @@ function raidPanel(h) {
 }
 function statsPanel(h) {
   return `<div class="glass hub-panel"><div class="fleetline">${fleetLine(h)}</div><small class="muted">Миссия ${h.mission} · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}${h.caps ? ` · трофеев ${h.caps}` : ''}</small>
-    <button class="btn primary" data-bld="lighthouse">🔭 Штаб разведки и экспедиции</button>${h.tut < 0 ? '<button class="btn small" data-act="tutre">📘 Пройти обучение заново</button>' : ''}</div>`;
+    <button class="btn primary" data-bld="lighthouse">🔭 Штаб разведки и экспедиции</button><button class="btn small" data-act="oatl">🏙 Атлантис — свободный торговый город</button>${h.tut < 0 ? '<button class="btn small" data-act="tutre">📘 Пройти обучение заново</button>' : ''}</div>`;
 }
 function bldContent(h, id) {
   switch (id) {
@@ -4464,7 +4640,7 @@ function bldContent(h, id) {
     case 'workshop': return arsenalPanel(h) + hubShips(h, 'workshop');
     case 'barracks': return hubShips(h, 'barracks') + drillPanel(h);
     case 'academy': return hubShips(h, 'academy') + officersPanel(h) + crewPanel(h);
-    case 'market': return evLine(h) + tradePanel(h) + cshopPanel(h) + incomePanel(h) + hiredPanel(h);
+    case 'market': return evLine(h) + `<button class="btn atlbtn" data-act="oatl">🏙 Атлантис: поручения Совета, информация, верфь</button>` + tradePanel(h) + cshopPanel(h) + incomePanel(h) + hiredPanel(h);
     case 'treasury': return incomePanel(h) + econPanel(h);
     case 'lighthouse': return intelPanel(h) + islesPanel(h);
     default: return raidPanel(h);
@@ -4493,6 +4669,7 @@ function initFortUI() {
   document.querySelectorAll('#scr-fort [data-bld]').forEach(b => b.onclick = () => { if (b.dataset.bld) openBld(b.dataset.bld); });
   $('#fg-collect').onclick = () => fortAct('fcollect');
   $('#fg-raid').onclick = () => openBld('citadel');
+  $('#atl-back').onclick = () => { Snd.play('click'); showMap(); };
   $('#fg-ev').onclick = () => { Snd.play('click'); evInfo(hdata(curProfile())); };
   $('#fg-log').onclick = () => { Snd.play('click'); showLog(); };
   $('#fg-cred').onclick = () => { Snd.play('click'); credInfo(hdata(curProfile())); };
@@ -4648,7 +4825,8 @@ function renderMap(center) {
   $('#mg-gold').textContent = h.gold;
   $('#mg-ch').textContent = `🧭 ${S.n}`;
   $('#mg-mis').textContent = `${E.reports.length} из ${repMax(h)}`;
-  $('#mg-tabs').innerHTML = SEAS.map((x, i) => `<button class="seatab${i === sea ? ' on' : ''}${i >= E.open ? ' locked' : ''}" data-tab="${i}">${i >= E.open ? '🔒' : E.reports.some(r => r.sea === i) ? '📜' : E.cleared.includes(i) ? '🏳️' : '🧭'} ${['Лазурное', 'Янтарное', 'Туманное', 'Обсидиан'][i]}</button>`).join('');
+  $('#mg-tabs').innerHTML = SEAS.map((x, i) => `<button class="seatab${i === sea ? ' on' : ''}${i >= E.open ? ' locked' : ''}" data-tab="${i}">${i >= E.open ? '🔒' : E.reports.some(r => r.sea === i) ? '📜' : E.cleared.includes(i) ? '🏳️' : '🧭'} ${['Лазурное', 'Янтарное', 'Туманное', 'Обсидиан'][i]}</button>`).join('') + `<button class="seatab atltab" data-atl>🏙 Атлантис</button>`;
+  $('#mg-tabs').querySelector('[data-atl]').onclick = () => { Snd.play('click'); showAtl(); };
   $('#mg-tabs').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { const i = +b.dataset.tab; if (i >= E.open) { Snd.play('bad'); toast('🔒 Путь туда откроется, когда разобьёте пиратскую базу в предыдущем море'); return; } Snd.play('click'); E.sea = i; saveProfiles(); renderMap(true); });
 }
 function mapTap(k) {
@@ -4705,12 +4883,13 @@ function runReport(id) {
   if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
   const base = { report: r.id, sea: r.sea, isle: r.isle, lvl: r.lvl, weather: evOn(h, 'storm') && evOn(h, 'storm').sea === r.sea ? 'storm' : r.weather, bonus: true };
   if (evOn(h, 'bounty')) { base.extra = 1; base.mult = 1.5; }
+  if (r.mult) base.mult = (base.mult || 1) * r.mult;
   if ((r.kind === 'battle' || r.kind === 'boss') && !SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале Мастерской'); return; }
   if (r.kind === 'battle') { Snd.play('horn'); return startHunt({ kind: 'battle', obj: r.obj, ...base, reclaim: r.reclaim ? iKey(r.sea, r.isle) : null, patrol: r.patrol }); }
   if (r.kind === 'boss') { Snd.play('horn'); return startHunt({ kind: 'boss', obj: 'boss', ...base, bossIdx: r.bossIdx }); }
   Snd.play('click'); runEvent(h, { kind: r.kind, ...base });
 }
-function backFromHunt() { HB.sel = null; if (HB.ret === 'map') showMap(); else showFort(); }
+function backFromHunt() { HB.sel = null; if (HB.ret === 'atl') showAtl(); else if (HB.ret === 'map') showMap(); else showFort(); }
 function initMap() {
   $('#map-back').onclick = () => { Snd.play('click'); showFort(); };
   $('#mg-home').onclick = () => { Snd.play('click'); showFort(); };
@@ -5714,12 +5893,13 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   // музыка по экранам: меню/крепость, карта экспедиций, бой (2 трека по очереди)
   var A=[document.getElementById('bgm'),document.getElementById('bgm2')], b=document.getElementById('bgmBtn');
   var cur=0, track=null, battleN=Math.floor(Math.random()*2), fadeT=null;
-  var TR={menu:{src:'music.mp3',v:.5}, map:{src:'music_map.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}};
+  var TR={menu:{src:'music.mp3',v:.5}, map:{src:'music_map.mp3',v:.5}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}};
   var a={pause:function(){A.forEach(function(x){x.pause();});}};
   var on=localStorage.getItem('bgm')!=='off';
   function want(){
     var s=document.querySelector('.screen.active'), id=s&&s.id;
     if(id==='scr-battle'||id==='scr-hunt') return 'battle';
+    if(id==='scr-atl') return 'atl';
     if(id==='scr-map') return 'map';
     return 'menu';
   }
