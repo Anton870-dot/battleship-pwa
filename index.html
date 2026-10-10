@@ -3182,7 +3182,7 @@ function arsenalPanel(h) {
   return s + `</div>`;
 }
 
-const nodeGold = (node, m) => Math.round((80 + 30 * m) * OBJ[node.obj].k * (node.sos ? 1.5 : 1) * (node.mult || 1));
+const nodeGold = (node, m) => Math.round((130 + 45 * m) * OBJ[node.obj].k * (node.sos ? 1.5 : 1) * (node.mult || 1));
 
 /* ---------- Гавань (hub) ---------- */
 const HB = { sel: null, tab: 'map', pick: false };
@@ -4284,18 +4284,18 @@ function hFinish(won, reason) {
   const lines = [];
   let gold, cr = 0;
   if (won) {
-    gold = nodeGold(node, m) + 25 * sunk;
-    if (H.obj === 'convoy' && !node.trade) { const s = H.fleet.filter(u => u.type === 'merchant' && u.gone).length; gold += 40 * s; lines.push(`🚢 Торговцев доведено: ${s}`); }
-    if (H.obj === 'rescue') { gold += 40 * H.rescued; lines.push(`🛟 Спасено шлюпок: ${H.rescued}`); }
+    gold = nodeGold(node, m) + 40 * sunk;
+    if (H.obj === 'convoy' && !node.trade) { const s = H.fleet.filter(u => u.type === 'merchant' && u.gone).length; gold += 60 * s; lines.push(`🚢 Торговцев доведено: ${s}`); }
+    if (H.obj === 'rescue') { gold += 60 * H.rescued; lines.push(`🛟 Спасено шлюпок: ${H.rescued}`); }
     if (H.obj === 'boss') {
       const b = bossFor(node), e = b.reward && HEQ.find(x => x.id === b.reward);
-      gold += 200; h.bosses++; cr += 5;
+      gold += 400; h.bosses++; cr += 5;
       if (e) { h.unlock[b.reward] = true; h.ships[h.active].eq[b.reward] = true; lines.push(`☠️ ${b.name} повержен! Трофей: ${e.ic} <b>${e.name}</b> — уже установлен на флагман, а для других кораблей появился в продаже`); }
-      else { gold += 1000; lines.push(`☠️ ${b.name} повержен! Казна корсаров: +1000 💰`); }
+      else { gold += 1500; lines.push(`☠️ ${b.name} повержен! Казна корсаров: +1500 💰`); }
     }
     if (H.obj === 'intercept') { const t = H.foes.find(x => x.type === 'transport'); if (!t.captured) lines.push('🎯 Транспорт потоплен'); }
     if (node.reclaim) { isleOf(h, node.reclaim).lost = false; lines.push(`🏝 Остров «${isleName(node.reclaim)}» снова под вашим флагом`); }
-    if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 150; lines.push('🏰 Форт взят штурмом: +150 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
+    if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 250; lines.push('🏰 Форт взят штурмом: +250 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
     h.w++; if (h.w % 3 === 0) cr++; if (evOn(h, 'armada') && H.obj !== 'raid') cr++; if (!node.bonus) h.mission = m + 1; p.st.huntW = (p.st.huntW || 0) + 1;
     if (node.atl) { const A = atlData(h), j = A.jobs.find(x => x.id === node.atl); if (j) { gold += j.gold; A.rep += j.rep; A.done++; A.jobs = A.jobs.filter(x => x !== j); lines.push(`🏙 Совет Атлантиса доволен: +${j.gold} 💰, доверие +${j.rep}`); } }
     if (node.report) {
@@ -4303,10 +4303,10 @@ function hFinish(won, reason) {
       if (node.bossIdx != null) { if (!E.cleared.includes(node.sea)) E.cleared.push(node.sea); if (E.open < SEAS.length && E.open === node.sea + 1) { E.open++; lines.push(`🗺 Путь открыт: ${SEAS[E.open - 1].n}! Разведка уже отправилась туда`); genReport(h); } }
       else if (node.isle >= 0 && !node.reclaim) { const st = isleOf(h, iKey(node.sea, node.isle)); if (!st.own) { st.own = true; st.lost = false; cr += 2; lines.push(`🏝 Остров «${SEAS[node.sea].isles[node.isle].n}» теперь ваш! Оставьте на нём гарнизон — он начнёт приносить золото`); if (seaOwn(h, node.sea) === SEA_NEED && !E.cleared.includes(node.sea)) lines.push(`🔭 Разведка нашла подходы к логову «${SEAS[node.sea].pir.n}»`); } }
     }
-  } else { gold = 20 + 25 * sunk; h.l++; if (node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== node.atl); A.rep = Math.max(0, A.rep - 1); lines.push('🏙 Поручение Совета провалено — доверие −1'); } }
+  } else { gold = 40 + 40 * sunk; h.l++; if (node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== node.atl); A.rep = Math.max(0, A.rep - 1); lines.push('🏙 Поручение Совета провалено — доверие −1'); } }
   if (node.trade) { const r = tradeData(h).runs.find(x => x.id === node.trade); if (r && r.st === 'amb') H.trRun = r; }
   if (H.obj === 'raid') {
-    if (won) { cr++; gold = 100 + 40 * fL(h, 'citadel') + 25 * sunk; lines.push('🏰 Набег отбит! Пираты бежали, торговля возобновилась'); }
+    if (won) { cr++; gold = 160 + 60 * fL(h, 'citadel') + 40 * sunk; lines.push('🏰 Набег отбит! Пираты бежали, торговля возобновилась'); }
     else { const loss = raidLoss(h); h.gold = Math.max(0, h.gold - loss); gold = 0; lines.push(`☠️ Пираты разграбили казну: −${loss} 💰${PROTECT[fL(h, 'treasury')] ? ` (Казна сберегла ${PROTECT[fL(h, 'treasury')]}%)` : ''}`); }
     fRaidResolve(h, won);
   }
@@ -4315,9 +4315,9 @@ function hFinish(won, reason) {
   H.captured.forEach(t => {
     h.caps++;
     if (HS[t.type].fort) return;
-    if (t.type === 'transport') { gold += 150; lines.push('📦 Груз транспорта: +150 💰'); return; }
+    if (t.type === 'transport') { gold += 250; lines.push('📦 Груз транспорта: +250 💰'); return; }
     if (won && HS[t.type].price) { const ns = newShip(h, t.type); ns.xp = 1; ns.hpLost = Math.round(shipMaxHp(h, ns) * .5); lines.push(`🏴 Трофей: ${sName(ns)} теперь ваш! Он в резерве флота, но сильно побит — нужен ремонт`); }
-    else { const g = Math.round(HS[t.type].price * .4) || 60; gold += g; lines.push(`🏴 Захваченный ${HS[t.type].name} продан: +${g} 💰`); }
+    else { const g = Math.round(HS[t.type].price * .55) || 90; gold += g; lines.push(`🏴 Захваченный ${HS[t.type].name} продан: +${g} 💰`); }
   });
   // флот: опыт, потери, морпехи
   H.fleet.forEach(u => {
@@ -4362,7 +4362,7 @@ function initHunt() {
 }
 
 /* ==================== КРЕПОСТЬ ==================== */
-const MARKET = [0, 25, 45, 70, 100, 140], PROTECT = [0, 20, 35, 50, 65, 80], BAT_N = [0, 1, 2, 3, 3, 4];
+const MARKET = [0, 35, 65, 100, 140, 190], PROTECT = [0, 20, 35, 50, 65, 80], BAT_N = [0, 1, 2, 3, 3, 4];
 const capH = l => 6 + 2 * l;
 const FB = [
   { id: 'citadel',    ic: '🏰', name: 'Цитадель',          x: 50, y: 42, base: 250, desc: 'Сердце крепости. Её уровень ограничивает уровень остальных зданий, а со 2-го уровня крепость начинают навещать пираты.', eff: l => `остальные здания до ур. ${l}` },
