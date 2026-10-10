@@ -312,7 +312,7 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .tod-night{--tf:brightness(.42) saturate(.6) contrast(1.1)}
 #scr-fort.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#07345f}
 body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.atlm-on #sea{display:none}
-#scr-map.active,#scr-atlmap.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#0a3a66}
+#scr-map.active,#scr-atlmap.active,#scr-deep.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#0a3a66}
 .amstage{position:relative;line-height:0}.amstage>img.amimg{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .amglint{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.10) 45%,transparent 60%);background-size:300% 100%;animation:amglint 9s linear infinite;mix-blend-mode:screen}
 @keyframes amglint{from{background-position:120% 0}to{background-position:-120% 0}}
@@ -420,6 +420,32 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .tphrow{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid rgba(255,255,255,.1)}.tphrow .ic{width:60px;flex:none;text-align:center;font-size:24px}.tphrow .nm{flex:1;min-width:0;font-weight:800;font-size:14px}.tphrow .nm small{display:block;font-weight:600;color:var(--muted);font-size:11.5px}
 .tphn{flex:none;min-width:46px;text-align:center;padding:4px 6px;border-radius:9px;background:rgba(0,0,0,.25);font-weight:800;font-size:13px}
 .facl{color:#ffb4a8;font-weight:700}
+.dpstage{position:absolute;inset:0;overflow:hidden}.dpimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.1) brightness(.95);animation:dpdrift 60s ease-in-out infinite alternate}
+@keyframes dpdrift{from{transform:scale(1.08) translate(-1.5%,-1%)}to{transform:scale(1.12) translate(1.5%,1%)}}
+.dpship{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;line-height:1.1}
+.dpship img{width:78px;transform:rotate(-20deg);filter:drop-shadow(3px 5px 4px rgba(0,0,0,.6));animation:shfloat 3s ease-in-out infinite}
+.dpship span{font-size:11px;font-weight:800;color:#bff0ff;background:rgba(3,20,40,.75);padding:3px 8px;border-radius:9px;border:1px solid rgba(120,220,255,.5)}
+.dppin{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:0;color:#fff;cursor:pointer;line-height:1.15;z-index:2}
+.dppin b{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:24px;background:radial-gradient(circle at 50% 35%,rgba(40,140,200,.95),rgba(6,40,80,.95));border:2px solid rgba(140,230,255,.85);box-shadow:0 0 18px rgba(80,200,255,.55);animation:mpulse 2s infinite}
+.dppin span{font-size:11px;font-weight:800;background:rgba(3,18,38,.82);padding:3px 8px;border-radius:9px;text-align:center;max-width:130px}.dppin small{display:block;color:#ffe08a;font-size:10.5px}
+.dppin.job b{border-color:#ffcf4a;background:radial-gradient(circle at 50% 35%,rgba(120,100,40,.95),rgba(50,40,10,.95));animation:none}
+.dppin.job.ready b{animation:pulse 1.2s infinite;border-color:#7dffb0}
+.dppin.threat b{background:radial-gradient(circle at 50% 35%,#ff6b57,#7a120c);border-color:#ffd0c8;box-shadow:0 0 22px rgba(255,80,60,.8);animation:pulse 1s infinite}.dppin.threat span{background:rgba(110,10,5,.9)}
+.dpdlg{position:absolute;left:8px;right:8px;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 4px);z-index:8;display:flex;align-items:flex-end;gap:0;cursor:pointer;max-width:620px;margin:0 auto;animation:dlgin .35s ease-out}
+@keyframes dlgin{from{transform:translateY(30px);opacity:0}}
+.dpdlg img{width:118px;height:118px;flex:none;object-fit:cover;margin-right:-14px;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))}
+.dlgbox{flex:1;min-width:0;background:linear-gradient(180deg,rgba(8,40,70,.96),rgba(4,20,40,.97));border:1.5px solid rgba(140,230,255,.7);border-radius:16px;padding:9px 12px 8px 22px;box-shadow:0 8px 22px rgba(0,0,0,.5);line-height:1.25;position:relative;min-height:104px}
+.dlgbox b{color:#bff0ff;font-size:14px}.dlgbox small{display:block;color:#8fc8e0;font-size:10.5px}
+.dlgtxt{margin:5px 0 12px;font-size:13.5px;line-height:1.35;color:#fff}
+.dlgmore{position:absolute;right:10px;bottom:6px;font-size:10.5px;color:#ffe08a;font-weight:800}
+.dpcard{max-width:460px;padding:0 0 14px;overflow:hidden}.dpcard h2{margin:10px 14px 4px;font-size:19px}
+#dpb-body{padding:0 14px;text-align:left}
+.dpsplash{position:relative;width:100%;aspect-ratio:2/1}.dpsplash img{width:100%;height:100%;object-fit:cover;display:block}
+.dpsci{position:absolute;left:10px;bottom:8px;background:rgba(3,18,38,.8);border:1px solid rgba(140,230,255,.6);border-radius:10px;padding:4px 9px;line-height:1.2;text-align:left}.dpsci b{font-size:12.5px;color:#bff0ff}.dpsci small{display:block;font-size:10px;color:#8fc8e0}
+.dpquote{font-style:italic;font-size:13.5px;line-height:1.4;margin:6px 0 8px;color:#e6f4ff}
+.dpdet{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.dpdet span{padding:4px 8px;border-radius:9px;background:rgba(0,0,0,.25);font-size:12px}
+.dpbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;justify-content:center}
+.seatab.deeptab{background:linear-gradient(135deg,rgba(10,70,100,.95),rgba(5,30,60,.95));border-color:rgba(120,230,255,.7);color:#fff}
 .bh-hall{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .bh-cap{position:absolute;left:12px;bottom:10px;z-index:3;background:rgba(0,20,50,.75);border:1px solid rgba(255,207,74,.6);border-radius:12px;padding:6px 10px;line-height:1.2}
 .bh-cap b{display:block;font-size:15px;color:#ffe08a}.bh-cap small{font-size:11px;color:var(--muted)}
@@ -921,6 +947,21 @@ body.menu-on .logo{margin:0}
   <div class="hub-body" id="hub-body"></div>
 </section>
 
+<section id="scr-deep" class="screen">
+  <div class="fview" id="dpview"></div>
+  <div class="fhud-top">
+    <button class="iconbtn fhbtn" id="dp-back" aria-label="К карте">←</button>
+    <div class="fchip gold">💰 <b id="dp-gold">0</b></div>
+    <div class="fchip" id="dp-rank"></div>
+  </div>
+  <div class="fhud-bot">
+    <button class="fbtn" id="dp-map">🧭<small>Моря</small></button>
+    <button class="fbtn" id="dp-talk">💬<small>Доктор</small></button>
+    <button class="fbtn" id="dp-home">🏰<small>Крепость</small></button>
+  </div>
+  <div class="dpdlg" id="dp-dlg" hidden><img src="sci_face.webp" alt=""><div class="dlgbox"><b>Ориан Вэл-Тессар</b><small>доктор океанологии · НИС «Талассира»</small><p class="dlgtxt"></p><span class="dlgmore"></span></div></div>
+</section>
+
 <section id="scr-room" class="screen">
   <div class="topbar"><button class="iconbtn glass" id="room-back" aria-label="В цитадель">←</button><h2 id="room-title">Зал</h2><span class="goldpill">🏰</span></div>
   <div class="hub-body" id="room-body"></div>
@@ -1055,6 +1096,13 @@ body.menu-on .logo{margin:0}
   </div>
 </div>
 
+<div class="overlay" id="ov-deep">
+  <div class="card glass dpcard">
+    <div class="dpsplash"><img src="deep_mission.webp" alt=""><div class="dpsci"><b>Доктор Ориан Вэл-Тессар</b><small>НИС «Талассира» · Атлантис</small></div></div>
+    <h2 id="dpb-title"></h2>
+    <div id="dpb-body"></div>
+  </div>
+</div>
 <div class="overlay" id="ov-ev">
   <div class="card glass">
     <div class="big-ico" id="ev-ico"></div>
@@ -1562,7 +1610,7 @@ const viewer = () => G.mode === 'ai' ? 0 : G.turn;
 function newPlayer(name, ai, pid = null) {
   return { name, ai, pid, up: new Set(), board: newBoard(), energy: 0, shots: 0, hits: 0, sunk: 0, radar: 0, salvo: 0, torpedo: 0, combo: 0, maxCombo: 0, salvoMax: 0, torpedoSink: false };
 }
-function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); document.body.classList.toggle('fort-on', id === 'scr-fort' || id === 'scr-map'); document.body.classList.toggle('atlm-on', id === 'scr-atlmap'); if (typeof ambSync === 'function') setTimeout(ambSync, 0); document.body.classList.toggle('in-game', ['scr-setup', 'scr-battle', 'scr-hunt'].includes(id)); if (id === 'scr-menu' && PR) refreshCaptain(); }
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0, 0); document.body.classList.toggle('menu-on', id === 'scr-menu'); document.body.classList.toggle('fort-on', id === 'scr-fort' || id === 'scr-map'); document.body.classList.toggle('atlm-on', id === 'scr-atlmap' || id === 'scr-deep'); if (typeof ambSync === 'function') setTimeout(ambSync, 0); document.body.classList.toggle('in-game', ['scr-setup', 'scr-battle', 'scr-hunt'].includes(id)); if (id === 'scr-menu' && PR) refreshCaptain(); }
 function overlay(id, on) { $(id).classList.toggle('show', on); }
 
 /* ==================== BOARD VIEW ==================== */
@@ -2343,7 +2391,7 @@ function hdata(p) {
     h.fv = 3;
   }
   for (const id in h.ships) { const s = h.ships[id]; s.up ||= {}; s.eq ||= {}; s.marines ||= 0; s.xp ||= 0; s.broken ||= false; s.isle ||= 0; s.trade ||= 0; s.hpLost ||= 0; s.repEnd ||= 0; s.buildEnd ||= 0; if (s.crew == null) s.crew = CREW[s.type]; }
-  { const R = tradeData(h).runs, J = atlData(h).jobs; for (const id in h.ships) { const s = h.ships[id]; if (s.trade && !R.some(r => r.id === s.trade) && !J.some(j => j.id === s.trade)) s.trade = 0; } }
+  { const R = tradeData(h).runs, J = atlData(h).jobs, DJ = deepData(h).jobs; for (const id in h.ships) { const s = h.ships[id]; if (s.trade && !R.some(r => r.id === s.trade) && !J.some(j => j.id === s.trade) && !DJ.some(j => j.id === s.trade)) s.trade = 0; } }
   if (!h.ships[h.active] || h.ships[h.active].isle || h.ships[h.active].trade) h.active = (Object.values(h.ships).find(s => !s.isle && !s.trade) || newShip(h, 'boat')).id;
   h.squad = h.squad.filter((id, i, a) => h.ships[id] && !h.ships[id].isle && !h.ships[id].trade && id !== h.active && a.indexOf(id) === i);
   h.officers.forEach(o => { if (o.ship && !h.ships[o.ship]) o.ship = null; });
@@ -2495,7 +2543,7 @@ function awaySummary(h, ms, un) {
   h.seenT = Date.now(); h.newsNew = 0; saveProfiles();
 }
 function econTick(h) {
-  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (decTick(h)) ch = true; if (atlTick(h)) ch = true; if (ammoTick(h)) ch = true;
+  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (decTick(h)) ch = true; if (atlTick(h)) ch = true; if (deepTick(h)) ch = true; if (ammoTick(h)) ch = true;
   if (!h.econT) { h.econT = now; return true; }
   if (now - h.econT > 10 * 60000) h.away = Math.max(h.away || 0, now - h.econT);
   const dtH = Math.min(12, (now - h.econT) / 3600e3);
@@ -2912,6 +2960,175 @@ const ATL_TRAVEL = 20;          // минут до Атлантиса для б�
 const ATL_SHIP_MIN = 40;        // доставка корабля с верфи Атлантиса
 const atlLvl = h => { const E = expData(h); return SEAS[Math.max(0, (E.open || 1) - 1)].lvl + 1 + atlRank(h); };
 const atlDisc = h => 1 - .05 * atlRank(h);
+/* ---------- Глубокие воды: учёный Атлантиса и морские рейдеры ---------- */
+const SCI = { n: 'Ориан Вэл-Тессар', t: 'доктор океанологии · Атлантис', ship: 'Талассира' };
+const DEEP_TRAVEL = 25;
+const DEEP_RANKS = [{ n: 'Незнакомец', r: 0 }, { n: 'Помощник экспедиции', r: 3 }, { n: 'Надёжный капитан', r: 8 }, { n: 'Друг «Талассиры»', r: 15 }, { n: 'Почётный исследователь', r: 25 }];
+const DEEP_SLOTS = [[25, 22], [75, 25], [23, 50], [77, 53], [50, 68]];
+const DEEP_OFFERS = {
+  guard: { ic: '🛡', n: 'Охрана исследования', d: '«Талассира» ставит зонды в новом секторе. Рейдеры уже кружат рядом — проведите судно и прикройте его, пока идут замеры.', battle: true },
+  purge: { ic: '🦈', n: 'Разогнать рейдеров', d: 'Стая рейдеров засела у подводного хребта и мешает работе. Нужно выбить их оттуда.', battle: true },
+  dive:  { ic: '🤿', n: 'Подводная разведка', d: 'Нужна субмарина: спуститься к расщелине и снять дно на камеры. Только подлодка выдержит такое давление.' },
+  survey:{ ic: '📡', n: 'Замеры глубин', d: 'Пройти галсами по сектору с эхолотом. Скучно, зато безопасно — почти.' },
+};
+const DEEP_HI = [
+  'С возвращением, капитан. «Талассира» на месте, приборы гудят.',
+  'Сонар снова поймал что-то большое на глубине. Расскажу, когда будем уверены.',
+  'Рейдеры сегодня тихие. Это меня и тревожит.',
+  'Хорошо, что вы здесь. Без вашего флота мы бы давно стояли в порту.',
+  'Знаете, капитан, на глубине трёх тысяч метров светятся целые леса. Красиво… и страшно.',
+  'Совет Атлантиса читает наши отчёты. Ваше имя там упоминается всё чаще.',
+];
+const DEEP_INTRO = [
+  'Капитан! Наконец-то. Я — доктор Ориан Вэл-Тессар, океанолог из Атлантиса.',
+  'Это моё исследовательское судно — «Талассира». Мы изучаем Глубокие воды: дно здесь уходит на километры, и там внизу полно неизведанного.',
+  'Беда в том, что сюда пришли морские рейдеры. Это не пираты — они дисциплинированны, хорошо вооружены и охотятся за нашими находками.',
+  'Мне нужен капитан с флотом: охрана, разведка, а иногда — субмарина для погружений. Совет Атлантиса щедро платит за науку.',
+  'Отметки на карте — мои заявки. Выбирайте, что вам по силам. И берегитесь рейдеров!',
+];
+function deepData(h) {
+  h.deep ||= {}; const D = h.deep;
+  D.rep ||= 0; D.board ||= []; D.jobs ||= []; D.seq ||= 0; D.done ||= 0;
+  return D;
+}
+const deepRank = h => { const r = deepData(h).rep; let k = 0; DEEP_RANKS.forEach((x, i) => { if (r >= x.r) k = i; }); return k; };
+const deepLvl = h => Math.max(2, (h.mission || 1) + 1 + deepRank(h));
+function deepOffer(h, slot) {
+  const D = deepData(h), lvl = deepLvl(h), k = 1 + .1 * deepRank(h), now = Date.now();
+  const kind = pick(['guard', 'purge', 'dive', 'survey', 'guard', 'dive']);
+  const o = { id: 'd' + (++D.seq), kind, lvl, slot, exp: now + 8 * 3600e3 };
+  if (kind === 'guard') Object.assign(o, { gold: Math.round((200 + 38 * lvl) * k), rep: 2, cred: 1 });
+  if (kind === 'purge') Object.assign(o, { gold: Math.round((230 + 42 * lvl) * k), rep: 2, lvl: lvl + 1, cred: 1 });
+  if (kind === 'dive') Object.assign(o, { gold: Math.round((340 + 45 * lvl) * k), rep: 2, cred: 1, min: 60 + rnd(5) * 15, risk: .16 + Math.random() * .12 });
+  if (kind === 'survey') Object.assign(o, { gold: Math.round((210 + 30 * lvl) * k), rep: 1, cred: 0, min: 40 + rnd(4) * 10, risk: .12 + Math.random() * .1 });
+  return o;
+}
+function deepTick(h) {
+  const D = deepData(h), now = Date.now(); let ch = false;
+  if (!D.boardT || now - D.boardT > 4 * 3600e3) { const used = D.jobs.map(j => j.slot); D.board = [0, 1, 2, 3, 4].filter(i => !used.includes(i)).sort(() => Math.random() - .5).slice(0, 3).map(i => deepOffer(h, i)); D.boardT = now; ch = true; }
+  const nb = D.board.length; D.board = D.board.filter(o => o.exp > now); if (D.board.length !== nb) ch = true;
+  // нападения рейдеров на «Талассиру»
+  if (D.intro) {
+    if (D.threat && now > D.threat.end) { D.rep = Math.max(0, D.rep - 2); news(h, `🦈 Рейдеры разграбили «${SCI.ship}» — вы не пришли на помощь. Доверие доктора −2`); D.threat = null; D.threatNext = now + (3 + Math.random() * 2) * 3600e3; ch = true; }
+    if (!D.threatNext) { D.threatNext = now + (2 + Math.random() * 2) * 3600e3; ch = true; }
+    if (!D.threat && now >= D.threatNext) { D.threat = { at: now, end: now + 2 * 3600e3, lvl: deepLvl(h), gold: Math.round((180 + 34 * deepLvl(h)) * (1 + .1 * deepRank(h))) }; news(h, `🦈 <b>Морские рейдеры атакуют «${SCI.ship}»!</b> Доктор ${SCI.n} просит помощи — у вас 2 часа`); Snd.play('bell'); ch = true; }
+  }
+  for (const j of [...D.jobs]) {
+    if (DEEP_OFFERS[j.kind].battle && j.st === 'go' && now >= j.at) { j.st = 'ready'; ch = true; news(h, `🌊 Флот прибыл в Глубокие воды: «${DEEP_OFFERS[j.kind].n}» — можно начинать бой`); }
+    if (!DEEP_OFFERS[j.kind].battle && now >= j.at) {
+      const s = h.ships[j.ship]; D.jobs.splice(D.jobs.indexOf(j), 1); ch = true;
+      if (!s) continue; s.trade = 0;
+      const risk = j.risk * (HS[s.type].sub ? .6 : 1);
+      if (Math.random() > risk) {
+        h.gold += j.gold; D.rep += j.rep; D.done++; if (j.cred) h.cred = (h.cred || 0) + j.cred;
+        news(h, `${DEEP_OFFERS[j.kind].ic} «${DEEP_OFFERS[j.kind].n}» выполнено: ${sName(s)} вернулся. +${j.gold} 💰${j.cred ? `, +${j.cred} 💠` : ''}, доверие доктора +${j.rep}`); Snd.play('coins');
+        D.say = j.kind === 'dive' ? 'Снимки с глубины потрясающие! Ваша субмарина вернулась целой — я ваш должник, капитан.' : 'Карта глубин готова. Отличная работа — теперь мы знаем, где копать дальше.';
+      } else {
+        const half = Math.round(j.gold * .4); h.gold += half; s.hpLost = Math.min(shipMaxHp(h, s) - 1, (s.hpLost || 0) + Math.round(shipMaxHp(h, s) * .5));
+        news(h, `🦈 Рейдеры напали на ${sName(s)} в Глубоких водах! Корабль ушёл, но сильно побит. Часть данных спасена: +${half} 💰`); Snd.play('bad');
+        D.say = 'Рейдеры… Простите, капитан. Ваш корабль цел, но ему нужен ремонт. Часть данных мы всё-таки сохранили.';
+      }
+    }
+  }
+  return ch;
+}
+function showDeep() { const p = curProfile(); if (!p) return; Snd.ensure(); HB.ret = 'deep'; show('scr-deep'); renderDeep(true); const D = deepData(hdata(p));
+  if (!D.intro) { D.intro = true; saveProfiles(); deepSay(DEEP_INTRO); }
+  else if (D.say) { const t = D.say; D.say = null; saveProfiles(); deepSay([t]); }
+  else if (D.threat) deepSay([`Капитан! Рейдеры заходят на «${SCI.ship}»! Нам нужна ваша помощь — срочно! Нажмите на красную метку.`]);
+  else deepSay([pick(DEEP_HI)]); }
+function renderDeep(center) {
+  const h = hdata(curProfile()), D = deepData(h); fortTick(h); deepTick(h);
+  const v = $('#dpview'), now = Date.now(), W = 'fit';
+  let s = `<div class="dpstage"><img class="dpimg" src="deep_sea.webp" alt=""><div class="amglint"></div>
+    <div class="dpship" style="left:50%;top:38%"><img src="top_atl_cargo.webp" alt=""><span>🔬 «${SCI.ship}»</span></div>`;
+  if (D.threat) s += `<button class="dppin threat" data-dp="threat" style="left:72%;top:24%"><b>🦈</b><span>Атака рейдеров!<small data-until="${D.threat.end}">${fmtLeft(D.threat.end - now)}</small></span></button>`;
+  D.board.forEach(o => { const O = DEEP_OFFERS[o.kind], [x, y] = DEEP_SLOTS[o.slot] || [50, 20]; s += `<button class="dppin" data-dp="${o.id}" style="left:${x}%;top:${y}%"><b>${O.ic}</b><span>${O.n}<small>${o.gold} 💰</small></span></button>`; });
+  D.jobs.forEach(j => { const O = DEEP_OFFERS[j.kind], [x, y] = DEEP_SLOTS[j.slot] || [50, 20], rd = j.st === 'ready';
+    s += `<button class="dppin job${rd ? ' ready' : ''}" data-dp="${j.id}" style="left:${x}%;top:${y}%"><b>${O.ic}</b><span>${rd ? 'Флот на месте — в бой!' : O.battle ? 'Флот в пути' : 'Идёт работа'}<small>${rd ? '⚔️' : `<i data-until="${j.at}">${fmtLeft(j.at - now)}</i>`}</small></span></button>`; });
+  s += `</div>`;
+  v.innerHTML = s;
+  v.querySelectorAll('[data-dp]').forEach(b => b.onclick = () => { if (HB.dragged) return; Snd.play('click'); deepBrief(b.dataset.dp); });
+  $('#dp-gold').textContent = h.gold;
+  const rk = deepRank(h), nx = DEEP_RANKS[rk + 1];
+  $('#dp-rank').textContent = `🔬 ${DEEP_RANKS[rk].n}${nx ? ` · ${D.rep}/${nx.r}` : ''}`;
+}
+// диалог внизу экрана
+function deepSay(lines, done) {
+  const box = $('#dp-dlg'); let i = 0, tm = null;
+  const step = () => {
+    if (i >= lines.length) { box.hidden = true; if (done) done(); return; }
+    const txt = lines[i++], el = box.querySelector('.dlgtxt'); el.textContent = ''; let k = 0; clearInterval(tm);
+    box.querySelector('.dlgmore').textContent = i < lines.length ? '▼ дальше' : '✕ закрыть';
+    tm = setInterval(() => { k += 2; el.textContent = txt.slice(0, k); if (k >= txt.length) clearInterval(tm); }, 18);
+    box.onclick = () => { if (el.textContent.length < txt.length) { clearInterval(tm); el.textContent = txt; return; } Snd.play('click'); step(); };
+  };
+  box.hidden = false; step();
+}
+function deepBrief(id) {
+  const h = hdata(curProfile()), D = deepData(h), now = Date.now();
+  const ov = $('#ov-deep'), body = $('#dpb-body');
+  let s = '', title = '', btns = [];
+  if (id === 'threat') {
+    const T = D.threat; if (!T) return;
+    title = '🦈 Рейдеры атакуют «' + SCI.ship + '»';
+    s = `<p class="dpquote">«Капитан, они уже близко! Если не отгоните их, мы потеряем всё оборудование».</p><div class="dpdet"><span>⚔️ сила врага ${T.lvl}</span><span>💰 ${T.gold}</span><span>💠 +1</span><span>🔬 доверие +2</span><span>⏱ осталось <b data-until="${T.end}">${fmtLeft(T.end - now)}</b></span></div><small class="muted">Ваш дозор рядом — бой начнётся сразу. Фракция противника: 🦈 Морские рейдеры.</small>`;
+    btns.push(`<button class="btn primary" data-dpa="threat">⚔️ Перехватить</button>`);
+  } else {
+    const o = D.board.find(x => x.id === id), j = D.jobs.find(x => x.id === id), X = o || j; if (!X) return;
+    const O = DEEP_OFFERS[X.kind]; title = `${O.ic} ${O.n}`;
+    const det = O.battle ? `<span>⚔️ сила врага ${X.lvl}</span><span>🧭 путь ${DEEP_TRAVEL} мин</span>` : `<span>⏱ ${fmtMin(X.min)}</span><span>⚠️ риск ~${Math.round(X.risk * 100)}%</span>`;
+    s = `<p class="dpquote">«${O.d}»</p><div class="dpdet">${det}<span>💰 ${X.gold}</span>${X.cred ? `<span>💠 +${X.cred}</span>` : ''}<span>🔬 доверие +${X.rep}</span></div>`;
+    if (O.battle) s += `<small class="muted">Противник: 🦈 Морские рейдеры. В бой идёт ваша эскадра.</small>`;
+    if (o) {
+      if (O.battle) btns.push(`<button class="btn primary" data-dpa="take" data-id="${o.id}">Принять · флот выйдет сейчас</button>`);
+      else {
+        const ships = Object.values(h.ships).filter(x => trCanSail(h, x) && (X.kind !== 'dive' || HS[x.type].sub));
+        s += `<div class="sec-t">${X.kind === 'dive' ? '🤿 Какая субмарина пойдёт?' : '⚓ Какой корабль пойдёт?'}</div>`;
+        btns.push(ships.length ? ships.map(x => `<button class="btn small" data-dpa="ship" data-id="${o.id}" data-sh="${x.id}">${HS[x.type].sub ? '🤿 ' : ''}${sName(x)}</button>`).join('') : `<small class="muted">${X.kind === 'dive' ? 'Нет свободной подводной лодки (флагман остаётся дома). Купите подлодку в Сухом доке.' : 'Нет свободных кораблей — флагман остаётся дома.'}</small>`);
+      }
+    } else if (j) {
+      if (j.st === 'ready') btns.push(`<button class="btn primary" data-dpa="go" data-id="${j.id}">⚔️ В бой</button>`);
+      else s += `<p>${O.battle ? 'Флот идёт в сектор' : `${h.ships[j.ship] ? sName(h.ships[j.ship]) : 'Корабль'} работает`}: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b></p>` + spdBtn(h, 'dpspd', j.at, j.id);
+    }
+  }
+  $('#dpb-title').textContent = title;
+  body.innerHTML = s + `<div class="dpbtns">${btns.join('')}<button class="btn small" data-dpa="close">Закрыть</button></div>`;
+  body.querySelectorAll('[data-dpa]').forEach(b => b.onclick = () => deepAct(b.dataset.dpa, b.dataset.id, b.dataset.sh));
+  body.querySelectorAll('[data-act="dpspd"]').forEach(b => b.onclick = () => deepAct('spd', b.dataset.id));
+  overlay('#ov-deep', true);
+}
+function deepAct(act, id, sh) {
+  const h = hdata(curProfile()), D = deepData(h), now = Date.now();
+  if (act === 'close') { overlay('#ov-deep', false); return; }
+  if (act === 'take') { const o = D.board.find(x => x.id === id); if (!o) return; D.board = D.board.filter(x => x !== o); D.jobs.push({ ...o, st: 'go', at: now + DEEP_TRAVEL * 60000 }); Snd.play('horn'); deepSay(['Прекрасно! Флот уже вышел — жду вас в секторе.']); }
+  if (act === 'ship') { const o = D.board.find(x => x.id === id), s = h.ships[sh]; if (!o || !s || !trCanSail(h, s)) return; D.board = D.board.filter(x => x !== o); D.jobs.push({ ...o, ship: s.id, at: now + o.min * 60000 }); s.trade = o.id; h.squad = h.squad.filter(k => k !== s.id); Snd.play('horn'); deepSay([o.kind === 'dive' ? `${sName(s)} уходит на глубину. Держите связь, капитан — я буду следить по сонару.` : `${sName(s)} начинает замеры. Если появятся рейдеры — пусть уходит, данные не стоят жизней.`]); }
+  if (act === 'spd') { const j = D.jobs.find(x => x.id === id); if (!j) return; const n = credCost(j.at - now); if (!payCred(h, n)) return; j.at = now; deepTick(h); }
+  if (act === 'go' || act === 'threat') {
+    if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
+    if (!SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале'); return; }
+    overlay('#ov-deep', false); saveProfiles(); HB.ret = 'deep';
+    const W = pickW([['clear', 4], ['fog', 2], ['storm', 2], ['night', 2]]);
+    if (act === 'threat') { const T = D.threat; if (!T) return; return startHunt({ kind: 'battle', obj: 'convoy', lvl: T.lvl, weather: W, bonus: true, deep: 'threat', fac: 'raid' }); }
+    const j = D.jobs.find(x => x.id === id); if (!j || j.st !== 'ready') return;
+    return startHunt({ kind: 'battle', obj: j.kind === 'guard' ? 'convoy' : 'hunt', lvl: j.lvl, weather: W, bonus: true, deep: j.id, fac: 'raid', extra: j.kind === 'purge' ? 1 : 0 });
+  }
+  overlay('#ov-deep', false); saveProfiles(); renderDeep();
+}
+// итог боя в Глубоких водах
+function deepAfter(h, node, won, lines) {
+  const D = deepData(h); let gold = 0, cr = 0;
+  if (node.deep === 'threat') {
+    const T = D.threat; D.threat = null; D.threatNext = Date.now() + (3 + Math.random() * 2) * 3600e3;
+    if (won && T) { gold = T.gold; cr = 1; D.rep += 2; D.done++; lines.push(`🔬 «${SCI.ship}» спасена! Доктор ${SCI.n}: +${T.gold} 💰, доверие +2`); D.say = 'Великолепно, капитан! «Талассира» цела, а данные спасены. Совет Атлантиса узнает о вашей помощи.'; }
+    else { D.rep = Math.max(0, D.rep - 2); lines.push('🦈 Рейдеры разграбили «Талассиру» — доверие доктора −2'); D.say = 'Мы живы — это главное. Но часть оборудования потеряна… В следующий раз мы им покажем.'; }
+  } else {
+    const j = D.jobs.find(x => x.id === node.deep); D.jobs = D.jobs.filter(x => x !== j);
+    if (won && j) { gold = j.gold; cr = j.cred || 0; D.rep += j.rep; D.done++; lines.push(`🔬 Задание доктора выполнено: +${j.gold} 💰, доверие +${j.rep}`); D.say = j.kind === 'guard' ? 'Зонды стоят, данные идут! Без вашей охраны мы бы не справились.' : 'Рейдеры бегут! Теперь хребет наш — можно начинать погружения.'; }
+    else if (j) { D.rep = Math.max(0, D.rep - 1); lines.push('🔬 Задание доктора провалено — доверие −1'); D.say = 'Не повезло, капитан. Ничего — море большое, попробуем снова.'; }
+  }
+  return { gold, cr };
+}
 function atlData(h) {
   h.atl ||= {}; const A = h.atl;
   A.rep ||= 0; A.board ||= []; A.jobs ||= []; A.seq ||= 0; A.safe ||= 0; A.fore ||= 0; A.done ||= 0;
@@ -3099,10 +3316,10 @@ function hCasualty(t, d) {
   t.crew -= k; t.marines -= m; H.fallen = (H.fallen || 0) + k + m;
   (H.casNow ||= []).push(`☠️ ${t.name || HS[t.type].name}: ${k === 1 && !m ? 'погиб' : 'погибли'} ${k} ${crewWord(t.type, k)}${m ? ` и ${m} ${plural(m, 'морпех', 'морпеха', 'морпехов')}` : ''}`);
 }
-const battlePlace = () => { const n = H.node || {}; if (n.atl) return 'у берегов Атлантиса'; if (n.trade) { const r = hdata(curProfile()).trade.runs.find(x => x.id === n.trade); return r ? TPORTS[r.port].n + ', караван' : 'торговый путь'; } return n.report ? (n.isle < 0 ? SEAS[n.sea].pir.n : SEAS[n.sea].isles[n.isle].n) + ', ' + SEAS[n.sea].n : H.obj === 'raid' ? 'у стен родной крепости' : 'в открытом море'; };
+const battlePlace = () => { const n = H.node || {}; if (n.deep) return 'Глубокие воды'; if (n.atl) return 'у берегов Атлантиса'; if (n.trade) { const r = hdata(curProfile()).trade.runs.find(x => x.id === n.trade); return r ? TPORTS[r.port].n + ', караван' : 'торговый путь'; } return n.report ? (n.isle < 0 ? SEAS[n.sea].pir.n : SEAS[n.sea].isles[n.isle].n) + ', ' + SEAS[n.sea].n : H.obj === 'raid' ? 'у стен родной крепости' : 'в открытом море'; };
 /* ---------- Трофейный зал ---------- */
-const FACTIONS = { pir: { n: 'Пираты', ic: '☠️', d: 'Береговое братство: корсары, рейдеры и их форты' } };
-const facOf = u => (u && u.fac) || 'pir';
+const FACTIONS = { pir: { n: 'Пираты', ic: '☠️', d: 'Береговое братство: корсары и их форты' }, raid: { n: 'Морские рейдеры', ic: '🦈', d: 'Дисциплинированные охотники за находками в Глубоких водах' } };
+const facOf = u => (u && u.fac) || (typeof H !== 'undefined' && H.fac) || 'pir';
 const trF = (h, fac) => (h.troph.f[fac] ||= { sunk: {}, cap: {}, fortD: 0, fortC: 0, boss: 0 });
 function trophRecord(h, won) {
   const T = h.troph, now = Date.now(), place = battlePlace(), add = e => { T.log.push({ t: now, place, ...e }); };
@@ -3909,11 +4126,12 @@ function startHunt(node) {
   H.ammo = { ...ammoData(h) }; H.used = {}; H.ammoSel = SHELLS.find(k => H.ammo[k] > 0) || 'he';
   setupObjective(node);
   H.foeCap = H.foes.filter(f => !HS[f.type].npc && !HS[f.type].fort && !f.boss).length;
+  H.fac = node.fac || 'pir';
   H.foeRes = H.obj === 'raid' ? 0 : Math.min(4, (m >= 3 ? 1 : 0) + Math.floor(m / 8) + (node.extra || 0));
   H.acted = new Set(); H.cur = H.me;
   buildHuntMap(); show('scr-hunt');
   const o = OBJ[H.obj], w = WEATHER[H.weather];
-  hMsg(H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
+  hMsg(H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   hStartPlayerTurn(true);
 }
 function hMakeEl(u) {
@@ -4418,13 +4636,14 @@ function hFinish(won, reason) {
     if (node.reclaim) { isleOf(h, node.reclaim).lost = false; lines.push(`🏝 Остров «${isleName(node.reclaim)}» снова под вашим флагом`); }
     if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 250; lines.push('🏰 Форт взят штурмом: +250 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
     h.w++; if (h.w % 3 === 0) cr++; if (evOn(h, 'armada') && H.obj !== 'raid') cr++; if (!node.bonus) h.mission = m + 1; p.st.huntW = (p.st.huntW || 0) + 1;
+    if (node.deep) { const r = deepAfter(h, node, true, lines); gold += r.gold; cr += r.cr; }
     if (node.atl) { const A = atlData(h), j = A.jobs.find(x => x.id === node.atl); if (j) { gold += j.gold; A.rep += j.rep; A.done++; A.jobs = A.jobs.filter(x => x !== j); lines.push(`🏙 Совет Атлантиса доволен: +${j.gold} 💰, доверие +${j.rep}`); } }
     if (node.report) {
       const E = expData(h); E.reports = E.reports.filter(r => r.id !== node.report); h.mission++;
       if (node.bossIdx != null) { if (!E.cleared.includes(node.sea)) E.cleared.push(node.sea); if (E.open < SEAS.length && E.open === node.sea + 1) { E.open++; lines.push(`🗺 Путь открыт: ${SEAS[E.open - 1].n}! Разведка уже отправилась туда`); genReport(h); } }
       else if (node.isle >= 0 && !node.reclaim) { const st = isleOf(h, iKey(node.sea, node.isle)); if (!st.own) { st.own = true; st.lost = false; cr += 2; lines.push(`🏝 Остров «${SEAS[node.sea].isles[node.isle].n}» теперь ваш! Оставьте на нём гарнизон — он начнёт приносить золото`); if (seaOwn(h, node.sea) === SEA_NEED && !E.cleared.includes(node.sea)) lines.push(`🔭 Разведка нашла подходы к логову «${SEAS[node.sea].pir.n}»`); } }
     }
-  } else { gold = 40 + 40 * sunk; h.l++; if (node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== node.atl); A.rep = Math.max(0, A.rep - 1); lines.push('🏙 Поручение Совета провалено — доверие −1'); } }
+  } else { gold = 40 + 40 * sunk; h.l++; if (node.deep) deepAfter(h, node, false, lines); if (node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== node.atl); A.rep = Math.max(0, A.rep - 1); lines.push('🏙 Поручение Совета провалено — доверие −1'); } }
   if (node.trade) { const r = tradeData(h).runs.find(x => x.id === node.trade); if (r && r.st === 'amb') H.trRun = r; }
   if (H.obj === 'raid') {
     if (won) { cr++; gold = 160 + 60 * fL(h, 'citadel') + 40 * sunk; lines.push('🏰 Набег отбит! Пираты бежали, торговля возобновилась'); }
@@ -4479,7 +4698,7 @@ function initHunt() {
     if (H.phase !== 'play') { backFromHunt(); return; }
     if (!H.exitArm) { H.exitArm = true; hMsg('Нажмите ✕ ещё раз, чтобы отступить (без награды)', 'hit'); setTimeout(() => H.exitArm = false, 3000); return; }
     if (H.obj === 'raid') { const h = hdata(curProfile()), loss = raidLoss(h); h.gold = Math.max(0, h.gold - loss); fRaidResolve(h, false); saveProfiles(); toast(`☠️ Крепость брошена: пираты унесли ${loss} 💰`); }
-    { const h = hdata(curProfile()), ln = []; const tr = H.node && H.node.trade && tradeData(h).runs.find(x => x.id === H.node.trade && x.st === 'amb'); fleetAfterBattle(h, false, ln); if (tr) trResolve(h, tr, 'battle', false, ln); if (H.node && H.node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== H.node.atl); A.rep = Math.max(0, A.rep - 1); ln.push('🏙 Поручение Совета провалено — доверие −1'); } news(h, `🏳 Отступление — ${battlePlace()}${ln.map(l => '<br>' + l).join('')}`, true); saveProfiles(); if (ln.length) setTimeout(() => ln.forEach((t, i) => setTimeout(() => toast(t), i * 1800)), 300); }
+    { const h = hdata(curProfile()), ln = []; const tr = H.node && H.node.trade && tradeData(h).runs.find(x => x.id === H.node.trade && x.st === 'amb'); fleetAfterBattle(h, false, ln); if (tr) trResolve(h, tr, 'battle', false, ln); if (H.node && H.node.deep) deepAfter(h, H.node, false, ln); if (H.node && H.node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== H.node.atl); A.rep = Math.max(0, A.rep - 1); ln.push('🏙 Поручение Совета провалено — доверие −1'); } news(h, `🏳 Отступление — ${battlePlace()}${ln.map(l => '<br>' + l).join('')}`, true); saveProfiles(); if (ln.length) setTimeout(() => ln.forEach((t, i) => setTimeout(() => toast(t), i * 1800)), 300); }
     H.gen++; H.phase = 'menu'; backFromHunt();
   };
 }
@@ -5009,6 +5228,14 @@ function initFortUI() {
   $('#fg-raid').onclick = () => openBld('citadel');
   $('#atl-back').onclick = () => { Snd.play('click'); showAtlMap(); };
   $('#room-back').onclick = () => { Snd.play('click'); openBld('citadel'); };
+  $('#dp-back').onclick = $('#dp-map').onclick = () => { Snd.play('click'); $('#dp-dlg').hidden = true; showMap(); };
+  $('#dp-home').onclick = () => { Snd.play('click'); $('#dp-dlg').hidden = true; showFort(); };
+  $('#dp-talk').onclick = () => { Snd.play('click'); const D = deepData(hdata(curProfile())); deepSay(D.threat ? [`Рейдеры у «${SCI.ship}»! Скорее, капитан — красная метка на карте.`] : [pick(DEEP_HI), `Заданий на карте: ${D.board.length}. Выполнено вместе: ${D.done}.`]); };
+  { const v = $('#dpview'); let drag = null;
+    v.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; drag = { x: e.clientX, y: e.clientY, l: v.scrollLeft, t: v.scrollTop }; HB.dragged = false; });
+    addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 6) HB.dragged = true; v.scrollLeft = drag.l - dx; v.scrollTop = drag.t - dy; });
+    addEventListener('pointerup', () => { drag = null; setTimeout(() => HB.dragged = false, 0); });
+    addEventListener('resize', () => { if ($('#scr-deep').classList.contains('active')) renderDeep(); }); }
   $('#am-back').onclick = $('#am-map').onclick = () => { Snd.play('click'); showMap(); };
   $('#am-home').onclick = () => { Snd.play('click'); showFort(); };
   $('#am-go').onclick = () => { Snd.play('click'); showAtl(); };
@@ -5172,8 +5399,9 @@ function renderMap(center) {
   $('#mg-gold').textContent = h.gold;
   $('#mg-ch').textContent = `🧭 ${S.n}`;
   $('#mg-mis').textContent = `${E.reports.length} из ${repMax(h)}`;
-  $('#mg-tabs').innerHTML = SEAS.map((x, i) => `<button class="seatab${i === sea ? ' on' : ''}${i >= E.open ? ' locked' : ''}" data-tab="${i}">${i >= E.open ? '🔒' : E.reports.some(r => r.sea === i) ? '📜' : E.cleared.includes(i) ? '🏳️' : '🧭'} ${['Лазурное', 'Янтарное', 'Туманное', 'Обсидиан'][i]}</button>`).join('') + `<button class="seatab atltab" data-atl>🏙 Атлантис</button>`;
+  $('#mg-tabs').innerHTML = SEAS.map((x, i) => `<button class="seatab${i === sea ? ' on' : ''}${i >= E.open ? ' locked' : ''}" data-tab="${i}">${i >= E.open ? '🔒' : E.reports.some(r => r.sea === i) ? '📜' : E.cleared.includes(i) ? '🏳️' : '🧭'} ${['Лазурное', 'Янтарное', 'Туманное', 'Обсидиан'][i]}</button>`).join('') + `<button class="seatab atltab" data-atl>🏙 Атлантис</button><button class="seatab deeptab" data-deep>🌊 Глубокие воды${deepData(h).threat ? ' ⚠️' : ''}</button>`;
   $('#mg-tabs').querySelector('[data-atl]').onclick = () => { Snd.play('click'); showAtlMap(); };
+  $('#mg-tabs').querySelector('[data-deep]').onclick = () => { Snd.play('click'); showDeep(); };
   $('#mg-tabs').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { const i = +b.dataset.tab; if (i >= E.open) { Snd.play('bad'); toast('🔒 Путь туда откроется, когда разобьёте пиратскую базу в предыдущем море'); return; } Snd.play('click'); E.sea = i; saveProfiles(); renderMap(true); });
 }
 function mapTap(k) {
@@ -5236,7 +5464,7 @@ function runReport(id) {
   if (r.kind === 'boss') { Snd.play('horn'); return startHunt({ kind: 'boss', obj: 'boss', ...base, bossIdx: r.bossIdx }); }
   Snd.play('click'); runEvent(h, { kind: r.kind, ...base });
 }
-function backFromHunt() { HB.sel = null; if (HB.ret === 'atl') showAtl(); else if (HB.ret === 'map') showMap(); else showFort(); }
+function backFromHunt() { HB.sel = null; if (HB.ret === 'deep') showDeep(); else if (HB.ret === 'atl') showAtl(); else if (HB.ret === 'map') showMap(); else showFort(); }
 function initMap() {
   $('#map-back').onclick = () => { Snd.play('click'); showFort(); };
   $('#mg-home').onclick = () => { Snd.play('click'); showFort(); };
@@ -5311,7 +5539,7 @@ document.addEventListener('pointerdown', () => {
 }, true);
 function ambSync() {
   const a = document.querySelector('.screen.active'), id = a && a.id;
-  Amb.set(id === 'scr-fort' || id === 'scr-hub' ? 'fort' : id === 'scr-map' || id === 'scr-atlmap' ? 'map' : null);
+  Amb.set(id === 'scr-fort' || id === 'scr-hub' ? 'fort' : id === 'scr-map' || id === 'scr-atlmap' || id === 'scr-deep' ? 'map' : null);
 }
 
 
@@ -6214,7 +6442,7 @@ function syncRulesHint() {
 setInterval(() => {
   const p = curProfile(); if (!p || !p.hunt) return;
   if (HB.todShown && HB.todShown !== todNow() && $('#scr-fort').classList.contains('active')) { renderFort(); return; }
-  if (fortTick(p.hunt)) { if ($('#scr-fort').classList.contains('active')) renderFort(); else if ($('#scr-hub').classList.contains('active')) renderHub(); else if ($('#scr-atlmap').classList.contains('active')) renderAtlMap(); else if (document.body.classList.contains('menu-on')) renderDaily(); return; }
+  if (fortTick(p.hunt)) { if ($('#scr-fort').classList.contains('active')) renderFort(); else if ($('#scr-hub').classList.contains('active')) renderHub(); else if ($('#scr-atlmap').classList.contains('active')) renderAtlMap(); else if ($('#scr-deep').classList.contains('active')) renderDeep(); else if (document.body.classList.contains('menu-on')) renderDaily(); return; }
   document.querySelectorAll('[data-until]').forEach(e => e.textContent = fmtLeft(+e.dataset.until - Date.now()));
 }, 1000);
 /* ==================== BOOT ==================== */
@@ -6237,6 +6465,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     var s=document.querySelector('.screen.active'), id=s&&s.id;
     if(id==='scr-battle'||id==='scr-hunt') return 'battle';
     if(id==='scr-atl'||id==='scr-atlmap') return 'atl';
+    if(id==='scr-deep') return 'map';
     if(id==='scr-map') return 'map';
     return 'menu';
   }
