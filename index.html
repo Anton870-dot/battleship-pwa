@@ -4792,14 +4792,15 @@ function renderFort(center) {
 }
 function openBld(id) { HB.bld = id; HB.pick = false; HB.cat = null; const h = hdata(curProfile()); if (!h.ships[HB.sel]) HB.sel = h.active; Snd.play('click'); show('scr-hub'); document.body.classList.remove('fort-on'); renderHub(); }
 function refreshCur() { if ($('#scr-fort').classList.contains('active')) renderFort(); else renderHub(); }
-const BLD_HALL = { citadel: 'fort_hall.webp', dock: 'dock_hall.webp', treasury: 'treasury_hall.webp', battery: 'battery_hall.webp', academy: 'academy_hall.webp', walls: 'walls_hall.webp' };
+const BLD_HALL = { citadel: 'fort_hall.webp', dock: 'dock_hall.webp', treasury: 'treasury_hall.webp', battery: 'battery_hall.webp', academy: 'academy_hall.webp', walls: 'walls_hall.webp', lighthouse: 'lighthouse_hall.webp', market: 'market_hall.webp', barracks: 'barracks_hall.webp' };
+const BLD_POS = { lighthouse: '22% 50%', barracks: '35% 50%' };
 function bldHero(h, id) {
   const f = fdata(h), p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(x => x.id === id), now = Date.now();
   const S = id === 'walls' ? 2.6 : 4.2, Hs = S / FASPECT, Hc = 11 / 16;
   const px = Math.max(0, Math.min(100, (p.cx / 100 * S - .5) / (S - 1) * 100)), py = Math.max(0, Math.min(100, (p.cy / 100 * Hs - Hc / 2) / (Hs - Hc) * 100));
   const wpc = id === 'walls' ? 88 : id === 'lighthouse' ? 44 : 62;
   let s = `<div class="bh-bg" style="background-image:url(${fBaseImg(todNow())});background-size:${S * 100}% auto;background-position:${px}% ${py}%"></div><div class="ftod"></div>`;
-  if (BLD_HALL[id]) s = `<img class="bh-hall" src="${BLD_HALL[id]}" alt="${b.name}">${bld ? `<span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>` : ''}`;
+  if (BLD_HALL[id]) s = `<img class="bh-hall" src="${BLD_HALL[id]}" style="object-position:${BLD_POS[id] || '50% 50%'}" alt="${b.name}">${bld ? `<span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>` : ''}`;
   else if (!FIMG_OK) s = `<div class="bh-svg">${b.ic}</div>`;
   else if (bld) s += `<img class="bh-img" src="fort_scaffold.webp" alt="" style="width:${Math.min(wpc, 62)}%"><span class="bh-timer">🏗 <span data-until="${f.build.end}">${fmtLeft(f.build.end - now)}</span></span>`;
   else if (l) s += `<img class="bh-img${l >= 5 ? ' lv5' : l >= 3 ? ' lv3' : ''}" src="${fTierImg(id, l)}" alt="${b.name}" style="width:${wpc}%">`;
