@@ -406,6 +406,20 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .sqs.broken{opacity:.55;filter:grayscale(.6)}
 .sqs.empty{opacity:.55}.sqe{width:44px;height:44px;border-radius:50%;border:2px dashed rgba(255,255,255,.55);display:grid;place-items:center;font-size:20px;font-weight:900}.sqs.empty small{font-size:10px;font-weight:700}
 .sqsum{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.sqsum span{padding:5px 9px;border-radius:10px;background:rgba(0,0,0,.22);font-size:12.5px}
+#scr-room .hub-body{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+.roomhero{position:relative;width:min(560px,100%);aspect-ratio:3/2;border-radius:22px;overflow:hidden;box-shadow:0 10px 26px rgba(0,30,70,.35)}.roomhero.wide{aspect-ratio:2/1}
+.roomhero img{width:100%;height:100%;object-fit:cover;display:block}
+.roombtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.roombtn{position:relative;height:118px;border-radius:16px;overflow:hidden;padding:0;border:1.5px solid rgba(255,207,74,.6);background:#0a2a50;color:#fff;text-align:left;cursor:pointer}
+.roombtn img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.8)}
+.roombtn span{position:absolute;left:0;right:0;bottom:0;padding:16px 9px 7px;background:linear-gradient(transparent,rgba(3,15,35,.9));display:flex;flex-direction:column;line-height:1.2}
+.roombtn b{font-size:14px;color:#ffe08a}.roombtn small{font-size:10.5px;color:#d7e6f2}.roombtn:active{filter:brightness(1.2)}
+.trtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-bottom:6px}
+.trtiles div{background:rgba(0,0,0,.22);border-radius:12px;padding:8px;text-align:center;display:flex;flex-direction:column;line-height:1.2}.trtiles b{font-size:22px;color:#ffe08a}.trtiles small{font-size:11px;color:#cfe3f3}
+.trfac{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.trfac span{padding:5px 9px;border-radius:10px;background:rgba(0,0,0,.22);font-size:12.5px}
+.tphrow{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid rgba(255,255,255,.1)}.tphrow .ic{width:60px;flex:none;text-align:center;font-size:24px}.tphrow .nm{flex:1;min-width:0;font-weight:800;font-size:14px}.tphrow .nm small{display:block;font-weight:600;color:var(--muted);font-size:11.5px}
+.tphn{flex:none;min-width:46px;text-align:center;padding:4px 6px;border-radius:9px;background:rgba(0,0,0,.25);font-weight:800;font-size:13px}
+.facl{color:#ffb4a8;font-weight:700}
 .bh-hall{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .bh-cap{position:absolute;left:12px;bottom:10px;z-index:3;background:rgba(0,20,50,.75);border:1px solid rgba(255,207,74,.6);border-radius:12px;padding:6px 10px;line-height:1.2}
 .bh-cap b{display:block;font-size:15px;color:#ffe08a}.bh-cap small{font-size:11px;color:var(--muted)}
@@ -901,6 +915,11 @@ body.menu-on .logo{margin:0}
   <div class="topbar"><button class="iconbtn glass" id="hub-back" aria-label="К острову">←</button><h2 id="hub-title">Цитадель</h2><span class="goldpill">💰 <b id="hub-gold">0</b></span></div>
   <div class="bhero glass" id="bhero"></div>
   <div class="hub-body" id="hub-body"></div>
+</section>
+
+<section id="scr-room" class="screen">
+  <div class="topbar"><button class="iconbtn glass" id="room-back" aria-label="В цитадель">←</button><h2 id="room-title">Зал</h2><span class="goldpill">🏰</span></div>
+  <div class="hub-body" id="room-body"></div>
 </section>
 
 <section id="scr-atlmap" class="screen">
@@ -2304,7 +2323,7 @@ const pickW = list => { let t = list.reduce((a, x) => a + x[1], 0) * Math.random
 function hdata(p) {
   if (!p.hunt) p.hunt = { gold: 150, mission: 1, ships: {}, crew: {}, w: 0, l: 0, sunk: 0 };
   const h = p.hunt;
-  h.hired ||= []; h.squad ||= []; h.hireVet ||= {}; h.drill ||= 0; h.unlock ||= {}; h.caps ||= 0; h.bosses ||= 0; h.forts ||= 0;
+  h.hired ||= []; h.squad ||= []; h.hireVet ||= {}; h.drill ||= 0; h.unlock ||= {}; h.caps ||= 0; h.bosses ||= 0; h.forts ||= 0; if (!h.troph) h.troph = { log: [], f: {}, old: { sunk: h.sunk || 0, cap: h.caps || 0, fort: h.forts || 0, boss: h.bosses || 0 } };
   if (h.cred == null) h.cred = 5;
   h.officers ||= []; h.isles ||= {}; h.news ||= []; h.ships ||= {}; h.crew ||= {};
   if (h.fv !== 3) {   // переход на флот из отдельных кораблей
@@ -2648,7 +2667,7 @@ function tradePanel(h) {
     <small class="muted">Покупайте товар здесь, а выгоднее продавайте в портах других морей — караваном. Цены меняются каждые 3 часа: обновятся через <b data-until="${next}">${fmtLeft(next - now)}</b>.</small>`;
   TGOODS.forEach(g => {
     const st = T.stock[g.id], b = trBuy(h, g.id), sl = trSellHome(g.id);
-    s += `<div class="trrow"><div class="trn"><span class="ic">${g.ic}</span><b>${g.n}</b><small>на складе ${st}${st && T.cost[g.id] ? ` · куплено по ~${T.cost[g.id]}` : ''}</small><small>купить ${b} · продать ${sl} 💰</small>${(() => { let bp = -1, bv = 0; open.forEach(pi => { const v = trPrice(pi, g.id); if (v > bv) { bv = v; bp = pi; } }); if (bp < 0) return ''; const m = Math.round((bv - b) / b * 100); return m > 0 ? `<small class="trgood">📈 выгоднее всего везти в «${TPORTS[bp].n}»: +${m}%</small>` : `<small class="trbad">📉 сейчас везти невыгодно — лучше подождать</small>`; })()}</div>
+    s += `<div class="tphrow"><div class="tphn"><span class="ic">${g.ic}</span><b>${g.n}</b><small>на складе ${st}${st && T.cost[g.id] ? ` · куплено по ~${T.cost[g.id]}` : ''}</small><small>купить ${b} · продать ${sl} 💰</small>${(() => { let bp = -1, bv = 0; open.forEach(pi => { const v = trPrice(pi, g.id); if (v > bv) { bv = v; bp = pi; } }); if (bp < 0) return ''; const m = Math.round((bv - b) / b * 100); return m > 0 ? `<small class="trgood">📈 выгоднее всего везти в «${TPORTS[bp].n}»: +${m}%</small>` : `<small class="trbad">📉 сейчас везти невыгодно — лучше подождать</small>`; })()}</div>
       <div class="trb"><button class="btn small primary" data-act="trbuy" data-id="${g.id}:1" ${h.gold < b || used >= cap ? 'disabled' : ''}>+1</button><button class="btn small primary" data-act="trbuy" data-id="${g.id}:5" ${h.gold < b * 5 || used + 5 > cap ? 'disabled' : ''}>+5 · ${b * 5}</button><button class="btn small" data-act="trsell" data-id="${g.id}:1" ${st ? '' : 'disabled'}>−1</button><button class="btn small" data-act="trsell" data-id="${g.id}:all" ${st ? '' : 'disabled'}>Продать все</button>${g.id === 'shells' ? `<button class="btn small" data-act="trars" ${st ? '' : 'disabled'} title="1 ящик = ${SHELL_BOX} обычных снарядов">→ Арсенал</button>` : ''}</div></div>`;
   });
   s += `</div>`;
@@ -2960,6 +2979,76 @@ function hCasualty(t, d) {
   (H.casNow ||= []).push(`☠️ ${t.name || HS[t.type].name}: ${k === 1 && !m ? 'погиб' : 'погибли'} ${k} ${crewWord(t.type, k)}${m ? ` и ${m} ${plural(m, 'морпех', 'морпеха', 'морпехов')}` : ''}`);
 }
 const battlePlace = () => { const n = H.node || {}; if (n.atl) return 'у берегов Атлантиса'; if (n.trade) { const r = hdata(curProfile()).trade.runs.find(x => x.id === n.trade); return r ? TPORTS[r.port].n + ', караван' : 'торговый путь'; } return n.report ? (n.isle < 0 ? SEAS[n.sea].pir.n : SEAS[n.sea].isles[n.isle].n) + ', ' + SEAS[n.sea].n : H.obj === 'raid' ? 'у стен родной крепости' : 'в открытом море'; };
+/* ---------- Трофейный зал ---------- */
+const FACTIONS = { pir: { n: 'Пираты', ic: '☠️', d: 'Береговое братство: корсары, рейдеры и их форты' } };
+const facOf = u => (u && u.fac) || 'pir';
+const trF = (h, fac) => (h.troph.f[fac] ||= { sunk: {}, cap: {}, fortD: 0, fortC: 0, boss: 0 });
+function trophRecord(h, won) {
+  const T = h.troph, now = Date.now(), place = battlePlace(), add = e => { T.log.push({ t: now, place, ...e }); };
+  H.foes.forEach(f => {
+    const fac = facOf(f), F = trF(h, fac), nm = f.name && f.name !== HS[f.type].name ? f.name : '';
+    if (HS[f.type].fort) {
+      if (f.captured) { F.fortC++; add({ k: 'fortC', type: f.type, fac }); }
+      else if (f.hp <= 0) { F.fortD++; add({ k: 'fortD', type: f.type, fac }); }
+      return;
+    }
+    if (f.captured) { F.cap[f.type] = (F.cap[f.type] || 0) + 1; add({ k: 'cap', type: f.type, fac, nm }); }
+    else if (f.hp <= 0 && !HS[f.type].npc) { F.sunk[f.type] = (F.sunk[f.type] || 0) + 1; add({ k: 'sunk', type: f.type, fac, nm }); }
+  });
+  if (won && H.obj === 'boss') { const b = bossFor(H.node), fac = 'pir'; trF(h, fac).boss++; add({ k: 'boss', fac, nm: b.name }); }
+  if (T.log.length > 150) T.log.splice(0, T.log.length - 150);
+}
+const trSum = o => Object.values(o).reduce((a, b) => a + b, 0);
+function trophyTotals(h) {
+  const T = h.troph, o = T.old || {}, t = { sunk: o.sunk || 0, cap: 0, fortD: 0, fortC: 0, boss: o.boss || 0 };
+  let capOld = o.cap || 0, fortOld = o.fort || 0;
+  Object.values(T.f).forEach(F => { t.sunk += trSum(F.sunk); t.cap += trSum(F.cap); t.fortD += F.fortD; t.fortC += F.fortC; t.boss += F.boss; });
+  t.cap += capOld; t.fortD += fortOld; return t;
+}
+function roomsPanel(h) {
+  const M = (h.memorial || []).length, t = trophyTotals(h);
+  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏛 Залы цитадели</div><div class="roombtns">
+    <button class="roombtn mem" data-room="mem"><img src="memorial_room.webp" alt=""><span><b>🕯 Мемориал</b><small>${M ? `${M} ${plural(M, 'корабль', 'корабля', 'кораблей')} · ${h.fallen || 0} ${plural(h.fallen || 0, 'моряк', 'моряка', 'моряков')}` : 'память о павших'}</small></span></button>
+    <button class="roombtn tro" data-room="tro"><img src="trophy_room.webp" alt=""><span><b>🏆 Трофейный зал</b><small>потоплено ${t.sunk} · абордаж ${t.cap} · форты ${t.fortD + t.fortC}</small></span></button></div></div>`;
+}
+function showRoom(id) { HB.room = id; Snd.play('click'); show('scr-room'); renderRoom(); }
+function renderRoom() {
+  const h = hdata(curProfile()), id = HB.room;
+  $('#room-title').textContent = id === 'mem' ? 'Мемориал' : 'Трофейный зал';
+  let s = '';
+  if (id === 'mem') {
+    s = `<div class="roomhero"><img src="memorial_room.webp" alt="Мемориал"><div class="bh-cap"><b>🕯 Мемориал</b><small>вечная память морякам флота</small></div></div>` + memorialPanel(h);
+  } else {
+    const t = trophyTotals(h), T = h.troph;
+    s = `<div class="roomhero wide"><img src="trophy_room.webp" alt="Трофейный зал"><div class="bh-cap"><b>🏆 Трофейный зал</b><small>слава флота и добыча побед</small></div></div>
+    <div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📊 Итоги всех походов</div><div class="trtiles">
+      <div><b>${t.sunk}</b><small>🔥 кораблей потоплено</small></div><div><b>${t.cap}</b><small>🏴 взято на абордаж</small></div>
+      <div><b>${t.fortD}</b><small>💥 фортов уничтожено</small></div><div><b>${t.fortC}</b><small>🏰 фортов захвачено</small></div>
+      <div><b>${t.boss}</b><small>☠️ главарей повержено</small></div></div>
+      ${T.old && (T.old.sunk || T.old.cap || T.old.fort) ? `<small class="muted">В итоги входят и ранние победы, сделанные до открытия зала: потоплено ${T.old.sunk}, абордаж ${T.old.cap}, фортов ${T.old.fort} — без подробностей по фракциям.</small>` : ''}</div>`;
+    const facs = Object.keys(T.f);
+    if (!facs.length) s += `<div class="glass hub-panel"><small class="muted">Витрины пока пусты. Каждый потопленный корабль, взятый на абордаж приз и разбитый форт появятся здесь — с указанием фракции.</small></div>`;
+    facs.forEach(fk => {
+      const F = T.f[fk], D = FACTIONS[fk] || { n: fk, ic: '🏴', d: '' }, types = [...new Set([...Object.keys(F.sunk), ...Object.keys(F.cap)])];
+      s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">${D.ic} Фракция: ${D.n}</div><small class="muted">${D.d}</small>
+        <div class="trfac"><span>🔥 потоплено <b>${trSum(F.sunk)}</b></span><span>🏴 абордаж <b>${trSum(F.cap)}</b></span><span>💥 форты уничтожено <b>${F.fortD}</b></span><span>🏰 захвачено <b>${F.fortC}</b></span>${F.boss ? `<span>☠️ главари <b>${F.boss}</b></span>` : ''}</div>`;
+      if (types.length) {
+        s += `<div class="sec-t">⚓ Корабли</div>`;
+        types.forEach(ty => { s += `<div class="tphrow"><span class="ic">${HS[ty].fort ? '🏰' : shipImg(ty, 'row')}</span><span class="nm">${HS[ty].name}<small>${D.ic} ${D.n}</small></span><span class="tphn">🔥 ${F.sunk[ty] || 0}</span><span class="tphn">🏴 ${F.cap[ty] || 0}</span></div>`; });
+      }
+      if (F.fortD || F.fortC) s += `<div class="sec-t">🏰 Форты</div><div class="tphrow"><span class="ic">🏰</span><span class="nm">Пиратские форты<small>${D.ic} ${D.n}</small></span><span class="tphn">💥 ${F.fortD}</span><span class="tphn">🏰 ${F.fortC}</span></div>`;
+      s += `</div>`;
+    });
+    if (T.log.length) {
+      const K = { sunk: ['🔥', 'потоплен'], cap: ['🏴', 'взят на абордаж'], fortD: ['💥', 'уничтожен'], fortC: ['🏰', 'захвачен штурмом'], boss: ['☠️', 'повержен'] };
+      s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📜 Журнал побед</div>`;
+      T.log.slice().reverse().slice(0, 60).forEach(e => { const D = FACTIONS[e.fac] || { n: e.fac, ic: '🏴' }, what = e.k === 'boss' ? `Главарь ${e.nm}` : e.k.startsWith('fort') ? 'Форт' : `${HS[e.type].name}${e.nm ? ` «${e.nm}»` : ''}`;
+        s += `<div class="newsrow">${K[e.k][0]} <b>${what}</b> ${K[e.k][1]} · <span class="facl">${D.ic} ${D.n}</span><small>${new Date(e.t).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · ${e.place}</small></div>`; });
+      s += `</div>`;
+    }
+  }
+  $('#room-body').innerHTML = s;
+}
 function memorialPanel(h) {
   const M = h.memorial || [];
   let s = `<div class="glass hub-panel memorial"><div class="sec-t" style="margin-top:0">🕯 Мемориал</div>`;
@@ -4221,6 +4310,7 @@ function hFinish(won, reason) {
     else { const loss = raidLoss(h); h.gold = Math.max(0, h.gold - loss); gold = 0; lines.push(`☠️ Пираты разграбили казну: −${loss} 💰${PROTECT[fL(h, 'treasury')] ? ` (Казна сберегла ${PROTECT[fL(h, 'treasury')]}%)` : ''}`); }
     fRaidResolve(h, won);
   }
+  trophRecord(h, won);
   // трофеи
   H.captured.forEach(t => {
     h.caps++;
@@ -4757,7 +4847,7 @@ function statsPanel(h) {
 }
 function bldContent(h, id) {
   switch (id) {
-    case 'citadel': return evLine(h) + squadShow(h) + squadPanel(h) + statsPanel(h) + newsPanel(h) + econPanel(h) + raidPanel(h) + memorialPanel(h);
+    case 'citadel': return evLine(h) + roomsPanel(h) + squadShow(h) + squadPanel(h) + statsPanel(h) + newsPanel(h) + econPanel(h) + raidPanel(h);
     case 'dock': return hubShips(h, 'dock');
     case 'workshop': return arsenalPanel(h) + hubShips(h, 'workshop');
     case 'barracks': return hubShips(h, 'barracks') + drillPanel(h);
@@ -4777,6 +4867,7 @@ function renderHub() {
   const body = $('#hub-body');
   tutCheck(h); $('#hub-gold').textContent = `${h.gold} · 💠 ${h.cred || 0}`;
   body.innerHTML = tutLine(h, id) + fortCard(h, id) + (l ? bldContent(h, id) : `<div class="glass hub-panel lockp"><b>🔒 Здание ещё не построено</b><small class="muted">Постройте его, чтобы получить ${BLD_FN[id]}.</small></div>`);
+  body.querySelectorAll('[data-room]').forEach(x => x.onclick = () => showRoom(x.dataset.room));
   body.querySelectorAll('[data-sel]').forEach(x => x.onclick = () => { HB.sel = x.dataset.sel; HB.cat = null; HB.pick = false; Snd.play('click'); renderHub(); });
   body.querySelectorAll('[data-sea]').forEach(x => x.onclick = () => { Snd.play('click'); showMap(+x.dataset.sea); });
   body.querySelectorAll('[data-rgo]').forEach(x => x.onclick = () => runReport(x.dataset.rgo));
@@ -4792,6 +4883,7 @@ function initFortUI() {
   $('#fg-collect').onclick = () => fortAct('fcollect');
   $('#fg-raid').onclick = () => openBld('citadel');
   $('#atl-back').onclick = () => { Snd.play('click'); showAtlMap(); };
+  $('#room-back').onclick = () => { Snd.play('click'); openBld('citadel'); };
   $('#am-back').onclick = $('#am-map').onclick = () => { Snd.play('click'); showMap(); };
   $('#am-home').onclick = () => { Snd.play('click'); showFort(); };
   $('#am-go').onclick = () => { Snd.play('click'); showAtl(); };
