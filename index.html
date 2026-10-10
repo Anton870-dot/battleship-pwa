@@ -730,6 +730,10 @@ body.menu-on .logo{margin:0}
 .newsrow.fresh{border-left:3px solid var(--gold);padding-left:8px}
 .awaylist{display:block;text-align:left;margin-top:8px;max-height:42vh;overflow-y:auto}.awaylist .newsrow{display:block}
 .evline{padding:10px 12px;border-radius:14px;background:rgba(80,200,255,.13);border:1px solid rgba(120,220,255,.5);font-size:13.5px;line-height:1.35}.evline small{opacity:.85}
+.decchip{background:linear-gradient(135deg,#ffd75e,#ff9a1c)!important;color:#3b2300!important;border-color:#fff3c0!important;animation:pulse 1.4s infinite;max-width:70vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bufchip{background:linear-gradient(135deg,rgba(30,120,70,.95),rgba(15,70,40,.95))!important;border-color:rgba(125,255,176,.7)!important}.bufchip.bad{background:linear-gradient(135deg,rgba(120,50,50,.95),rgba(70,25,25,.95))!important;border-color:rgba(255,140,120,.7)!important}
+.evbtns .btn:has(.dech){flex-direction:column;gap:0}
+.evbtns .btn small.dech{display:block;font-size:11px;font-weight:600;opacity:.8;margin-top:2px}
 #fg-ev{background:linear-gradient(135deg,rgba(20,90,150,.95),rgba(12,50,100,.95));border:1px solid rgba(120,220,255,.6);max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .owned{font-size:12px;font-weight:800;color:#7ee08a;white-space:nowrap}
 .atlhero{position:relative;width:min(560px,100%);border-radius:22px;overflow:hidden;box-shadow:0 10px 26px rgba(0,30,70,.35)}.atlhero img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
@@ -881,7 +885,7 @@ body.menu-on .logo{margin:0}
     <button class="fchip" id="fg-build" data-bld=""></button>
   </div>
   <div class="tutcard" id="tutcard" hidden></div>
-  <div class="fside"><button class="fchip" id="fg-ev" hidden></button><button class="fchip" id="fg-cred">💠 0</button><button class="fchip" id="fg-log">📖 Журнал<em hidden></em></button></div>
+  <div class="fside"><button class="fchip decchip" id="fg-dec" hidden></button><button class="fchip" id="fg-ev" hidden></button><button class="fchip" id="fg-cred">💠 0</button><button class="fchip" id="fg-log">📖 Журнал<em hidden></em></button></div>
   <button class="fraidchip" id="fg-raid" hidden>☠️ Пираты у стен! Оборона →</button>
   <div class="fhud-bot">
     <button class="fbtn" data-bld="citadel">⚓<small>Эскадра</small></button>
@@ -2491,7 +2495,7 @@ function awaySummary(h, ms, un) {
   h.seenT = Date.now(); h.newsNew = 0; saveProfiles();
 }
 function econTick(h) {
-  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (atlTick(h)) ch = true; if (ammoTick(h)) ch = true;
+  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (decTick(h)) ch = true; if (atlTick(h)) ch = true; if (ammoTick(h)) ch = true;
   if (!h.econT) { h.econT = now; return true; }
   if (now - h.econT > 10 * 60000) h.away = Math.max(h.away || 0, now - h.econT);
   const dtH = Math.min(12, (now - h.econT) / 3600e3);
@@ -2715,6 +2719,123 @@ const SEA_EV = [
   { id: 'sale',   ic: '🛠', n: 'Распродажа на верфи', hrs: 3, d: () => 'Верфь получила лишнюю сталь: новые корабли на 20% дешевле.' },
   { id: 'glory',  ic: '🎖', n: 'День флота', hrs: 4, d: () => 'Команды рвутся в бой: корабли и офицеры получают двойной опыт.' },
 ];
+/* ---------- Решения командира: события с выбором ---------- */
+const decG = (h, n) => Math.max(10, Math.round(n * (1 + (h.mission || 1) / 12) / 10) * 10);
+const decShips = h => Object.values(h.ships).filter(s => !s.broken && !s.trade && !s.isle && !s.buildEnd);
+function decDamage(h, n, frac) {
+  const L = decShips(h).sort(() => Math.random() - .5).slice(0, n);
+  L.forEach(s => { const mx = shipMaxHp(h, s); s.hpLost = Math.min(mx - 1, (s.hpLost || 0) + Math.max(1, Math.round(mx * frac))); });
+  return L.map(s => `«${s.name}»`).join(', ');
+}
+const decGold = (h, n) => { if (n < 0) { const t = Math.min(h.gold, -n); h.gold -= t; return `−${t} 💰`; } h.gold += n; return `+${n} 💰`; };
+const decBuf = (h, id, hrs) => { (h.buf ||= {})[id] = Date.now() + hrs * 3600e3; };
+const bufOn = (h, id) => h.buf && h.buf[id] > Date.now();
+const BUFS = { loot: { ic: '🍀', n: 'Удача флота', d: 'добыча в боях +30%' }, gloom: { ic: '🌧', n: 'Уныние в командах', d: 'добыча в боях −20%' }, cheap: { ic: '🔧', n: 'Помощь корабелов', d: 'ремонт вдвое дешевле' } };
+const chance = p => Math.random() < p;
+// каждое событие: o — варианты; run(h, D) → текст итога. D — данные, сгенерированные при появлении
+const DEC = [
+  { id: 'defector', ic: '🧭', n: 'Перебежчик', mk: h => ({ g: decG(h, 150) }),
+    d: (h, D) => 'К причалу подошла шлюпка: пиратский штурман просит убежища и обещает отдать свои карты. Половина офицеров уверена, что это шпион.',
+    o: [{ n: 'Принять и выслушать', h: 'риск: может оказаться шпионом', run: (h, D) => chance(.6) ? (genReport(h), `Штурман не соврал: разведка получила новое донесение, а в его сундуке нашлось ${decGold(h, D.g)}.`) : `Это был шпион! Ночью он сбежал, прихватив казну: ${decGold(h, -D.g * 1.5)}.` },
+        { n: 'Выдать властям', h: 'награда', run: (h, D) => `Губернатор благодарит за бдительность: ${decGold(h, Math.round(D.g * .8))}.` },
+        { n: 'Прогнать', h: 'без последствий', run: () => 'Шлюпка ушла в туман. Кто знает, что вы упустили.' }] },
+  { id: 'brawl', ic: '🍺', n: 'Драка в таверне', mk: h => ({ g: decG(h, 120) }),
+    d: () => 'Ваши моряки разнесли портовую таверну. Хозяин требует возмещения, горожане недовольны.',
+    o: [{ n: 'Оплатить ущерб', h: 'команды будут благодарны', run: (h, D) => { decBuf(h, 'loot', 3); return `Вы заплатили ${decGold(h, -D.g)}. Моряки оценили заботу: 🍀 «Удача флота» на 3 часа — добыча в боях +30%.`; } },
+        { n: 'Наказать зачинщиков', h: 'строго, но дёшево', run: (h) => { decBuf(h, 'gloom', 2); return 'Порядок восстановлен, но команды приуныли: 🌧 добыча в боях −20% на 2 часа.'; } },
+        { n: 'Закрыть глаза', h: 'риск штрафа', run: (h, D) => chance(.5) ? `Городской совет выписал штраф: ${decGold(h, -D.g * 2)}.` : 'Обошлось — хозяин таверны остыл и сам выставил всем по кружке.' }] },
+  { id: 'castaways', ic: '🛟', n: 'Терпящие бедствие', mk: h => ({ g: decG(h, 200) }),
+    d: () => 'Дозорный заметил дым на горизонте: горит торговое судно. Чтобы спасти людей, придётся отправить корабль прямо сейчас.',
+    o: [{ n: 'Спасать!', h: 'корабль может пострадать', run: (h, D) => { const w = chance(.35) ? decDamage(h, 1, .3) : ''; if (h.atl) atlData(h).rep++; return `Экипаж спасён. Гильдия купцов платит ${decGold(h, D.g)}${h.atl ? ', Совет Атлантиса доволен (+1 доверие)' : ''}.${w ? ` Корабль ${w} получил повреждения в огне.` : ''}`; } },
+        { n: 'Не рисковать', h: 'без последствий', run: () => 'Флот остался в гавани. В порту об этом шепчутся.' }] },
+  { id: 'smugglers', ic: '📦', n: 'Сомнительная сделка', mk: h => ({ g: decG(h, 300) }),
+    d: (h, D) => `Контрабандисты предлагают партию пушечных стволов за ${D.g} 💰. Перепродать их можно вдвое дороже — если таможня не прознает.`,
+    o: [{ n: 'Купить груз', h: '65% — двойная прибыль', run: (h, D) => { if (h.gold < D.g) return 'Не хватило золота — контрабандисты ушли.'; h.gold -= D.g; return chance(.65) ? `Груз перепродан: ${decGold(h, D.g * 2)} (чистыми +${D.g}).` : `Таможня конфисковала груз. Потеряно ${D.g} 💰.`; } },
+        { n: 'Сдать их страже', h: 'награда', run: (h, D) => `Стража накрыла контрабандистов. Награда: ${decGold(h, Math.round(D.g * .5))}.` },
+        { n: 'Отказаться', h: 'без последствий', run: () => 'Вы не ведёте дел с жуликами.' }] },
+  { id: 'wager', ic: '🎲', n: 'Пари капитанов', mk: h => ({ g: decG(h, 250) }),
+    d: (h, D) => `Капитан соседней эскадры вызывает вас на пари: чья команда быстрее поднимет паруса. Ставка — ${D.g} 💰.`,
+    o: [{ n: 'Принять пари', h: '50 на 50', run: (h, D) => { if (h.gold < D.g) return 'Ставку нечем покрыть — пари не состоялось.'; return chance(.5) ? `Ваши моряки быстрее! Выигрыш ${decGold(h, D.g)}.` : `Соперник оказался ловчее. Проигрыш ${decGold(h, -D.g)}.`; } },
+        { n: 'Отказаться', h: 'без последствий', run: () => 'Капитан посмеялся, но спорить не стал.' }] },
+  { id: 'governor', ic: '🏛', n: 'Сбор на оборону', mk: h => ({ g: Math.max(decG(h, 100), Math.round(h.gold * .15)) }),
+    d: (h, D) => `Губернатор просит флот внести ${D.g} 💰 на укрепление побережья. Отказ его заденет.`,
+    o: [{ n: 'Внести', h: 'кредиты и праздник', run: (h, D) => { const t = decGold(h, -D.g); h.cred = (h.cred || 0) + 3; if (!evNow(h)) { h.ev = { id: 'feast', start: Date.now(), end: Date.now() + 4 * 3600e3 }; } return `Взнос ${t}. Губернатор жалует флоту +3 💠${evOn(h, 'feast') ? ' и объявляет праздник: 🎉 содержание флота 4 часа бесплатно' : ''}.`; } },
+        { n: 'Отказать', h: 'риск немилости', run: (h, D) => chance(.5) ? `Губернатор обиделся и поднял портовые пошлины: ${decGold(h, -Math.round(D.g * 1.5))}.` : 'Губернатор поворчал, но в этот раз обошлось.' }] },
+  { id: 'engineer', ic: '🔧', n: 'Изобретатель', mk: h => ({ g: decG(h, 250) }),
+    d: (h, D) => `Чудаковатый инженер предлагает за ${D.g} 💰 «чудо-способ» залатать все корабли за ночь.`,
+    o: [{ n: 'Нанять', h: '70% — всё починит', run: (h, D) => { if (h.gold < D.g) return 'Не хватило золота.'; h.gold -= D.g; if (!chance(.7)) return `Инженер исчез вместе с задатком. Потеряно ${D.g} 💰.`; let n = 0; Object.values(h.ships).forEach(s => { if (s.hpLost && !s.repEnd) { s.hpLost = 0; n++; } }); return `Сработало! Отремонтировано кораблей: ${n}. И ещё корабелы готовы помогать: 🔧 ремонт вдвое дешевле 3 часа.` + (decBuf(h, 'cheap', 3), ''); } },
+        { n: 'Отказать', h: 'без последствий', run: () => 'Инженер обиженно ушёл.' }] },
+  { id: 'famine', ic: '🐟', n: 'Голод на побережье', mk: h => ({ g: decG(h, 150) }),
+    d: () => 'Рыбацкая деревня осталась без улова. Старейшина просит помочь провизией — или купить у вас её втридорога.',
+    o: [{ n: 'Раздать даром', h: 'добровольцы и слава', run: (h, D) => { const t = decGold(h, -D.g); const s = h.ships[h.active], add = Math.max(0, Math.min(3, ownStats(h, h.active).cap - s.marines)); s.marines += add; h.cred = (h.cred || 0) + 1; return `Провизия роздана (${t}). Деревня благодарна: ${add ? `${add} рыбака пошли в морпехи на флагман, ` : ''}+1 💠.`; } },
+        { n: 'Продать втридорога', h: 'выгодно, но запомнят', run: (h, D) => { const t = decGold(h, Math.round(D.g * 1.6)); return chance(.4) ? (decBuf(h, 'gloom', 3), `Выручка ${t}, но моряки из этих мест возмущены: 🌧 добыча −20% на 3 часа.`) : `Выручка ${t}.`; } }] },
+  { id: 'treasure', ic: '🗺', n: 'Карта сокровищ', mk: h => ({ g: decG(h, 200) }),
+    d: (h, D) => `Старый моряк продаёт карту затонувшего галеона за ${D.g} 💰. Клянётся, что она настоящая.`,
+    o: [{ n: 'Купить карту', h: '40% — клад', run: (h, D) => { if (h.gold < D.g) return 'Не хватило золота.'; h.gold -= D.g; return chance(.4) ? `Водолазы нашли сундуки! Клад: ${decGold(h, D.g * 5)}.` : `Карта оказалась подделкой. Потеряно ${D.g} 💰.`; } },
+        { n: 'Отказаться', h: 'без последствий', run: () => 'Старик пожал плечами и пошёл искать другого простака.' }] },
+  { id: 'mercenary', ic: '⚔️', n: 'Капитан без корабля', mk: h => ({ t: pick(HS_ORDER.filter(t => (HS[t].hp || 0) <= 16)) }), cond: h => h.hired.length < HIRE_MAX && squadCount(h) < SQUAD_MAX,
+    d: (h, D) => `Отставной капитан со своим кораблём (${HS[D.t].name}) хочет пойти с вами в один поход — бесплатно, ради славы.`,
+    o: [{ n: 'Взять в эскадру', h: 'бесплатный наёмник', run: (h, D) => { if (h.hired.length >= HIRE_MAX || squadCount(h) >= SQUAD_MAX) return 'Места в эскадре уже нет.'; h.hired.push({ type: D.t, paid: 0 }); return `${HS[D.t].name} пойдёт с вами в следующий поход.`; } },
+        { n: 'Отказать', h: 'без последствий', run: () => 'Капитан ушёл к другим.' }] },
+  { id: 'squall', ic: '🌩', n: 'Надвигается шквал', mk: h => ({ g: decG(h, 100) }),
+    d: () => 'Барометр падает. Можно увести корабли в защищённую бухту — это стоит денег, — или переждать у причалов.',
+    o: [{ n: 'Укрыть корабли', h: 'надёжно', run: (h, D) => `Корабли переждали шквал в бухте. Расходы: ${decGold(h, -D.g)}.` },
+        { n: 'Рискнуть', h: '50% — повреждения', run: (h) => { if (!chance(.5)) return 'Шквал прошёл стороной!'; const w = decDamage(h, 2, .3); return w ? `Шквал потрепал корабли: ${w}. Нужен ремонт в Сухом доке.` : 'Шквал прошёл, но кораблей у причала не было.'; } }] },
+  { id: 'tribute', ic: '🏴‍☠️', n: 'Пиратский ультиматум', mk: h => ({ g: decG(h, 300) }), cond: h => fL(h, 'citadel') >= 2,
+    d: (h, D) => `Пираты прислали письмо: «${D.g} золотом — и мы оставим ваши стены в покое на полдня».`,
+    o: [{ n: 'Откупиться', h: 'набег отложится', run: (h, D) => { const f = fdata(h); const t = decGold(h, -D.g); if (f.nextRaid && !f.raidDue) f.nextRaid = Math.max(f.nextRaid, Date.now()) + 12 * 3600e3; return `Вы заплатили ${t}. Пираты сдержат слово: набегов не будет ещё 12 часов.`; } },
+        { n: 'Послать к чёрту', h: 'риск скорого набега', run: (h) => { h.cred = (h.cred || 0) + 1; const f = fdata(h); if (chance(.5) && f.nextRaid && !f.raidDue) { f.nextRaid = Math.min(f.nextRaid, Date.now() + 3600e3); return 'Гордый ответ (+1 💠). Пираты в ярости — набег будет совсем скоро, готовьте оборону!'; } return 'Гордый ответ (+1 💠). Пираты пока молчат.'; } }] },
+  { id: 'press', ic: '📰', n: 'Газетчик', mk: () => ({}),
+    d: () => 'Столичная газета хочет написать о вашем флоте. Репортёр просит провести его по кораблям — команды будут отвлекаться.',
+    o: [{ n: 'Дать интервью', h: 'слава', run: (h) => { h.cred = (h.cred || 0) + 2; decBuf(h, 'loot', 2); return 'Статья вышла на первой полосе! +2 💠, а вдохновлённые моряки дерутся злее: 🍀 добыча +30% на 2 часа.'; } },
+        { n: 'Выставить вон', h: 'без последствий', run: () => 'Репортёр написал про кого-то другого.' }] },
+  { id: 'loan', ic: '🏦', n: 'Предложение банкира', mk: h => ({ g: decG(h, 600) }), cond: h => !h.loan,
+    d: (h, D) => `Банкир Атлантиса предлагает заём: ${D.g} 💰 сейчас, вернуть ${Math.round(D.g * 1.35)} 💰 через 12 часов.`,
+    o: [{ n: 'Взять заём', h: 'деньги сейчас', run: (h, D) => { h.loan = { sum: Math.round(D.g * 1.35), at: Date.now() + 12 * 3600e3 }; return `Получено ${decGold(h, D.g)}. Через 12 часов банк спишет ${h.loan.sum} 💰.`; } },
+        { n: 'Отказаться', h: 'без последствий', run: () => 'Банкир вежливо откланялся.' }] },
+  { id: 'oldboat', ic: '⛵', n: 'Списанный катер', mk: h => ({ g: decG(h, 60) }),
+    d: (h, D) => `Береговая охрана списывает старый катер и готова уступить его за ${D.g} 💰. Он потрёпан, но на ходу.`,
+    o: [{ n: 'Забрать', h: 'новый корабль в резерв', run: (h, D) => { if (h.gold < D.g) return 'Не хватило золота.'; h.gold -= D.g; const ns = newShip(h, 'boat'); ns.hpLost = Math.round(shipMaxHp(h, ns) * .5); return `Катер ${sName(ns)} теперь ваш (−${D.g} 💰). Он в резерве, нужен ремонт.`; } },
+        { n: 'Отказаться', h: 'без последствий', run: () => 'Катер пустили на дрова.' }] },
+  { id: 'spy', ic: '🕵️', n: 'Пойман шпион', mk: h => ({ g: decG(h, 200) }),
+    d: () => 'Караул задержал человека, который зарисовывал батареи. Пиратский шпион!',
+    o: [{ n: 'Допросить', h: 'разведданные', run: (h) => { genReport(h); return 'Шпион заговорил: разведка получила новое донесение о пиратах.'; } },
+        { n: 'Обменять на выкуп', h: 'золото', run: (h, D) => `Пираты выкупили своего человека: ${decGold(h, D.g)}.` }] },
+];
+const decDef = id => DEC.find(x => x.id === id);
+function decTick(h) {
+  const now = Date.now(); let ch = false;
+  if (h.loan && now >= h.loan.at) { const t = decGold(h, -h.loan.sum); news(h, `🏦 Банк Атлантиса списал долг по займу: ${t}.`); h.loan = null; ch = true; }
+  if (h.dec && now > h.dec.exp) { const d = decDef(h.dec.id); news(h, `${d ? d.ic : '📨'} Решение не принято вовремя — «${d ? d.n : ''}»: возможность упущена.`, true); h.dec = null; ch = true; }
+  if (!h.decNext) { h.decNext = now + (.5 + Math.random()) * 3600e3; ch = true; }
+  if (!h.dec && now >= h.decNext && h.w >= 1 && !(h.tut >= 0)) {
+    const pool = DEC.filter(d => d.id !== h.decLast && (!d.cond || d.cond(h)));
+    const d = pick(pool); h.dec = { id: d.id, at: now, exp: now + 8 * 3600e3, D: d.mk(h) }; h.decLast = d.id;
+    h.decNext = now + (1.5 + Math.random() * 1.5) * 3600e3; ch = true;
+    news(h, `📨 Требуется решение командира: ${d.ic} <b>${d.n}</b>`); Snd.play('bell');
+  }
+  return ch;
+}
+function decOpen() {
+  const h = hdata(curProfile()), P = h.dec; if (!P) return;
+  const d = decDef(P.id); if (!d) { h.dec = null; return; }
+  showEv(d.ic, d.n, `${d.d(h, P.D)}<br><small class="muted">Решение нужно принять за <b data-until="${P.exp}">${fmtLeft(P.exp - Date.now())}</b></small>`,
+    d.o.map((o, i) => ({ t: `${o.n}<small class="dech">${o.h}</small>`, cls: i === 0 ? 'primary' : '', fn: () => decPick(i) })).concat([{ t: 'Подумать позже', cls: 'small', fn: () => overlay('#ov-ev', false) }]));
+}
+function decPick(i) {
+  const h = hdata(curProfile()), P = h.dec; if (!P) return;
+  const d = decDef(P.id), o = d.o[i]; h.dec = null;
+  const res = o.run(h, P.D); h.decDone = (h.decDone || 0) + 1;
+  news(h, `${d.ic} <b>${d.n}</b> — «${o.n}». ${res}`, true); saveProfiles(); Snd.play('coins');
+  showEv(d.ic, `${d.n}: итог`, res, [{ t: 'Принято', cls: 'primary', fn: () => { overlay('#ov-ev', false); if ($('#scr-fort').classList.contains('active')) renderFort(); else if ($('#scr-hub').classList.contains('active')) renderHub(); } }]);
+}
+function decChip(h) {
+  const b = $('#fg-dec'); if (!b) return;
+  const P = h.dec, act = Object.keys(BUFS).filter(k => bufOn(h, k));
+  if (P) { const d = decDef(P.id); b.hidden = false; b.className = 'fchip decchip'; b.innerHTML = `📨 Решение: ${d.ic} ${d.n}`; b.onclick = () => { Snd.play('click'); decOpen(); }; }
+  else if (act.length) { const k = act[0], B = BUFS[k]; b.hidden = false; b.className = 'fchip bufchip' + (k === 'gloom' ? ' bad' : ''); b.innerHTML = `${B.ic} ${B.n} · <span data-until="${h.buf[k]}">${fmtLeft(h.buf[k] - Date.now())}</span>`; b.onclick = () => { Snd.play('click'); showEv(B.ic, B.n, `Действует ещё <b data-until="${h.buf[k]}">${fmtLeft(h.buf[k] - Date.now())}</b>: ${B.d}.`, [{ t: 'Понятно', cls: 'primary', fn: () => overlay('#ov-ev', false) }]); }; }
+  else b.hidden = true;
+}
 const evNow = h => h && h.ev && h.ev.end > Date.now() ? h.ev : null;
 const evOn = (h, id) => { const e = evNow(h); return e && e.id === id ? e : null; };
 const evDef = e => SEA_EV.find(x => x.id === e.id);
@@ -3066,7 +3187,7 @@ const shipMaxHp = (h, s) => ownStats(h, s.id).hp;
 const shipHp = (h, s) => Math.max(1, shipMaxHp(h, s) - (s.hpLost || 0));
 function repairInfo(h, s) {
   const mx = shipMaxHp(h, s), frac = Math.min(1, (s.hpLost || 0) / mx), d = fL(h, 'dock');
-  return { frac, min: Math.max(1, Math.round(REP_MIN[s.type] * frac * (1 - .12 * d))), gold: Math.max(5, Math.round(HS[s.type].price * .35 * frac * (1 - .1 * d))) };
+  return { frac, min: Math.max(1, Math.round(REP_MIN[s.type] * frac * (1 - .12 * d))), gold: Math.max(5, Math.round(HS[s.type].price * .35 * frac * (1 - .1 * d) * (bufOn(h, 'cheap') ? .5 : 1))) };
 }
 const repSlots = h => 1 + Math.floor(fL(h, 'dock') / 2) + perk(h, 'slip');
 const repairing = h => Object.values(h.ships).filter(s => s.repEnd);
@@ -4335,6 +4456,8 @@ function hFinish(won, reason) {
     if (!h.unpaid) offOf(h, s.id).forEach(o => { if (o.lvl >= 5) return; const need = OFF_XP[o.lvl + 1], was = o.xp >= need; o.xp += gain; if (!was && o.xp >= need) lines.push(`🎓 ${o.name} готов к повышению — загляните в Академию`); });
   });
   if (H.trRun) { trResolve(h, H.trRun, 'battle', won, lines); H.trRun = null; }
+  if (gold > 0 && bufOn(h, 'loot')) { const b = Math.round(gold * .3); gold += b; lines.push(`🍀 Удача флота: +${b} 💰`); }
+  if (gold > 0 && bufOn(h, 'gloom')) { const b = Math.round(gold * .2); gold -= b; lines.push(`🌧 Уныние в командах: −${b} 💰`); }
   if (cr) { h.cred = (h.cred || 0) + cr; lines.push(`💠 Особые кредиты: +${cr}`); }
   h.gold += gold; h.sunk += sunk;
   news(h, `${won ? '🏆 Победа' : '🌊 Поражение'} — ${battlePlace()}. Потоплено врагов: ${sunk}, +${gold} 💰${cr ? `, +${cr} 💠` : ''}${lines.filter(l => /^(🕯|🏝|☠️|🏴|🩹|⚰️|📦)/.test(l)).map(l => '<br>' + l).join('')}`, true);
@@ -4778,6 +4901,7 @@ function renderFort(center) {
   const net = netRate(h); $('#fg-inc').innerHTML = `📈 ${net >= 0 ? '+' : '−'}${Math.abs(net)}/ч`; $('#fg-inc').classList.toggle('neg', net < 0 || !!h.unpaid);
   if (h.away) { const aw = h.away, un = h.news.filter(n => n.t > (h.seenT || 0)); h.away = 0; if (un.length) awaySummary(h, aw, un); else saveProfiles(); }
   else if (h.newsNew) { const n = h.news.find(x => !x.q); if (n) toast(n.txt.replace(/<[^>]+>/g, '')); h.newsNew = 0; saveProfiles(); }
+  decChip(h);
   { const e = evNow(h), b = $('#fg-ev'); b.hidden = !e; if (e) b.innerHTML = `${evDef(e).ic} ${evDef(e).n} · <span data-until="${e.end}">${fmtLeft(e.end - Date.now())}</span>`; }
   $('#fg-cred').innerHTML = `💠 ${h.cred || 0}`; { const n = logNew(h), b = $('#fg-log em'); b.hidden = !n; b.textContent = n; }
   const bchip = $('#fg-build');
