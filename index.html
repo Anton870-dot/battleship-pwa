@@ -2511,7 +2511,7 @@ const sellPrice = (h, s) => Math.round(HS[s.type].price * .4) || 30;
 const isleName = k => { const [a, b] = String(k).split(':').map(Number), S = SEAS[a]; return S && S.isles[b] ? S.isles[b].n : 'Остров'; };
 const isleOf = (h, n) => (h.isles[n] ||= { own: false, lost: false });
 const isleGarr = (h, n) => Object.values(h.ships).filter(s => s.isle === n);
-const isleInc = (h, n) => { const g = isleGarr(h, n); if (!g.length || isleOf(h, n).lost) return 0; return 8 + 4 * (+String(n).split(':')[0] || 0) + g.reduce((a, s) => a + 3 * HS[s.type].len, 0); };
+const isleInc = (h, n) => { const g = isleGarr(h, n); if (!g.length || isleOf(h, n).lost) return 0; return Math.round((8 + 4 * (+String(n).split(':')[0] || 0) + g.reduce((a, s) => a + 3 * HS[s.type].len, 0)) * 1.2); };
 const islesOwned = h => Object.keys(h.isles).filter(k => h.isles[k].own && k.includes(':'));
 const isleIncome = h => islesOwned(h).reduce((a, n) => a + isleInc(h, n), 0);
 const islePower = (h, n) => isleGarr(h, n).reduce((a, s) => { const st = ownStats(h, s.id); return a + st.hp + 2 * st.dmg + 3 * st.armor; }, 0);
@@ -3684,7 +3684,8 @@ function squadPanel(h) {
 function econPanel(h) {
   const inc = fRate(h), isl = isleIncome(h), up = upkeep(h), net = inc + isl - up, nShips = Object.keys(h.ships).length;
   let s = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📊 Казна флота</div>
-    <div class="uprow"><span class="ic">🏪</span><span class="nm">Торговая гавань<small>копится в казне, собирать вручную</small></span><b class="econ">+${inc}</b></div>
+    <div class="uprow"><span class="ic">🏰</span><span class="nm">Цитадель<small>налоги и сборы, копятся в казне</small></span><b class="econ">+${CIT_INC[fL(h, 'citadel')]}</b></div>
+    <div class="uprow"><span class="ic">🏪</span><span class="nm">Торговая гавань<small>копится в казне, собирать вручную</small></span><b class="econ">+${mRate(h)}</b></div>
     <div class="uprow"><span class="ic">🏝</span><span class="nm">Острова с гарнизонами<small>${islesOwned(h).filter(n => isleInc(h, n)).length} из ${islesOwned(h).length} приносят доход</small></span><b class="econ">+${isl}</b></div>
     <div class="uprow"><span class="ic">⚓</span><span class="nm">Содержание флота<small>${nShips} ${plural(nShips, 'корабль', 'корабля', 'кораблей')} (флагман бесплатно), ${h.officers.length} ${plural(h.officers.length, 'офицер', 'офицера', 'офицеров')}</small></span><b class="econ neg">−${up}</b></div>
     <div class="uprow"><span class="ic">📈</span><span class="nm"><b>Итого в час</b></span><b class="econ ${net < 0 ? 'neg' : ''}">${net >= 0 ? '+' : '−'}${Math.abs(net)}</b></div>`;
@@ -4704,10 +4705,10 @@ function initHunt() {
 }
 
 /* ==================== КРЕПОСТЬ ==================== */
-const MARKET = [0, 35, 65, 100, 140, 190], PROTECT = [0, 20, 35, 50, 65, 80], BAT_N = [0, 1, 2, 3, 3, 4];
+const MARKET = [0, 42, 78, 120, 170, 230], PROTECT = [0, 20, 35, 50, 65, 80], BAT_N = [0, 1, 2, 3, 3, 4];
 const capH = l => 6 + 2 * l;
 const FB = [
-  { id: 'citadel',    ic: '🏰', name: 'Цитадель',          x: 50, y: 42, base: 250, desc: 'Сердце крепости. Её уровень ограничивает уровень остальных зданий, а со 2-го уровня крепость начинают навещать пираты.', eff: l => `остальные здания до ур. ${l}` },
+  { id: 'citadel',    ic: '🏰', name: 'Цитадель',          x: 50, y: 42, base: 250, desc: 'Сердце крепости. Её уровень ограничивает уровень остальных зданий, а со 2-го уровня крепость начинают навещать пираты.', eff: l => `доход ${CIT_INC[l]} 💰/ч, остальные здания до ур. ${l}` },
   { id: 'market',     ic: '💰', name: 'Торговая гавань',   x: 69, y: 57, base: 150, desc: 'Купцы платят пошлину: золото капает каждый час, даже когда игра закрыта. Каждый захваченный форт добавляет +10%.', eff: l => `+${MARKET[l]} 💰 в час` },
   { id: 'treasury',   ic: '🏦', name: 'Казна',             x: 34, y: 26, base: 120, desc: 'Сколько часов дохода копится до сбора и какая часть золота защищена при набеге.', eff: l => `копит ${capH(l)} ч дохода, защищает ${PROTECT[l]}% золота` },
   { id: 'dock',       ic: '⚓', name: 'Сухой док',         x: 84, y: 74, base: 180, desc: 'Дешевле ремонт и покупка кораблей.', eff: l => l >= 5 ? 'ремонт бесплатно, корабли −20%' : `ремонт −${20 * l}%, корабли −${4 * l}%` },
@@ -4736,7 +4737,9 @@ function fdata(h) {
   if (!h.fort) h.fort = { b: { citadel: 1 }, build: null, last: Date.now(), nextRaid: null, raidDue: false, raidSince: 0, raids: { w: 0, l: 0 } };
   return h.fort;
 }
-const fRate = h => Math.round(MARKET[fL(h, 'market')] * (1 + .1 * Math.min(5, h.forts || 0)));
+const CIT_INC = [0, 150, 190, 240, 300, 380];
+const mRate = h => Math.round(MARKET[fL(h, 'market')] * (1 + .1 * Math.min(5, h.forts || 0)));
+const fRate = h => mRate(h) + CIT_INC[fL(h, 'citadel')];
 function fStored(h) {
   const f = fdata(h), end = f.raidDue ? Math.min(Date.now(), f.raidSince) : Date.now();
   return Math.floor(Math.min(capH(fL(h, 'treasury')), Math.max(0, (end - f.last) / 3600000)) * fRate(h));
@@ -5172,7 +5175,7 @@ function incomePanel(h) {
   const f = fdata(h), st = fStored(h), rate = fRate(h), cap = Math.floor(capH(fL(h, 'treasury')) * rate);
   return `<div class="glass hub-panel"><div class="frow"><span class="fic">💰</span><span class="ftx"><b>Доход: ${rate} 💰/ч</b><small>${rate ? `в казне ${st} из ${cap}${f.raidDue ? ' · торговля остановлена пиратами!' : ''}` : 'постройте Торговую гавань'}</small></span>
     <button class="btn small ${st ? 'primary' : ''}" data-act="fcollect" ${st ? '' : 'disabled'}>Собрать</button></div>
-    <small class="muted">Казна копит до ${capH(fL(h, 'treasury'))} ч дохода и защищает ${PROTECT[fL(h, 'treasury')]}% золота при набеге.${h.forts ? ` Захваченные форты: +${Math.min(5, h.forts) * 10}% к доходу.` : ''}</small></div>`;
+    <small class="muted">Казна копит до ${capH(fL(h, 'treasury'))} ч дохода и защищает ${PROTECT[fL(h, 'treasury')]}% золота при набеге. Доход: цитадель ${CIT_INC[fL(h, 'citadel')]} + гавань ${mRate(h)}.${h.forts ? ` Захваченные форты: +${Math.min(5, h.forts) * 10}% к доходу гавани.` : ''}</small></div>`;
 }
 function raidPanel(h) {
   const f = fdata(h), now = Date.now();
