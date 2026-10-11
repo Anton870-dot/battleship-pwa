@@ -446,6 +446,8 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .dpdet{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.dpdet span{padding:4px 8px;border-radius:9px;background:rgba(0,0,0,.25);font-size:12px}
 .dpbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;justify-content:center}
 .seatab.deeptab{background:linear-gradient(135deg,rgba(10,70,100,.95),rgba(5,30,60,.95));border-color:rgba(120,230,255,.7);color:#fff}
+.devrow{display:flex;align-items:center;justify-content:center;gap:0;margin:4px 0 8px;flex-wrap:nowrap}.devrow span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.2);filter:grayscale(1);opacity:.55}
+.devrow span.on{filter:none;opacity:1;border-color:rgba(255,207,74,.7)}.devrow span.cur{box-shadow:0 0 12px rgba(255,207,74,.7);border-color:#ffcf4a}.devrow i{flex:1;max-width:22px;height:2px;background:rgba(255,255,255,.25)}
 .bh-hall{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .bh-cap{position:absolute;left:12px;bottom:10px;z-index:3;background:rgba(0,20,50,.75);border:1px solid rgba(255,207,74,.6);border-radius:12px;padding:6px 10px;line-height:1.2}
 .bh-cap b{display:block;font-size:15px;color:#ffe08a}.bh-cap small{font-size:11px;color:var(--muted)}
@@ -2511,8 +2513,47 @@ const sellPrice = (h, s) => Math.round(HS[s.type].price * .4) || 30;
 const isleName = k => { const [a, b] = String(k).split(':').map(Number), S = SEAS[a]; return S && S.isles[b] ? S.isles[b].n : 'Остров'; };
 const isleOf = (h, n) => (h.isles[n] ||= { own: false, lost: false });
 const isleGarr = (h, n) => Object.values(h.ships).filter(s => s.isle === n);
-const isleInc = (h, n) => { const g = isleGarr(h, n); if (!g.length || isleOf(h, n).lost) return 0; return Math.round((8 + 4 * (+String(n).split(':')[0] || 0) + g.reduce((a, s) => a + 3 * HS[s.type].len, 0)) * 1.2); };
+const isleInc = (h, n) => { const g = isleGarr(h, n); if (isleOf(h, n).lost) return 0; return (g.length ? Math.round((8 + 4 * (+String(n).split(':')[0] || 0) + g.reduce((a, s) => a + 3 * HS[s.type].len, 0)) * 1.2) : 0) + devInc(h, n); };
 const islesOwned = h => Object.keys(h.isles).filter(k => h.isles[k].own && k.includes(':'));
+/* ---------- Застройка островов ---------- */
+const DEV_LAND = [
+  { n: 'Дикий берег', ic: '🏝', inc: 0 },
+  { n: 'Деревня', ic: '🛖', cost: 1200, min: 45, inc: 60, d: 'Рыбаки и огороды: первые поселенцы под защитой флота.' },
+  { n: 'Посёлок', ic: '🏘', cost: 3500, min: 120, inc: 130, d: 'Причал, лесопилка и рынок по выходным.' },
+  { n: 'Городок', ic: '🏡', cost: 8000, min: 240, inc: 240, d: 'Мастерские, школа и собственная таможня.' },
+  { n: 'Форпост', ic: '🏰', cost: 16000, min: 480, inc: 400, d: 'Каменные стены, склады и маяк над бухтой.' },
+  { n: 'База снабжения', ic: '⚓', cost: 30000, min: 720, inc: 650, d: 'Доки, топливо и снаряды для флота. Ремонт кораблей дешевле и быстрее на 10% (до −30% от трёх баз).' },
+];
+const DEV_PORT = [
+  { n: 'Портовый город', ic: '🏙', inc: 0 },
+  { n: 'Расширенный порт', ic: '⚓', cost: 2500, min: 60, inc: 100, d: 'Новые причалы — больше судов, больше пошлин.' },
+  { n: 'Торговый квартал', ic: '🏪', cost: 6000, min: 180, inc: 200, d: 'Конторы купцов и биржа товаров.' },
+  { n: 'Купеческий город', ic: '🏛', cost: 12000, min: 300, inc: 340, d: 'Гильдии, банки и богатые особняки.' },
+  { n: 'Морская столица', ic: '🏯', cost: 24000, min: 540, inc: 520, d: 'Сюда стекаются корабли со всего моря.' },
+  { n: 'Вольный порт', ic: '👑', cost: 45000, min: 720, inc: 800, d: 'Беспошлинная гавань — сердце морской торговли.' },
+];
+const islePort = n => { const nm = isleName(n); return TPORTS.some(p => p.n === nm) || /^Порт /.test(nm); };
+const devTrack = n => islePort(n) ? DEV_PORT : DEV_LAND;
+const devLvl = (h, n) => isleOf(h, n).dev || 0;
+const devInc = (h, n) => { const i = isleOf(h, n); return i.own && !i.lost ? devTrack(n)[i.dev || 0].inc : 0; };
+const supplyBases = h => islesOwned(h).filter(n => !islePort(n) && devLvl(h, n) >= 5 && !isleOf(h, n).lost).length;
+function devTick(h) {
+  const now = Date.now(); let ch = false;
+  islesOwned(h).forEach(n => { const i = isleOf(h, n); if (i.build && now >= i.build.end) { i.dev = i.build.lvl; i.build = null; ch = true; const L = devTrack(n)[i.dev]; news(h, `${L.ic} Остров «${isleName(n)}»: построено — ${L.n}! Доход острова +${L.inc} 💰/ч`); Snd.play('build'); } });
+  return ch;
+}
+function devPanel(h, n) {
+  const i = isleOf(h, n), T = devTrack(n), l = i.dev || 0, cur = T[l], nx = T[l + 1], now = Date.now();
+  let s = `<div class="glass hub-panel devp" style="width:min(560px,100%)"><div class="sec-t" style="margin-top:0">${islePort(n) ? '🏙 Развитие портового города' : '🏗 Застройка острова'}</div>
+    <div class="devrow">${T.map((x, k) => `<span class="${k <= l ? 'on' : ''}${k === l ? ' cur' : ''}" title="${x.n}">${x.ic}</span>`).join('<i></i>')}</div>
+    <div class="uprow"><span class="ic">${cur.ic}</span><span class="nm">${cur.n}<small>${l ? `доход от застройки +${cur.inc} 💰/ч` : islePort(n) ? 'город уже стоит — его можно развивать' : 'на острове пока никто не живёт'}</small></span></div>`;
+  if (i.lost) s += `<div class="warnline">Остров у пиратов — стройка невозможна, доход не идёт.</div>`;
+  else if (i.build) s += `<div class="uprow"><span class="ic">🏗</span><span class="nm">Строится: ${T[i.build.lvl].n}<small>готово через <b data-until="${i.build.end}">${fmtLeft(i.build.end - now)}</b></small></span>${spdBtn(h, 'devspd', i.build.end, n)}</div>`;
+  else if (nx) s += `<div class="uprow"><span class="ic">${nx.ic}</span><span class="nm">Построить: ${nx.n}<small>${nx.d}</small><small>доход ${l ? `${cur.inc} → ` : '+'}${nx.inc} 💰/ч · ⏱ ${fmtMin(nx.min)}</small></span><button class="btn small primary" data-dev="${n}" ${h.gold < nx.cost ? 'disabled' : ''}>${nx.cost} 💰</button></div>`;
+  else s += `<small class="muted">Остров застроен полностью. ${cur.d}</small>`;
+  s += `<small class="muted">Если пираты захватят остров, они разграбят его: застройка откатится на одну ступень.</small></div>`;
+  return s;
+}
 const isleIncome = h => islesOwned(h).reduce((a, n) => a + isleInc(h, n), 0);
 const islePower = (h, n) => isleGarr(h, n).reduce((a, s) => { const st = ownStats(h, s.id); return a + st.hp + 2 * st.dmg + 3 * st.armor; }, 0);
 const isleThreat = h => Math.round(12 + 2.5 * h.mission);
@@ -2543,7 +2584,7 @@ function awaySummary(h, ms, un) {
   h.seenT = Date.now(); h.newsNew = 0; saveProfiles();
 }
 function econTick(h) {
-  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (decTick(h)) ch = true; if (atlTick(h)) ch = true; if (deepTick(h)) ch = true; if (ammoTick(h)) ch = true;
+  const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (decTick(h)) ch = true; if (atlTick(h)) ch = true; if (deepTick(h)) ch = true; if (devTick(h)) ch = true; if (ammoTick(h)) ch = true;
   if (!h.econT) { h.econT = now; return true; }
   if (now - h.econT > 10 * 60000) h.away = Math.max(h.away || 0, now - h.econT);
   const dtH = Math.min(12, (now - h.econT) / 3600e3);
@@ -2556,14 +2597,14 @@ function econTick(h) {
     const unpaid = h.gold <= 0 && net < 0; if (unpaid !== !!h.unpaid) { h.unpaid = unpaid; ch = true; }
   }
   // пираты нападают на острова с гарнизонами
-  const guarded = islesOwned(h).filter(n => isleGarr(h, n).length && !isleOf(h, n).lost);
+  const guarded = islesOwned(h).filter(n => (isleGarr(h, n).length || devLvl(h, n) || isleOf(h, n).build) && !isleOf(h, n).lost);
   if (!h.isleNext) { h.isleNext = now + (4 + Math.random() * 4) * 3600e3; ch = true; }
   else if (now >= h.isleNext) {
     h.isleNext = now + (4 + Math.random() * 4) * 3600e3; ch = true;
     if (guarded.length) {
       const n = pick(guarded), pw = islePower(h, n), th = isleThreat(h), win = Math.random() < pw / (pw + th);
       if (win) { isleGarr(h, n).forEach(s => s.xp++); news(h, `🛡 Гарнизон острова «${isleName(n)}» отбил пиратов. Корабли получили опыт.`); }
-      else { isleOf(h, n).lost = true; const ln = []; isleGarr(h, n).forEach(s => { s.isle = 0; if (Math.random() < .5) loseShip(h, s.id, ln, isleName(n)); else s.hpLost = Math.round(shipMaxHp(h, s) * .7); }); news(h, `☠️ Пираты захватили остров «${isleName(n)}»! ${ln.length ? ln.join('. ') + '. ' : ''}Уцелевшие корабли вернулись в гавань тяжело повреждёнными. Отбейте остров на карте.`); }
+      else { isleOf(h, n).lost = true; { const I = isleOf(h, n); I.build = null; if (I.dev) { I.dev--; news(h, `🔥 Пираты разграбили застройку на острове «${isleName(n)}»: теперь там ${devTrack(n)[I.dev].n.toLowerCase()}`); } } const ln = []; isleGarr(h, n).forEach(s => { s.isle = 0; if (Math.random() < .5) loseShip(h, s.id, ln, isleName(n)); else s.hpLost = Math.round(shipMaxHp(h, s) * .7); }); news(h, `☠️ Пираты захватили остров «${isleName(n)}»! ${ln.length ? ln.join('. ') + '. ' : ''}Уцелевшие корабли вернулись в гавань тяжело повреждёнными. Отбейте остров на карте.`); }
     }
   }
   return ch;
@@ -3404,7 +3445,8 @@ const shipMaxHp = (h, s) => ownStats(h, s.id).hp;
 const shipHp = (h, s) => Math.max(1, shipMaxHp(h, s) - (s.hpLost || 0));
 function repairInfo(h, s) {
   const mx = shipMaxHp(h, s), frac = Math.min(1, (s.hpLost || 0) / mx), d = fL(h, 'dock');
-  return { frac, min: Math.max(1, Math.round(REP_MIN[s.type] * frac * (1 - .12 * d))), gold: Math.max(5, Math.round(HS[s.type].price * .35 * frac * (1 - .1 * d) * (bufOn(h, 'cheap') ? .5 : 1))) };
+  const sb = 1 - .1 * Math.min(3, supplyBases(h));
+  return { frac, min: Math.max(1, Math.round(REP_MIN[s.type] * frac * (1 - .12 * d) * sb)), gold: Math.max(5, Math.round(HS[s.type].price * .35 * frac * (1 - .1 * d) * sb * (bufOn(h, 'cheap') ? .5 : 1))) };
 }
 const repSlots = h => 1 + Math.floor(fL(h, 'dock') / 2) + perk(h, 'slip');
 const repairing = h => Object.values(h.ships).filter(s => s.repEnd);
@@ -5394,7 +5436,7 @@ function seaStage(h, sea, W) {
   S.isles.forEach((p, i) => {
     const st = isleOf(h, iKey(sea, i)), r = reps.find(x => x.isle === i), garr = st.own && !st.lost && isleGarr(h, iKey(sea, i)).length;
     const cls = r ? 'now rep' : st.lost ? 'done lost' : st.own ? 'done' + (garr ? ' garr' : '') : 'lock fog';
-    const ic = r ? (r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic) : st.lost ? '☠️' : garr ? '🚩' : st.own ? '✓' : '?';
+    const dv = st.own && !st.lost ? (st.dev || 0) : 0, ic = r ? (r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic) : st.lost ? '☠️' : dv ? devTrack(iKey(sea, i))[dv].ic : st.build ? '🏗' : garr ? '🚩' : st.own ? '✓' : '?';
     s += `<button class="mpin ${cls}" data-sp="${i}" style="${spc(p)}"><span>${ic}</span>${r ? `<em>${p.n}</em>` : ''}</button>`;
   });
   return s + '</div>';
@@ -5448,7 +5490,8 @@ function mapSheet(kind, n) {
     s += repCard(h, r, 'map');
   } else if (kind === 'isle') {
     const i = isleOf(h, n), g = isleGarr(h, n), pw = islePower(h, n), th = isleThreat(h), ch = pw ? Math.round(pw / (pw + th) * 100) : 0;
-    s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Ждите донесения разведки, чтобы отбить его.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : 'Под вашим флагом, но без гарнизона: дохода нет. Оставьте здесь до ' + GARR_MAX + ' кораблей.'}</small></div>`;
+    s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Ждите донесения разведки, чтобы отбить его.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : (i.dev || i.build ? `Под вашим флагом. Доход от застройки +${isleInc(h, n)} 💰/ч. ⚠️ Без гарнизона пираты возьмут остров при первом же набеге! ` : 'Под вашим флагом, но без гарнизона: дохода нет. ') + 'Оставьте здесь до ' + GARR_MAX + ' кораблей.'}</small></div>`;
+    s += devPanel(h, n);
     if (!i.lost) {
       const row = (x, btn) => `<div class="uprow" style="width:min(560px,100%)"><span class="ic" style="width:56px">${shipImg(x.type, 'row')}</span><span class="nm">${sName(x)} ${RANKS[rankOf(x.xp)].ic}<small>+${3 * HS[x.type].len} 💰/ч к доходу острова</small></span>${btn}</div>`;
       g.forEach(x => { s += row(x, `<button class="btn small" data-ug="${x.id}">Вернуть</button>`); });
@@ -5463,6 +5506,8 @@ function mapSheet(kind, n) {
   sh.querySelectorAll('[data-req]').forEach(b => b.onclick = () => { if (!urgentIntel(h)) return; renderMap(); mapSheet('reps'); });
   const re = () => { saveProfiles(); renderMap(); mapSheet('isle', n); };
   sh.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { const x = h.ships[b.dataset.g]; if (!x || isleGarr(h, n).length >= GARR_MAX) return; x.isle = n; h.squad = h.squad.filter(k => k !== x.id); Snd.play('place'); re(); });
+  sh.querySelectorAll('[data-dev]').forEach(b => b.onclick = () => { const I = isleOf(h, n), L = devTrack(n)[(I.dev || 0) + 1]; if (!L || I.build || I.lost || h.gold < L.cost) return; h.gold -= L.cost; I.build = { lvl: (I.dev || 0) + 1, end: Date.now() + L.min * 60000 }; Snd.play('build'); news(h, `🏗 Остров «${isleName(n)}»: началась стройка — ${L.n}`, true); re(); });
+  sh.querySelectorAll('[data-act="devspd"]').forEach(b => b.onclick = () => { const I = isleOf(h, n); if (!I.build) return; if (!payCred(h, credCost(I.build.end - Date.now()))) return; I.build.end = Date.now(); devTick(h); re(); });
   sh.querySelectorAll('[data-ug]').forEach(b => b.onclick = () => { const x = h.ships[b.dataset.ug]; if (!x) return; x.isle = 0; Snd.play('click'); re(); });
 }
 function urgentIntel(h) {
