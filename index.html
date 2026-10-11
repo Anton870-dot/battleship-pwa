@@ -2274,12 +2274,12 @@ function initYard() {
 const HS = {
   boat:       { name: 'Катер',    len: 1, price: 120,    hp: 6,  armor: 0, speed: 3, dmg: 2, range: 3, sight: 2, mar: 2,  slots: 1, desc: 'Быстрый и юркий. Слабая броня, зато три клетки за ход.' },
   destroyer:  { name: 'Эсминец',  len: 2, price: 300,  hp: 10, armor: 1, speed: 2, dmg: 3, range: 4, sight: 2, mar: 4,  slots: 1, desc: 'Надёжный универсал: крепче катера и бьёт дальше.' },
-  sub:        { name: 'Подлодка', len: 2, price: 500,  hp: 8,  armor: 0, speed: 2, dmg: 4, range: 4, sight: 2, mar: 2,  slots: 1, sub: true, desc: 'Невидима дальше 1 клетки, пока не стреляет. Мощный удар.' },
-  cruiser:    { name: 'Крейсер',  len: 3, price: 800,  hp: 14, armor: 2, speed: 2, dmg: 4, range: 5, sight: 3, mar: 6,  slots: 2, desc: 'Тяжёлая броня, хороший обзор, дальние орудия.' },
+  sub:        { name: 'Подлодка', len: 2, price: 500,  hp: 8,  armor: 0, speed: 2, dmg: 4, range: 4, sight: 2, mar: 2,  slots: 1, sub: true, desc: 'Невидима дальше 1 клетки, пока не стреляет. Пушек нет — бьёт только торпедами, зато сквозь броню.' },
+  cruiser:    { name: 'Крейсер',  len: 3, price: 800,  hp: 14, armor: 2, speed: 2, dmg: 4, range: 5, sight: 3, mar: 6,  slots: 2, desc: 'Тяжёлая броня, хороший обзор, дальние орудия. ☄️ Ракетная установка: бьёт далеко и сквозь броню (ракеты из Арсенала).' },
   battleship: { name: 'Линкор',   len: 4, price: 1400, hp: 22, armor: 3, speed: 1, dmg: 6, range: 6, sight: 3, mar: 10, slots: 3, desc: 'Плавучая крепость. Медленный, но сокрушительный.' },
-  sub2:       { name: 'Ударная подлодка', len: 2, price: 950, hp: 11, armor: 1, speed: 2, dmg: 5, range: 5, sight: 2, mar: 3, slots: 2, sub: true, need: 2, eqBase: { torp: true }, desc: 'Атомная охотница: крепче и дальнобойнее обычной подлодки. Торпедный аппарат — с завода.' },
-  sub3:       { name: 'Ракетоносец', len: 3, price: 1800, hp: 16, armor: 2, speed: 1, dmg: 6, range: 6, sight: 2, mar: 4, slots: 2, sub: true, need: 3, eqBase: { torp: true, salvo: true }, desc: 'Огромный подводный крейсер. Торпеды и ракетный залп — с завода. Медленный, но бьёт издалека и из-под воды.' },
-  subx:       { name: 'Подлодка будущего', len: 3, price: 4500, hp: 18, armor: 3, speed: 3, dmg: 6, range: 6, sight: 4, mar: 4, slots: 3, sub: true, need: 4, unique: true, future: true, eqBase: { torp: true }, desc: 'Пришла из будущего — такая есть только у вас и только одна. ⚡ Импульсная пушка бьёт сквозь всех врагов на линии без снарядов. 👻 Стелс-поле: не видна даже после выстрела. 🔋 Корпус сам чинится каждые 3 хода.' },
+  sub2:       { name: 'Ударная подлодка', len: 2, price: 950, hp: 11, armor: 1, speed: 2, dmg: 5, range: 5, sight: 2, mar: 3, slots: 2, sub: true, need: 2, eqBase: { torp: true }, desc: 'Атомная охотница: крепче и дальнобойнее обычной подлодки. Пушек нет: 🚀 торпеды и ☄️ ракеты.' },
+  sub3:       { name: 'Ракетоносец', len: 3, price: 1800, hp: 16, armor: 2, speed: 1, dmg: 6, range: 6, sight: 2, mar: 4, slots: 2, sub: true, need: 3, eqBase: { torp: true }, desc: 'Огромный подводный крейсер. Пушек нет: 🚀 торпеды и ☄️ ракеты. Медленный, но бьёт издалека и из-под воды.' },
+  subx:       { name: 'Подлодка будущего', len: 3, price: 4500, hp: 18, armor: 3, speed: 3, dmg: 6, range: 6, sight: 4, mar: 4, slots: 3, sub: true, need: 4, unique: true, future: true, eqBase: { torp: true }, desc: 'Пришла из будущего — такая есть только у вас и только одна. ⚡ Импульсная пушка бьёт сквозь всех врагов на линии без снарядов. 🚀 Торпеды и ☄️ ракеты. 👻 Стелс-поле: не видна даже после выстрела. 🔋 Корпус сам чинится каждые 3 хода.' },
   cargo:      { name: 'Грузовое судно', len: 3, price: 650, hp: 14, armor: 0, speed: 1, dmg: 1, range: 2, sight: 2, mar: 2, slots: 1, hauler: true, desc: 'Огромный трюм на 40 мест — в два с половиной раза больше, чем у крейсера. В бою почти беззащитно: водите его в караване под охраной боевых кораблей.' },
   atl_cargo:  { name: 'Грузовоз Атлантиса', len: 3, price: 1150, hp: 20, armor: 2, speed: 2, dmg: 3, range: 4, sight: 3, mar: 3, slots: 2, hauler: true, atl: 1, desc: 'Гордость торгового флота Атлантиса: трюм на 60 мест, крепкий корпус и собственные пушки. Может постоять за себя в караване.' },
   atl_dd:     { name: 'Эсминец Атлантиса', len: 2, price: 900, hp: 14, armor: 2, speed: 3, dmg: 4, range: 5, sight: 3, mar: 5, slots: 2, atl: 1, eqBase: { radar: true }, desc: 'Быстрый страж караванов Гильдии: крепче и быстрее обычного эсминца, бьёт дальше. Радар — с верфи. Трюм на 10 мест.' },
@@ -3466,9 +3466,17 @@ const AMMO = [
   { id: 'ap',    ic: '🔩', n: 'Бронебойные',  d: 'Пробивают броню и бьют на 1 сильнее.',                          batch: 6,  min: 25,  gold: 70 },
   { id: 'inc',   ic: '🔥', n: 'Зажигательные', d: 'Поджигают корабль: ещё по 2 урона 3 хода подряд.',             batch: 4,  min: 50,  gold: 110 },
   { id: 'heavy', ic: '💣', n: 'Сверхтяжёлые',  d: 'Двойной урон и осколки по соседним клеткам.',                  batch: 2,  min: 150, gold: 260 },
-  { id: 'torp',  ic: '🚀', n: 'Торпеды',      d: 'Для кораблей с торпедными аппаратами.',                         batch: 2,  min: 40,  gold: 90 },
+  { id: 'torp',  ic: '🚀', n: 'Торпеды',      d: 'Для подлодок и кораблей с торпедными аппаратами.',              batch: 2,  min: 40,  gold: 90 },
+  { id: 'msl',   ic: '☄️', n: 'Ракеты',       d: 'Для ракетоносцев: ударных подлодок, «Ракетоносца», подлодки будущего и крейсеров. Бьют далеко и очень больно.', batch: 2, min: 120, gold: 340 },
 ];
-const SHELLS = ['he', 'ap', 'inc', 'heavy'], AMMO_NEED = { gun: 1, salvo: 3, fire: 5, torp: 1 };
+const SHELLS = ['he', 'ap', 'inc', 'heavy'], AMMO_NEED = { gun: 1, salvo: 3, fire: 5, torp: 1, msl: 1 };
+const MSL_TYPES = ['sub2', 'sub3', 'subx', 'cruiser'];
+const ammoKey = id => id === 'torp' || id === 'msl' ? id : H.ammoSel;
+const isSubMe = u => HS[u.type].sub && u.side === 'me';
+const hasTorp = u => !!u.eq.torp || isSubMe(u);
+const hasMsl = u => u.side === 'me' && MSL_TYPES.includes(u.type);
+const mslRange = u => Math.min(11, u.st.range + 4);
+const mslDmg = u => Math.round(effDmg(u) * 2) + 2;
 const ammoOf = id => AMMO.find(a => a.id === id);
 const arsLines = h => 1 + Math.floor(fL(h, 'workshop') / 2);
 const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'workshop'))));
@@ -3477,7 +3485,8 @@ const SHIP_MIN = { boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 18
 const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock'))));
 const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv)).length;
 function ammoData(h) {
-  if (!h.ammo) h.ammo = { he: 40, ap: 0, inc: 0, heavy: 0, torp: 4 };
+  if (!h.ammo) h.ammo = { he: 40, ap: 0, inc: 0, heavy: 0, torp: 4, msl: 0 };
+  if (h.ammo.msl == null) h.ammo.msl = 0;
   h.ammoQ ||= [];
   return h.ammo;
 }
@@ -4174,6 +4183,7 @@ function hHighlights() {
   else if (H.mode === 'gun' || H.mode === 'salvo' || H.mode === 'fire') {
     for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) { const d = cheb(me, { r, c }), k = hidx(r, c); if (d >= 1 && d <= me.st.range && (!H.land[k] || H.foes.some(f => f.hp > 0 && f.r === r && f.c === c && foeVisible(f)))) s.add(k); }
   }
+  else if (H.mode === 'msl') { const R = mslRange(me); for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) { const d = cheb(me, { r, c }); if (d >= 1 && d <= R) s.add(hidx(r, c)); } }
   else if (H.mode === 'torp' || H.mode === 'pulse') { for (const [dr, dc] of DIR8) { let y = me.r, x = me.c; for (let i = 0; i < me.st.range + 2; i++) { y += dr; x += dc; if (!hin(y, x) || H.land[hidx(y, x)]) break; s.add(hidx(y, x)); } } }
   else if (H.mode === 'board') boardTargets(me).forEach(t => s.add(hidx(t.r, t.c)));
   else if (H.mode === 'mine') for (const [dr, dc] of DIR8) { const y = me.r + dr, x = me.c + dc; if (hin(y, x) && !H.land[hidx(y, x)] && !unitAt(y, x) && !H.mines.some(m => m.r === y && m.c === x)) s.add(hidx(y, x)); }
@@ -4245,12 +4255,13 @@ function renderHunt() {
   // actions
   const acts = [
     { id: 'move', ic: '🧭', nm: 'Плыть' },
-    { id: 'gun', ic: '🎯', nm: 'Огонь' },
-    me.sid && !me.ally && { id: 'ammo', ic: ammoOf(H.ammoSel).ic, nm: `×${H.ammo[H.ammoSel] || 0}` },
-    me.eq.salvo && { id: 'salvo', ic: '💥', nm: 'Залп' },
+    !isSubMe(me) && { id: 'gun', ic: '🎯', nm: 'Огонь' },
+    me.sid && !me.ally && !isSubMe(me) && { id: 'ammo', ic: ammoOf(H.ammoSel).ic, nm: `×${H.ammo[H.ammoSel] || 0}` },
+    me.eq.salvo && !isSubMe(me) && { id: 'salvo', ic: '💥', nm: 'Залп' },
     me.st.pulse && { id: 'pulse', ic: '⚡', nm: 'Импульс' },
-    me.eq.torp && { id: 'torp', ic: '🚀', nm: 'Торпеда' },
-    me.eq.fire && { id: 'fire', ic: '🔥', nm: 'Пламя' },
+    hasTorp(me) && { id: 'torp', ic: '🚀', nm: me.sid && !me.ally ? `Торпеда ×${H.ammo.torp || 0}` : 'Торпеда' },
+    hasMsl(me) && { id: 'msl', ic: '☄️', nm: me.sid && !me.ally ? `Ракета ×${H.ammo.msl || 0}` : 'Ракета' },
+    me.eq.fire && !isSubMe(me) && { id: 'fire', ic: '🔥', nm: 'Пламя' },
     me.eq.radar && { id: 'radar', ic: '📡', nm: 'Радар' },
     me.eq.smoke && { id: 'smoke', ic: '🌫️', nm: 'Дым' },
     me.marines > 0 && { id: 'board', ic: '⚔️', nm: 'Абордаж' },
@@ -4262,7 +4273,7 @@ function renderHunt() {
   acts.forEach(a => {
     const cd = me.cd[a.id] || 0;
     const b = document.createElement('button'); b.className = 'hact glass' + (H.mode === a.id ? ' on' : '');
-    const noAmmo = me.sid && !me.ally && AMMO_NEED[a.id] && (H.ammo[a.id === 'torp' ? 'torp' : H.ammoSel] || 0) < AMMO_NEED[a.id];
+    const noAmmo = me.sid && !me.ally && AMMO_NEED[a.id] && (H.ammo[ammoKey(a.id)] || 0) < AMMO_NEED[a.id];
     b.disabled = H.busy || H.phase !== 'play' || cd > 0 || (a.id === 'board' && !boardTargets(me).length) || (a.id === 'ammo' && !SHELLS.some(k => H.ammo[k] > 0));
     if (noAmmo) b.classList.add('noammo');
     b.innerHTML = `<span>${a.ic}</span>${a.nm}${cd ? `<em class="cd">${cd}</em>` : ''}`;
@@ -4278,12 +4289,12 @@ function hAction(id) {
   if (id === 'hold') { u.movedLast = false; hMsg(u === H.me ? 'Вы затаились: двигатели заглушены, вас не слышно' : `${shipName(u)} затаился`, 'info'); return hUnitDone(); }
   if (id === 'end') { myCmd().forEach(x => { if (!H.acted.has(x)) { x.movedLast = false; H.acted.add(x); } }); hMsg('Остальные корабли затаились', 'info'); return hEndPlayerTurn(); }
   if (id === 'ammo') { const list = SHELLS.filter(k => (H.ammo[k] || 0) > 0); if (!list.length) { hMsg('Снарядов нет! Закажите их в Арсенале Мастерской', 'hit'); return; } H.ammoSel = list[(list.indexOf(H.ammoSel) + 1) % list.length]; const a = ammoOf(H.ammoSel); hMsg(`${a.ic} Заряжены ${a.n.toLowerCase()}: ${a.d}`, 'info'); return renderHunt(); }
-  if (AMMO_NEED[id] && u.sid && !u.ally) { const k = id === 'torp' ? 'torp' : H.ammoSel, have = H.ammo[k] || 0; if (have < AMMO_NEED[id]) { hMsg(id === 'torp' ? '🚀 Торпед нет — закажите их в Арсенале' : `Не хватает снарядов: нужно ${AMMO_NEED[id]}, есть ${have}. Смените тип снарядов или закажите в Арсенале`, 'hit'); return; } }
+  if (AMMO_NEED[id] && u.sid && !u.ally) { const k = ammoKey(id), have = H.ammo[k] || 0; if (have < AMMO_NEED[id]) { hMsg(id === 'torp' ? '🚀 Торпед нет — закажите их в Арсенале' : id === 'msl' ? '☄️ Ракет нет — закажите их в Арсенале Мастерской' : `Не хватает снарядов: нужно ${AMMO_NEED[id]}, есть ${have}. Смените тип снарядов или закажите в Арсенале`, 'hit'); return; } }
   if (id === 'radar') return (async () => { H.busy = true; const res = await hFire(u, 'radar'); hMsg(res.found ? `📡 Радар засёк врагов: ${res.found}` : '📡 В радиусе 4 клеток пусто', 'info'); hUnitDone(); })();
   if (id === 'smoke') { u.smoke = 2; u.cd.smoke = 5; u.movedLast = false; hfx(u.r, u.c, 'ping'); Snd.play('plane'); hMsg(`🌫️ ${u === H.me ? 'Вы скрылись' : shipName(u) + ' скрылся'} в дымовой завесе на 2 хода`, 'info'); return hUnitDone(); }
   H.mode = id;
   if (id === 'board') { const ts = boardTargets(u); hMsg(`⚔️ Абордаж (🪖${u.marines}): ` + ts.map(t => `${shipName(t)} — ${Math.round(boardChance(u, t) * 100)}%`).join(', '), 'info'); }
-  else hMsg({ move: 'Выберите клетку, куда плыть', gun: 'Выберите клетку для выстрела', salvo: 'Выберите центр залпа', fire: 'Выберите центр огненного залпа 3×3', torp: 'Выберите направление торпеды', pulse: '⚡ Выберите направление: импульс пробьёт всех врагов на линии, броня не спасёт', mine: 'Выберите соседнюю клетку для мины' }[id], 'info');
+  else hMsg({ move: 'Выберите клетку, куда плыть', gun: 'Выберите клетку для выстрела', salvo: 'Выберите центр залпа', fire: 'Выберите центр огненного залпа 3×3', torp: 'Выберите направление торпеды', msl: `☄️ Ракета: выберите цель в радиусе ${mslRange(u)} клеток (урон ${mslDmg(u)}, сквозь броню)`, pulse: '⚡ Выберите направление: импульс пробьёт всех врагов на линии, броня не спасёт', mine: 'Выберите соседнюю клетку для мины' }[id], 'info');
   renderHunt();
 }
 function canReinf() {
@@ -4402,16 +4413,17 @@ async function hFire(u, kind, r, c) {
   if (isMe) H.foes.forEach(f => { if (f.hp > 0) f.known = { r: u.r, c: u.c, exact: !u.st.cloak, age: 0 }; });
   else { H.flashes.push({ r: u.r, c: u.c, age: 0 }); if (H.weather === 'night') u.revealed = Math.max(u.revealed, 1); }
   if (!u.st.fort) u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI;
-  Snd.play(kind === 'torp' ? 'plane' : kind === 'pulse' ? 'radar' : 'shot'); renderHunt();
+  Snd.play(kind === 'torp' || kind === 'msl' ? 'plane' : kind === 'pulse' ? 'radar' : 'shot'); renderHunt();
   if (kind === 'gun' || kind === 'salvo' || kind === 'fire') { const sp = H.els[u.id] && H.els[u.id].querySelector('.spr > *'); if (sp) { sp.classList.remove('recoil'); void sp.offsetWidth; sp.classList.add('recoil'); } }
   let gy = r, gx = c, scatterHit = false;
   if (kind === 'gun' && Math.random() < u.st.scatter + (1 - crewEff(u)) * .3) { const [dr, dc] = pick(DIR8); if (hin(r + dr, c + dc)) { gy = r + dr; gx = c + dc; scatterHit = true; } }
-  if (BFX.lo && kind === 'gun') await BFX.shot(u, gy, gx);
+  if (kind === 'msl' && Math.random() < .1) { const [dr, dc] = pick(DIR8); if (hin(r + dr, c + dc)) { gy = r + dr; gx = c + dc; scatterHit = true; } }
+  if (BFX.lo && (kind === 'gun' || kind === 'msl')) await BFX.shot(u, gy, gx);
   else if (BFX.lo && (kind === 'salvo' || kind === 'fire')) { const cl = kind === 'salvo' ? [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]] : [[0, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]]; await Promise.all(cl.filter(([a, b]) => hin(r + a, c + b)).map(([a, b], i) => BFX.shot(u, r + a, c + b, i * 70))); }
   else await sleep(260);
   let hits = [], sunk = [], scattered = false; const hitUnits = new Set(); H.casNow = [];
-  const usesAmmo = isMe && !u.auto && !u.ally && !!u.sid && kind !== 'pulse', sh = usesAmmo && kind !== 'torp' ? H.ammoSel : 'he';
-  if (usesAmmo) { const k = kind === 'torp' ? 'torp' : sh, n = AMMO_NEED[kind] || 1; H.ammo[k] = Math.max(0, (H.ammo[k] || 0) - n); H.used[k] = (H.used[k] || 0) + n; }
+  const usesAmmo = isMe && !u.auto && !u.ally && !!u.sid && kind !== 'pulse', sh = usesAmmo && kind !== 'torp' && kind !== 'msl' ? H.ammoSel : 'he';
+  if (usesAmmo) { const k = kind === 'torp' || kind === 'msl' ? kind : sh, n = AMMO_NEED[kind] || 1; H.ammo[k] = Math.max(0, (H.ammo[k] || 0) - n); H.used[k] = (H.used[k] || 0) + n; }
   const shAmt = a => sh === 'heavy' ? a * 2 : sh === 'ap' ? a + 1 : a, shIgn = sh === 'ap';
   const strike = (y, x, amt, ign) => {
     const t = enemies.find(e => e.hp > 0 && !e.gone && e.r === y && e.c === x);
@@ -4420,11 +4432,14 @@ async function hFire(u, kind, r, c) {
     const d = hDamage(t, amt, ign); hits.push(d); hitUnits.add(t); hfx(y, x, 'boom');
     if (isMe) t.revealed = Math.max(t.revealed, 2);
     if (t.hp <= 0) { sunk.push(t); u.kills++; if (BFX.lo) BFX.sink(t); }
-    else if (sh === 'inc' && kind !== 'torp') t.burn = 3;
+    else if (sh === 'inc' && kind !== 'torp' && kind !== 'msl') t.burn = 3;
     return t;
   };
   const area = async (cells, amt) => { for (const [dr, dc] of cells) { if (hin(r + dr, c + dc)) { strike(r + dr, c + dc, shAmt(amt), shIgn); renderHunt(); await sleep(70); } } };
-  if (kind === 'gun') {
+  if (kind === 'msl') {
+    u.cd.msl = 2; scattered = scatterHit; strike(gy, gx, mslDmg(u), true);
+    for (const [dr, dc] of DIR8) { const y = gy + dr, x = gx + dc; if (hin(y, x) && enemies.some(e => e.hp > 0 && !e.gone && e.r === y && e.c === x)) strike(y, x, 1, true); }
+  } else if (kind === 'gun') {
     scattered = scatterHit; strike(gy, gx, shAmt(effDmg(u)), shIgn);
     if (sh === 'heavy') for (const [dr, dc] of DIR8) { const y = gy + dr, x = gx + dc; if (hin(y, x) && enemies.some(e => e.hp > 0 && !e.gone && e.r === y && e.c === x)) strike(y, x, 1, true); }
   } else if (kind === 'salvo') {
@@ -4440,7 +4455,7 @@ async function hFire(u, kind, r, c) {
     y = u.r; x = u.c;
     while (y !== ey || x !== ex) { y += dr; x += dc; if (enemies.some(e => e.hp > 0 && !e.gone && e.r === y && e.c === x)) { strike(y, x, effDmg(u) + 1, true); renderHunt(); await sleep(90); } }
   } else if (kind === 'torp') {
-    u.cd.torp = u.fastTorp ? 2 : 3;
+    u.cd.torp = u.fastTorp || isSubMe(u) ? 2 : 3;
     const dr = Math.sign(r - u.r), dc = Math.sign(c - u.c); let y = u.r, x = u.c;
     for (let i = 0; i < u.st.range + 2; i++) {
       y += dr; x += dc;
@@ -4457,7 +4472,7 @@ async function hFire(u, kind, r, c) {
   let text, cls;
   if (sunk.length) { text = isMe ? `💥 ${sunk.map(s => s.name || HS[s.type].name).join(', ')} ${sunk.some(s => HS[s.type].fort) ? 'разрушен' : 'потоплен'}!` : sunk.includes(H.me) ? 'Ваш флагман потоплен!' : `${sunk.map(shipName).join(', ')} потоплен!`; cls = 'sunk'; }
   else if (hits.length) { text = `${who}: попадание! −${total} ❤`; cls = 'hit'; }
-  else { text = `${who}: мимо${scattered ? ' (снаряд отклонился)' : ''}`; cls = 'miss'; }
+  else { text = `${who}: мимо${scattered ? (kind === 'msl' ? ' (ракету сбили помехи)' : ' (снаряд отклонился)') : ''}`; cls = 'miss'; }
   if (H.casNow && H.casNow.length) text += ' · ' + H.casNow.join(' · ');
   return { text, cls, hits: hits.length };
 }
