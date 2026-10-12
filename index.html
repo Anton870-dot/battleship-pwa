@@ -449,6 +449,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .seatab.deeptab{background:linear-gradient(135deg,rgba(10,70,100,.95),rgba(5,30,60,.95));border-color:rgba(120,230,255,.7);color:#fff}
 .devrow{display:flex;align-items:center;justify-content:center;gap:0;margin:4px 0 8px;flex-wrap:nowrap}.devrow span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.2);filter:grayscale(1);opacity:.55}
 .devrow span.on{filter:none;opacity:1;border-color:rgba(255,207,74,.7)}.devrow span.cur{box-shadow:0 0 12px rgba(255,207,74,.7);border-color:#ffcf4a}.devrow i{flex:1;max-width:22px;height:2px;background:rgba(255,255,255,.25)}
+.isled{display:block;font-size:13.5px;line-height:1.4;color:#e6f4ff;font-style:italic}.islef{display:flex;flex-wrap:wrap;gap:6px}.islef span{padding:5px 9px;border-radius:10px;background:rgba(0,0,0,.22);font-size:12.5px}
 .bh-hall{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .bh-cap{position:absolute;left:12px;bottom:10px;z-index:3;background:rgba(0,20,50,.75);border:1px solid rgba(255,207,74,.6);border-radius:12px;padding:6px 10px;line-height:1.2}
 .bh-cap b{display:block;font-size:15px;color:#ffe08a}.bh-cap small{font-size:11px;color:var(--muted)}
@@ -5196,8 +5197,8 @@ function renderFort(center) {
 }
 function openBld(id) { HB.bld = id; HB.pick = false; HB.cat = null; const h = hdata(curProfile()); if (!h.ships[HB.sel]) HB.sel = h.active; Snd.play('click'); show('scr-hub'); document.body.classList.remove('fort-on'); renderHub(); }
 function refreshCur() { if ($('#scr-fort').classList.contains('active')) renderFort(); else renderHub(); }
-const BLD_HALL = { citadel: 'fort_hall.webp', dock: 'dock_hall.webp', treasury: 'treasury_hall.webp', battery: 'battery_hall.webp', academy: 'academy_hall.webp', walls: 'walls_hall.webp', lighthouse: 'lighthouse_hall.webp', market: 'market_hall.webp', barracks: 'barracks_hall.webp' };
-const BLD_POS = { lighthouse: '22% 50%', barracks: '35% 50%' };
+const BLD_HALL = { citadel: 'fort_hall.webp', dock: 'dock_hall.webp', treasury: 'treasury_hall.webp', battery: 'battery_hall.webp', academy: 'academy_hall.webp', walls: 'walls_hall.webp', lighthouse: 'lighthouse_hall.webp', market: 'market_hall.webp', barracks: 'barracks_hall.webp', workshop: 'workshop_hall.webp' };
+const BLD_POS = { lighthouse: '22% 50%', barracks: '35% 50%', workshop: '30% 50%' };
 function bldHero(h, id) {
   const f = fdata(h), p = FPL[id], l = f.b[id] || 0, bld = f.build && f.build.id === id, b = FB.find(x => x.id === id), now = Date.now();
   const S = id === 'walls' ? 2.6 : 4.2, Hs = S / FASPECT, Hc = 11 / 16;
@@ -5465,17 +5466,37 @@ function renderMap(center) {
   $('#mg-tabs').querySelector('[data-deep]').onclick = () => { Snd.play('click'); showDeep(); };
   $('#mg-tabs').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { const i = +b.dataset.tab; if (i >= E.open) { Snd.play('bad'); toast('🔒 Путь туда откроется, когда разобьёте пиратскую базу в предыдущем море'); return; } Snd.play('click'); E.sea = i; saveProfiles(); renderMap(true); });
 }
+const ISLE_INFO = {
+  'Остров Рассвета': { d: 'Ваш дом. Первым в Лазурном море встречает солнце — отсюда и имя.', f: ['🏰 крепость и цитадель', '⚓ гавань вашего флота', '🌅 смотровая площадка над морем'] },
+  'Чёрный Зуб': { d: 'Чёрная скала-клык, торчащая из воды. Логово пиратов Лазурного моря — туман вокруг не рассеивается даже в полдень.', f: ['☠️ пиратская база', '🏴‍☠️ причалы корсаров', '💰 склад награбленного', '⛓ яма для пленников'] },
+  'Зелёный Венец': { d: 'Холмы в шапке джунглей и водопад, что падает прямо в лагуну. Пресная вода здесь — лучшая во всём море.', f: ['💧 водопад с пресной водой', '🌴 густые джунгли', '🏚 руины старой миссии', '🦜 стаи попугаев'] },
+  'Белый Утёс': { d: 'Меловые скалы видно за двадцать миль: по ним штурманы сверяют курс. Ветер здесь не стихает никогда.', f: ['🗼 сигнальная башня', '🐦 гнездовья альбатросов', '🪨 меловые пещеры', '🌬 вечный ветер'] },
+  'Песчанка': { d: 'Плоский остров из белого песка. В отлив по косе можно дойти до соседней отмели пешком.', f: ['🐢 пляжи, где черепахи откладывают яйца', '🏖 песчаная коса', '⚓ удобная якорная стоянка', '🐚 ракушечные отмели'] },
+  'Порт Лазурный': { d: 'Шумный вольный порт: купцы, таверны и самый честный рынок Лазурного моря. Здесь знают всё и про всех.', f: ['⚖️ торговый рынок', '🍺 таверна «Синий якорь»', '🚢 верфь торговых судов', '📜 контора купеческой гильдии'] },
+  'Бухта Рыбаков': { d: 'Тихая бухта с деревянными пирсами. Лучший копчёный тунец в округе — пираты и те приплывают за ним.', f: ['🐟 рыбные промыслы', '🛶 лодочные сараи', '🏠 деревушка рыбаков', '🔥 коптильни'] },
+  'Черепаший': { d: 'Остров похож на огромный панцирь. Старики клянутся, что под ним спит морская черепаха-великан.', f: ['🐢 гнёзда гигантских черепах', '🗿 древний каменный идол', '🕳 подводный грот', '🌿 целебные травы'] },
+  'Пальмовый': { d: 'Кокосовые рощи и тёплые лагуны — любимое место отдыха моряков. Отставной боцман держит тут хижину-бар.', f: ['🥥 кокосовые рощи', '🍹 хижина отставного боцмана', '🐠 коралловый риф', '🏝 лагуна для купания'] },
+  'Скала Чаек': { d: 'Одинокая скала посреди моря, вечно облепленная чайками. Вокруг — коварные рифы, а в расщелинах, говорят, прячут контрабанду.', f: ['🪨 опасные рифы', '🕯 развалины старого маяка', '🐦 тысячи чаек', '💎 тайники контрабандистов'] },
+};
+const isleInfo = nm => ISLE_INFO[nm];
+function isleInfoHtml(h, nm, key) {
+  const I = isleInfo(nm); if (!I) return '';
+  let f = [...I.f];
+  if (key) { const st = isleOf(h, key), g = isleGarr(h, key); if (st.own && !st.lost) { const L = devTrack(key)[st.dev || 0]; if (st.dev) f.unshift(`${L.ic} ${L.n.toLowerCase()} — ваша застройка`); if (g.length) f.unshift(`🚩 гарнизон: ${g.map(x => x.name).join(', ')}`); } if (st.lost) f.unshift('☠️ сейчас в руках пиратов'); }
+  return `<div class="glass hub-panel isleinfo" style="width:min(560px,100%)"><small class="isled">${I.d}</small><div class="sec-t">🔎 Что есть на острове</div><div class="islef">${f.map(x => `<span>${x}</span>`).join('')}</div></div>`;
+}
 function mapTap(k) {
   const h = hdata(curProfile()), E = h.exp, sea = E.sea || 0, S = SEAS[sea];
-  if (k === 'base') { Snd.play('click'); if (sea === 0) return showFort(); toast(`🏰 ${S.base.n} — ваша передовая база в этом море`); return; }
+  if (k === 'base') { Snd.play('click'); if (sea === 0) return mapSheet('info', 'base', '🏰 Ваша крепость. Загляните в неё — там строятся здания и собирается флот.'); toast(`🏰 ${S.base.n} — ваша передовая база в этом море`); return; }
   const i = +k, r = E.reports.find(x => x.sea === sea && x.isle === i);
   if (r) { Snd.play('click'); return mapSheet('rep', r.id); }
-  if (i === -1) { toast(E.cleared.includes(sea) ? `🏳️ ${S.pir.n}: пиратская база разбита` : seaOwn(h, sea) >= SEA_NEED ? '☠️ Логово пиратов разведано — ждите донесения о времени атаки' : `☠️ ${S.pir.n}. Захватите ${SEA_NEED} островов, чтобы разведка нашла подходы`); return; }
+  if (i === -1) { const t = E.cleared.includes(sea) ? `🏳️ ${S.pir.n}: пиратская база разбита` : seaOwn(h, sea) >= SEA_NEED ? '☠️ Логово пиратов разведано — ждите донесения о времени атаки' : `☠️ ${S.pir.n}. Захватите ${SEA_NEED} островов, чтобы разведка нашла подходы`; if (isleInfo(S.pir.n)) { Snd.play('click'); return mapSheet('info', 'pir', t); } toast(t); return; }
   const st = isleOf(h, iKey(sea, i));
   if (st.own) { Snd.play('click'); return mapSheet('isle', iKey(sea, i)); }
+  if (isleInfo(S.isles[i].n)) { Snd.play('click'); return mapSheet('info', iKey(sea, i), '❔ Остров не ваш. Когда разведка пришлёт донесение о нём, его можно будет захватить.'); }
   Snd.play('bad'); toast(`❔ ${S.isles[i].n}: разведка пока молчит об этом острове`);
 }
-function mapSheet(kind, n) {
+function mapSheet(kind, n, note) {
   const h = hdata(curProfile()), E = expData(h), sh = $('#msheet');
   let s = `<button class="iconbtn msx" data-mx aria-label="Закрыть">✕</button>`;
   if (kind === 'reps') {
@@ -5489,10 +5510,15 @@ function mapSheet(kind, n) {
     s += `<div class="mst"><b>${repTitle(r)}</b><small>${repPlace(r)} · ${SEAS[r.sea].n}</small></div>`;
     s += `<div class="glass hub-panel mfleet"><div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
     s += repCard(h, r, 'map');
+    s += isleInfoHtml(h, r.isle < 0 ? SEAS[r.sea].pir.n : SEAS[r.sea].isles[r.isle].n, r.isle < 0 ? null : iKey(r.sea, r.isle));
+  } else if (kind === 'info') {
+    const S = SEAS[E.sea || 0], nm = n === 'pir' ? S.pir.n : n === 'base' ? S.base.n : isleName(n);
+    s += `<div class="mst"><b>${n === 'pir' ? '☠️' : n === 'base' ? '🏰' : '🏝'} ${nm}</b><small>${note || ''}</small></div>` + isleInfoHtml(h, nm, n.includes(':') ? n : null);
+    if (n === 'base') s += `<button class="btn primary" data-fortgo style="width:min(560px,100%)">🏰 В крепость</button>`;
   } else if (kind === 'isle') {
     const i = isleOf(h, n), g = isleGarr(h, n), pw = islePower(h, n), th = isleThreat(h), ch = pw ? Math.round(pw / (pw + th) * 100) : 0;
     s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Ждите донесения разведки, чтобы отбить его.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : (i.dev || i.build ? `Под вашим флагом. Доход от застройки +${isleInc(h, n)} 💰/ч. ⚠️ Без гарнизона пираты возьмут остров при первом же набеге! ` : 'Под вашим флагом, но без гарнизона: дохода нет. ') + 'Оставьте здесь до ' + GARR_MAX + ' кораблей.'}</small></div>`;
-    s += devPanel(h, n);
+    s += isleInfoHtml(h, isleName(n), n) + devPanel(h, n);
     if (!i.lost) {
       const row = (x, btn) => `<div class="uprow" style="width:min(560px,100%)"><span class="ic" style="width:56px">${shipImg(x.type, 'row')}</span><span class="nm">${sName(x)} ${RANKS[rankOf(x.xp)].ic}<small>+${3 * HS[x.type].len} 💰/ч к доходу острова</small></span>${btn}</div>`;
       g.forEach(x => { s += row(x, `<button class="btn small" data-ug="${x.id}">Вернуть</button>`); });
@@ -5502,6 +5528,7 @@ function mapSheet(kind, n) {
   }
   sh.innerHTML = s; sh.hidden = false; sh.scrollTop = 0;
   sh.querySelector('[data-mx]').onclick = () => { Snd.play('click'); sh.hidden = true; };
+  sh.querySelectorAll('[data-fortgo]').forEach(b => b.onclick = () => { sh.hidden = true; showFort(); });
   sh.querySelectorAll('[data-rgo]').forEach(b => b.onclick = () => { sh.hidden = true; runReport(b.dataset.rgo); });
   sh.querySelectorAll('[data-rmap]').forEach(b => b.onclick = () => { const r = E.reports.find(x => x.id === b.dataset.rmap); if (!r) return; E.sea = r.sea; renderMap(); mapSheet('rep', r.id); });
   sh.querySelectorAll('[data-req]').forEach(b => b.onclick = () => { if (!urgentIntel(h)) return; renderMap(); mapSheet('reps'); });
