@@ -431,6 +431,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .dppin.job b{border-color:#ffcf4a;background:radial-gradient(circle at 50% 35%,rgba(120,100,40,.95),rgba(50,40,10,.95));animation:none}
 .dppin.job.ready b{animation:pulse 1.2s infinite;border-color:#7dffb0}
 .dppin.threat b{background:radial-gradient(circle at 50% 35%,#ff6b57,#7a120c);border-color:#ffd0c8;box-shadow:0 0 22px rgba(255,80,60,.8);animation:pulse 1s infinite}.dppin.threat span{background:rgba(110,10,5,.9)}
+[hidden]{display:none!important}
 .dpdlg{position:absolute;left:8px;right:8px;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 4px);z-index:8;display:flex;align-items:flex-end;gap:0;cursor:pointer;max-width:620px;margin:0 auto;animation:dlgin .35s ease-out}
 @keyframes dlgin{from{transform:translateY(30px);opacity:0}}
 .dpdlg img{width:118px;height:118px;flex:none;object-fit:cover;margin-right:-14px;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))}
@@ -2760,7 +2761,7 @@ function tradePanel(h) {
     <small class="muted">Покупайте товар здесь, а выгоднее продавайте в портах других морей — караваном. Цены меняются каждые 3 часа: обновятся через <b data-until="${next}">${fmtLeft(next - now)}</b>.</small>`;
   TGOODS.forEach(g => {
     const st = T.stock[g.id], b = trBuy(h, g.id), sl = trSellHome(g.id);
-    s += `<div class="tphrow"><div class="tphn"><span class="ic">${g.ic}</span><b>${g.n}</b><small>на складе ${st}${st && T.cost[g.id] ? ` · куплено по ~${T.cost[g.id]}` : ''}</small><small>купить ${b} · продать ${sl} 💰</small>${(() => { let bp = -1, bv = 0; open.forEach(pi => { const v = trPrice(pi, g.id); if (v > bv) { bv = v; bp = pi; } }); if (bp < 0) return ''; const m = Math.round((bv - b) / b * 100); return m > 0 ? `<small class="trgood">📈 выгоднее всего везти в «${TPORTS[bp].n}»: +${m}%</small>` : `<small class="trbad">📉 сейчас везти невыгодно — лучше подождать</small>`; })()}</div>
+    s += `<div class="trrow"><div class="trn"><span class="ic">${g.ic}</span><b>${g.n}</b><small>на складе ${st}${st && T.cost[g.id] ? ` · куплено по ~${T.cost[g.id]}` : ''}</small><small>купить ${b} · продать ${sl} 💰</small>${(() => { let bp = -1, bv = 0; open.forEach(pi => { const v = trPrice(pi, g.id); if (v > bv) { bv = v; bp = pi; } }); if (bp < 0) return ''; const m = Math.round((bv - b) / b * 100); return m > 0 ? `<small class="trgood">📈 выгоднее всего везти в «${TPORTS[bp].n}»: +${m}%</small>` : `<small class="trbad">📉 сейчас везти невыгодно — лучше подождать</small>`; })()}</div>
       <div class="trb"><button class="btn small primary" data-act="trbuy" data-id="${g.id}:1" ${h.gold < b || used >= cap ? 'disabled' : ''}>+1</button><button class="btn small primary" data-act="trbuy" data-id="${g.id}:5" ${h.gold < b * 5 || used + 5 > cap ? 'disabled' : ''}>+5 · ${b * 5}</button><button class="btn small" data-act="trsell" data-id="${g.id}:1" ${st ? '' : 'disabled'}>−1</button><button class="btn small" data-act="trsell" data-id="${g.id}:all" ${st ? '' : 'disabled'}>Продать все</button>${g.id === 'shells' ? `<button class="btn small" data-act="trars" ${st ? '' : 'disabled'} title="1 ящик = ${SHELL_BOX} обычных снарядов">→ Арсенал</button>` : ''}</div></div>`;
   });
   s += `</div>`;
