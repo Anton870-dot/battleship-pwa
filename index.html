@@ -2459,7 +2459,7 @@ function checkAch(p, ids) {
 }
 
 /* ---------- Флот без ограничений: корабли-экземпляры, офицеры, острова ---------- */
-const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3}, OFF_UPK = 1, GARR_MAX = 3;
+const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3}, OFF_UPK = 1, GARR_MAX = 999;
 const SHIP_POOL = {
   boat: ['Стриж', 'Чайка', 'Вьюн', 'Ласточка', 'Кречет', 'Сокол', 'Ястреб', 'Баклан', 'Бриз', 'Шквал', 'Пчела', 'Вихрь'],
   destroyer: ['Стремительный', 'Грозный', 'Бесстрашный', 'Быстрый', 'Резвый', 'Смелый', 'Верный', 'Лихой', 'Дерзкий', 'Громкий'],
@@ -3758,7 +3758,7 @@ const fmtAgo = t => { const m = Math.round((Date.now() - t) / 60000); return m <
 function islesPanel(h) {
   const own = islesOwned(h);
   let s = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏝 Ваши острова · ${own.length}</div>
-    <small class="muted">Каждый пройденный остров — ваш. Оставьте на нём до ${GARR_MAX} кораблей: гарнизон приносит золото, но пираты время от времени проверяют его на прочность (сейчас их сила ≈ ${isleThreat(h)}). Слабый гарнизон разобьют, и остров придётся отбивать.</small>`;
+    <small class="muted">Каждый пройденный остров — ваш. Оставьте на нём сколько угодно кораблей: гарнизон приносит золото, но пираты время от времени проверяют его на прочность (сейчас их сила ≈ ${isleThreat(h)}). Слабый гарнизон разобьют, и остров придётся отбивать.</small>`;
   if (!own.length) s += `<small class="muted">Пока нет ни одного — пройдите первую миссию.</small>`;
   own.slice().reverse().forEach(n => {
     const i = isleOf(h, n), g = isleGarr(h, n), inc = isleInc(h, n), pw = islePower(h, n);
@@ -5522,13 +5522,13 @@ function mapSheet(kind, n, note) {
     if (n === 'base') s += `<button class="btn primary" data-fortgo style="width:min(560px,100%)">🏰 В крепость</button>`;
   } else if (kind === 'isle') {
     const i = isleOf(h, n), g = isleGarr(h, n), pw = islePower(h, n), th = isleThreat(h), ch = Math.round(isleHold(h, n) * 100);
-    s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Ждите донесения разведки, чтобы отбить его.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : (i.dev || i.build ? `Под вашим флагом. Доход от застройки +${isleInc(h, n)} 💰/ч. ⚠️ Без гарнизона остров держится только на укреплениях: шанс отбить набег ${Math.round(isleHold(h, n) * 100)}%. ` : 'Под вашим флагом, но без гарнизона: дохода нет. ') + 'Оставьте здесь до ' + GARR_MAX + ' кораблей.'}</small></div>`;
+    s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Ждите донесения разведки, чтобы отбить его.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : (i.dev || i.build ? `Под вашим флагом. Доход от застройки +${isleInc(h, n)} 💰/ч. ⚠️ Без гарнизона остров держится только на укреплениях: шанс отбить набег ${Math.round(isleHold(h, n) * 100)}%. ` : 'Под вашим флагом, но без гарнизона: дохода нет. ') + 'Оставьте здесь корабли — сколько угодно.'}</small></div>`;
     s += isleInfoHtml(h, isleName(n), n) + devPanel(h, n);
     if (!i.lost) {
       const row = (x, btn) => `<div class="uprow" style="width:min(560px,100%)"><span class="ic" style="width:56px">${shipImg(x.type, 'row')}</span><span class="nm">${sName(x)} ${RANKS[rankOf(x.xp)].ic}<small>+${3 * HS[x.type].len} 💰/ч к доходу острова</small></span>${btn}</div>`;
       g.forEach(x => { s += row(x, `<button class="btn small" data-ug="${x.id}">Вернуть</button>`); });
       const res = reserveOf(h);
-      if (g.length < GARR_MAX) { s += `<div class="sec-t" style="width:min(560px,100%)">Можно оставить здесь (${res.length})</div>`; res.forEach(x => { s += row(x, `<button class="btn small primary" data-g="${x.id}">Оставить</button>`); }); if (!res.length) s += `<small class="muted">Свободных кораблей нет: все в эскадре, в ремонте или на других островах. Купите ещё в Сухом доке.</small>`; }
+      { s += `<div class="sec-t" style="width:min(560px,100%)">Можно оставить здесь (${res.length})</div>`; res.forEach(x => { s += row(x, `<button class="btn small primary" data-g="${x.id}">Оставить</button>`); }); if (!res.length) s += `<small class="muted">Свободных кораблей нет: все в эскадре, в ремонте или на других островах. Купите ещё в Сухом доке.</small>`; }
     }
   }
   sh.innerHTML = s; sh.hidden = false; sh.scrollTop = 0;
