@@ -2535,7 +2535,10 @@ const DEV_PORT = [
   { n: 'Вольный порт', ic: '👑', cost: 45000, min: 720, inc: 800, d: 'Беспошлинная гавань — сердце морской торговли.' },
 ];
 const islePort = n => { const nm = isleName(n); return TPORTS.some(p => p.n === nm) || /^Порт /.test(nm); };
-const devTrack = n => islePort(n) ? DEV_PORT : DEV_LAND;
+const devTrack = n => { if (islePort(n)) return DEV_PORT; const I = typeof ISLE_INFO !== 'undefined' && ISLE_INFO[isleName(n)]; return I && I.extra ? [...DEV_LAND, I.extra] : DEV_LAND; };
+const devDef = (h, n) => { const l = devLvl(h, n); return Math.min(.7, .09 * l + (l >= 6 ? .2 : 0)); };
+const isleHold = (h, n) => { const pw = islePower(h, n), th = isleThreat(h), base = pw ? pw / (pw + th) : 0; return Math.min(.97, 1 - (1 - base) * (1 - devDef(h, n))); };
+const fortressOn = h => islesOwned(h).some(n => !isleOf(h, n).lost && devLvl(h, n) >= 6);
 const devLvl = (h, n) => isleOf(h, n).dev || 0;
 const devInc = (h, n) => { const i = isleOf(h, n); return i.own && !i.lost ? devTrack(n)[i.dev || 0].inc : 0; };
 const supplyBases = h => islesOwned(h).filter(n => !islePort(n) && devLvl(h, n) >= 5 && !isleOf(h, n).lost).length;
@@ -2553,6 +2556,7 @@ function devPanel(h, n) {
   else if (i.build) s += `<div class="uprow"><span class="ic">🏗</span><span class="nm">Строится: ${T[i.build.lvl].n}<small>готово через <b data-until="${i.build.end}">${fmtLeft(i.build.end - now)}</b></small></span>${spdBtn(h, 'devspd', i.build.end, n)}</div>`;
   else if (nx) s += `<div class="uprow"><span class="ic">${nx.ic}</span><span class="nm">Построить: ${nx.n}<small>${nx.d}</small><small>доход ${l ? `${cur.inc} → ` : '+'}${nx.inc} 💰/ч · ⏱ ${fmtMin(nx.min)}</small></span><button class="btn small primary" data-dev="${n}" ${h.gold < nx.cost ? 'disabled' : ''}>${nx.cost} 💰</button></div>`;
   else s += `<small class="muted">Остров застроен полностью. ${cur.d}</small>`;
+  { const d = Math.round(devDef(h, n) * 100), ch = Math.round(isleHold(h, n) * 100); s += `<div class="uprow"><span class="ic">🛡</span><span class="nm">Укрепления острова: +${d}% к обороне<small>шанс отбить набег пиратов сейчас: <b>${ch}%</b>${isleGarr(h, n).length ? '' : ' (без гарнизона)'} · каждая ступень застройки добавляет защиты</small></span></div>`; }
   s += `<small class="muted">Если пираты захватят остров, они разграбят его: застройка откатится на одну ступень.</small></div>`;
   return s;
 }
@@ -2604,7 +2608,7 @@ function econTick(h) {
   else if (now >= h.isleNext) {
     h.isleNext = now + (4 + Math.random() * 4) * 3600e3; ch = true;
     if (guarded.length) {
-      const n = pick(guarded), pw = islePower(h, n), th = isleThreat(h), win = Math.random() < pw / (pw + th);
+      const n = pick(guarded), win = Math.random() < isleHold(h, n);
       if (win) { isleGarr(h, n).forEach(s => s.xp++); news(h, `🛡 Гарнизон острова «${isleName(n)}» отбил пиратов. Корабли получили опыт.`); }
       else { isleOf(h, n).lost = true; { const I = isleOf(h, n); I.build = null; if (I.dev) { I.dev--; news(h, `🔥 Пираты разграбили застройку на острове «${isleName(n)}»: теперь там ${devTrack(n)[I.dev].n.toLowerCase()}`); } } const ln = []; isleGarr(h, n).forEach(s => { s.isle = 0; if (Math.random() < .5) loseShip(h, s.id, ln, isleName(n)); else s.hpLost = Math.round(shipMaxHp(h, s) * .7); }); news(h, `☠️ Пираты захватили остров «${isleName(n)}»! ${ln.length ? ln.join('. ') + '. ' : ''}Уцелевшие корабли вернулись в гавань тяжело повреждёнными. Отбейте остров на карте.`); }
     }
@@ -3526,7 +3530,7 @@ const arsLines = h => 1 + Math.floor(fL(h, 'workshop') / 2);
 const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'workshop'))));
 const ammoGold = (h, a) => Math.round(a.gold * (1 - .08 * fL(h, 'workshop')));
 const SHIP_MIN = { boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40};
-const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock'))));
+const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock')) * (fortressOn(h) ? .8 : 1)));
 const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv)).length;
 function ammoData(h) {
   if (!h.ammo) h.ammo = { he: 40, ap: 0, inc: 0, heavy: 0, torp: 4, msl: 0 };
@@ -4782,7 +4786,7 @@ const FB_MULT = [0, 1, 2.2, 4.5, 8, 14], FB_MIN = [0, 2, 15, 60, 180, 480];
 const fL = (h, id) => (h && h.fort && h.fort.b[id]) || 0;
 const fCost = (id, l) => Math.round(FB.find(b => b.id === id).base * FB_MULT[l]);
 const fTime = (id, l) => FB_MIN[l] * (id === 'citadel' ? 1.5 : 1) * 60000 * (perk(curProfile() && curProfile().hunt, 'builder') ? .7 : 1);
-const pShip = (h, id) => Math.round(HS[id].price * (1 - .04 * fL(h, 'dock')) * (evOn(h, 'sale') ? .8 : 1));
+const pShip = (h, id) => Math.round(HS[id].price * (1 - .04 * fL(h, 'dock')) * (evOn(h, 'sale') ? .8 : 1) * (fortressOn(h) ? .9 : 1));
 const pMar = h => Math.max(5, Math.round(MARINE_COST * (1 - .1 * fL(h, 'barracks'))));
 const pDrill = (h, d) => Math.round(DRILL_COST[d] * (1 - .1 * fL(h, 'barracks')));
 const pSpec = h => Math.round(SPEC_HIRE * (1 - .1 * fL(h, 'academy')));
@@ -5470,7 +5474,7 @@ const ISLE_INFO = {
   'Остров Рассвета': { d: 'Ваш дом. Первым в Лазурном море встречает солнце — отсюда и имя.', f: ['🏰 крепость и цитадель', '⚓ гавань вашего флота', '🌅 смотровая площадка над морем'] },
   'Чёрный Зуб': { d: 'Чёрная скала-клык, торчащая из воды. Логово пиратов Лазурного моря — туман вокруг не рассеивается даже в полдень.', f: ['☠️ пиратская база', '🏴‍☠️ причалы корсаров', '💰 склад награбленного', '⛓ яма для пленников'] },
   'Зелёный Венец': { d: 'Холмы в шапке джунглей и водопад, что падает прямо в лагуну. Пресная вода здесь — лучшая во всём море.', f: ['💧 водопад с пресной водой', '🌴 густые джунгли', '🏚 руины старой миссии', '🦜 стаи попугаев'] },
-  'Белый Утёс': { img: ['isle_white_cliff.webp', 'isle_white_cliff_1.webp', 'isle_white_cliff_2.webp', 'isle_white_cliff_3.webp', 'isle_white_cliff_4.webp', 'isle_white_cliff_5.webp'], d: 'Отвесные белые скалы видно за двадцать миль: по ним штурманы сверяют курс. На вершине острова добывают знаменитый белый мрамор, а у причала круглый год грузят камень на корабли — из него возводят дворцы и крепости по всему морю.', f: ['🏗 мраморный карьер', '⚓ грузовой причал', '🧱 склады белого камня', '🐦 гнездовья альбатросов', '🌊 гроты в подножии скал'] },
+  'Белый Утёс': { extra: { n: 'Белая Твердыня', ic: '🏯', cost: 60000, min: 1080, inc: 1100, d: 'Мраморная цитадель на вершине утёса: бастионы, мраморные верфи и штаб флота. Корабли на всех верфях дешевле на 10% и строятся на 20% быстрее, а береговые бастионы дают острову +20% обороны.' }, img: ['isle_white_cliff.webp', 'isle_white_cliff_1.webp', 'isle_white_cliff_2.webp', 'isle_white_cliff_3.webp', 'isle_white_cliff_4.webp', 'isle_white_cliff_5.webp'], d: 'Отвесные белые скалы видно за двадцать миль: по ним штурманы сверяют курс. На вершине острова добывают знаменитый белый мрамор, а у причала круглый год грузят камень на корабли — из него возводят дворцы и крепости по всему морю.', f: ['🏗 мраморный карьер', '⚓ грузовой причал', '🧱 склады белого камня', '🐦 гнездовья альбатросов', '🌊 гроты в подножии скал'] },
   'Песчанка': { d: 'Плоский остров из белого песка. В отлив по косе можно дойти до соседней отмели пешком.', f: ['🐢 пляжи, где черепахи откладывают яйца', '🏖 песчаная коса', '⚓ удобная якорная стоянка', '🐚 ракушечные отмели'] },
   'Порт Лазурный': { d: 'Шумный вольный порт: купцы, таверны и самый честный рынок Лазурного моря. Здесь знают всё и про всех.', f: ['⚖️ торговый рынок', '🍺 таверна «Синий якорь»', '🚢 верфь торговых судов', '📜 контора купеческой гильдии'] },
   'Бухта Рыбаков': { d: 'Тихая бухта с деревянными пирсами. Лучший копчёный тунец в округе — пираты и те приплывают за ним.', f: ['🐟 рыбные промыслы', '🛶 лодочные сараи', '🏠 деревушка рыбаков', '🔥 коптильни'] },
@@ -5517,8 +5521,8 @@ function mapSheet(kind, n, note) {
     s += `<div class="mst"><b>${n === 'pir' ? '☠️' : n === 'base' ? '🏰' : '🏝'} ${nm}</b><small>${note || ''}</small></div>` + isleInfoHtml(h, nm, n.includes(':') ? n : null);
     if (n === 'base') s += `<button class="btn primary" data-fortgo style="width:min(560px,100%)">🏰 В крепость</button>`;
   } else if (kind === 'isle') {
-    const i = isleOf(h, n), g = isleGarr(h, n), pw = islePower(h, n), th = isleThreat(h), ch = pw ? Math.round(pw / (pw + th) * 100) : 0;
-    s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Ждите донесения разведки, чтобы отбить его.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : (i.dev || i.build ? `Под вашим флагом. Доход от застройки +${isleInc(h, n)} 💰/ч. ⚠️ Без гарнизона пираты возьмут остров при первом же набеге! ` : 'Под вашим флагом, но без гарнизона: дохода нет. ') + 'Оставьте здесь до ' + GARR_MAX + ' кораблей.'}</small></div>`;
+    const i = isleOf(h, n), g = isleGarr(h, n), pw = islePower(h, n), th = isleThreat(h), ch = Math.round(isleHold(h, n) * 100);
+    s += `<div class="mst"><b>${i.lost ? '☠️' : g.length ? '🚩' : '🏝'} ${isleName(n)}</b><small>${i.lost ? 'Остров захвачен пиратами. Ждите донесения разведки, чтобы отбить его.' : g.length ? `Под вашим флагом. Доход +${isleInc(h, n)} 💰/ч. Сила гарнизона ${pw} против пиратов ≈ ${th}: шанс удержать набег ${ch}%.` : (i.dev || i.build ? `Под вашим флагом. Доход от застройки +${isleInc(h, n)} 💰/ч. ⚠️ Без гарнизона остров держится только на укреплениях: шанс отбить набег ${Math.round(isleHold(h, n) * 100)}%. ` : 'Под вашим флагом, но без гарнизона: дохода нет. ') + 'Оставьте здесь до ' + GARR_MAX + ' кораблей.'}</small></div>`;
     s += isleInfoHtml(h, isleName(n), n) + devPanel(h, n);
     if (!i.lost) {
       const row = (x, btn) => `<div class="uprow" style="width:min(560px,100%)"><span class="ic" style="width:56px">${shipImg(x.type, 'row')}</span><span class="nm">${sName(x)} ${RANKS[rankOf(x.xp)].ic}<small>+${3 * HS[x.type].len} 💰/ч к доходу острова</small></span>${btn}</div>`;
