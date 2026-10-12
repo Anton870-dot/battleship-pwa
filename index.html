@@ -449,7 +449,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .seatab.deeptab{background:linear-gradient(135deg,rgba(10,70,100,.95),rgba(5,30,60,.95));border-color:rgba(120,230,255,.7);color:#fff}
 .devrow{display:flex;align-items:center;justify-content:center;gap:0;margin:4px 0 8px;flex-wrap:nowrap}.devrow span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.2);filter:grayscale(1);opacity:.55}
 .devrow span.on{filter:none;opacity:1;border-color:rgba(255,207,74,.7)}.devrow span.cur{box-shadow:0 0 12px rgba(255,207,74,.7);border-color:#ffcf4a}.devrow i{flex:1;max-width:22px;height:2px;background:rgba(255,255,255,.25)}
-.isled{display:block;font-size:13.5px;line-height:1.4;color:#e6f4ff;font-style:italic}.islef{display:flex;flex-wrap:wrap;gap:6px}.islef span{padding:5px 9px;border-radius:10px;background:rgba(0,0,0,.22);font-size:12.5px}
+.isleimg{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:14px;display:block;margin-bottom:8px}.isled{display:block;font-size:13.5px;line-height:1.4;color:#e6f4ff;font-style:italic}.islef{display:flex;flex-wrap:wrap;gap:6px}.islef span{padding:5px 9px;border-radius:10px;background:rgba(0,0,0,.22);font-size:12.5px}
 .bh-hall{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .bh-cap{position:absolute;left:12px;bottom:10px;z-index:3;background:rgba(0,20,50,.75);border:1px solid rgba(255,207,74,.6);border-radius:12px;padding:6px 10px;line-height:1.2}
 .bh-cap b{display:block;font-size:15px;color:#ffe08a}.bh-cap small{font-size:11px;color:var(--muted)}
@@ -5470,7 +5470,7 @@ const ISLE_INFO = {
   'Остров Рассвета': { d: 'Ваш дом. Первым в Лазурном море встречает солнце — отсюда и имя.', f: ['🏰 крепость и цитадель', '⚓ гавань вашего флота', '🌅 смотровая площадка над морем'] },
   'Чёрный Зуб': { d: 'Чёрная скала-клык, торчащая из воды. Логово пиратов Лазурного моря — туман вокруг не рассеивается даже в полдень.', f: ['☠️ пиратская база', '🏴‍☠️ причалы корсаров', '💰 склад награбленного', '⛓ яма для пленников'] },
   'Зелёный Венец': { d: 'Холмы в шапке джунглей и водопад, что падает прямо в лагуну. Пресная вода здесь — лучшая во всём море.', f: ['💧 водопад с пресной водой', '🌴 густые джунгли', '🏚 руины старой миссии', '🦜 стаи попугаев'] },
-  'Белый Утёс': { d: 'Меловые скалы видно за двадцать миль: по ним штурманы сверяют курс. Ветер здесь не стихает никогда.', f: ['🗼 сигнальная башня', '🐦 гнездовья альбатросов', '🪨 меловые пещеры', '🌬 вечный ветер'] },
+  'Белый Утёс': { img: 'isle_white_cliff.webp', d: 'Отвесные белые скалы видно за двадцать миль: по ним штурманы сверяют курс. На вершине острова добывают знаменитый белый мрамор, а у причала круглый год грузят камень на корабли — из него возводят дворцы и крепости по всему морю.', f: ['🏗 мраморный карьер', '⚓ грузовой причал', '🧱 склады белого камня', '🐦 гнездовья альбатросов', '🌊 гроты в подножии скал'] },
   'Песчанка': { d: 'Плоский остров из белого песка. В отлив по косе можно дойти до соседней отмели пешком.', f: ['🐢 пляжи, где черепахи откладывают яйца', '🏖 песчаная коса', '⚓ удобная якорная стоянка', '🐚 ракушечные отмели'] },
   'Порт Лазурный': { d: 'Шумный вольный порт: купцы, таверны и самый честный рынок Лазурного моря. Здесь знают всё и про всех.', f: ['⚖️ торговый рынок', '🍺 таверна «Синий якорь»', '🚢 верфь торговых судов', '📜 контора купеческой гильдии'] },
   'Бухта Рыбаков': { d: 'Тихая бухта с деревянными пирсами. Лучший копчёный тунец в округе — пираты и те приплывают за ним.', f: ['🐟 рыбные промыслы', '🛶 лодочные сараи', '🏠 деревушка рыбаков', '🔥 коптильни'] },
@@ -5483,7 +5483,7 @@ function isleInfoHtml(h, nm, key) {
   const I = isleInfo(nm); if (!I) return '';
   let f = [...I.f];
   if (key) { const st = isleOf(h, key), g = isleGarr(h, key); if (st.own && !st.lost) { const L = devTrack(key)[st.dev || 0]; if (st.dev) f.unshift(`${L.ic} ${L.n.toLowerCase()} — ваша застройка`); if (g.length) f.unshift(`🚩 гарнизон: ${g.map(x => x.name).join(', ')}`); } if (st.lost) f.unshift('☠️ сейчас в руках пиратов'); }
-  return `<div class="glass hub-panel isleinfo" style="width:min(560px,100%)"><small class="isled">${I.d}</small><div class="sec-t">🔎 Что есть на острове</div><div class="islef">${f.map(x => `<span>${x}</span>`).join('')}</div></div>`;
+  return `<div class="glass hub-panel isleinfo" style="width:min(560px,100%)">${I.img ? `<img class="isleimg" src="${I.img}" alt="${nm}">` : ''}<small class="isled">${I.d}</small><div class="sec-t">🔎 Что есть на острове</div><div class="islef">${f.map(x => `<span>${x}</span>`).join('')}</div></div>`;
 }
 function mapTap(k) {
   const h = hdata(curProfile()), E = h.exp, sea = E.sea || 0, S = SEAS[sea];
