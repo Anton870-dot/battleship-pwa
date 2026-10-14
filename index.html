@@ -3515,9 +3515,11 @@ function dipOther(h, fk) {
     const D = deepData(h), k = deepRank(h), nx = DEEP_RANKS[k + 1];
     return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔬 Учёные Атлантиса</div><div class="dfimg sq"><img src="sci_team.webp" alt=""></div>
       <small class="muted">Под стеклянными куполами подводных лабораторий Атлантиса скаты проплывают над головами исследователей, а на голографических картах светятся впадины, куда не спускался ни один корабль. Учёные Атлантиса верят, что море хранит ответы на все вопросы — нужно лишь набраться смелости и спуститься за ними в Глубокие воды.</small>
-      <div class="clanppl"><div class="clp"><img src="sci_face.webp" alt=""><span><b>${SCI.n}</b><small>${SCI.t}. Ведёт исследовательское судно «${SCI.ship}» по Глубоким водам и ищет то, что море прячет уже тысячи лет.</small></span></div></div>
+      <div class="clanppl"><div class="clp"><img src="sci_orian.webp" alt=""><span><b>${SCI.n}</b><small>${SCI.t}. Ведёт исследовательское судно «${SCI.ship}» по Глубоким водам и ищет то, что море прячет уже тысячи лет.</small></span></div></div>
       <div class="clanppl"><div class="clp"><img src="sci_selina.webp" alt=""><span><b>🌐 Селина Мару</b><small>Биолог, знаток коралловых садов и глубоководных существ. Ради нового вида готова неделями не подниматься на поверхность.</small></span></div>
       <div class="clp"><img src="sci_teyr.webp" alt=""><span><b>⚙️ Тейр Валдис</b><small>Инженер «${SCI.ship}». Чинит батискафы, зонды и приборы — иногда прямо под огнём рейдеров.</small></span></div></div>
+      <div class="sec-t">🚢 НИС «${SCI.ship}»</div><div class="dfimg"><img src="thalassira.webp" alt="" style="object-position:50% 55%"></div>
+      <small class="muted">Белоснежная «${SCI.ship}» — гордость учёных Атлантиса и самое смелое судно Глубоких вод. Она уходит туда, где штормы не стихают неделями, а дно лежит в километрах под килем. На её корме дремлет жёлтый батискаф, готовый нырнуть в чёрную бездну, в лабораториях светятся экраны с картами неведомых впадин, а на мостике до рассвета горит свет. У «${SCI.ship}» нет ни одной пушки — только любопытство, отвага экипажа и капитаны, которые соглашаются её охранять.</small>
       <span class="clanst serv">🤝 Союзники · ${DEEP_RANKS[k].n}</span>${bar(D.rep, DEEP_RANKS[k].r, nx && nx.r)}
       <div class="trfac"><span>🔬 заданий выполнено <b>${D.done}</b></span><span>🎖 звание <b>${k + 1} из ${DEEP_RANKS.length}</b></span></div>
       <div class="dpbtns"><button class="btn primary" data-dgo="deep">🌊 В Глубокие воды</button></div></div>`;
