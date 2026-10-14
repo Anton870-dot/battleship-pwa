@@ -459,6 +459,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 #ov-clan .dpsplash img{object-position:50% 22%}
 .clanst{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;margin:2px 0 6px}.clanst.war{background:rgba(200,40,30,.35);color:#ffb3a8}.clanst.offer{background:rgba(255,190,60,.3);color:#ffe08a}.clanst.serv{background:rgba(60,190,110,.3);color:#b6ffd0}.clanst.gone{background:rgba(120,120,120,.35);color:#ddd}
 .dfacs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(560px,100%)}.dfac{position:relative;padding:8px 3px 7px;border-radius:14px;border:1.5px solid rgba(255,255,255,.25);background:rgba(4,25,50,.8);color:#fff;display:flex;flex-direction:column;align-items:center;line-height:1.15;cursor:pointer}.dfac span{font-size:24px}.dfac b{font-size:11.5px;color:#ffe08a;margin-top:2px}.dfac small{font-size:9.5px;color:#a9c8de;text-align:center}.dfac.on{border-color:#ffcf4a;background:rgba(255,190,60,.2);box-shadow:0 0 10px rgba(255,207,74,.35)}.dfac i{position:absolute;top:4px;right:6px;font-style:normal;background:#ff6b57;color:#fff;border-radius:8px;padding:0 5px;font-size:11px;font-weight:900}
+.dfimg.sq img{aspect-ratio:4/3;object-position:50% 38%}
 .dfimg img{width:100%;aspect-ratio:2/1;object-fit:cover;border-radius:10px;display:block;margin:4px 0 6px}
 .clp{display:flex;gap:10px;align-items:center}.clp img{width:72px;height:72px;border-radius:50%;object-fit:cover;object-position:50% 18%;flex:none;border:2px solid rgba(255,140,110,.7);background:rgba(0,0,0,.3)}.clp span{display:block;min-width:0}
 .clship img{width:100%;border-radius:8px;margin-bottom:6px;display:block}
@@ -944,9 +945,8 @@ body.menu-on .logo{margin:0}
   <div class="fside"><button class="fchip decchip" id="fg-dec" hidden></button><button class="fchip" id="fg-ev" hidden></button><button class="fchip" id="fg-cred">💠 0</button><button class="fchip" id="fg-log">📖 Журнал<em hidden></em></button></div>
   <button class="fraidchip" id="fg-raid" hidden>☠️ Пираты у стен! Оборона →</button>
   <div class="fhud-bot">
-    <button class="fbtn" data-bld="fleet" data-ftab="sq">⚓<small>Эскадры</small></button>
+    <button class="fbtn" data-bld="fleet" data-ftab="sq">⚓<small>Флот</small></button>
     <button class="fbtn go" id="fg-go">🗺<b>В поход</b><small id="fg-mission"></small></button>
-    <button class="fbtn" data-bld="fleet" data-ftab="ships">🚢<small>Флот</small></button>
     <button class="fbtn" id="fg-collect">💰<small>казна</small></button>
     <button class="fbtn" id="fg-zoom">🔍<small>ближе</small></button>
   </div>
@@ -3497,15 +3497,22 @@ function dipOther(h, fk) {
   const bar = (v, a, b) => `<div class="rankline"><span class="bar"><i style="width:${b ? Math.min(100, (v - a) / (b - a) * 100) : 100}%"></i></span><small>${b ? `доверие ${v}/${b}` : 'высшее доверие'}</small></div>`;
   if (fk === 'atl') {
     const A = atlData(h), k = atlRank(h), nx = ATL_RANKS[k + 1];
-    return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔱 Свободный город Атлантис</div><div class="dfimg"><img src="atlantis.webp" alt=""></div><span class="clanst serv">🤝 Союзники · ${ATL_RANKS[k].n}</span>
-      <small class="muted">Город-государство посреди моря, где правит Совет Гильдий. Атлантис не воюет ни с кем, но щедро платит тем, кто охраняет его караваны и держит в узде пиратов.</small>${bar(A.rep, ATL_RANKS[k].r, nx && nx.r)}
+    return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔱 Свободный город Атлантис</div><div class="dfimg sq"><img src="atl_leaders.webp" alt=""></div><span class="clanst serv">🤝 Союзники · ${ATL_RANKS[k].n}</span>
+      <small class="muted">Белые башни Атлантиса поднимаются прямо из моря, а с террас города в залив срываются водопады. Здесь не знают войн уже много веков: Совет Гильдий правит мудростью и золотом, а корабли всех морей входят в его гавань без страха. Атлантис не держит армий — он выбирает друзей. И тот, кому город доверил свои караваны, становится желанным гостем в его мраморных залах.</small>
+      <div class="clanppl"><div><b>🏛 Верховный советник Эларион Тасс</b><small>Седой мудрец, тридцать лет возглавляющий Совет Гильдий. Говорят, он помнит имя каждого капитана, хоть раз спасшего караван Атлантиса.</small></div>
+      <div><b>💎 Леди Миррена Аквилар</b><small>Хранительница казны и торговых договоров. Её улыбка стоит дороже золота, а подпись — дороже флота.</small></div>
+      <div><b>⚓ Каэль Дориан</b><small>Командор стражи караванов, самый молодой член Совета. Это он выдаёт капитанам поручения и первым узнаёт, кто справился, а кто — нет.</small></div></div>${bar(A.rep, ATL_RANKS[k].r, nx && nx.r)}
       <div class="trfac"><span>📜 поручений выполнено <b>${A.done}</b></span><span>🎖 звание <b>${k + 1} из ${ATL_RANKS.length}</b></span></div>
       <small class="muted">Чем выше доверие Совета, тем дороже поручения и тем больше кораблей открывает верфь Атлантиса.</small>
       <div class="dpbtns"><button class="btn primary" data-dgo="atl">🏙 Отправиться в Атлантис</button></div></div>`;
   }
   if (fk === 'sci') {
     const D = deepData(h), k = deepRank(h), nx = DEEP_RANKS[k + 1];
-    return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔬 Учёные Атлантиса</div><div class="clanppl"><div class="clp"><img src="sci_face.webp" alt=""><span><b>${SCI.n}</b><small>${SCI.t}. Ведёт исследовательское судно «${SCI.ship}» по Глубоким водам и ищет то, что море прячет уже тысячи лет.</small></span></div></div>
+    return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔬 Учёные Атлантиса</div><div class="dfimg sq"><img src="sci_team.webp" alt=""></div>
+      <small class="muted">Под стеклянными куполами подводных лабораторий Атлантиса скаты проплывают над головами исследователей, а на голографических картах светятся впадины, куда не спускался ни один корабль. Учёные Атлантиса верят, что море хранит ответы на все вопросы — нужно лишь набраться смелости и спуститься за ними в Глубокие воды.</small>
+      <div class="clanppl"><div class="clp"><img src="sci_face.webp" alt=""><span><b>${SCI.n}</b><small>${SCI.t}. Ведёт исследовательское судно «${SCI.ship}» по Глубоким водам и ищет то, что море прячет уже тысячи лет.</small></span></div></div>
+      <div class="clanppl"><div><b>🌐 Селина Мару</b><small>Биолог, знаток коралловых садов и глубоководных существ. Ради нового вида готова неделями не подниматься на поверхность.</small></div>
+      <div><b>⚙️ Тейр Валдис</b><small>Инженер «${SCI.ship}». Чинит батискафы, зонды и приборы — иногда прямо под огнём рейдеров.</small></div></div>
       <span class="clanst serv">🤝 Союзники · ${DEEP_RANKS[k].n}</span>${bar(D.rep, DEEP_RANKS[k].r, nx && nx.r)}
       <div class="trfac"><span>🔬 заданий выполнено <b>${D.done}</b></span><span>🎖 звание <b>${k + 1} из ${DEEP_RANKS.length}</b></span></div>
       <div class="dpbtns"><button class="btn primary" data-dgo="deep">🌊 В Глубокие воды</button></div></div>`;
