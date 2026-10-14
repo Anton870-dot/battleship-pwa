@@ -442,6 +442,8 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .dlgtxt{margin:5px 0 12px;font-size:13.5px;line-height:1.35;color:#fff}
 .dlgmore{position:absolute;right:10px;bottom:6px;font-size:10.5px;color:#ffe08a;font-weight:800}
 .clansci{border-color:rgba(255,120,100,.7)!important}.clansci b{color:#ffd0c4!important}.clansci small{color:#e8b0a0!important}
+.pdlg{position:fixed;z-index:60}.pdlg .dlgbox{border-color:rgba(255,140,110,.75)}.pdlg .dlgbox b{color:#ffd6c8}.pdlg .dlgbox small{color:#e8b4a4}.pdlg img{border-radius:14px 14px 0 0;object-fit:cover;object-position:50% 15%}
+.clq{display:flex;gap:10px;align-items:flex-start;margin:6px 0 8px}.clq img{width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:50% 18%;flex:none;border:2px solid rgba(255,140,110,.7)}.clq .dpquote{margin:0}
 .clbtn{display:block!important;width:100%;text-align:center}.clbtn small{display:block;font-weight:600;opacity:.85;font-size:11.5px;margin-top:2px}
 #ov-clan .dpsplash img{object-position:50% 22%}
 .clanst{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;margin:2px 0 6px}.clanst.war{background:rgba(200,40,30,.35);color:#ffb3a8}.clanst.offer{background:rgba(255,190,60,.3);color:#ffe08a}.clanst.serv{background:rgba(60,190,110,.3);color:#b6ffd0}.clanst.gone{background:rgba(120,120,120,.35);color:#ddd}
@@ -1110,6 +1112,7 @@ body.menu-on .logo{margin:0}
   </div>
 </div>
 
+<div class="dpdlg pdlg" id="pdlg" hidden><img src="corvin.webp" alt=""><div class="dlgbox"><b></b><small></small><p class="dlgtxt"></p><span class="dlgmore"></span></div></div>
 <div class="overlay" id="ov-clan">
   <div class="card glass dpcard">
     <div class="dpsplash"><img src="pir_clan.webp" alt=""><div class="dpsci clansci"><b>Капитан Арне Корвин «Старый Ворон»</b><small>Вольное братство Чёрного Зуба</small></div></div>
@@ -3419,6 +3422,29 @@ function trophyTotals(h) {
 /* ---- Вольное братство Чёрного Зуба (пираты Лазурного моря) ---- */
 const CLAN = { n: 'Вольное братство Чёрного Зуба', cap: 'Капитан Арне Корвин', nick: 'Старый Ворон', ship: 'Багровый странник', inc: 350, gold: 15000,
   d: 'Сорок лет Чёрный Зуб держит в страхе торговые пути Лазурного моря. Братство живёт по своему закону: добычу делят поровну, тонущих не бросают — даже врагов, — а слово капитана крепче якорной цепи.' };
+const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'] };
+// lines: [[кто 'c'|'l', улыбка true/false, текст], ...]
+function clanSay(lines, done) {
+  const box = $('#pdlg'); let i = 0, tm = null;
+  const step = () => {
+    if (i >= lines.length) { box.hidden = true; if (done) done(); return; }
+    const [who, sm, txt] = lines[i++], W = CLAN_WHO[who], el = box.querySelector('.dlgtxt');
+    box.querySelector('img').src = W[2] + (sm ? '_smile' : '') + '.webp'; box.querySelector('b').textContent = W[0]; box.querySelector('small').textContent = W[1];
+    el.textContent = ''; let k = 0; clearInterval(tm);
+    box.querySelector('.dlgmore').textContent = i < lines.length ? '▼ дальше' : '✕ закрыть';
+    tm = setInterval(() => { k += 2; el.textContent = txt.slice(0, k); if (k >= txt.length) clearInterval(tm); }, 18);
+    box.onclick = () => { if (el.textContent.length < txt.length) { clearInterval(tm); el.textContent = txt; return; } Snd.play('click'); step(); };
+  };
+  box.hidden = false; step();
+}
+const CLAN_TALK = [
+  [['l', true, 'Отец ворчит, что на вашей службе слишком мало стреляют. По-моему, он просто скучает по старым временам.'], ['c', true, 'Не слушайте её, командир. Я скучаю только по хорошему табаку.']],
+  [['c', false, 'Торговцы снова ходят через пролив у Чёрного Зуба. Раньше они обходили его за три мили.'], ['l', true, 'Теперь они даже машут нам с палубы. Непривычно, честное слово.']],
+  [['l', false, 'Я сверила лоции: у Песчанки после шторма намыло новую мель. Предупредите своих капитанов.']],
+  [['c', true, '«Багровый странник» стар, но злее любого новенького эсминца. Как и его капитан.']],
+  [['c', false, 'Флот когда-то бросил меня отвечать за чужие ошибки. Вы — не флот, командир. Поэтому братство и служит вам.']],
+  [['l', true, 'Наши корабелы на Чёрном Зубе уже закладывают новый «Странник». Только дайте знать — спустим на воду.']],
+];
 const clanData = h => (h.clan ||= { st: 'war' });
 const clanSt = h => clanData(h).st;
 const clanServ = h => !!(h.clan && h.clan.st === 'serv');
@@ -3441,7 +3467,7 @@ function dipRoom(h) {
   if (st === 'war') s += `<div class="sec-t">🏳️ Путь к миру</div><small class="muted">Братство не сдастся, пока у него есть где укрыться. Отнимите у пиратов всё Лазурное море:</small>
     <ul class="cllist"><li>${own >= all ? '✅' : '⬜'} Острова Лазурного моря под вашим флагом: <b>${own} из ${all}</b></li><li>${bossOk ? '✅' : '⬜'} Крепость Чёрный Зуб разбита</li></ul>`;
   else if (st === 'offer') s += `<div class="dpbtns"><button class="btn primary" data-cl="1">🏳️ Принять послов</button></div>`;
-  else if (st === 'serv') s += `<div class="sec-t">🤝 Братство служит вам</div><ul class="cllist"><li>🛡 Пираты больше не нападают на острова Лазурного моря</li><li>💰 Чёрный Зуб приносит +${CLAN.inc} 💰/ч</li><li>⚓ «${CLAN.ship}» и корабли братства патрулируют море</li><li>🛠 На верфи можно строить эсминцы «Странник» — того же класса, что и флагман Корвина</li></ul>`;
+  else if (st === 'serv') s += `<div class="sec-t">🤝 Братство служит вам</div><ul class="cllist"><li>🛡 Пираты больше не нападают на острова Лазурного моря</li><li>💰 Чёрный Зуб приносит +${CLAN.inc} 💰/ч</li><li>⚓ «${CLAN.ship}» и корабли братства патрулируют море</li><li>🛠 На верфи можно строить эсминцы «Странник» — того же класса, что и флагман Корвина</li></ul><div class="dpbtns"><button class="btn primary" data-clt="1">💬 Поговорить с Корвинами</button></div>`;
   else s += `<small class="muted">Братство распущено. Уцелевшие пираты ушли в дальние моря — тамошние разбойники стали злее (+15% к силе нападений на острова).</small>`;
   s += `</div><div class="glass hub-panel"><small class="muted">🦈 Морские рейдеры, 🔱 Атлантис и учёные Глубоких вод скоро появятся в этом зале.</small></div>`;
   return s;
@@ -3450,8 +3476,8 @@ function clanOpen(step) {
   const h = hdata(curProfile()), C = clanData(h); if (C.st !== 'offer') return;
   const body = $('#cl-body');
   $('#cl-title').textContent = '🏳️ Послы Чёрного Зуба';
-  body.innerHTML = `<p class="dpquote">«Я сорок лет хожу по этим водам, командир. Служил флоту, пока флот не продал меня за чужие ошибки. Вы забрали у нас всё — острова, гавани, сам Чёрный Зуб. Но ни разу не добили тех, кто тонул. Это я запомнил».<br><small>— ${CLAN.cap}</small></p>
-    <p class="dpquote">«Братство устало воевать. У нас корабли, люди и семьи на берегу, а ещё — лоции каждой мели этого моря. Возьмите нас на службу, и в Лазурном море никто больше не поднимет на вас оружие».<br><small>— Лючия Корвин</small></p>
+  body.innerHTML = `<div class="clq"><img src="corvin.webp" alt=""><p class="dpquote">«Я сорок лет хожу по этим водам, командир. Служил флоту, пока флот не продал меня за чужие ошибки. Вы забрали у нас всё — острова, гавани, сам Чёрный Зуб. Но ни разу не добили тех, кто тонул. Это я запомнил».<br><small>— ${CLAN.cap}</small></p></div>
+    <div class="clq"><img src="lucia.webp" alt=""><p class="dpquote">«Братство устало воевать. У нас корабли, люди и семьи на берегу, а ещё — лоции каждой мели этого моря. Возьмите нас на службу, и в Лазурном море никто больше не поднимет на вас оружие».<br><small>— Лючия Корвин</small></p></div>
     <div class="dpbtns" style="flex-direction:column;align-items:stretch">
       <button class="btn primary clbtn" data-cla="serv">🤝 Принять на службу<small>пираты не нападают на острова Лазурного моря · +${CLAN.inc} 💰/ч</small></button>
       <button class="btn clbtn" data-cla="gone">⚔️ Распустить братство<small>+${CLAN.gold.toLocaleString('ru-RU')} 💰 из казны Чёрного Зуба · пираты других морей злее на 15%</small></button>
@@ -3468,6 +3494,8 @@ function clanPick(k) {
   else { h.gold += CLAN.gold; news(h, `⚔️ Братство Чёрного Зуба распущено. В казну поступило ${CLAN.gold} 💰. Корвин увёл уцелевших в дальние моря.`, true); toast(`💰 +${CLAN.gold}`); }
   saveProfiles(); overlay('#ov-clan', false);
   if ($('#scr-room').classList.contains('active')) renderRoom();
+  setTimeout(() => clanSay(k === 'serv' ? [['c', true, `Слово Корвина крепче якорной цепи. «${CLAN.ship}» и всё братство — к вашим услугам, командир.`], ['l', true, 'Я же говорила, отец: этот командир того стоит. Добро пожаловать в семью — пусть и немного шумную.']]
+    : [['c', false, 'Что ж. Море большое, командир. Надеюсь, в следующий раз мы встретимся не под прицелом.'], ['l', false, 'Казна Чёрного Зуба ваша. Но запомните: братство не прощает тех, кто отказывает протянутой руке.']]), 400);
 }
 function roomsPanel(h) {
   const M = (h.memorial || []).length, t = trophyTotals(h);
@@ -3481,7 +3509,7 @@ function renderRoom() {
   const h = hdata(curProfile()), id = HB.room;
   $('#room-title').textContent = id === 'mem' ? 'Мемориал' : id === 'dip' ? 'Зал дипломатии' : 'Трофейный зал';
   let s = '';
-  if (id === 'dip') { $('#room-body').innerHTML = dipRoom(h); $('#room-body').querySelectorAll('[data-cl]').forEach(b => b.onclick = () => clanOpen()); return; }
+  if (id === 'dip') { $('#room-body').innerHTML = dipRoom(h); $('#room-body').querySelectorAll('[data-cl]').forEach(b => b.onclick = () => clanOpen()); $('#room-body').querySelectorAll('[data-clt]').forEach(b => b.onclick = () => clanSay(pick(CLAN_TALK))); return; }
   if (id === 'mem') {
     s = `<div class="roomhero"><img src="memorial_room.webp" alt="Мемориал"><div class="bh-cap"><b>🕯 Мемориал</b><small>вечная память морякам флота</small></div></div>` + memorialPanel(h);
   } else {
@@ -4275,6 +4303,16 @@ function startHunt(node) {
   const o = OBJ[H.obj], w = WEATHER[H.weather];
   hMsg(H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина вышел защищать последний остров братства!` : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   hStartPlayerTurn(true);
+  clanBattleTalk(node);
+}
+function clanBattleTalk(node) {
+  if (!node || node.sea !== 0 || H.fac === 'raid' || node.deep || node.atl || node.trade) return;
+  const h = hdata(curProfile()), C = clanData(h); if (C.st !== 'war') return;
+  let L = null;
+  if (H.foes.some(f => f.corvin)) L = [['c', false, 'Это последний остров, командир. Отступать братству некуда — значит, и сдаваться мы не будем.'], ['l', false, 'Отец, их слишком много… Ладно. Орудия к бою!']];
+  else if (H.obj === 'boss') L = [['c', false, 'Значит, вы пришли за Чёрным Зубом. «Чёрный Корсар» стережёт его уже много лет, и никто ещё не прошёл мимо его орудий. Посмотрим, чего стоит ваш флот.']];
+  else if (!C.met) { C.met = 1; saveProfiles(); L = [['c', false, 'Вы в водах Вольного братства Чёрного Зуба. Я — Арне Корвин. Убирайтесь, пока я добрый.'], ['l', true, 'Отец всегда так говорит. Он не добрый. Поворачивайте, командир.']]; }
+  if (L) setTimeout(() => clanSay(L), 700);
 }
 function hMakeEl(u) {
   const len = HS[u.type].len, w = HS[u.type].fort ? 1 : .8 + .2 * len;
@@ -5665,7 +5703,7 @@ function runReport(id) {
   if (r.kind === 'boss') { Snd.play('horn'); return startHunt({ kind: 'boss', obj: 'boss', ...base, bossIdx: r.bossIdx }); }
   Snd.play('click'); runEvent(h, { kind: r.kind, ...base });
 }
-function backFromHunt() { HB.sel = null; if (HB.ret === 'deep') showDeep(); else if (HB.ret === 'atl') showAtl(); else if (HB.ret === 'map') showMap(); else showFort(); }
+function backFromHunt() { HB.sel = null; $('#pdlg').hidden = true; if (HB.ret === 'deep') showDeep(); else if (HB.ret === 'atl') showAtl(); else if (HB.ret === 'map') showMap(); else showFort(); }
 function initMap() {
   $('#map-back').onclick = () => { Snd.play('click'); showFort(); };
   $('#mg-home').onclick = () => { Snd.play('click'); showFort(); };
