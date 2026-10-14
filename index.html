@@ -3412,7 +3412,7 @@ function hCasualty(t, d) {
 }
 const battlePlace = () => { const n = H.node || {}; if (n.deep) return 'Глубокие воды'; if (n.atl) return 'у берегов Атлантиса'; if (n.trade) { const r = hdata(curProfile()).trade.runs.find(x => x.id === n.trade); return r ? TPORTS[r.port].n + ', караван' : 'торговый путь'; } return n.report ? (n.isle < 0 ? SEAS[n.sea].pir.n : SEAS[n.sea].isles[n.isle].n) + ', ' + SEAS[n.sea].n : H.obj === 'raid' ? 'у стен родной крепости' : 'в открытом море'; };
 /* ---------- Трофейный зал ---------- */
-const FACTIONS = { pir: { n: 'Пираты', ic: '☠️', d: 'Береговое братство: корсары и их форты' }, raid: { n: 'Морские рейдеры', ic: '🦈', d: 'Дисциплинированные охотники за находками в Глубоких водах' } };
+const FACTIONS = { pir: { n: 'Пираты', ic: '☠️', d: 'Береговое братство: корсары и их форты' }, raid: { n: 'Морские рейдеры', ic: '🦈', d: 'Кровожадные и беспощадные головорезы Глубоких вод' } };
 const facOf = u => (u && u.fac) || (typeof H !== 'undefined' && H.fac) || 'pir';
 const trF = (h, fac) => (h.troph.f[fac] ||= { sunk: {}, cap: {}, fortD: 0, fortC: 0, boss: 0 });
 function trophRecord(h, won) {
@@ -3511,10 +3511,10 @@ function dipOther(h, fk) {
       <div class="dpbtns"><button class="btn primary" data-dgo="deep">🌊 В Глубокие воды</button></div></div>`;
   }
   const F = (h.troph.f || {}).raid || { sunk: {}, cap: {}, fortD: 0, fortC: 0, boss: 0 };
-  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🦈 Морские рейдеры</div><div class="dfimg"><img src="deep_sea.webp" alt=""></div><span class="clanst war">⚔️ Война</span>
-    <small class="muted">Дисциплинированные охотники за находками Глубоких вод. Они не грабят торговцев ради наживы — им нужны древние тайны моря, и за них рейдеры готовы топить даже учёных.</small>
+  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🦈 Морские рейдеры</div><div class="dfimg"><img src="raid_clan.webp" alt="" style="object-position:50% 30%"></div><span class="clanst war">⚔️ Война без пощады</span>
+    <small class="muted">Они приходят из штормов Глубоких вод на ржавых бронированных кораблях, ощетинившихся шипами и цепями. Рейдеры не берут пленных и не знают жалости: топят торговцев, учёных и всех, кто окажется на их пути, а за древние находки моря готовы залить кровью любые воды. Говорят, их вожак сам выбрасывает за борт тех, кто дрогнул в бою.</small>
     <div class="sec-t">📊 Ваша война с рейдерами</div><div class="trfac"><span>🔥 потоплено <b>${trSum(F.sunk)}</b></span><span>🏴 абордаж <b>${trSum(F.cap)}</b></span></div>
-    <small class="muted">Переговоров рейдеры пока не ведут.</small>
+    <small class="muted">Переговоров рейдеры не ведут — с ними говорят только пушки.</small>
     <div class="dpbtns"><button class="btn" data-dgo="deep">🌊 В Глубокие воды</button></div></div>`;
 }
 function clanOpen(step) {
