@@ -328,6 +328,8 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .amjobs{position:absolute;left:10px;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 48px);z-index:6;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
 .amjobs .fchip{font-weight:700;font-size:12px;height:30px}
 .mstage{position:relative;line-height:0}
+.mlife{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.mpin.done{box-shadow:0 0 0 3px rgba(255,207,74,.22),0 0 14px rgba(255,200,80,.55)}.mpin.home{box-shadow:0 0 0 4px rgba(120,200,255,.25),0 0 18px rgba(120,200,255,.6)}
 .mbase{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none}
 .mpath{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .mpath path{fill:none;stroke:rgba(255,255,255,.6);stroke-width:4;stroke-dasharray:2 12;stroke-linecap:round}
@@ -5329,7 +5331,7 @@ function initFortUI() {
 /* ==================== ЭКСПЕДИЦИИ И РАЗВЕДКА ==================== */
 const SEA_W = 1536, SEA_H = 1024, SEA_NEED = 5;
 const SEAS = [
-  { n: 'Лазурное море', img: 'sea1.webp', lvl: 1, boss: 0, wx: [['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]],
+  { n: 'Лазурное море', img: 'sea1.webp', tods: ['dawn', 'dusk', 'night'], lvl: 1, boss: 0, wx: [['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]],
     base: { x: 330, y: 690, n: 'Остров Рассвета' }, pir: { x: 215, y: 160, n: 'Чёрный Зуб' },
     isles: [{ x: 740, y: 215, n: 'Зелёный Венец' }, { x: 1300, y: 235, n: 'Белый Утёс' }, { x: 740, y: 425, n: 'Песчанка' }, { x: 1170, y: 500, n: 'Порт Лазурный' }, { x: 1265, y: 790, n: 'Бухта Рыбаков' }, { x: 265, y: 360, n: 'Черепаший' }, { x: 850, y: 895, n: 'Пальмовый' }, { x: 1460, y: 470, n: 'Скала Чаек' }] },
   { n: 'Море Янтарных Ветров', img: 'sea2.webp', lvl: 7, boss: 1, wx: [['clear', 6], ['storm', 1], ['night', 2]],
@@ -5433,10 +5435,11 @@ function intelPanel(h) {
   return s;
 }
 /* ---- экран карты моря ---- */
+const seaImg = (S, t = todNow()) => S.tods && S.tods.includes(t) ? S.img.replace('.webp', '_' + t + '.webp') : S.img;
 const spc = p => `left:${p.x / SEA_W * 100}%;top:${p.y / SEA_H * 100}%`;
 function seaStage(h, sea, W) {
   const E = h.exp, S = SEAS[sea], reps = E.reports.filter(r => r.sea === sea), cleared = E.cleared.includes(sea);
-  let s = `<div class="mstage" style="width:${W}px"><img class="mbase" src="${S.img}" alt="" draggable="false">`;
+  let s = `<div class="mstage" style="width:${W}px"><img class="mbase" src="${seaImg(S)}" alt="" draggable="false">`;
   s += `<button class="mpin home" data-sp="base" style="${spc(S.base)}"><span>🏰</span><em>${sea === 0 ? 'Ваша крепость' : 'Передовая база'}</em></button>`;
   const br = reps.find(r => r.isle === -1);
   s += `<button class="mpin ${br ? 'now boss rep' : cleared ? 'done' : 'lock boss'}" data-sp="-1" style="${spc(S.pir)}"><span>${cleared ? '🏳️' : '☠️'}</span>${br ? `<em>${BOSSES[S.boss].name}</em>` : ''}</button>`;
@@ -5459,6 +5462,7 @@ function renderMap(center) {
   const W = Math.round(Math.max(vw, vh * SEA_W / SEA_H));
   const keep = !center && v.firstElementChild ? [v.scrollLeft, v.scrollTop] : null;
   v.innerHTML = seaStage(h, sea, W);
+  MapLife.attach(v.firstElementChild, h, sea);
   const Hh = W * SEA_H / SEA_W;
   if (keep) { v.scrollLeft = keep[0]; v.scrollTop = keep[1]; }
   else { const f = E.reports.find(r => r.sea === sea), tgt = f ? (f.isle < 0 ? S.pir : S.isles[f.isle]) : S.base; v.scrollLeft = Math.max(0, Math.min(W - vw, tgt.x / SEA_W * W - vw / 2)); v.scrollTop = Math.max(0, (Hh - vh) / 2); }
@@ -6202,6 +6206,176 @@ const Ocean = {
 
 /* ==================== ЖИВАЯ КРЕПОСТЬ ==================== */
 // координаты: x — доля ширины сцены, y — в тех же единицах (y*W = пиксели), высота сцены = 1/FASPECT
+/* ==================== ЖИВАЯ КАРТА МОРЕЙ ==================== */
+const MapLife = {
+  MW: 160, MH: 107, masks: {}, img: {}, cv: null, g: null, stage: null, W: 0, Hh: 0, t: 0, last: 0, raf: 0,
+  sea: -1, ships: [], gulls: [], clouds: [], fogs: [], P: [], sig: '',
+  rnd(a, b) { return a + Math.random() * (b - a); },
+  loadMask(src) {
+    if (this.masks[src] !== undefined) return; this.masks[src] = null;
+    const im = new Image(); im.onload = () => {
+      const c = document.createElement('canvas'); c.width = this.MW; c.height = this.MH; const x = c.getContext('2d');
+      x.drawImage(im, 0, 0, this.MW, this.MH); const d = x.getImageData(0, 0, this.MW, this.MH).data, m = new Uint8Array(this.MW * this.MH);
+      for (let i = 0; i < m.length; i++) { const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2]; m[i] = b > r + 30 && b > g - 10 && b > 70 ? 1 : 0; }
+      const e = new Uint8Array(m.length);
+      for (let y = 2; y < this.MH - 2; y++) for (let x2 = 2; x2 < this.MW - 2; x2++) { const i = y * this.MW + x2; let ok = 1; for (let dy = -2; dy <= 2 && ok; dy++) for (let dx = -2; dx <= 2; dx++) if (!m[i + dy * this.MW + dx]) { ok = 0; break; } e[i] = ok; }
+      this.masks[src] = e;
+    };
+    im.src = src;
+  },
+  init() {
+    if (this.inited) return; this.inited = true;
+    ['cargo', 'destroyer', 'cruiser', 'boat', 'atl_cargo'].forEach(k => { const i = new Image(); i.src = `top_${k}.webp`; this.img[k] = i; });
+    const pi = new Image(); pi.onload = () => { const c = document.createElement('canvas'); c.width = pi.width; c.height = pi.height; const x = c.getContext('2d'); x.drawImage(pi, 0, 0); x.globalCompositeOperation = 'source-atop'; x.fillStyle = 'rgba(60,8,6,.65)'; x.fillRect(0, 0, c.width, c.height); this.img.pirate = c; };
+    pi.src = 'top_destroyer.webp';
+  },
+  water(x, y) {   // x,y — в пикселях карты 1536×1024
+    const m = this.mask; if (!m) return false;
+    const mx = Math.floor(x / SEA_W * this.MW), my = Math.floor(y / SEA_H * this.MH);
+    if (mx < 0 || my < 0 || mx >= this.MW || my >= this.MH) return false;
+    return !!m[my * this.MW + mx];
+  },
+  spot(cx, cy, r, tries = 80) {
+    for (let i = 0; i < tries; i++) { const a = Math.random() * 6.283, d = Math.sqrt(Math.random()) * r, x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d; if (this.water(x, y)) return [x, y]; }
+    return null;
+  },
+  attach(stage, h, sea) {
+    if (reduceMotion) return; this.init();
+    const S = SEAS[sea]; this.loadMask(S.img);
+    const c = document.createElement('canvas'); c.className = 'mlife'; stage.insertBefore(c, stage.children[1] || null);
+    this.cv = c; this.g = c.getContext('2d'); this.stage = stage; this.W = 0;
+    if (sea !== this.sea) { this.sea = sea; this.ships = []; this.fogs = []; this.clouds = []; this.P = []; this.sig = ''; }
+    this.h = h;
+    if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame(t => this.frame(t)); }
+  },
+  sync() {
+    const h = this.h, S = SEAS[this.sea], E = h.exp, cleared = E.cleared.includes(this.sea);
+    const own = S.isles.map((p, i) => ({ p, k: iKey(this.sea, i) })).filter(o => isleOf(h, o.k).own && !isleOf(h, o.k).lost);
+    const fog = S.isles.map((p, i) => ({ p, st: isleOf(h, iKey(this.sea, i)) })).filter(o => !o.st.own);
+    const sig = own.map(o => o.k + ':' + (isleOf(h, o.k).dev || 0)).join(',') + '|' + fog.length + '|' + cleared;
+    if (sig === this.sig) return; this.sig = sig;
+    this.own = own; this.fogIsles = fog.map(o => o.p);
+    const want = [];
+    want.push({ role: 'merchant', type: 'cargo' }, { role: 'merchant', type: 'cargo' }, { role: 'merchant', type: 'boat' });
+    if (!cleared) want.push({ role: 'pirate' }, { role: 'pirate' });
+    if (own.length) want.push({ role: 'patrol', type: own.length > 3 ? 'cruiser' : 'destroyer' }, { role: 'patrol', type: 'boat' });
+    this.ships = want.map((w, i) => this.ships[i] && this.ships[i].role === w.role ? this.ships[i] : { ...w });
+    // туман над неизведанными островами
+    this.fogs = [];
+    this.fogIsles.forEach(p => { for (let i = 0; i < 4; i++) this.fogs.push({ x: p.x + this.rnd(-70, 70), y: p.y + this.rnd(-50, 50), r: this.rnd(55, 95), ph: Math.random() * 6.283, sp: this.rnd(.2, .45) }); });
+  },
+  target(b) {
+    const S = SEAS[this.sea];
+    let c;
+    if (b.role === 'pirate') c = { x: S.pir.x, y: S.pir.y, r: 320 };
+    else if (b.role === 'patrol' && this.own && this.own.length) { const o = pick(this.own).p; c = { x: o.x, y: o.y, r: 170 }; }
+    else { const all = [S.base, ...S.isles]; const o = pick(all); c = { x: o.x, y: o.y, r: 190 }; }
+    const s = this.spot(c.x, c.y, c.r) || this.spot(SEA_W / 2, SEA_H / 2, 700); if (s) { b.tx = s[0]; b.ty = s[1]; }
+  },
+  place(b) {
+    const S = SEAS[this.sea], c = b.role === 'pirate' ? S.pir : b.role === 'patrol' && this.own && this.own.length ? pick(this.own).p : pick([S.base, ...S.isles]);
+    const s = this.spot(c.x, c.y, 260) || this.spot(SEA_W / 2, SEA_H / 2, 800); if (!s) return false;
+    b.x = s[0]; b.y = s[1]; b.a = Math.random() * 6.283; b.v = b.role === 'merchant' ? this.rnd(16, 22) : b.role === 'pirate' ? this.rnd(22, 30) : this.rnd(20, 26); b.stuck = 0; this.target(b); return true;
+  },
+  frame(t) {
+    this.raf = requestAnimationFrame(t2 => this.frame(t2));
+    if (t - this.last < 33) return;
+    const dt = Math.min(80, t - this.last) / 1000; this.last = t; this.t += dt;
+    const c = this.cv; if (!c || !c.isConnected || document.hidden || !$('#scr-map').classList.contains('active')) return;
+    const W = this.stage.offsetWidth, Hh = this.stage.offsetHeight; if (!W || !Hh) return;
+    if (W !== this.W || Hh !== this.Hh) { this.W = W; this.Hh = Hh; c.width = W; c.height = Hh; }
+    const S = SEAS[this.sea]; this.mask = this.masks[S.img];
+    const h = this.h, k = W / SEA_W, tod = this.tod || todNow(), night = tod === 'night', dusk = tod === 'dusk', dawn = tod === 'dawn';
+    this.sync();
+    const g = this.g; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, Hh); g.globalCompositeOperation = 'source-over';
+    const X = x => x * k;
+    // --- блики на воде
+    if (this.mask && Math.random() < dt * (night ? 5 : 16)) { const s = this.spot(SEA_W / 2, SEA_H / 2, 900, 8); if (s) this.P.push({ k: 'glint', x: s[0], y: s[1], life: this.rnd(.5, 1.1), age: 0, s: this.rnd(5, 11) }); }
+    // --- туман над неизведанными островами
+    this.fogs.forEach(f => {
+      const x = X(f.x + Math.sin(this.t * f.sp + f.ph) * 18), y = X(f.y + Math.cos(this.t * f.sp * .8 + f.ph) * 10), r = X(f.r) * (1 + .08 * Math.sin(this.t * .5 + f.ph));
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); const a = night ? .22 : .38;
+      gr.addColorStop(0, `rgba(235,242,250,${a})`); gr.addColorStop(.6, `rgba(225,235,245,${a * .5})`); gr.addColorStop(1, 'rgba(225,235,245,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+    });
+    // --- маршруты к донесениям
+    const reps = h.exp.reports.filter(r => r.sea === this.sea);
+    reps.forEach((r, i) => {
+      const p = r.isle < 0 ? S.pir : S.isles[r.isle]; if (!p) return;
+      const x0 = X(S.base.x), y0 = X(S.base.y), x1 = X(p.x), y1 = X(p.y), mx = (x0 + x1) / 2 + (y1 - y0) * .18, my = (y0 + y1) / 2 - (x1 - x0) * .18;
+      g.save(); g.setLineDash([X(14), X(12)]); g.lineDashOffset = -this.t * X(40); g.lineCap = 'round';
+      g.strokeStyle = 'rgba(0,15,35,.35)'; g.lineWidth = Math.max(3, X(6)); g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(mx, my, x1, y1); g.stroke();
+      g.strokeStyle = r.isle < 0 ? 'rgba(255,120,100,.95)' : 'rgba(255,215,110,.95)'; g.lineWidth = Math.max(2, X(3.5)); g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(mx, my, x1, y1); g.stroke(); g.restore();
+      // круги на воде вокруг цели
+      for (let j = 0; j < 2; j++) { const ph = ((this.t * .6 + j * .5 + i * .3) % 1), rr = X(30 + ph * 70); g.strokeStyle = `rgba(255,235,170,${.55 * (1 - ph)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x1, y1, rr, rr * .6, 0, 0, 6.283); g.stroke(); }
+    });
+    // --- корабли
+    if (this.mask) this.ships.forEach(b => {
+      if (b.x === undefined && !this.place(b)) return;
+      if (b.tx === undefined) this.target(b);
+      const want = Math.atan2(b.ty - b.y, b.tx - b.x); let da = ((want - b.a + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+      const look = 38, ax = b.x + Math.cos(b.a) * look, ay = b.y + Math.sin(b.a) * look;
+      if (!this.water(ax, ay)) { b.a += 2.2 * dt * (b.side || (b.side = Math.random() < .5 ? -1 : 1)); b.stuck += dt; }
+      else { b.side = 0; b.a += Math.max(-1, Math.min(1, da)) * 1.1 * dt; b.stuck = Math.max(0, b.stuck - dt * .5); }
+      const sp = b.v * (this.water(ax, ay) ? 1 : .25);
+      const nx = b.x + Math.cos(b.a) * sp * dt, ny = b.y + Math.sin(b.a) * sp * dt;
+      if (this.water(nx, ny)) { b.x = nx; b.y = ny; } else b.stuck += dt;
+      if (Math.hypot(b.tx - b.x, b.ty - b.y) < 40 || b.stuck > 6) { this.target(b); b.stuck = 0; }
+      if (Math.random() < dt * 6) { const bx = b.x - Math.cos(b.a) * 16, by = b.y - Math.sin(b.a) * 16; this.P.push({ k: 'foam', x: bx + Math.cos(b.a + 1.57) * this.rnd(-4, 4), y: by + Math.sin(b.a + 1.57) * this.rnd(-4, 4), life: this.rnd(1.6, 2.6), age: 0, s: 5 }); }
+    });
+    // --- частицы
+    this.P = this.P.filter(q => {
+      q.age += dt; if (q.age >= q.life) return false;
+      const tt = q.age / q.life, x = X(q.x), y = X(q.y);
+      if (q.k === 'glint') { const a = Math.sin(tt * Math.PI) * (night ? .5 : .85), s = X(q.s) + 1.5; g.strokeStyle = night ? `rgba(200,220,255,${a})` : `rgba(255,255,235,${a})`; g.lineWidth = 1.2; g.beginPath(); g.moveTo(x - s, y); g.lineTo(x + s, y); g.moveTo(x, y - s * .6); g.lineTo(x, y + s * .6); g.stroke(); }
+      else if (q.k === 'foam') { const r = X(q.s) * (1 + tt * 2.2) + 1, gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(245,252,255,${.55 * (1 - tt)})`); gr.addColorStop(1, 'rgba(245,252,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill(); }
+      return true;
+    });
+    this.ships.forEach(b => {
+      if (b.x === undefined) return;
+      const im = b.role === 'pirate' ? this.img.pirate : this.img[b.type]; if (!im || !(im.width || im.naturalWidth)) return;
+      const L = X(b.role === 'merchant' && b.type === 'boat' ? 34 : b.type === 'cruiser' ? 62 : 52), ar = TOP_AR[b.role === 'pirate' ? 'destroyer' : b.type] || 4, Wd = L / ar;
+      const bob = Math.sin(this.t * 2 + b.x * .01) * .03;
+      g.save(); g.translate(X(b.x), X(b.y)); g.rotate(b.a + bob);
+      g.globalAlpha = .35; g.fillStyle = '#001428'; g.beginPath(); g.ellipse(2, 3, L * .5, Wd * .5, 0, 0, 6.283); g.fill(); g.globalAlpha = 1;
+      g.drawImage(im, -L / 2, -Wd / 2, L, Wd);
+      g.restore();
+      if (b.role === 'pirate' && !night) { g.font = `${Math.max(10, X(18))}px sans-serif`; g.textAlign = 'center'; g.fillText('☠️', X(b.x), X(b.y) - Wd - 4); }
+    });
+    // --- облака и их тени (днём), чайки
+    if (!night) {
+      if (this.clouds.length < 4 && Math.random() < dt * .25) this.clouds.push({ x: -300, y: this.rnd(0, SEA_H), s: this.rnd(140, 260), v: this.rnd(10, 18), k: this.rnd(.6, 1) });
+      this.clouds = this.clouds.filter(cl => (cl.x += cl.v * dt) < SEA_W + 350);
+      this.clouds.forEach(cl => {
+        const x = X(cl.x), y = X(cl.y), r = X(cl.s);
+        g.save(); g.translate(x + X(60), y + X(70)); g.scale(1, .55); let gr = g.createRadialGradient(0, 0, 0, 0, 0, r); gr.addColorStop(0, `rgba(5,20,40,${.18 * cl.k})`); gr.addColorStop(1, 'rgba(5,20,40,0)'); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, r, 0, 6.283); g.fill(); g.restore();
+        g.save(); g.translate(x, y); g.scale(1, .5); gr = g.createRadialGradient(0, 0, 0, 0, 0, r * .8); gr.addColorStop(0, `rgba(255,255,255,${.22 * cl.k})`); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, r * .8, 0, 6.283); g.fill(); g.restore();
+      });
+      if (this.gulls.length < (dusk ? 2 : 6) && Math.random() < dt * .7) { const l = Math.random() < .5; this.gulls.push({ x: l ? -30 : SEA_W + 30, y: this.rnd(30, SEA_H - 30), vx: (l ? 1 : -1) * this.rnd(45, 70), ph: Math.random() * 6, s: this.rnd(7, 11) }); }
+    } else this.gulls = [];
+    this.gulls = this.gulls.filter(q => { q.x += q.vx * dt; q.y += Math.sin(this.t * .8 + q.ph) * 12 * dt; return q.x > -60 && q.x < SEA_W + 60; });
+    this.gulls.forEach(q => {
+      const x = X(q.x), y = X(q.y), s = X(q.s) + 3, fl = Math.sin(this.t * 9 + q.ph) * .55;
+      const wing = (ox, oy, col, lw) => { g.strokeStyle = col; g.lineWidth = lw; g.lineCap = 'round'; g.beginPath(); g.moveTo(ox - s, oy - s * fl); g.quadraticCurveTo(ox - s * .45, oy - s * (.5 + fl * .4), ox, oy); g.quadraticCurveTo(ox + s * .45, oy - s * (.5 + fl * .4), ox + s, oy - s * fl); g.stroke(); };
+      wing(x + s * 1.5, y + s * 2.6, 'rgba(0,20,40,.22)', 2);
+      wing(x, y, dusk ? 'rgba(70,45,45,.9)' : 'rgba(255,255,255,.95)', 2.2);
+    });
+    // --- время суток
+    { const im = this.stage.querySelector('.mbase'), want = seaImg(S, tod); if (im && !im.src.endsWith(want)) im.src = want; }
+    if (night || dusk) {   // огни на своих островах и в крепости
+      g.globalCompositeOperation = 'lighter';
+      const glow = (p, n, a) => { for (let i = 0; i < n; i++) { const x = X(p.x + Math.sin(i * 2.4) * (12 + i * 6)), y = X(p.y + Math.cos(i * 1.7) * (8 + i * 4)), fl = .7 + .3 * Math.sin(this.t * 3 + i * 1.3), r = X(14 + i % 3 * 4) + 3; const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(255,210,120,${a * fl})`); gr.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill(); } };
+      if (this.sea === 0) glow(S.base, 10, night ? .8 : .45);
+      (this.own || []).forEach(o => glow(o.p, 3 + 2 * (isleOf(h, o.k).dev || 0), night ? .75 : .4));
+      g.globalCompositeOperation = 'source-over';
+    }
+    if (night) {   // ходовые огни кораблей
+      g.globalCompositeOperation = 'lighter';
+      this.ships.forEach(b => { if (b.x === undefined) return; const L = X(50); [[.25, 'rgba(255,230,160,'], [-.3, b.role === 'pirate' ? 'rgba(255,80,60,' : 'rgba(120,255,170,']].forEach(([o, c0]) => { const x = X(b.x) + Math.cos(b.a) * L * o, y = X(b.y) + Math.sin(b.a) * L * o, r = 6, gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, c0 + '.95)'); gr.addColorStop(1, c0 + '0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill(); }); });
+      g.globalCompositeOperation = 'source-over';
+    }
+  },
+};
 const FortLife = {
   MW: 128, MH: 143, mask: null, cv: null, g: null, W: 0, Hh: 0, t: 0, last: 0, raf: 0,
   boats: [], gulls: [], clouds: [], pir: [], P: [], img: {}, sig: '',
