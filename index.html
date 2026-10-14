@@ -458,6 +458,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .clbtn{display:block!important;width:100%;text-align:center}.clbtn small{display:block;font-weight:600;opacity:.85;font-size:11.5px;margin-top:2px}
 #ov-clan .dpsplash img{object-position:50% 22%}
 .clanst{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;margin:2px 0 6px}.clanst.war{background:rgba(200,40,30,.35);color:#ffb3a8}.clanst.offer{background:rgba(255,190,60,.3);color:#ffe08a}.clanst.serv{background:rgba(60,190,110,.3);color:#b6ffd0}.clanst.gone{background:rgba(120,120,120,.35);color:#ddd}
+.clp{display:flex;gap:10px;align-items:center}.clp img{width:72px;height:72px;border-radius:50%;object-fit:cover;object-position:50% 18%;flex:none;border:2px solid rgba(255,140,110,.7);background:rgba(0,0,0,.3)}.clp span{display:block;min-width:0}
 .clship img{width:100%;border-radius:8px;margin-bottom:6px;display:block}
 .clanppl{display:grid;gap:6px;margin:6px 0}.clanppl div{background:rgba(0,0,0,.22);border-radius:10px;padding:7px 10px;line-height:1.3}.clanppl b{color:#ffe08a;font-size:13.5px}.clanppl small{display:block;font-size:11.5px;color:#cfe3f3}
 .cllist{margin:6px 0;padding-left:0;list-style:none}.cllist li{font-size:12.5px;padding:3px 0}
@@ -3475,8 +3476,8 @@ function dipRoom(h) {
   const ST = { war: ['war', '⚔️ Война'], offer: ['offer', '🏳️ Просят мира'], serv: ['serv', '🤝 На вашей службе'], gone: ['gone', '💨 Братство распущено'] }[st];
   let s = `<div class="roomhero wide"><img src="pir_clan.webp" alt="Братство Чёрного Зуба" style="object-position:50% 20%"><div class="bh-cap"><b>🕊 Зал дипломатии</b><small>фракции морей и отношения с ними</small></div></div>`;
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">☠️ ${CLAN.n}</div><span class="clanst ${ST[0]}">${ST[1]}</span><small class="muted">${CLAN.d}</small>
-    <div class="clanppl"><div><b>🧭 ${CLAN.cap} «${CLAN.nick}»</b><small>Глава братства. Когда-то — офицер флота, которого командиры предали и бросили отвечать за чужие ошибки. С тех пор он не служит никому.</small></div>
-    <div><b>🗺 Лючия Корвин</b><small>Дочь капитана, штурман и его правая рука. Пошла по стопам отца: знает каждую мель Лазурного моря и первой понимает, когда пора менять курс.</small></div>
+    <div class="clanppl"><div class="clp"><img src="corvin.webp" alt=""><span><b>🧭 ${CLAN.cap} «${CLAN.nick}»</b><small>Глава братства. Когда-то — офицер флота, которого командиры предали и бросили отвечать за чужие ошибки. С тех пор он не служит никому.</small></span></div>
+    <div class="clp"><img src="lucia.webp" alt=""><span><b>🗺 Лючия Корвин</b><small>Дочь капитана, штурман и его правая рука. Пошла по стопам отца: знает каждую мель Лазурного моря и первой понимает, когда пора менять курс.</small></span></div>
     <div class="clship"><img src="pir_ship_hero.webp" alt=""><b>⚓ «${CLAN.ship}»</b><small>Флагман братства — эсминец с бортами цвета капитанского сюртука. Корвин выводит его в бой, только когда братству некуда отступать: в схватке за последний свободный остров Лазурного моря.</small></div></div>
     <div class="sec-t">📊 Ваша война с братством</div><div class="trfac"><span>🔥 потоплено <b>${trSum(F.sunk)}</b></span><span>🏴 абордаж <b>${trSum(F.cap)}</b></span><span>💥 форты <b>${F.fortD + F.fortC}</b></span><span>☠️ главари <b>${F.boss}</b></span></div>`;
   if (st === 'war') s += `<div class="sec-t">🏳️ Путь к миру</div><small class="muted">Братство не сдастся, пока у него есть где укрыться. Отнимите у пиратов всё Лазурное море:</small>
