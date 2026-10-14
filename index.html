@@ -458,11 +458,13 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .clbtn{display:block!important;width:100%;text-align:center}.clbtn small{display:block;font-weight:600;opacity:.85;font-size:11.5px;margin-top:2px}
 #ov-clan .dpsplash img{object-position:50% 22%}
 .clanst{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;margin:2px 0 6px}.clanst.war{background:rgba(200,40,30,.35);color:#ffb3a8}.clanst.offer{background:rgba(255,190,60,.3);color:#ffe08a}.clanst.serv{background:rgba(60,190,110,.3);color:#b6ffd0}.clanst.gone{background:rgba(120,120,120,.35);color:#ddd}
+.dfacs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(560px,100%)}.dfac{position:relative;padding:8px 3px 7px;border-radius:14px;border:1.5px solid rgba(255,255,255,.25);background:rgba(4,25,50,.8);color:#fff;display:flex;flex-direction:column;align-items:center;line-height:1.15;cursor:pointer}.dfac span{font-size:24px}.dfac b{font-size:11.5px;color:#ffe08a;margin-top:2px}.dfac small{font-size:9.5px;color:#a9c8de;text-align:center}.dfac.on{border-color:#ffcf4a;background:rgba(255,190,60,.2);box-shadow:0 0 10px rgba(255,207,74,.35)}.dfac i{position:absolute;top:4px;right:6px;font-style:normal;background:#ff6b57;color:#fff;border-radius:8px;padding:0 5px;font-size:11px;font-weight:900}
+.dfimg img{width:100%;aspect-ratio:2/1;object-fit:cover;border-radius:10px;display:block;margin:4px 0 6px}
 .clp{display:flex;gap:10px;align-items:center}.clp img{width:72px;height:72px;border-radius:50%;object-fit:cover;object-position:50% 18%;flex:none;border:2px solid rgba(255,140,110,.7);background:rgba(0,0,0,.3)}.clp span{display:block;min-width:0}
 .clship img{width:100%;border-radius:8px;margin-bottom:6px;display:block}
 .clanppl{display:grid;gap:6px;margin:6px 0}.clanppl div{background:rgba(0,0,0,.22);border-radius:10px;padding:7px 10px;line-height:1.3}.clanppl b{color:#ffe08a;font-size:13.5px}.clanppl small{display:block;font-size:11.5px;color:#cfe3f3}
 .cllist{margin:6px 0;padding-left:0;list-style:none}.cllist li{font-size:12.5px;padding:3px 0}
-.roombtn.dip{grid-column:1/-1;height:130px}.roombtn.dip img{object-position:50% 30%}
+.roombtn.dip{grid-column:1/-1;height:130px}.roombtn.dip img{object-position:50% 40%}
 .dpcard{max-width:460px;padding:0 0 14px;overflow:hidden}.dpcard h2{margin:10px 14px 4px;font-size:19px}
 #dpb-body,#cl-body{padding:0 14px;text-align:left}
 .dpsplash{position:relative;width:100%;aspect-ratio:2/1}.dpsplash img{width:100%;height:100%;object-fit:cover;display:block}
@@ -3474,8 +3476,11 @@ function dipRoom(h) {
   const C = clanData(h), st = C.st, E = h.exp, F = (h.troph.f || {}).pir || { sunk: {}, cap: {}, fortD: 0, fortC: 0, boss: 0 };
   const own = SEAS[0].isles.filter((_, i) => { const I = isleOf(h, iKey(0, i)); return I.own && !I.lost; }).length, all = SEAS[0].isles.length, bossOk = E.cleared.includes(0);
   const ST = { war: ['war', '⚔️ Война'], offer: ['offer', '🏳️ Просят мира'], serv: ['serv', '🤝 На вашей службе'], gone: ['gone', '💨 Братство распущено'] }[st];
-  let s = `<div class="roomhero wide"><img src="pir_clan.webp" alt="Братство Чёрного Зуба" style="object-position:50% 20%"><div class="bh-cap"><b>🕊 Зал дипломатии</b><small>фракции морей и отношения с ними</small></div></div>`;
-  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">☠️ ${CLAN.n}</div><span class="clanst ${ST[0]}">${ST[1]}</span><small class="muted">${CLAN.d}</small>
+  const fk = HB.dfac || 'pir', FX = DIP_FAC;
+  let s = `<div class="roomhero wide"><img src="diplomacy_room.webp" alt="Зал дипломатии" style="object-position:50% 40%"><div class="bh-cap"><b>🕊 Зал дипломатии</b><small>фракции морей и отношения с ними</small></div></div>
+    <div class="dfacs">${Object.keys(FX).map(k => `<button class="dfac${k === fk ? ' on' : ''}" data-dfac="${k}"><span>${FX[k].ic}</span><b>${FX[k].n}</b><small>${FX[k].sea}</small>${k === 'pir' && st === 'offer' ? '<i>!</i>' : ''}</button>`).join('')}</div>`;
+  if (fk !== 'pir') return s + dipOther(h, fk);
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">☠️ ${CLAN.n}</div><div class="dfimg"><img src="pir_clan.webp" alt="" style="object-position:50% 20%"></div><span class="clanst ${ST[0]}">${ST[1]}</span><small class="muted">${CLAN.d}</small>
     <div class="clanppl"><div class="clp"><img src="corvin.webp" alt=""><span><b>🧭 ${CLAN.cap} «${CLAN.nick}»</b><small>Глава братства. Когда-то — офицер флота, которого командиры предали и бросили отвечать за чужие ошибки. С тех пор он не служит никому.</small></span></div>
     <div class="clp"><img src="lucia.webp" alt=""><span><b>🗺 Лючия Корвин</b><small>Дочь капитана, штурман и его правая рука. Пошла по стопам отца: знает каждую мель Лазурного моря и первой понимает, когда пора менять курс.</small></span></div>
     <div class="clship"><img src="pir_ship_hero.webp" alt=""><b>⚓ «${CLAN.ship}»</b><small>Флагман братства — эсминец с бортами цвета капитанского сюртука. Корвин выводит его в бой, только когда братству некуда отступать: в схватке за последний свободный остров Лазурного моря.</small></div></div>
@@ -3485,8 +3490,32 @@ function dipRoom(h) {
   else if (st === 'offer') s += `<div class="dpbtns"><button class="btn primary" data-cl="1">🏳️ Принять послов</button></div>`;
   else if (st === 'serv') s += `<div class="sec-t">🤝 Братство служит вам</div><ul class="cllist"><li>🛡 Пираты больше не нападают на острова Лазурного моря</li><li>💰 Чёрный Зуб приносит +${CLAN.inc} 💰/ч</li><li>⚓ «${CLAN.ship}» и корабли братства патрулируют море</li><li>🛠 На верфи можно строить эсминцы «Странник» — того же класса, что и флагман Корвина</li></ul><div class="dpbtns"><button class="btn primary" data-clt="1">💬 Поговорить с Корвинами</button></div>`;
   else s += `<small class="muted">Братство распущено. Уцелевшие пираты ушли в дальние моря — тамошние разбойники стали злее (+15% к силе нападений на острова).</small>`;
-  s += `</div><div class="glass hub-panel"><small class="muted">🦈 Морские рейдеры, 🔱 Атлантис и учёные Глубоких вод скоро появятся в этом зале.</small></div>`;
-  return s;
+  return s + `</div>`;
+}
+const DIP_FAC = { pir: { ic: '☠️', n: 'Пираты', sea: 'Лазурное море' }, atl: { ic: '🔱', n: 'Атлантис', sea: 'свободный город' }, sci: { ic: '🔬', n: 'Учёные', sea: 'Глубокие воды' }, raid: { ic: '🦈', n: 'Рейдеры', sea: 'Глубокие воды' } };
+function dipOther(h, fk) {
+  const bar = (v, a, b) => `<div class="rankline"><span class="bar"><i style="width:${b ? Math.min(100, (v - a) / (b - a) * 100) : 100}%"></i></span><small>${b ? `доверие ${v}/${b}` : 'высшее доверие'}</small></div>`;
+  if (fk === 'atl') {
+    const A = atlData(h), k = atlRank(h), nx = ATL_RANKS[k + 1];
+    return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔱 Свободный город Атлантис</div><div class="dfimg"><img src="atlantis.webp" alt=""></div><span class="clanst serv">🤝 Союзники · ${ATL_RANKS[k].n}</span>
+      <small class="muted">Город-государство посреди моря, где правит Совет Гильдий. Атлантис не воюет ни с кем, но щедро платит тем, кто охраняет его караваны и держит в узде пиратов.</small>${bar(A.rep, ATL_RANKS[k].r, nx && nx.r)}
+      <div class="trfac"><span>📜 поручений выполнено <b>${A.done}</b></span><span>🎖 звание <b>${k + 1} из ${ATL_RANKS.length}</b></span></div>
+      <small class="muted">Чем выше доверие Совета, тем дороже поручения и тем больше кораблей открывает верфь Атлантиса.</small>
+      <div class="dpbtns"><button class="btn primary" data-dgo="atl">🏙 Отправиться в Атлантис</button></div></div>`;
+  }
+  if (fk === 'sci') {
+    const D = deepData(h), k = deepRank(h), nx = DEEP_RANKS[k + 1];
+    return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔬 Учёные Атлантиса</div><div class="clanppl"><div class="clp"><img src="sci_face.webp" alt=""><span><b>${SCI.n}</b><small>${SCI.t}. Ведёт исследовательское судно «${SCI.ship}» по Глубоким водам и ищет то, что море прячет уже тысячи лет.</small></span></div></div>
+      <span class="clanst serv">🤝 Союзники · ${DEEP_RANKS[k].n}</span>${bar(D.rep, DEEP_RANKS[k].r, nx && nx.r)}
+      <div class="trfac"><span>🔬 заданий выполнено <b>${D.done}</b></span><span>🎖 звание <b>${k + 1} из ${DEEP_RANKS.length}</b></span></div>
+      <div class="dpbtns"><button class="btn primary" data-dgo="deep">🌊 В Глубокие воды</button></div></div>`;
+  }
+  const F = (h.troph.f || {}).raid || { sunk: {}, cap: {}, fortD: 0, fortC: 0, boss: 0 };
+  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🦈 Морские рейдеры</div><div class="dfimg"><img src="deep_sea.webp" alt=""></div><span class="clanst war">⚔️ Война</span>
+    <small class="muted">Дисциплинированные охотники за находками Глубоких вод. Они не грабят торговцев ради наживы — им нужны древние тайны моря, и за них рейдеры готовы топить даже учёных.</small>
+    <div class="sec-t">📊 Ваша война с рейдерами</div><div class="trfac"><span>🔥 потоплено <b>${trSum(F.sunk)}</b></span><span>🏴 абордаж <b>${trSum(F.cap)}</b></span></div>
+    <small class="muted">Переговоров рейдеры пока не ведут.</small>
+    <div class="dpbtns"><button class="btn" data-dgo="deep">🌊 В Глубокие воды</button></div></div>`;
 }
 function clanOpen(step) {
   const h = hdata(curProfile()), C = clanData(h); if (C.st !== 'offer') return;
@@ -3518,14 +3547,14 @@ function roomsPanel(h) {
   return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏛 Залы цитадели</div><div class="roombtns">
     <button class="roombtn mem" data-room="mem"><img src="memorial_room.webp" alt=""><span><b>🕯 Мемориал</b><small>${M ? `${M} ${plural(M, 'корабль', 'корабля', 'кораблей')} · ${h.fallen || 0} ${plural(h.fallen || 0, 'моряк', 'моряка', 'моряков')}` : 'память о павших'}</small></span></button>
     <button class="roombtn tro" data-room="tro"><img src="trophy_room.webp" alt=""><span><b>🏆 Трофейный зал</b><small>потоплено ${t.sunk} · абордаж ${t.cap} · форты ${t.fortD + t.fortC}</small></span></button>
-    <button class="roombtn dip" data-room="dip"><img src="pir_clan.webp" alt=""><span><b>🕊 Зал дипломатии</b><small>${clanSt(h) === 'offer' ? '⚑ Послы братства ждут вашего решения!' : 'фракции морей и отношения с ними'}</small></span></button></div></div>`;
+    <button class="roombtn dip" data-room="dip"><img src="diplomacy_room.webp" alt=""><span><b>🕊 Зал дипломатии</b><small>${clanSt(h) === 'offer' ? '⚑ Послы братства ждут вашего решения!' : 'фракции морей и отношения с ними'}</small></span></button></div></div>`;
 }
 function showRoom(id) { HB.room = id; Snd.play('click'); show('scr-room'); renderRoom(); }
 function renderRoom() {
   const h = hdata(curProfile()), id = HB.room;
   $('#room-title').textContent = id === 'mem' ? 'Мемориал' : id === 'dip' ? 'Зал дипломатии' : 'Трофейный зал';
   let s = '';
-  if (id === 'dip') { $('#room-body').innerHTML = dipRoom(h); $('#room-body').querySelectorAll('[data-cl]').forEach(b => b.onclick = () => clanOpen()); $('#room-body').querySelectorAll('[data-clt]').forEach(b => b.onclick = () => clanSay(pick(CLAN_TALK))); return; }
+  if (id === 'dip') { $('#room-body').innerHTML = dipRoom(h); $('#room-body').querySelectorAll('[data-dfac]').forEach(b => b.onclick = () => { HB.dfac = b.dataset.dfac; Snd.play('click'); renderRoom(); }); $('#room-body').querySelectorAll('[data-dgo]').forEach(b => b.onclick = () => { Snd.play('click'); b.dataset.dgo === 'atl' ? showAtlMap() : showDeep(); }); $('#room-body').querySelectorAll('[data-cl]').forEach(b => b.onclick = () => clanOpen()); $('#room-body').querySelectorAll('[data-clt]').forEach(b => b.onclick = () => clanSay(pick(CLAN_TALK))); return; }
   if (id === 'mem') {
     s = `<div class="roomhero"><img src="memorial_room.webp" alt="Мемориал"><div class="bh-cap"><b>🕯 Мемориал</b><small>вечная память морякам флота</small></div></div>` + memorialPanel(h);
   } else {
