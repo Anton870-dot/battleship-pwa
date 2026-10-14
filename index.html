@@ -444,6 +444,17 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .clansci{border-color:rgba(255,120,100,.7)!important}.clansci b{color:#ffd0c4!important}.clansci small{color:#e8b0a0!important}
 .pdlg{position:fixed;z-index:60}.pdlg .dlgbox{border-color:rgba(255,140,110,.75)}.pdlg .dlgbox b{color:#ffd6c8}.pdlg .dlgbox small{color:#e8b4a4}.pdlg img{border-radius:14px 14px 0 0;object-fit:cover;object-position:50% 15%}
 .clq{display:flex;gap:10px;align-items:flex-start;margin:6px 0 8px}.clq img{width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:50% 18%;flex:none;border:2px solid rgba(255,140,110,.7)}.clq .dpquote{margin:0}
+.sqtabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;margin-bottom:6px;scrollbar-width:none}.sqtabs::-webkit-scrollbar{display:none}
+.sqtab{flex:none;min-width:118px;max-width:170px;text-align:left;padding:8px 10px;border-radius:13px;border:1.5px solid rgba(255,255,255,.25);background:rgba(0,0,0,.22);color:#fff;display:flex;flex-direction:column;gap:1px;line-height:1.2;cursor:pointer}
+.sqtab b{font-size:13px;color:#ffe08a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sqtab small{font-size:10.5px;color:#cfe3f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sqtab em{font-style:normal;font-size:10px;font-weight:800;color:#7dffb0}
+.sqtab.on{border-color:#ffcf4a;background:rgba(255,190,60,.18);box-shadow:0 0 10px rgba(255,207,74,.35)}.sqtab.add{min-width:86px;align-items:center;justify-content:center;border-style:dashed}.sqtab.add b{font-size:20px}
+.sqtabs.mini .sqtab{min-width:96px;padding:6px 9px}.sqfrom{font-size:10px;color:#ffcf9a;text-align:right}
+.ftabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(560px,100%);position:sticky;top:0;z-index:5;padding:4px 0}
+.ftab{padding:9px 4px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(4,25,50,.85);color:#e8f4ff;font-weight:800;font-size:12px;cursor:pointer;backdrop-filter:blur(6px)}
+.ftab.on{border-color:#ffcf4a;background:linear-gradient(180deg,#ffd76a,#f0a92a);color:#3a2300}.ftab i{font-style:normal;background:#ff6b57;color:#fff;border-radius:8px;padding:0 5px;font-size:10.5px;margin-left:2px}
+.stabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:8px 0 4px}.stab{padding:7px 2px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.22);color:#dbeaf6;font-size:11px;font-weight:800;cursor:pointer}.stab.on{background:rgba(255,190,60,.25);border-color:#ffcf4a;color:#ffe08a}
+.repr{flex-wrap:wrap}.repr .acts{flex-basis:100%;display:flex;justify-content:flex-end;align-items:center;gap:6px;flex-wrap:wrap}.repr .acts .col2{flex-direction:row;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.spdpair{display:inline-flex;gap:6px;flex-wrap:wrap;margin-top:4px}.col2 .spdpair{justify-content:flex-end}
 .clbtn{display:block!important;width:100%;text-align:center}.clbtn small{display:block;font-weight:600;opacity:.85;font-size:11.5px;margin-top:2px}
 #ov-clan .dpsplash img{object-position:50% 22%}
 .clanst{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;margin:2px 0 6px}.clanst.war{background:rgba(200,40,30,.35);color:#ffb3a8}.clanst.offer{background:rgba(255,190,60,.3);color:#ffe08a}.clanst.serv{background:rgba(60,190,110,.3);color:#b6ffd0}.clanst.gone{background:rgba(120,120,120,.35);color:#ddd}
@@ -930,9 +941,9 @@ body.menu-on .logo{margin:0}
   <div class="fside"><button class="fchip decchip" id="fg-dec" hidden></button><button class="fchip" id="fg-ev" hidden></button><button class="fchip" id="fg-cred">💠 0</button><button class="fchip" id="fg-log">📖 Журнал<em hidden></em></button></div>
   <button class="fraidchip" id="fg-raid" hidden>☠️ Пираты у стен! Оборона →</button>
   <div class="fhud-bot">
-    <button class="fbtn" data-bld="citadel">⚓<small>Эскадра</small></button>
+    <button class="fbtn" data-bld="fleet" data-ftab="sq">⚓<small>Эскадры</small></button>
     <button class="fbtn go" id="fg-go">🗺<b>В поход</b><small id="fg-mission"></small></button>
-    <button class="fbtn" data-bld="dock">🚢<small>Корабли</small></button>
+    <button class="fbtn" data-bld="fleet" data-ftab="ships">🚢<small>Флот</small></button>
     <button class="fbtn" id="fg-collect">💰<small>казна</small></button>
     <button class="fbtn" id="fg-zoom">🔍<small>ближе</small></button>
   </div>
@@ -2596,7 +2607,11 @@ const netRate = h => fRate(h) + isleIncome(h) - upkeep(h);
 function news(h, txt, quiet) { h.news.unshift(quiet ? { t: Date.now(), txt, q: 1 } : { t: Date.now(), txt }); h.news.length = Math.min(h.news.length, 80); if (!quiet) h.newsNew = (h.newsNew || 0) + 1; }
 /* ---------- Особые кредиты ---------- */
 const credCost = ms => Math.max(1, Math.ceil(ms / (20 * 60000)));
+const pay_g = (h, n) => { if (h.gold < n) { toast('Не хватает золота'); Snd.play('bad'); return false; } h.gold -= n; return true; };
 const payCred = (h, n) => { if ((h.cred || 0) < n) { toast('Не хватает особых кредитов 💠'); Snd.play('bad'); return false; } h.cred -= n; return true; };
+const goldCost = ms => Math.max(20, Math.ceil(ms / 60000) * 8);
+// ускорение ремонта: кредитами или золотом
+const repSpd = (h, s) => { const ms = s.repEnd - Date.now(), c = credCost(ms), g = goldCost(ms); return `<span class="spdpair"><button class="btn small credbtn" data-act="rsp" data-id="${s.id}" data-pay="c" ${(h.cred || 0) < c ? 'disabled' : ''}>⚡ ${c} 💠</button><button class="btn small" data-act="rsp" data-id="${s.id}" data-pay="g" ${h.gold < g ? 'disabled' : ''}>⚡ ${g} 💰</button></span>`; };
 const spdBtn = (h, act, end, id) => { const c = credCost(end - Date.now()); return `<button class="btn small credbtn" data-act="${act}"${id != null ? ` data-id="${id}"` : ''} ${(h.cred || 0) < c ? 'disabled' : ''}>⚡ ${c} 💠</button>`; };
 function credInfo(h) {
   showEv('💠', `Особые кредиты: ${h.cred || 0}`, 'За них можно мгновенно закончить стройку, ремонт, постройку корабля, заказ снарядов или рейс каравана: 1 💠 за каждые 20 минут ожидания.<br><br><b>Как получить:</b><br>босс повержен — +5<br>остров захвачен — +2<br>набег на крепость отбит — +1<br>каждая третья победа — +1<br>задание дня — +1<br>обучение пройдено — +5', [{ t: 'Понятно', cls: 'primary', fn: () => overlay('#ov-ev', false) }]);
@@ -3717,13 +3732,15 @@ function statGrid(st, cur) {
 }
 function hubShips(h, part = 'dock') {
   let html = '';
-  if (part === 'dock') {
+  const all = part === 'all', sec = all ? (HB.stab || 'dock') : part, yard = part === 'yard' || part === 'dock';
+  if (yard) {
     html += `<div class="sec-t fleet-t">🏗 Верфь — новые корабли</div><div class="ships-row">`;
     BUY_ORDER.forEach(t => { const lk = buyLock(h, t); html += `<button class="shipcard glass${HB.cat === t ? ' sel' : ''}${HS[t].future ? ' future' : ''}${lk ? ' locked' : ''}" data-cat="${t}"><span class="shbox">${shipImg(t)}</span><span class="scn">${HS[t].name}</span><small>${lk ? '🔒 ' + lk.short : pShip(h, t) + ' 💰'}</small></button>`; });
     html += '</div>';
   }
-  html += fleetRow(h);
-  if (part === 'dock' && HB.cat) {
+  if (part !== 'yard') html += fleetRow(h);
+  if (part === 'yard' && !HB.cat) return html + `<div class="glass hub-panel"><small class="muted">Выберите корабль на верфи, чтобы увидеть его характеристики и заложить на стапеле. Стапелей занято: ${slipBusy(h)} из ${repSlots(h)}.</small></div>`;
+  if (yard && HB.cat) {
     const t = HB.cat, s = HS[t], st = shipStats(t, {}, h.crew);
     let pn = `<div class="shipshow">${shipImg(t, 'big')}</div><div class="hp-title"><div><b>${s.name}</b><small>${s.desc}</small></div></div>${statGrid(st)}
       <small class="muted">Корабль строится на стапеле ${fmtMin(shipMin(h, t))} и приходит без опыта, улучшений и офицеров — всё это набирается с нуля. Мест для офицеров: ${s.slots}. Трюм для каравана: ${CARGO[t]} 📦. Содержание: ${UPK[t]} 💰/ч. Стапелей занято: ${slipBusy(h)}/${repSlots(h)}.</small>
@@ -3739,10 +3756,11 @@ function hubShips(h, part = 'dock') {
   pn += `<small class="muted">📦 Трюм для каравана: ${CARGO[t]}</small>`;
   if (s.future) pn += `<div class="futureline">⚡ Импульсная пушка · 👻 стелс-поле · 🔋 самовосстановление</div>`;
   const offs = offOf(h, id);
-  if (part !== 'academy' && offs.length) pn += `<small class="muted">🧑‍✈️ ${offs.map(o => `${SPEC.find(z => z.id === o.t).ic} ${o.name}`).join(', ')}</small>`;
-  if (part === 'dock') {
+  if (sec !== 'academy' && offs.length) pn += `<small class="muted">🧑‍✈️ ${offs.map(o => `${SPEC.find(z => z.id === o.t).ic} ${o.name}`).join(', ')}</small>`;
+  if (all) pn += shipTabs(h);
+  if (sec === 'dock') {
     if (own.buildEnd) pn += `<div class="repbox"><b>🏗 Строится — осталось <span data-until="${own.buildEnd}">${fmtLeft(own.buildEnd - Date.now())}</span></b><small>Корабль на стапеле. Как только его спустят на воду, он встанет в резерв флота.</small>${spdBtn(h, 'bspeed', own.buildEnd)}</div>`;
-    else if (own.repEnd) pn += `<div class="repbox"><b>🔧 В ремонте — осталось <span data-until="${own.repEnd}">${fmtLeft(own.repEnd - Date.now())}</span></b><small>Пока корабль на стапеле, в бой он не выходит.</small>${spdBtn(h, 'rspeed', own.repEnd)}</div>`;
+    else if (own.repEnd) pn += `<div class="repbox"><b>🔧 В ремонте — осталось <span data-until="${own.repEnd}">${fmtLeft(own.repEnd - Date.now())}</span></b><small>Пока корабль на стапеле, в бой он не выходит. Ремонт можно закончить сразу:</small>${repSpd(h, own)}</div>`;
     else if (own.hpLost) { const r = repairInfo(h, own), busy = slipBusy(h) >= repSlots(h); pn += `<div class="repbox"><b>🩹 Повреждён: −${own.hpLost} ❤ (${Math.round(r.frac * 100)}%)</b><small>В бой выйдет с ❤ ${shipHp(h, own)} из ${st.hp}. Ремонт займёт ${fmtMin(r.min)}. Стапелей в доке: ${slipBusy(h)}/${repSlots(h)}.</small><button class="btn primary" data-act="repair" ${busy || h.gold < r.gold ? 'disabled' : ''}>🔧 Ремонт · ${fmtMin(r.min)} · ${r.gold} 💰</button></div>`; }
     const btns = [];
     if (post !== 'flag' && !own.isle && !own.trade) btns.push(`<button class="btn small primary" data-act="activate" ${own.broken ? 'disabled' : ''}>⭐ Флагман</button>`);
@@ -3752,9 +3770,10 @@ function hubShips(h, part = 'dock') {
     if (post !== 'flag' && !own.trade) btns.push(`<button class="btn small" data-act="sell">Продать · ${sellPrice(h, own)} 💰</button>`);
     if (btns.length) pn += `<div class="row" style="flex-wrap:wrap">${btns.join('')}</div>`;
   } else if (own.buildEnd) pn += `<div class="warnline">🏗 Корабль ещё строится: <span data-until="${own.buildEnd}">${fmtLeft(own.buildEnd - Date.now())}</span></div>`;
-  else if (own.repEnd) pn += `<div class="warnline">🔧 Корабль на ремонте в Сухом доке: ещё <span data-until="${own.repEnd}">${fmtLeft(own.repEnd - Date.now())}</span></div>`;
+  else if (own.repEnd) pn += `<div class="warnline">🔧 Корабль на ремонте в Сухом доке: ещё <span data-until="${own.repEnd}">${fmtLeft(own.repEnd - Date.now())}</span></div>${repSpd(h, own)}`;
   else if (own.hpLost) pn += `<div class="warnline">🩹 Повреждён: ❤ ${shipHp(h, own)} из ${st.hp}. Ремонт — в Сухом доке.</div>`;
-  if (part === 'barracks') {
+  if (all && sec !== 'dock' && !fL(h, sec)) pn += `<div class="warnline">🔒 ${SECN[sec][1]}</div>`;
+  else if (sec === 'barracks') {
     const cm = CREW[t], cf = cm - own.crew, sw = HS[t].sub ? 'Подводники' : 'Матросы';
     pn += `<div class="sec-t">${HS[t].sub ? '🤿' : '👥'} Команда корабля</div><div class="uprow"><span class="ic">${HS[t].sub ? '🤿' : '👥'}</span><span class="nm">${sw}: ${own.crew} из ${cm}<small>Без полной команды корабль хуже стреляет, а при нехватке больше половины — медленнее ходит.</small></span>
       <span class="col2"><button class="btn small primary" data-act="sail1" ${!cf || h.gold < pSailor(h) ? 'disabled' : ''}>+1 · ${pSailor(h)} 💰</button>${cf > 1 ? `<button class="btn small" data-act="sailfull" ${h.gold < pSailor(h) * cf ? 'disabled' : ''}>+${cf} · ${pSailor(h) * cf} 💰</button>` : ''}</span></div>`;
@@ -3763,7 +3782,7 @@ function hubShips(h, part = 'dock') {
       <span class="col2"><button class="btn small primary" data-act="mar1" ${!free || h.gold < pMar(h) ? 'disabled' : ''}>+1 · ${pMar(h)} 💰</button>
       ${free > 1 ? `<button class="btn small" data-act="marfull" ${h.gold < pMar(h) * free ? 'disabled' : ''}>+${free} · ${pMar(h) * free} 💰</button>` : ''}</span></div>`;
   }
-  if (part === 'academy') {
+  if (sec === 'academy' && fL(h, 'academy')) {
     pn += `<div class="sec-t">🧑‍✈️ Офицеры на борту (${offs.length}/${s.slots})</div>`;
     offs.forEach(o => {
       const d = SPEC.find(z => z.id === o.t);
@@ -3775,7 +3794,7 @@ function hubShips(h, part = 'dock') {
       else free.forEach(o => { const d = SPEC.find(z => z.id === o.t); pn += `<div class="uprow pickrow"><span class="ic">${d.ic}</span><span class="nm">${OFF_RANKS[o.lvl]} ${o.name}<small>${d.name}: ${offTxt(o)}</small></span><button class="btn small primary" data-act="oassign" data-id="${o.id}">На борт</button></div>`; });
     }
   }
-  if (part === 'workshop') {
+  if (sec === 'workshop' && fL(h, 'workshop')) {
     pn += `<div class="sec-t">Улучшения корабля</div>`;
     HUP.forEach(u => {
       const l = own.up[u.id] || 0, cost = pUp(h, t, l), max = l >= u.max;
@@ -3804,6 +3823,42 @@ function officersPanel(h) {
   return s + `<small class="muted">Нанятый офицер ждёт в Академии. Назначить его на корабль — выберите корабль вверху. У катера, эсминца и подлодки одно место, у крейсера два, у линкора три. Двух одинаковых специалистов на одном корабле быть не может.</small></div>`;
 }
 const SQ_POS = [[50, 3], [27, 34], [73, 34], [17, 65], [83, 65], [50, 65]];
+/* ---------- Эскадры: сколько угодно, в бой идёт выбранная ---------- */
+const sqData = h => { if (!h.sqs || !h.sqs.length) { h.sqs = [{ id: 1, n: '1-я эскадра' }]; h.sqCur = 1; h.sqN = 1; } return h.sqs; };
+const sqCurOf = h => sqData(h).find(q => q.id === h.sqCur) || (h.sqCur = h.sqs[0].id, h.sqs[0]);
+const sqOk = (h, id) => { const s = h.ships[id]; return !!s && !s.isle && !s.trade && !s.buildEnd; };
+function sqClean(h) {
+  const cur = sqCurOf(h), used = new Set([h.active, ...h.squad]);
+  cur.fl = h.active; cur.ss = [...h.squad];
+  h.sqs.forEach(q => {
+    if (q === cur) return;
+    q.ss = (q.ss || []).filter(id => sqOk(h, id) && !used.has(id));
+    if (q.fl && (!sqOk(h, q.fl) || used.has(q.fl))) q.fl = null;
+    if (!q.fl) q.fl = q.ss.shift() || null;
+    if (q.fl) used.add(q.fl); q.ss.forEach(id => used.add(id));
+  });
+}
+const sqOf = (h, id) => sqData(h).find(q => q.id !== h.sqCur && (q.fl === id || (q.ss || []).includes(id)));
+const sqSize = (h, q) => q.id === h.sqCur ? 1 + h.squad.length : (q.fl ? 1 : 0) + (q.ss || []).length;
+const sqFree = h => { sqClean(h); return Object.values(h.ships).filter(s => sqOk(h, s.id) && !s.broken && s.id !== h.active && !h.squad.includes(s.id) && !sqOf(h, s.id)); };
+function sqUse(h, id) {
+  sqClean(h); const t = h.sqs.find(q => q.id === id); if (!t || t.id === h.sqCur) return false;
+  if (!t.fl) { const fr = sqFree(h).sort((a, b) => HS[b.type].price - HS[a.type].price); if (!fr.length) { toast('В этой эскадре нет кораблей, а свободных нет'); return false; } t.fl = fr[0].id; }
+  h.active = t.fl; h.squad = (t.ss || []).slice(0, SQUAD_MAX); h.sqCur = t.id; sqClean(h); HB.sel = h.active; return true;
+}
+function sqNew(h) {
+  const free = sqFree(h).sort((a, b) => HS[b.type].price - HS[a.type].price || (b.xp || 0) - (a.xp || 0));
+  if (!free.length) { toast('Нет свободных кораблей: все уже в эскадрах, на островах или в караванах'); return false; }
+  h.sqN = (h.sqN || h.sqs.length) + 1; const q = { id: Date.now() % 1e9, n: `${h.sqN}-я эскадра`, fl: free[0].id, ss: [] };
+  h.sqs.push(q); sqUse(h, q.id); toast(`🚩 Создана ${q.n}. Флагман — ${sName(free[0])}`); return true;
+}
+function sqTabs(h) {
+  sqClean(h); const cur = sqCurOf(h);
+  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🚩 Эскадры · ${h.sqs.length}</div><div class="sqtabs">${h.sqs.map(q => { const on = q.id === h.sqCur, fl = h.ships[q.fl]; return `<button class="sqtab${on ? ' on' : ''}" data-act="squse" data-id="${q.id}"><b>${q.n}</b><small>${fl ? '⭐ ' + fl.name : 'пусто'} · ${sqSize(h, q)} кор.</small>${on ? '<em>⚔️ идёт в бой</em>' : ''}</button>`; }).join('')}<button class="sqtab add" data-act="sqnew"><b>＋</b><small>новая эскадра</small></button></div>
+    <div class="row" style="flex-wrap:wrap"><button class="btn small" data-act="sqren">✏️ Переименовать «${cur.n}»</button>${h.sqs.length > 1 ? `<button class="btn small" data-act="sqrm">🗑 Расформировать</button>` : ''}</div>
+    <small class="muted">В бой идёт выбранная эскадра — переключить её можно здесь или прямо на карте перед боем. Корабли других эскадр ждут в гавани и выходят на подмогу как резерв.</small></div>`;
+}
+const sqChips = h => { sqClean(h); return h.sqs.length < 2 ? '' : `<div class="sqtabs mini">${h.sqs.map(q => `<button class="sqtab${q.id === h.sqCur ? ' on' : ''}" data-sq="${q.id}"><b>${q.n}</b><small>${sqSize(h, q)} кор.</small></button>`).join('')}</div>`; };
 function squadShow(h) {
   const lvl = hireLvl(h.mission), units = [];
   const fl = h.ships[h.active]; if (fl) units.push({ s: fl, flag: 1 });
@@ -3819,33 +3874,57 @@ function squadShow(h) {
     hp += broken ? 0 : cur; hpm += max;
     const len = HS[t].len || 1, L = 30 + len * 11, ar = TOP_AR[t] || 4, k = cur / max;
     const pic = TOP_AR[t] ? `<img src="top_${t}.webp" alt="" draggable="false" style="width:${L * 1.0}px;height:${L / ar}px">` : `<span class="sqemo">${HS[t].sub ? '🤿' : '🚢'}</span>`;
-    return `<div class="sqs${u.flag ? ' flag' : ''}${u.hire ? ' hire' : ''}${broken ? ' broken' : ''}" style="left:${x}%;top:${y}%"${sid ? ` data-sel="${sid}" data-bld="dock"` : ''}>
+    return `<div class="sqs${u.flag ? ' flag' : ''}${u.hire ? ' hire' : ''}${broken ? ' broken' : ''}" style="left:${x}%;top:${y}%"${sid ? ` data-sel="${sid}" data-bld="fleet" data-ftab="ships"` : ''}>
       <div class="sqpic" style="height:${L}px">${pic}<i class="sqwake"></i></div>
       <div class="sqlab"><b>${nm}</b><small>${broken ? '🔧 в ремонте' : sub}</small><span class="sqhp"><i style="width:${Math.round(k * 100)}%;background:${k > .6 ? '#5fd38a' : k > .3 ? '#ffcf4a' : '#ff6b57'}"></i></span></div></div>`;
   };
   let inner = '';
   for (let i = 0; i <= SQUAD_MAX; i++) inner += slot(units[i], i);
-  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Состав эскадры · ${units.length - 1}/${SQUAD_MAX} в сопровождении</div>
+  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ ${sqCurOf(h).n} · ${units.length - 1}/${SQUAD_MAX} в сопровождении</div>
     <div class="sqsea">${inner}<div class="sqdir">⬆ курс эскадры</div></div>
     <div class="sqsum"><span>⚔️ залп <b>${pow}</b></span><span>❤ прочность <b>${hp}/${hpm}</b></span><span>🪖 морпехов <b>${mar}</b></span><span>🚢 кораблей <b>${units.length}</b></span></div>
-    <small class="muted">Нажмите на свой корабль, чтобы открыть его в Сухом доке. Добавить или убрать корабли можно ниже, в списке эскадры.</small></div>`;
+    <small class="muted">Нажмите на корабль, чтобы открыть его карточку. Добавить или убрать корабли можно ниже.</small></div>`;
 }
 function squadPanel(h) {
   const n = squadCount(h), res = reserveOf(h);
-  let html = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Эскадра (${n}/${SQUAD_MAX})</div>
+  let html = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Состав и резерв (${n}/${SQUAD_MAX})</div>
     <small class="muted">В бой идут флагман и до ${SQUAD_MAX} кораблей сопровождения — свои и наёмные (наёмных не больше ${HIRE_MAX}). Корабли в резерве вступают в бой как подкрепление, когда ваш корабль тонет. Корабли на островах охраняют их и приносят доход.</small>`;
   const row = (s, btn) => `<div class="uprow"><span class="ic" style="width:56px">${shipImg(s.type, 'row')}</span><span class="nm">${sName(s)} ${RANKS[rankOf(s.xp)].ic}<small>${POST_TXT[shipPost(h, s.id)]} · ❤${shipHp(h, s)}/${shipMaxHp(h, s)} · ${HS[s.type].sub ? '🤿' : '👥'}${s.crew}/${CREW[s.type]} · 🪖${s.marines} · 🧑‍✈️${offOf(h, s.id).length}</small></span>${btn}</div>`;
-  html += row(h.ships[h.active], `<button class="btn small" data-sel="${h.active}" data-bld="dock">В док</button>`);
+  html += row(h.ships[h.active], `<button class="btn small" data-sel="${h.active}" data-bld="fleet" data-ftab="ships">Открыть</button>`);
   h.squad.forEach(id => { const s = h.ships[id]; html += row(s, `<button class="btn small" data-act="sqdel" data-id="${id}">Убрать</button>`); });
   if (res.length) {
     html += `<div class="sec-t">🚩 Резерв · ${res.length}</div>`;
-    res.forEach(s => { html += row(s, `<button class="btn small primary" data-act="sqadd" data-id="${s.id}" ${n >= SQUAD_MAX ? 'disabled' : ''}>В эскадру</button>`); });
+    res.forEach(s => { const q = sqOf(h, s.id); html += row(s, `<span class="col2">${q ? `<small class="sqfrom">из «${q.n}»</small>` : ''}<button class="btn small primary" data-act="sqadd" data-id="${s.id}" ${n >= SQUAD_MAX ? 'disabled' : ''}>${q ? 'Перевести' : 'В эскадру'}</button></span>`); });
   }
-  const rp = Object.values(h.ships).filter(s => s.repEnd || s.buildEnd), hu = Object.values(h.ships).filter(s => s.hpLost && !s.repEnd);
-  if (rp.length) { html += `<div class="sec-t">🏗 На стапелях · ${rp.length}/${repSlots(h)}</div>`; rp.forEach(s => { const e = s.repEnd || s.buildEnd; html += row(s, `<span class="reptm">${s.buildEnd ? '🏗' : '🔧'} <span data-until="${e}">${fmtLeft(e - Date.now())}</span></span>`); }); }
-  if (hu.length) { html += `<div class="sec-t">🩹 Повреждены · ${hu.length}</div>`; hu.forEach(s => { const r = repairInfo(h, s); html += row(s, `<button class="btn small primary" data-act="repair2" data-id="${s.id}" ${slipBusy(h) >= repSlots(h) || h.gold < r.gold ? 'disabled' : ''}>🔧 ${fmtMin(r.min)} · ${r.gold} 💰</button>`); }); }
-  if (Object.keys(h.ships).length < 2) html += `<small class="muted">Покупайте корабли на верфи в Сухом доке — сколько угодно. Захваченные абордажем корабли тоже становятся вашими.</small>`;
+  const nRep = Object.values(h.ships).filter(s => s.repEnd || s.buildEnd || s.hpLost).length;
+  if (nRep) html += `<button class="btn small" data-ftab="rep">🔧 Ремонт и стапели · ${nRep}</button>`;
+  if (Object.keys(h.ships).length < 2) html += `<small class="muted">Новые корабли закладывают на вкладке «Верфь». Захваченные абордажем корабли тоже становятся вашими.</small>`;
   return html + `</div>`;
+}
+function repPanel(h) {
+  const row = (s, btn) => `<div class="uprow repr"><span class="ic" style="width:56px">${shipImg(s.type, 'row')}</span><span class="nm">${sName(s)}<small>❤${shipHp(h, s)}/${shipMaxHp(h, s)} · ${HS[s.type].name}</small></span><div class="acts">${btn}</div></div>`;
+  let html = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🔧 Ремонт и стапели · занято ${slipBusy(h)} из ${repSlots(h)}</div><small class="muted">Ремонт и стройка идут по настоящему времени. Закончить сразу можно за 💠 кредиты или за золото. Больше стапелей — с уровнем Сухого дока.</small>`;
+  const rp = Object.values(h.ships).filter(s => s.repEnd || s.buildEnd), hu = Object.values(h.ships).filter(s => s.hpLost && !s.repEnd);
+  if (!rp.length && !hu.length) html += `<small class="muted">✅ Все корабли целы, стапели свободны.</small>`;
+  if (rp.length) { html += `<div class="sec-t">🏗 На стапелях · ${rp.length}/${repSlots(h)}</div>`; rp.forEach(s => { const e = s.repEnd || s.buildEnd; html += row(s, `<span class="col2"><span class="reptm">${s.buildEnd ? '🏗' : '🔧'} <span data-until="${e}">${fmtLeft(e - Date.now())}</span></span>${s.repEnd ? repSpd(h, s) : spdBtn(h, 'bspeed2', s.buildEnd, s.id)}</span>`); }); }
+  if (hu.length) { html += `<div class="sec-t">🩹 Повреждены · ${hu.length}</div>${hu.length > 1 ? `<button class="btn small primary" data-act="repall" ${slipBusy(h) >= repSlots(h) ? 'disabled' : ''}>🔧 Отправить в ремонт всех, на кого хватит стапелей</button>` : ''}`; hu.forEach(s => { const r = repairInfo(h, s); html += row(s, `<button class="btn small primary" data-act="repair2" data-id="${s.id}" ${slipBusy(h) >= repSlots(h) || h.gold < r.gold ? 'disabled' : ''}>🔧 ${fmtMin(r.min)} · ${r.gold} 💰</button>`); }); }
+  return html + `</div>`;
+}
+const SECN = { dock: ['⚓ Служба', ''], workshop: ['🔧 Улучшения', 'Улучшения и оборудование ставят в Мастерской — постройте её в крепости'], barracks: ['👥 Экипаж', 'Матросов и морпехов набирают в Казармах — постройте их в крепости'], academy: ['🧑‍✈️ Офицеры', 'Офицеров назначают в Морской академии — постройте её в крепости'] };
+const shipTabs = h => `<div class="stabs">${Object.keys(SECN).map(k => `<button class="stab${(HB.stab || 'dock') === k ? ' on' : ''}" data-stab="${k}">${SECN[k][0]}</button>`).join('')}</div>`;
+const FTABS = [['sq', '🚩 Эскадры'], ['ships', '🚢 Корабли'], ['yard', '🏗 Верфь'], ['rep', '🔧 Ремонт']];
+function fleetHero(h) {
+  const n = Object.keys(h.ships).length, fl = h.ships[h.active];
+  return `<img class="bh-hall" src="dock_hall.webp" style="object-position:50% 50%" alt="Флот"><div class="bh-cap"><b>⚓ Флот</b><small>${n} ${plural(n, 'корабль', 'корабля', 'кораблей')} · в бой идёт «${sqCurOf(h).n}» · ⭐ ${fl ? fl.name : '—'}</small></div>`;
+}
+function fleetScreen(h) {
+  const tab = HB.ftab || 'sq', nRep = Object.values(h.ships).filter(s => s.repEnd || (s.hpLost && !s.repEnd)).length;
+  let s = `<div class="ftabs">${FTABS.map(([k, n]) => `<button class="ftab${tab === k ? ' on' : ''}" data-ftab="${k}">${n}${k === 'rep' && nRep ? ` <i>${nRep}</i>` : ''}</button>`).join('')}</div>`;
+  if (tab === 'sq') s += sqTabs(h) + squadShow(h) + squadPanel(h);
+  else if (tab === 'ships') s += hubShips(h, 'all');
+  else if (tab === 'yard') s += fL(h, 'dock') ? hubShips(h, 'yard') : `<div class="glass hub-panel lockp"><b>🔒 Верфи нет</b><small class="muted">Постройте Сухой док в крепости.</small></div>`;
+  else s += repPanel(h);
+  return s;
 }
 function econPanel(h) {
   const inc = fRate(h), isl = isleIncome(h), up = upkeep(h), net = inc + isl - up, nShips = Object.keys(h.ships).length;
@@ -3867,12 +3946,12 @@ const fmtAgo = t => { const m = Math.round((Date.now() - t) / 60000); return m <
 function islesPanel(h) {
   const own = islesOwned(h);
   let s = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏝 Ваши острова · ${own.length}</div>
-    <small class="muted">Каждый пройденный остров — ваш. Оставьте на нём сколько угодно кораблей: гарнизон приносит золото, но пираты время от времени проверяют его на прочность (сейчас их сила ≈ ${isleThreat(h)}). Слабый гарнизон разобьют, и остров придётся отбивать.</small>`;
+    <small class="muted">Гарнизон, стройка и описание острова — в его карточке на карте. Нажмите на остров в списке.</small>`;
   if (!own.length) s += `<small class="muted">Пока нет ни одного — пройдите первую миссию.</small>`;
   own.slice().reverse().forEach(n => {
     const i = isleOf(h, n), g = isleGarr(h, n), inc = isleInc(h, n), pw = islePower(h, n);
-    s += `<div class="uprow"><span class="ic">${i.lost ? '☠️' : g.length ? '🚩' : '🏳️'}</span><span class="nm">${isleName(n)}<small>${i.lost ? 'захвачен пиратами' : g.length ? `гарнизон ${g.length} · сила ${pw} · +${inc} 💰/ч` : 'без гарнизона — дохода нет'}</small></span>
-      <button class="btn small ${i.lost ? 'primary' : ''}" data-act="isle" data-id="${n}">${i.lost ? '⚔️ Отбить' : 'Гарнизон'}</button></div>`;
+    s += `<div class="uprow"><span class="ic">${i.lost ? '☠️' : g.length ? '🚩' : '🏳️'}</span><span class="nm">${isleName(n)} <small style="display:inline">· ${SEAS[+String(n).split(':')[0]].n}</small><small>${i.lost ? 'захвачен пиратами' : `${devTrack(n)[i.dev || 0].ic} ${devTrack(n)[i.dev || 0].n}${i.build ? ' · 🏗 стройка' : ''} · 🚩 ${g.length} · ${inc ? `+${inc} 💰/ч` : 'дохода нет'}`}</small></span>
+      <button class="btn small ${i.lost ? 'primary' : ''}" data-act="isle" data-id="${n}">${i.lost ? '⚔️ Отбить' : 'Открыть'}</button></div>`;
   });
   return s + `</div>`;
 }
@@ -3937,9 +4016,16 @@ function hubAct(act, id) {
   else if (act === 'hire') { const price = hirePrice(h, id); if (h.hired.length < HIRE_MAX && squadCount(h) < SQUAD_MAX && pay(price)) h.hired.push({ type: id, paid: price }); else return; }
   else if (act === 'unhire') { const x = h.hired.splice(+id, 1)[0]; if (!x) return; h.gold += x.paid; snd = 'click'; }
   else if (act === 'sqadd') { const s = h.ships[id]; if (s && !s.broken && !s.isle && !s.trade && id !== h.active && !h.squad.includes(id) && squadCount(h) < SQUAD_MAX) h.squad.push(id); else return; snd = 'click'; }
+  else if (act === 'squse') { if (!sqUse(h, +id)) return; snd = 'horn'; }
+  else if (act === 'sqnew') { if (!sqNew(h)) return; snd = 'horn'; }
+  else if (act === 'sqren') { const q = sqCurOf(h), v = prompt('Название эскадры', q.n); if (!v || !v.trim()) return; q.n = v.trim().slice(0, 24); snd = 'click'; }
+  else if (act === 'sqrm') { sqClean(h); if (h.sqs.length < 2) return; const cur = sqCurOf(h), other = h.sqs.find(q => q !== cur && q.fl) || h.sqs.find(q => q !== cur); if (!confirm(`Расформировать «${cur.n}»?${other.fl ? ' Корабли уйдут в резерв.' : ''}`)) return; if (other.fl) sqUse(h, other.id); else h.sqCur = other.id; h.sqs = h.sqs.filter(q => q !== cur); sqClean(h); snd = 'click'; }
   else if (act === 'sqdel') { h.squad = h.squad.filter(x => x !== id); snd = 'click'; }
   else if (act === 'repair' || act === 'repair2') { const s = h.ships[act === 'repair' ? sid : id]; if (!startRepair(h, s)) return; snd = 'build'; }
   else if (act === 'rspeed' || act === 'rspeed2') { const s = h.ships[act === 'rspeed' ? sid : id]; if (!s || !s.repEnd) return; if (!payCred(h, credCost(s.repEnd - Date.now()))) return; s.repEnd = Date.now(); repairTick(h); }
+  else if (act === 'rsp') { const s = h.ships[id], pay = HB.pay; if (!s || !s.repEnd) return; const ms = s.repEnd - Date.now(); if (pay === 'g') { if (!pay_g(h, goldCost(ms))) return; } else if (!payCred(h, credCost(ms))) return; s.repEnd = Date.now(); repairTick(h); snd = 'build'; }
+  else if (act === 'repall') { let n = 0; Object.values(h.ships).filter(s => s.hpLost && !s.repEnd).sort((a, b) => b.hpLost - a.hpLost).forEach(s => { if (slipBusy(h) < repSlots(h) && startRepair(h, s)) n++; }); if (!n) return; toast(`🔧 В ремонт отправлено: ${n}`); snd = 'build'; }
+  else if (act === 'bspeed2') { const s = h.ships[id]; if (!s || !s.buildEnd || !payCred(h, credCost(s.buildEnd - Date.now()))) return; s.buildEnd = Date.now(); ammoTick(h); }
   else if (act === 'bspeed' && own) { if (!own.buildEnd || !payCred(h, credCost(own.buildEnd - Date.now()))) return; own.buildEnd = Date.now(); ammoTick(h); }
   else if (act === 'aspeed') { const q = h.ammoQ[+id]; if (!q || !q.end || !payCred(h, credCost(q.end - Date.now()))) return; q.end = Date.now(); ammoTick(h); }
   else if (act === 'sail1' && own) { if (own.crew < CREW[own.type] && pay(pSailor(h))) own.crew++; else return; }
@@ -3954,7 +4040,7 @@ function hubAct(act, id) {
   else if (act === 'opromo') { const o = h.officers.find(x => x.id === id); if (o && o.lvl < 5 && !h.unpaid && o.xp >= OFF_XP[o.lvl + 1] && pay(pTrain(h, o.lvl))) { o.lvl++; toast(`🎖 ${o.name} — теперь ${OFF_RANKS[o.lvl].toLowerCase()}`); snd = 'ach'; } else { if (h.unpaid) toast('Казна пуста — повышения заморожены'); return; } }
   else if (act === 'ofire') { const i = h.officers.findIndex(x => x.id === id); if (i < 0) return; h.officers.splice(i, 1); snd = 'click'; }
   else return;
-  saveProfiles(); Snd.play(snd); vibrate(30); renderHub();
+  sqClean(h); saveProfiles(); Snd.play(snd); vibrate(30); renderHub();
 }
 
 /* ---------- Наставник: обучение по шагам ---------- */
@@ -3962,10 +4048,10 @@ const TUT = [
   { t: 'Добро пожаловать, капитан!', d: 'Это ваша крепость. Отсюда вы строите флот, ходите в экспедиции и торгуете. Я проведу вас по первым шагам — за каждый шаг дают золото.', btn: 'Начать', manual: true, gold: 0 },
   { t: 'Закажите снаряды', d: 'Без снарядов корабль не стреляет. Откройте Мастерскую и закажите в Арсенале обычные снаряды.', bld: 'workshop', hub: 'Пролистайте до «Арсенала» и нажмите кнопку с ценой у обычных снарядов. Они будут готовы через несколько минут.', ok: h => h.ammoQ.length > 0 || h.ammo.he > 40, gold: 40 },
   { t: 'Выиграйте первый бой', d: 'Нажмите «В поход», выберите донесение разведки и дайте бой. В бою: «Плыть» — двигаться, «Огонь» — стрелять по клетке. Враг виден только рядом.', go: 'map', ok: h => h.w >= 1, gold: 80 },
-  { t: 'Почините корабли', d: 'После боя корабли приходят побитыми. Откройте Сухой док, выберите корабль и отправьте его в ремонт. Если всё цело — шаг засчитается сам.', bld: 'dock', hub: 'Выберите побитый корабль в списке флота и нажмите «Ремонт». Ремонт идёт по настоящему времени.', ok: h => !Object.values(h.ships).some(s => s.hpLost && !s.repEnd), gold: 40 },
+  { t: 'Почините корабли', d: 'После боя корабли приходят побитыми. Откройте «Флот» → вкладку «Ремонт» и отправьте корабль в ремонт. Если всё цело — шаг засчитается сам.', bld: 'fleet', tab: 'rep', hub: 'Нажмите «🔧 Ремонт» у побитого корабля. Ремонт идёт по настоящему времени, но его можно ускорить.', ok: h => !Object.values(h.ships).some(s => s.hpLost && !s.repEnd), gold: 40 },
   { t: 'Постройте Торговую гавань', d: 'Гавань приносит золото каждый час, даже когда игра закрыта. Нажмите на площадку гавани в крепости и постройте её.', bld: 'market', hub: 'Нажмите кнопку с ценой в строке «Построить». Стройка займёт пару минут.', ok: h => fL(h, 'market') >= 1 || (fdata(h).build && fdata(h).build.id === 'market'), gold: 50 },
-  { t: 'Заложите второй корабль', d: 'Один в море не воин. В Сухом доке выберите корабль на Верфи и заложите его. Катер самый дешёвый.', bld: 'dock', hub: 'Вверху — «Верфь». Нажмите на катер, затем «Заложить».', ok: h => Object.keys(h.ships).length >= 2, gold: 50 },
-  { t: 'Соберите эскадру', d: 'Когда корабль спустят на воду, возьмите его в эскадру — он пойдёт в бой вместе с флагманом.', bld: 'dock', hub: 'Выберите новый корабль в списке и нажмите «В эскадру». Если он ещё строится — подождите.', ok: h => h.squad.length >= 1, gold: 40 },
+  { t: 'Заложите второй корабль', d: 'Один в море не воин. Откройте «Флот» → вкладку «Верфь» и заложите корабль. Катер самый дешёвый.', bld: 'fleet', tab: 'yard', hub: 'Нажмите на катер, затем «Заложить».', ok: h => Object.keys(h.ships).length >= 2, gold: 50 },
+  { t: 'Соберите эскадру', d: 'Когда корабль спустят на воду, возьмите его в эскадру — он пойдёт в бой вместе с флагманом.', bld: 'fleet', tab: 'sq', hub: 'В списке резерва нажмите «В эскадру». Если корабль ещё строится — подождите.', ok: h => h.squad.length >= 1, gold: 40 },
   { t: 'Захватите остров', d: 'В экспедиции выберите донесение про остров и победите. Потом нажмите на остров на карте и оставьте гарнизон — он приносит золото.', go: 'map', ok: h => islesOwned(h).length >= 1, gold: 80 },
   { t: 'Наймите офицера', d: 'Офицеры делают корабль сильнее и растут в званиях. Постройте Морскую академию и наймите первого.', bld: 'academy', hub: 'Постройте здание, затем наймите специалиста и назначьте его на корабль.', ok: h => h.officers.length >= 1, gold: 60 },
   { t: 'Отправьте караван', d: 'В Торговой гавани купите товар на склад и снарядите караван в порт, где цена выше. Нужен свободный корабль, кроме флагмана.', bld: 'market', hub: 'Купите товар, посмотрите таблицу цен, затем «Снарядить караван».', ok: h => tradeData(h).runs.length > 0, gold: 100 },
@@ -3990,7 +4076,7 @@ function tutRender(h) {
   el.innerHTML = `<div class="th"><span>📘 Наставник · шаг ${i + 1} из ${TUT.length}</span><button data-tx aria-label="Пропустить">✕</button></div><b>${s.t}</b><p>${s.d}</p>
     <div class="row"><button class="btn small primary" data-tg>${s.btn || (s.go === 'map' ? '🗺 В поход' : 'Перейти →')}</button>${s.gold ? `<span class="rw">награда ${s.gold} 💰</span>` : ''}</div><div class="tbar"><i style="width:${i / TUT.length * 100}%"></i></div>`;
   $('#fg-gold').textContent = h.gold;
-  el.querySelector('[data-tg]').onclick = () => { Snd.play('click'); if (s.manual) { h.tut = i + 1; saveProfiles(); return tutRender(h); } if (s.go === 'map') return showMap(); openBld(s.bld); };
+  el.querySelector('[data-tg]').onclick = () => { Snd.play('click'); if (s.manual) { h.tut = i + 1; saveProfiles(); return tutRender(h); } if (s.go === 'map') return showMap(); if (s.tab) HB.ftab = s.tab; openBld(s.bld); };
   el.querySelector('[data-tx]').onclick = () => { if (!HB.tutArm) { HB.tutArm = true; toast('Нажмите ✕ ещё раз, чтобы закрыть обучение. Вернуть его можно в Цитадели'); setTimeout(() => HB.tutArm = false, 3000); return; } h.tut = -1; saveProfiles(); el.hidden = true; };
 }
 const tutLine = (h, id) => { const i = tutData(h), s = TUT[i]; return s && s.bld === id ? `<div class="tutline">📘 <b>${s.t}.</b> ${s.hub || s.d}</div>` : ''; };
@@ -5374,44 +5460,52 @@ function raidPanel(h) {
   return s;
 }
 function statsPanel(h) {
-  return `<div class="glass hub-panel"><div class="fleetline">${fleetLine(h)}</div><small class="muted">Миссия ${h.mission} · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}${h.caps ? ` · трофеев ${h.caps}` : ''}</small>
-    <button class="btn primary" data-bld="lighthouse">🔭 Штаб разведки и экспедиции</button><button class="btn small" data-act="oatl">🏙 Атлантис — свободный торговый город</button>${h.tut < 0 ? '<button class="btn small" data-act="tutre">📘 Пройти обучение заново</button>' : ''}</div>`;
+  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📜 Летопись</div><small class="muted">Миссия ${h.mission} · побед ${h.w} · поражений ${h.l} · потоплено ${h.sunk}${h.caps ? ` · трофеев ${h.caps}` : ''}</small>
+    <button class="btn primary" data-bld="lighthouse">🔭 Штаб разведки, острова и экспедиции</button>${h.tut < 0 ? '<button class="btn small" data-act="tutre">📘 Пройти обучение заново</button>' : ''}</div>`;
+}
+const toFleet = (txt, btns) => `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Флот</div><small class="muted">${txt}</small><div class="row" style="flex-wrap:wrap">${btns.map(([t, n, st]) => `<button class="btn small primary" data-bld="fleet" data-ftab="${t}"${st ? ` data-stab="${st}"` : ''}>${n}</button>`).join('')}</div></div>`;
+function citFleet(h) {
+  const nRep = Object.values(h.ships).filter(s => s.repEnd || s.hpLost).length;
+  return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ В бой идёт «${sqCurOf(h).n}»</div><div class="fleetline">${fleetLine(h)}</div>
+    <div class="row" style="flex-wrap:wrap"><button class="btn small primary" data-bld="fleet" data-ftab="sq">🚩 Эскадры</button><button class="btn small" data-bld="fleet" data-ftab="ships">🚢 Корабли</button>${nRep ? `<button class="btn small" data-bld="fleet" data-ftab="rep">🔧 Ремонт · ${nRep}</button>` : ''}</div></div>`;
 }
 function bldContent(h, id) {
   switch (id) {
-    case 'citadel': return evLine(h) + roomsPanel(h) + squadShow(h) + squadPanel(h) + statsPanel(h) + newsPanel(h) + econPanel(h) + raidPanel(h);
-    case 'dock': return hubShips(h, 'dock');
-    case 'workshop': return arsenalPanel(h) + hubShips(h, 'workshop');
-    case 'barracks': return hubShips(h, 'barracks') + drillPanel(h);
-    case 'academy': return hubShips(h, 'academy') + officersPanel(h) + crewPanel(h);
-    case 'market': return evLine(h) + `<button class="btn atlbtn" data-act="oatl">🏙 Атлантис: поручения Совета, информация, верфь</button>` + tradePanel(h) + cshopPanel(h) + incomePanel(h) + hiredPanel(h);
+    case 'citadel': return evLine(h) + roomsPanel(h) + citFleet(h) + raidPanel(h) + statsPanel(h) + newsPanel(h);
+    case 'dock': return toFleet('Верфь, ремонт и все корабли — на экране «Флот».', [['yard', '🏗 Верфь'], ['rep', '🔧 Ремонт'], ['ships', '🚢 Корабли']]);
+    case 'workshop': return arsenalPanel(h) + toFleet('Улучшения и оборудование кораблей — в карточке корабля, вкладка «🔧 Улучшения».', [['ships', '🚢 Улучшать корабли', 'workshop']]);
+    case 'barracks': return drillPanel(h) + toFleet('Матросов и морпехов набирают в карточке корабля, вкладка «👥 Экипаж».', [['ships', '👥 Экипаж кораблей', 'barracks']]);
+    case 'academy': return officersPanel(h) + crewPanel(h) + toFleet('Офицеров назначают на корабли в карточке корабля, вкладка «🧑‍✈️ Офицеры».', [['ships', '🧑‍✈️ Офицеры на кораблях', 'academy']]);
+    case 'market': return evLine(h) + `<button class="btn atlbtn" data-act="oatl">🏙 Атлантис: поручения Совета, информация, верфь</button>` + tradePanel(h) + cshopPanel(h) + hiredPanel(h);
     case 'treasury': return incomePanel(h) + econPanel(h);
     case 'lighthouse': return intelPanel(h) + islesPanel(h);
     default: return raidPanel(h);
   }
 }
 function renderHub() {
-  const p = curProfile(), h = hdata(p); fortTick(h);
-  if (!h.ships[HB.sel]) HB.sel = h.active; if (HB.bld !== 'dock') HB.cat = null;
-  const id = HB.bld || 'citadel', f = fdata(h), l = f.b[id] || 0, b = FB.find(x => x.id === id);
+  const p = curProfile(), h = hdata(p); fortTick(h); sqClean(h);
+  if (!h.ships[HB.sel]) HB.sel = h.active; if (!(HB.bld === 'fleet' && HB.ftab === 'yard')) HB.cat = null;
+  const id = HB.bld || 'citadel', f = fdata(h), l = f.b[id] || 0, b = id === 'fleet' ? { name: 'Флот', ic: '⚓' } : FB.find(x => x.id === id);
   $('#hub-title').textContent = b.name; $('#hub-gold').textContent = h.gold;
-  const hero = $('#bhero'); hero.className = 'bhero glass tod-' + todNow(); hero.innerHTML = bldHero(h, id);
+  const hero = $('#bhero'); hero.className = 'bhero glass tod-' + todNow(); hero.innerHTML = id === 'fleet' ? fleetHero(h) : bldHero(h, id);
   const body = $('#hub-body');
   tutCheck(h); $('#hub-gold').textContent = `${h.gold} · 💠 ${h.cred || 0}`;
-  body.innerHTML = tutLine(h, id) + fortCard(h, id) + (l ? bldContent(h, id) : `<div class="glass hub-panel lockp"><b>🔒 Здание ещё не построено</b><small class="muted">Постройте его, чтобы получить ${BLD_FN[id]}.</small></div>`);
+  body.innerHTML = id === 'fleet' ? tutLine(h, id) + fleetScreen(h) : tutLine(h, id) + fortCard(h, id) + (l ? bldContent(h, id) : `<div class="glass hub-panel lockp"><b>🔒 Здание ещё не построено</b><small class="muted">Постройте его, чтобы получить ${BLD_FN[id]}.</small></div>`);
+  body.querySelectorAll('[data-ftab]:not([data-bld])').forEach(x => x.onclick = () => { HB.ftab = x.dataset.ftab; HB.cat = null; HB.pick = false; Snd.play('click'); renderHub(); });
+  body.querySelectorAll('[data-stab]:not([data-bld])').forEach(x => x.onclick = () => { HB.stab = x.dataset.stab; HB.pick = false; Snd.play('click'); renderHub(); });
   body.querySelectorAll('[data-room]').forEach(x => x.onclick = () => showRoom(x.dataset.room));
   body.querySelectorAll('[data-sel]').forEach(x => x.onclick = () => { HB.sel = x.dataset.sel; HB.cat = null; HB.pick = false; Snd.play('click'); renderHub(); });
   body.querySelectorAll('[data-sea]').forEach(x => x.onclick = () => { Snd.play('click'); showMap(+x.dataset.sea); });
   body.querySelectorAll('[data-rgo]').forEach(x => x.onclick = () => runReport(x.dataset.rgo));
   body.querySelectorAll('[data-rmap]').forEach(x => x.onclick = () => { const r = h.exp.reports.find(q => q.id === x.dataset.rmap); if (!r) return; Snd.play('click'); showMap(r.sea); mapSheet('rep', r.id); });
   body.querySelectorAll('[data-cat]').forEach(x => x.onclick = () => { HB.cat = x.dataset.cat; HB.pick = false; Snd.play('click'); renderHub(); });
-  body.querySelectorAll('[data-act]').forEach(x => x.onclick = () => hubAct(x.dataset.act, x.dataset.id));
-  body.querySelectorAll('[data-bld]').forEach(x => x.onclick = () => { if (x.dataset.sel) HB.sel = x.dataset.sel; openBld(x.dataset.bld); window.scrollTo(0, 0); });
+  body.querySelectorAll('[data-act]').forEach(x => x.onclick = () => { HB.pay = x.dataset.pay; hubAct(x.dataset.act, x.dataset.id); });
+  body.querySelectorAll('[data-bld]').forEach(x => x.onclick = () => { if (x.dataset.sel) HB.sel = x.dataset.sel; if (x.dataset.ftab) HB.ftab = x.dataset.ftab; if (x.dataset.stab) HB.stab = x.dataset.stab; const keep = x.dataset.bld === 'fleet' && HB.bld === 'fleet'; if (keep) { HB.cat = null; Snd.play('click'); renderHub(); } else openBld(x.dataset.bld); window.scrollTo(0, 0); });
 }
 function initFortUI() {
   $('#fort-back').onclick = () => { document.body.classList.remove('fort-on'); show('scr-menu'); };
   $('#hub-back').onclick = () => showFort();
-  document.querySelectorAll('#scr-fort [data-bld]').forEach(b => b.onclick = () => { if (b.dataset.bld) openBld(b.dataset.bld); });
+  document.querySelectorAll('#scr-fort [data-bld]').forEach(b => b.onclick = () => { if (b.dataset.ftab) HB.ftab = b.dataset.ftab; if (b.dataset.bld) openBld(b.dataset.bld); });
   $('#fg-collect').onclick = () => fortAct('fcollect');
   $('#fg-raid').onclick = () => openBld('citadel');
   $('#atl-back').onclick = () => { Snd.play('click'); showAtlMap(); };
@@ -5649,14 +5743,14 @@ function mapSheet(kind, n, note) {
   let s = `<button class="iconbtn msx" data-mx aria-label="Закрыть">✕</button>`;
   if (kind === 'reps') {
     s += `<div class="mst"><b>📜 Донесения разведки</b><small>${E.reports.length} из ${repMax(h)}. ${E.nextAt ? `Следующее — через <span data-until="${E.nextAt}">${fmtLeft(E.nextAt - Date.now())}</span>.` : 'Места для новых нет.'}</small></div>`;
-    s += `<div class="glass hub-panel mfleet"><div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
+    s += `<div class="glass hub-panel mfleet">${sqChips(h)}<div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
     E.reports.slice().sort((a, b) => (b.sea === E.sea) - (a.sea === E.sea) || a.exp - b.exp).forEach(r => { s += repCard(h, r); });
     if (!E.reports.length) s += `<small class="muted">Донесений нет. Разведчиков можно отправить срочно.</small>`;
     s += `<button class="btn" data-req ${h.gold < repCost(h) ? 'disabled' : ''}>🔭 Срочная разведка · ${repCost(h)} 💰</button>`;
   } else if (kind === 'rep') {
     const r = E.reports.find(x => x.id === n); if (!r) return;
     s += `<div class="mst"><b>${repTitle(r)}</b><small>${repPlace(r)} · ${SEAS[r.sea].n}</small></div>`;
-    s += `<div class="glass hub-panel mfleet"><div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
+    s += `<div class="glass hub-panel mfleet">${sqChips(h)}<div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
     s += repCard(h, r, 'map');
     s += isleInfoHtml(h, r.isle < 0 ? SEAS[r.sea].pir.n : SEAS[r.sea].isles[r.isle].n, r.isle < 0 ? null : iKey(r.sea, r.isle));
   } else if (kind === 'info') {
@@ -5676,6 +5770,7 @@ function mapSheet(kind, n, note) {
   }
   sh.innerHTML = s; sh.hidden = false; sh.scrollTop = 0;
   sh.querySelector('[data-mx]').onclick = () => { Snd.play('click'); sh.hidden = true; };
+  sh.querySelectorAll('[data-sq]').forEach(b => b.onclick = () => { if (sqUse(h, +b.dataset.sq)) { saveProfiles(); Snd.play('horn'); mapSheet(kind, n, note); } });
   sh.querySelectorAll('[data-fortgo]').forEach(b => b.onclick = () => { sh.hidden = true; showFort(); });
   sh.querySelectorAll('[data-rgo]').forEach(b => b.onclick = () => { sh.hidden = true; runReport(b.dataset.rgo); });
   sh.querySelectorAll('[data-rmap]').forEach(b => b.onclick = () => { const r = E.reports.find(x => x.id === b.dataset.rmap); if (!r) return; E.sea = r.sea; renderMap(); mapSheet('rep', r.id); });
