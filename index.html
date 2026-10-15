@@ -345,6 +345,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .mpin.done{background:radial-gradient(circle at 50% 35%,#ffd75e,#e08a10);border-color:#fff3c0;color:#3b2300;width:34px;height:34px}
 .mpin.lock{opacity:.8;filter:saturate(.5)}
 .mpin.boss{border-color:#ff8a78;background:radial-gradient(circle at 50% 35%,#b3372b,#4a0f0a)}
+.mpin.occ{opacity:1;filter:none;width:34px;height:34px;font-size:15px;background:radial-gradient(circle at 50% 35%,#5a1a14,#1e0604);border:2px solid rgba(255,100,80,.9);color:#fff;box-shadow:0 0 12px rgba(255,60,40,.55)}
 .mpin.boss.done{background:radial-gradient(circle at 50% 35%,#ffd75e,#e08a10)}
 .mpin.now{width:54px;height:54px;font-size:20px;background:radial-gradient(circle at 50% 35%,#ffd75e,#ff9a1c);color:#3b2300;border:3px solid #fff;animation:mpulse 1.6s infinite;z-index:3}
 .mpin.now.boss{background:radial-gradient(circle at 50% 35%,#ff7a5c,#c92a2a);color:#fff}
@@ -2417,7 +2418,7 @@ const bossOf = m => BOSSES[Math.max(0, Math.floor(m / 5) - 1) % 3];
 const pickW = list => { let t = list.reduce((a, x) => a + x[1], 0) * Math.random(); for (const [v, w] of list) { t -= w; if (t < 0) return v; } return list[0][0]; };
 
 function hdata(p) {
-  if (!p.hunt) p.hunt = { gold: 150, mission: 1, ships: {}, crew: {}, w: 0, l: 0, sunk: 0 };
+  if (!p.hunt) p.hunt = { gold: 150, mission: 1, ships: {}, crew: {}, w: 0, l: 0, sunk: 0, occ: 1, fort: { b: { citadel: 1, market: 1, treasury: 1, dock: 1, barracks: 1, academy: 1, workshop: 1, lighthouse: 1, battery: 1, walls: 1 }, build: null, last: Date.now(), nextRaid: null, raidDue: false, raidSince: 0, raids: { w: 0, l: 0 } } };
   const h = p.hunt;
   h.hired ||= []; h.squad ||= []; h.hireVet ||= {}; h.drill ||= 0; h.unlock ||= {}; h.caps ||= 0; h.bosses ||= 0; h.forts ||= 0; if (!h.troph) h.troph = { log: [], f: {}, old: { sunk: h.sunk || 0, cap: h.caps || 0, fort: h.forts || 0, boss: h.bosses || 0 } };
   if (h.cred == null) h.cred = 5;
@@ -2607,6 +2608,11 @@ const isleIncome = h => islesOwned(h).reduce((a, n) => a + isleInc(h, n), 0) + (
 const islePower = (h, n) => isleGarr(h, n).reduce((a, s) => { const st = ownStats(h, s.id); return a + st.hp + 2 * st.dmg + 3 * st.armor; }, 0);
 const isleThreat = (h, n) => Math.round((12 + 2.5 * h.mission) * (n && String(n).split(':')[0] === '0' ? .5 : 1) * (n && !String(n).startsWith('0:') && h.clan && h.clan.st === 'gone' ? 1.15 : 1));
 const ISLE_GRACE = 24 * 3600e3;
+// оккупация Лазурного моря: в новой игре все острова вначале у пиратов
+const occOn = h => !!(h && h.occ);
+const isleOcc = (h, n) => occOn(h) && String(n).startsWith('0:') && (!isleOf(h, n).own || isleOf(h, n).lost);
+const occN = h => occOn(h) ? SEAS[0].isles.filter((_, i) => isleOcc(h, iKey(0, i))).length : 0;
+const occPen = h => clanServ(h) ? 0 : Math.min(.3, .035 * occN(h));
 // шанс гибели корабля гарнизона при захвате острова: зависит от модели, звания и улучшений
 const SINK_BASE = { boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
 const sinkCh = s => Math.max(.04, (SINK_BASE[s.type] ?? .4) - .04 * rankOf(s.xp) - .015 * Object.values(s.up || {}).reduce((a, v) => a + (+v || 0), 0));
@@ -3258,7 +3264,7 @@ function atlTick(h) {
     if (j.kind === 'smuggle' && now >= j.at) {
       const s = h.ships[j.ship]; A.jobs.splice(A.jobs.indexOf(j), 1); ch = true;
       if (!s) continue; s.trade = 0;
-      const ch2 = j.risk * (HS[s.type].sub ? .4 : s.type === 'boat' ? .7 : HS[s.type].hauler ? 1.2 : 1) * (extraOn(h, 'Тайная Гавань') ? .5 : 1);
+      const ch2 = (1 + occPen(h)) * j.risk * (HS[s.type].sub ? .4 : s.type === 'boat' ? .7 : HS[s.type].hauler ? 1.2 : 1) * (extraOn(h, 'Тайная Гавань') ? .5 : 1);
       if (Math.random() > ch2) { h.gold += j.gold; A.rep += j.rep; A.done++; news(h, `🕶 Контрабанда доставлена, ${sName(s)} снова в гавани. +${j.gold} 💰`); Snd.play('coins'); }
       else { const fine = Math.round(j.gold * .4); h.gold = Math.max(0, h.gold - fine); s.hpLost = Math.min(shipMaxHp(h, s) - 1, (s.hpLost || 0) + Math.round(shipMaxHp(h, s) * .5)); A.rep = Math.max(0, A.rep - 1); news(h, `🚨 Патруль перехватил контрабанду! ${sName(s)} ушёл из-под огня с тяжёлыми повреждениями, штраф −${fine} 💰, доверие Совета −1`); Snd.play('bad'); }
     }
@@ -3983,6 +3989,7 @@ function econPanel(h) {
     <div class="uprow"><span class="ic">🏪</span><span class="nm">Торговая гавань<small>копится в казне, собирать вручную</small></span><b class="econ">+${mRate(h)}</b></div>
     <div class="uprow"><span class="ic">🏝</span><span class="nm">Острова с гарнизонами<small>${islesOwned(h).filter(n => isleInc(h, n)).length} из ${islesOwned(h).length} приносят доход</small></span><b class="econ">+${isl}</b></div>
     <div class="uprow"><span class="ic">⚓</span><span class="nm">Содержание флота<small>${nShips} ${plural(nShips, 'корабль', 'корабля', 'кораблей')} (флагман бесплатно), ${h.officers.length} ${plural(h.officers.length, 'офицер', 'офицера', 'офицеров')}</small></span><b class="econ neg">−${up}</b></div>
+    ${occPen(h) ? `<div class="uprow"><span class="ic">☠️</span><span class="nm">Пиратская блокада<small>${occN(h)} ${plural(occN(h), 'остров', 'острова', 'островов')} Лазурного моря у пиратов: доход крепости −${Math.round(occPen(h) * 100)}%, караваны опаснее</small></span><b class="econ neg">−${Math.round(occPen(h) * 100)}%</b></div>` : ''}
     <div class="uprow"><span class="ic">📈</span><span class="nm"><b>Итого в час</b></span><b class="econ ${net < 0 ? 'neg' : ''}">${net >= 0 ? '+' : '−'}${Math.abs(net)}</b></div>`;
   if (h.unpaid) s += `<div class="warnline">Казна пуста — жалованье не платится! Офицеры не растут в званиях, пока долг не погашен. Продайте лишние корабли или поставьте гарнизоны на острова.</div>`;
   return s + `</div>`;
@@ -4969,7 +4976,7 @@ function hFinish(won, reason) {
     if (node.report) {
       const E = expData(h); E.reports = E.reports.filter(r => r.id !== node.report); h.mission++;
       if (node.bossIdx != null) { if (!E.cleared.includes(node.sea)) E.cleared.push(node.sea); if (E.open < SEAS.length && E.open === node.sea + 1) { E.open++; lines.push(`🗺 Путь открыт: ${SEAS[E.open - 1].n}! Разведка уже отправилась туда`); genReport(h); } }
-      else if (node.isle >= 0 && !node.reclaim) { const st = isleOf(h, iKey(node.sea, node.isle)); if (!st.own) { st.own = true; st.lost = false; if (node.sea === 0) st.safe = Date.now() + ISLE_GRACE; cr += 2; lines.push(`🏝 Остров «${SEAS[node.sea].isles[node.isle].n}» теперь ваш! Оставьте на нём гарнизон — он начнёт приносить золото`); if (seaOwn(h, node.sea) === SEA_NEED && !E.cleared.includes(node.sea)) lines.push(`🔭 Разведка нашла подходы к логову «${SEAS[node.sea].pir.n}»`); } }
+      else if (node.isle >= 0 && !node.reclaim) { const st = isleOf(h, iKey(node.sea, node.isle)); if (!st.own) { const wasOcc = isleOcc(h, iKey(node.sea, node.isle)), nm0 = SEAS[node.sea].isles[node.isle].n; st.own = true; st.lost = false; if (node.sea === 0) st.safe = Date.now() + ISLE_GRACE; cr += 2; if (wasOcc) { const bon = 200 + 150 * (node.occB || 0); gold += bon; const port = islePort(iKey(node.sea, node.isle)); lines.push(port ? `⚓ Блокада снята! Вольный «${nm0}» снова открыт для торговли. Купцы в благодарность передали ${bon} 💰` : `🎉 Жители острова «${nm0}» встречают ваш флот: над островом впервые за много лет поднят ваш флаг! Подарок жителей: ${bon} 💰`); news(h, port ? `⚓ Блокада порта «${nm0}» снята` : `🎉 Остров «${nm0}» освобождён от пиратов`, true); } lines.push(`🏝 Остров «${nm0}» теперь ваш! Оставьте на нём гарнизон — он начнёт приносить золото`); if (seaOwn(h, node.sea) === SEA_NEED && !E.cleared.includes(node.sea)) lines.push(`🔭 Разведка нашла подходы к логову «${SEAS[node.sea].pir.n}»`); } }
     }
   } else { gold = 40 + 40 * sunk; h.l++; if (node.deep) deepAfter(h, node, false, lines); if (node.atl) { const A = atlData(h); A.jobs = A.jobs.filter(x => x.id !== node.atl); A.rep = Math.max(0, A.rep - 1); lines.push('🏙 Поручение Совета провалено — доверие −1'); } }
   if (node.trade) { const r = tradeData(h).runs.find(x => x.id === node.trade); if (r && r.st === 'amb') H.trRun = r; }
@@ -5066,7 +5073,7 @@ function fdata(h) {
 }
 const CIT_INC = [0, 150, 190, 240, 300, 380];
 const mRate = h => Math.round(MARKET[fL(h, 'market')] * (1 + .1 * Math.min(5, h.forts || 0)));
-const fRate = h => mRate(h) + CIT_INC[fL(h, 'citadel')];
+const fRate = h => Math.round((mRate(h) + CIT_INC[fL(h, 'citadel')]) * (1 - occPen(h)));
 function fStored(h) {
   const f = fdata(h), end = f.raidDue ? Math.min(Date.now(), f.raidSince) : Date.now();
   return Math.floor(Math.min(capH(fL(h, 'treasury')), Math.max(0, (end - f.last) / 3600000)) * fRate(h));
@@ -5653,7 +5660,8 @@ function genReport(h) {
   else if (idx.length) r = { kind: 'battle', isle: pick(idx), obj: pick(pool), patrol: true };
   if (!r) return null;
   const B = BOSSES[S.boss];
-  Object.assign(r, { id: 'r' + (++E.seq), sea, lvl: r.kind === 'boss' ? lvl + 4 : r.patrol ? lvl + 1 : lvl, weather: r.kind === 'boss' ? (B.weather || wx()) : wx(), t: now, exp: now + (r.kind === 'boss' ? 16 : 7 + Math.random() * 5) * 3600e3 });
+  if (r.kind === 'battle' && sea === 0 && r.isle >= 0 && !r.reclaim && isleOcc(h, iKey(0, r.isle))) { const p = S.isles[r.isle], d = Math.hypot(p.x - S.base.x, p.y - S.base.y); r.occ = 1; r.occB = d < 450 ? 0 : d < 800 ? 1 : 2; }
+  Object.assign(r, { id: 'r' + (++E.seq), sea, lvl: (r.kind === 'boss' ? lvl + 4 : r.patrol ? lvl + 1 : lvl) + (r.occB || 0), weather: r.kind === 'boss' ? (B.weather || wx()) : wx(), t: now, exp: now + (r.kind === 'boss' ? 16 : 7 + Math.random() * 5) * 3600e3 });
   if (r.kind === 'boss') r.bossIdx = S.boss;
   R.push(r); return r;
 }
@@ -5677,6 +5685,7 @@ function repDesc(h, r) {
   let d = OBJ[r.obj].desc;
   if (r.reclaim) d = 'Пираты захватили ваш остров. ' + d;
   else if (r.patrol) d = 'Пиратская вылазка у ваших берегов. ' + d;
+  else if (r.occ) d = `Остров удерживает пиратский гарнизон${r.occB === 2 ? ' — сильный, остров далеко от крепости' : r.occB ? ' средней силы' : ' — небольшой, остров рядом с крепостью'}. ` + d + (islePort(iKey(0, r.isle)) ? ' Победа снимет блокаду вольного порта.' : ' Победа освободит остров.');
   else d += ' Победа — и остров ваш.';
   if (L >= 2) { const n = Math.min(3, 1 + Math.floor((r.lvl - 1) / 3)); d += ` Разведка: ${n}–${n + 2} ${plural(n + 2, 'корабль', 'корабля', 'кораблей')}`; if (L >= 3) d += `, сильнейший — ${HS[HS_ORDER[foeTop(r.lvl)]].name.toLowerCase()}`; d += '.'; }
   return d + (W ? '' : '');
@@ -5714,8 +5723,8 @@ function seaStage(h, sea, W) {
   s += `<button class="mpin ${br ? 'now boss rep' : cleared ? 'done' : 'lock boss'}" data-sp="-1" style="${spc(S.pir)}"><span>${cleared ? '🏳️' : '☠️'}</span>${br ? `<em>${BOSSES[S.boss].name}</em>` : ''}</button>`;
   S.isles.forEach((p, i) => {
     const st = isleOf(h, iKey(sea, i)), r = reps.find(x => x.isle === i), garr = st.own && !st.lost && isleGarr(h, iKey(sea, i)).length;
-    const cls = r ? 'now rep' : st.lost ? 'done lost' : st.own ? 'done' + (garr ? ' garr' : '') : 'lock fog';
-    const dv = st.own && !st.lost ? (st.dev || 0) : 0, ic = r ? (r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic) : st.lost ? '☠️' : dv ? devTrack(iKey(sea, i))[dv].ic : st.build ? '🏗' : garr ? '🚩' : st.own ? '✓' : '?';
+    const occ = isleOcc(h, iKey(sea, i)) && !st.lost, cls = r ? 'now rep' : st.lost ? 'done lost' : st.own ? 'done' + (garr ? ' garr' : '') : occ ? 'lock occ' : 'lock fog';
+    const dv = st.own && !st.lost ? (st.dev || 0) : 0, ic = r ? (r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic) : st.lost ? '☠️' : dv ? devTrack(iKey(sea, i))[dv].ic : st.build ? '🏗' : garr ? '🚩' : st.own ? '✓' : occ ? (islePort(iKey(sea, i)) ? '⛓' : '☠️') : '?';
     s += `<button class="mpin ${cls}" data-sp="${i}" style="${spc(p)}"><span>${ic}</span>${r ? `<em>${p.n}</em>` : ''}</button>`;
   });
   return s + '</div>';
@@ -5811,7 +5820,8 @@ function mapSheet(kind, n, note) {
     s += isleInfoHtml(h, r.isle < 0 ? SEAS[r.sea].pir.n : SEAS[r.sea].isles[r.isle].n, r.isle < 0 ? null : iKey(r.sea, r.isle));
   } else if (kind === 'info') {
     const S = SEAS[E.sea || 0], nm = n === 'pir' ? S.pir.n : n === 'base' ? S.base.n : isleName(n);
-    s += `<div class="mst"><b>${n === 'pir' ? '☠️' : n === 'base' ? '🏰' : '🏝'} ${nm}</b><small>${note || ''}</small></div>` + isleInfoHtml(h, nm, n.includes(':') ? n : null);
+    const oc = n.includes(':') && isleOcc(h, n), pt = oc && islePort(n);
+    s += `<div class="mst"><b>${n === 'pir' ? '☠️' : n === 'base' ? '🏰' : oc ? (pt ? '⛓' : '☠️') : '🏝'} ${nm}</b><small>${oc ? (pt ? 'Вольный порт в пиратской блокаде. Пока она не снята, торговля в море идёт хуже. Ждите донесения разведки.' : 'Остров удерживают пираты Чёрного Зуба. Пока они здесь, доход крепости ниже, а караваны в опасности. Ждите донесения разведки, чтобы освободить его.') : note || ''}</small></div>` + isleInfoHtml(h, nm, n.includes(':') ? n : null);
     if (n === 'base') s += `<button class="btn primary" data-fortgo style="width:min(560px,100%)">🏰 В крепость</button>`;
   } else if (kind === 'isle') {
     const i = isleOf(h, n), g = isleGarr(h, n), pw = islePower(h, n), th = isleThreat(h, n), ch = Math.round(isleHold(h, n) * 100);
@@ -5850,7 +5860,7 @@ function runReport(id) {
   if (evOn(h, 'bounty')) { base.extra = 1; base.mult = 1.5; }
   if (r.mult) base.mult = (base.mult || 1) * r.mult;
   if ((r.kind === 'battle' || r.kind === 'boss') && !SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале Мастерской'); return; }
-  if (r.kind === 'battle') { Snd.play('horn'); return startHunt({ kind: 'battle', obj: r.obj, ...base, reclaim: r.reclaim ? iKey(r.sea, r.isle) : null, patrol: r.patrol }); }
+  if (r.kind === 'battle') { Snd.play('horn'); return startHunt({ kind: 'battle', obj: r.obj, ...base, reclaim: r.reclaim ? iKey(r.sea, r.isle) : null, patrol: r.patrol, occB: r.occB || 0 }); }
   if (r.kind === 'boss') { Snd.play('horn'); return startHunt({ kind: 'boss', obj: 'boss', ...base, bossIdx: r.bossIdx }); }
   Snd.play('click'); runEvent(h, { kind: r.kind, ...base });
 }
@@ -6585,13 +6595,15 @@ const MapLife = {
   sync() {
     const h = this.h, S = SEAS[this.sea], E = h.exp, cleared = E.cleared.includes(this.sea);
     const own = S.isles.map((p, i) => ({ p, k: iKey(this.sea, i) })).filter(o => isleOf(h, o.k).own && !isleOf(h, o.k).lost);
-    const fog = S.isles.map((p, i) => ({ p, st: isleOf(h, iKey(this.sea, i)) })).filter(o => !o.st.own);
-    const sig = own.map(o => o.k + ':' + (isleOf(h, o.k).dev || 0)).join(',') + '|' + fog.length + '|' + cleared;
+    const occI = S.isles.map((p, i) => ({ p, k: iKey(this.sea, i) })).filter(o => isleOcc(h, o.k)).map(o => o.p);
+    const fog = S.isles.map((p, i) => ({ p, st: isleOf(h, iKey(this.sea, i)), k: iKey(this.sea, i) })).filter(o => !o.st.own && !isleOcc(h, o.k));
+    const sig = own.map(o => o.k + ':' + (isleOf(h, o.k).dev || 0)).join(',') + '|' + fog.length + '|' + occI.length + '|' + cleared;
     if (sig === this.sig) return; this.sig = sig;
-    this.own = own; this.fogIsles = fog.map(o => o.p);
+    this.own = own; this.fogIsles = fog.map(o => o.p); this.occI = occI;
     const want = [];
     want.push({ role: 'merchant', type: 'cargo' }, { role: 'merchant', type: 'cargo' }, { role: 'merchant', type: 'boat' });
     if (!cleared) want.push({ role: 'pirate' }, { role: 'pirate' });
+    for (let i = 0; i < Math.min(5, Math.ceil(occI.length * .7)); i++) want.push({ role: 'pirate', occ: 1 });
     if (own.length) want.push({ role: 'patrol', type: own.length > 3 ? 'cruiser' : 'destroyer' }, { role: 'patrol', type: 'boat' });
     this.ships = want.map((w, i) => this.ships[i] && this.ships[i].role === w.role ? this.ships[i] : { ...w });
     // туман над неизведанными островами
@@ -6601,13 +6613,14 @@ const MapLife = {
   target(b) {
     const S = SEAS[this.sea];
     let c;
-    if (b.role === 'pirate') c = { x: S.pir.x, y: S.pir.y, r: 320 };
+    if (b.role === 'pirate' && b.occ && this.occI && this.occI.length) { const o = pick(this.occI); c = { x: o.x, y: o.y, r: 200 }; }
+    else if (b.role === 'pirate') c = { x: S.pir.x, y: S.pir.y, r: 320 };
     else if (b.role === 'patrol' && this.own && this.own.length) { const o = pick(this.own).p; c = { x: o.x, y: o.y, r: 170 }; }
     else { const all = [S.base, ...S.isles]; const o = pick(all); c = { x: o.x, y: o.y, r: 190 }; }
     const s = this.spot(c.x, c.y, c.r) || this.spot(SEA_W / 2, SEA_H / 2, 700); if (s) { b.tx = s[0]; b.ty = s[1]; }
   },
   place(b) {
-    const S = SEAS[this.sea], c = b.role === 'pirate' ? S.pir : b.role === 'patrol' && this.own && this.own.length ? pick(this.own).p : pick([S.base, ...S.isles]);
+    const S = SEAS[this.sea], c = b.role === 'pirate' && b.occ && this.occI && this.occI.length ? pick(this.occI) : b.role === 'pirate' ? S.pir : b.role === 'patrol' && this.own && this.own.length ? pick(this.own).p : pick([S.base, ...S.isles]);
     const s = this.spot(c.x, c.y, 260) || this.spot(SEA_W / 2, SEA_H / 2, 800); if (!s) return false;
     b.x = s[0]; b.y = s[1]; b.a = Math.random() * 6.283; b.v = b.role === 'merchant' ? this.rnd(16, 22) : b.role === 'pirate' ? this.rnd(22, 30) : this.rnd(20, 26); b.stuck = 0; this.target(b); return true;
   },
