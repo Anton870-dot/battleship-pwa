@@ -460,6 +460,12 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .ftab.on{border-color:#ffcf4a;background:linear-gradient(180deg,#ffd76a,#f0a92a);color:#3a2300}.ftab i{font-style:normal;background:#ff6b57;color:#fff;border-radius:8px;padding:0 5px;font-size:10.5px;margin-left:2px}
 .stabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:8px 0 4px}.stab{padding:7px 2px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.22);color:#dbeaf6;font-size:11px;font-weight:800;cursor:pointer}.stab.on{background:rgba(255,190,60,.25);border-color:#ffcf4a;color:#ffe08a}
 .repr{flex-wrap:wrap}.repr .acts{flex-basis:100%;display:flex;justify-content:flex-end;align-items:center;gap:6px;flex-wrap:wrap}.repr .acts .col2{flex-direction:row;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.tadj{display:flex;gap:10px;align-items:flex-start}.tadj img{width:54px;height:54px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--gold);box-shadow:0 0 10px rgba(255,207,74,.35);cursor:pointer}.tadj>div{min-width:0}
+.tutline.tadj img{width:42px;height:42px}
+.pdlg.adjd .dlgbox{border-color:rgba(255,207,74,.8)}.pdlg.adjd .dlgbox b{color:#ffe08a}.pdlg.adjd .dlgbox small{color:#cfe3f3}
+.advchip{display:flex;align-items:center;gap:5px}.advchip img{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid var(--gold)}
+.adjcard{max-width:380px;padding:0 0 14px;overflow:hidden;text-align:center}.adjcard img{width:100%;max-height:60vh;object-fit:cover;object-position:50% 15%;display:block}
+.adjcap{margin:-46px 12px 10px;position:relative;background:rgba(3,18,38,.85);border:1px solid rgba(255,207,74,.7);border-radius:12px;padding:6px 10px}.adjcap b{color:#ffe08a;font-size:15px}.adjcap small{display:block;color:#cfe3f3;font-size:11px}
 .spdpair{display:inline-flex;gap:6px;flex-wrap:wrap;margin-top:4px}.col2 .spdpair{justify-content:flex-end}
 .clbtn{display:block!important;width:100%;text-align:center}.clbtn small{display:block;font-weight:600;opacity:.85;font-size:11.5px;margin-top:2px}
 #ov-clan .dpsplash img{object-position:50% 22%}
@@ -948,7 +954,7 @@ body.menu-on .logo{margin:0}
     <button class="fchip" id="fg-build" data-bld=""></button>
   </div>
   <div class="tutcard" id="tutcard" hidden></div>
-  <div class="fside"><button class="fchip decchip" id="fg-dec" hidden></button><button class="fchip" id="fg-ev" hidden></button><button class="fchip" id="fg-cred">💠 0</button><button class="fchip" id="fg-log">📖 Журнал<em hidden></em></button></div>
+  <div class="fside"><button class="fchip decchip" id="fg-dec" hidden></button><button class="fchip" id="fg-ev" hidden></button><button class="fchip" id="fg-cred">💠 0</button><button class="fchip" id="fg-log">📖 Журнал<em hidden></em></button><button class="fchip advchip" id="fg-adv"><img src="adj.webp" alt="">Адъютант</button></div>
   <button class="fraidchip" id="fg-raid" hidden>☠️ Пираты у стен! Оборона →</button>
   <div class="fhud-bot">
     <button class="fbtn" data-bld="fleet" data-ftab="sq">⚓<small>Флот</small></button>
@@ -1132,6 +1138,7 @@ body.menu-on .logo{margin:0}
   </div>
 </div>
 
+<div class="overlay" id="ov-adj"><div class="card glass adjcard"><img src="adj_full.webp" alt=""><div class="adjcap"><b>Лейтенант Марк Ардан</b><small>ваш личный адъютант</small></div><button class="btn primary" id="adj-go">Слушаю, лейтенант</button></div></div>
 <div class="dpdlg pdlg" id="pdlg" hidden><img src="corvin.webp" alt=""><div class="dlgbox"><b></b><small></small><p class="dlgtxt"></p><span class="dlgmore"></span></div></div>
 <div class="overlay" id="ov-clan">
   <div class="card glass dpcard">
@@ -2761,7 +2768,7 @@ function trSend(h) {
   const pi = S.port, dur = trDur(h, pi), now = Date.now(), pow = trPower(h, ids), ch = Math.min(.9, trChance(pi, pow) * (evOn(h, 'armada') ? 1.5 : 1)) * (atlData(h).safe > 0 ? (atlData(h).safe--, .33) : 1);
   TGOODS.forEach(g => { if (load[g.id]) T.stock[g.id] -= load[g.id]; });
   ids.forEach(k => { h.ships[k].trade = 'r' + now; }); h.squad = h.squad.filter(k => !ids.includes(k));
-  T.runs.push({ id: 'r' + now, port: pi, ships: ids, cargo: load, start: now, arrive: now + dur, back: now + 2 * dur, dur, st: 'go', ambAt: Math.random() < ch ? now + dur * (.25 + Math.random() * .5) : 0, pow });
+  T.sent = 1; T.runs.push({ id: 'r' + now, port: pi, ships: ids, cargo: load, start: now, arrive: now + dur, back: now + 2 * dur, dur, st: 'go', ambAt: Math.random() < ch ? now + dur * (.25 + Math.random() * .5) : 0, pow });
   HB.tr = null; toast(`⛵ Караван ушёл в «${TPORTS[pi].n}»`);
   return true;
 }
@@ -3451,14 +3458,14 @@ function trophyTotals(h) {
 /* ---- Вольное братство Чёрного Зуба (пираты Лазурного моря) ---- */
 const CLAN = { n: 'Вольное братство Чёрного Зуба', cap: 'Капитан Арне Корвин', nick: 'Старый Ворон', ship: 'Багровый странник', inc: 350, gold: 15000,
   d: 'Сорок лет Чёрный Зуб держит в страхе торговые пути Лазурного моря. Братство живёт по своему закону: добычу делят поровну, тонущих не бросают — даже врагов, — а слово капитана крепче якорной цепи.' };
-const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'] };
+const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'], a: ['Лейтенант Марк Ардан', 'ваш адъютант', 'adj'] };
 // lines: [[кто 'c'|'l', улыбка true/false, текст], ...]
 function clanSay(lines, done) {
   const box = $('#pdlg'); let i = 0, tm = null;
   const step = () => {
     if (i >= lines.length) { box.hidden = true; if (done) done(); return; }
     const [who, sm, txt] = lines[i++], W = CLAN_WHO[who], el = box.querySelector('.dlgtxt');
-    box.querySelector('img').src = W[2] + (sm ? '_smile' : '') + '.webp'; box.querySelector('b').textContent = W[0]; box.querySelector('small').textContent = W[1];
+    box.querySelector('img').src = W[2] + (sm ? '_smile' : '') + '.webp'; box.querySelector('b').textContent = W[0]; box.querySelector('small').textContent = W[1]; box.classList.toggle('adjd', who === 'a');
     el.textContent = ''; let k = 0; clearInterval(tm);
     box.querySelector('.dlgmore').textContent = i < lines.length ? '▼ дальше' : '✕ закрыть';
     tm = setInterval(() => { k += 2; el.textContent = txt.slice(0, k); if (k >= txt.length) clearInterval(tm); }, 18);
@@ -3575,7 +3582,7 @@ function roomsPanel(h) {
     <button class="roombtn tro" data-room="tro"><img src="trophy_room.webp" alt=""><span><b>🏆 Трофейный зал</b><small>потоплено ${t.sunk} · абордаж ${t.cap} · форты ${t.fortD + t.fortC}</small></span></button>
     <button class="roombtn dip" data-room="dip"><img src="diplomacy_room.webp" alt=""><span><b>🕊 Зал дипломатии</b><small>${clanSt(h) === 'offer' ? '⚑ Послы братства ждут вашего решения!' : 'фракции морей и отношения с ними'}</small></span></button></div></div>`;
 }
-function showRoom(id) { HB.room = id; Snd.play('click'); show('scr-room'); renderRoom(); }
+function showRoom(id) { if (id === 'dip') { const p = curProfile(); if (p && p.hunt) { hdata(p).dipSeen = 1; saveProfiles(); } } HB.room = id; Snd.play('click'); show('scr-room'); renderRoom(); }
 function renderRoom() {
   const h = hdata(curProfile()), id = HB.room;
   $('#room-title').textContent = id === 'mem' ? 'Мемориал' : id === 'dip' ? 'Зал дипломатии' : 'Трофейный зал';
@@ -3733,7 +3740,7 @@ function ammoTick(h) {
   return ch;
 }
 function orderAmmo(h, id) {
-  const a = ammoOf(id); if (h.ammoQ.length >= 6) { toast('Очередь арсенала полна (6 заказов)'); return false; }
+  h.ammoOrd = 1; const a = ammoOf(id); if (h.ammoQ.length >= 6) { toast('Очередь арсенала полна (6 заказов)'); return false; }
   const free = id === 'he' && h.gold < ammoGold(h, a) && (h.ammo.he || 0) < 10 && !h.ammoQ.some(q => q.t === 'he');
   if (!free) { if (h.gold < ammoGold(h, a)) return false; h.gold -= ammoGold(h, a); }
   h.ammoQ.push({ t: id, min: ammoMin(h, a) * (free ? 2 : 1), paid: free ? 0 : ammoGold(h, a), from: Date.now() });
@@ -4101,17 +4108,30 @@ function hubAct(act, id) {
 }
 
 /* ---------- Наставник: обучение по шагам ---------- */
+const ADJ = { n: 'Лейтенант Марк Ардан', t: 'ваш личный адъютант' };
 const TUT = [
-  { t: 'Добро пожаловать, капитан!', d: 'Это ваша крепость. Отсюда вы строите флот, ходите в экспедиции и торгуете. Я проведу вас по первым шагам — за каждый шаг дают золото.', btn: 'Начать', manual: true, gold: 0 },
-  { t: 'Закажите снаряды', d: 'Без снарядов корабль не стреляет. Откройте Мастерскую и закажите в Арсенале обычные снаряды.', bld: 'workshop', hub: 'Пролистайте до «Арсенала» и нажмите кнопку с ценой у обычных снарядов. Они будут готовы через несколько минут.', ok: h => h.ammoQ.length > 0 || h.ammo.he > 40, gold: 40 },
-  { t: 'Выиграйте первый бой', d: 'Нажмите «В поход», выберите донесение разведки и дайте бой. В бою: «Плыть» — двигаться, «Огонь» — стрелять по клетке. Враг виден только рядом.', go: 'map', ok: h => h.w >= 1, gold: 80 },
-  { t: 'Почините корабли', d: 'После боя корабли приходят побитыми. Откройте «Флот» → вкладку «Ремонт» и отправьте корабль в ремонт. Если всё цело — шаг засчитается сам.', bld: 'fleet', tab: 'rep', hub: 'Нажмите «🔧 Ремонт» у побитого корабля. Ремонт идёт по настоящему времени, но его можно ускорить.', ok: h => !Object.values(h.ships).some(s => s.hpLost && !s.repEnd), gold: 40 },
-  { t: 'Постройте Торговую гавань', d: 'Гавань приносит золото каждый час, даже когда игра закрыта. Нажмите на площадку гавани в крепости и постройте её.', bld: 'market', hub: 'Нажмите кнопку с ценой в строке «Построить». Стройка займёт пару минут.', ok: h => fL(h, 'market') >= 1 || (fdata(h).build && fdata(h).build.id === 'market'), gold: 50 },
-  { t: 'Заложите второй корабль', d: 'Один в море не воин. Откройте «Флот» → вкладку «Верфь» и заложите корабль. Катер самый дешёвый.', bld: 'fleet', tab: 'yard', hub: 'Нажмите на катер, затем «Заложить».', ok: h => Object.keys(h.ships).length >= 2, gold: 50 },
-  { t: 'Соберите эскадру', d: 'Когда корабль спустят на воду, возьмите его в эскадру — он пойдёт в бой вместе с флагманом.', bld: 'fleet', tab: 'sq', hub: 'В списке резерва нажмите «В эскадру». Если корабль ещё строится — подождите.', ok: h => h.squad.length >= 1, gold: 40 },
-  { t: 'Захватите остров', d: 'В экспедиции выберите донесение про остров и победите. Потом нажмите на остров на карте и оставьте гарнизон — он приносит золото.', go: 'map', ok: h => islesOwned(h).length >= 1, gold: 80 },
-  { t: 'Наймите офицера', d: 'Офицеры делают корабль сильнее и растут в званиях. Постройте Морскую академию и наймите первого.', bld: 'academy', hub: 'Постройте здание, затем наймите специалиста и назначьте его на корабль.', ok: h => h.officers.length >= 1, gold: 60 },
-  { t: 'Отправьте караван', d: 'В Торговой гавани купите товар на склад и снарядите караван в порт, где цена выше. Нужен свободный корабль, кроме флагмана.', bld: 'market', hub: 'Купите товар, посмотрите таблицу цен, затем «Снарядить караван».', ok: h => tradeData(h).runs.length > 0, gold: 100 },
+  { t: 'Добро пожаловать, командир!', d: 'Я Марк Ардан, ваш адъютант. Лазурное море захватили пираты Чёрного Зуба — у нас осталась только крепость. Я проведу вас по первым шагам, а за каждый выполненный приказ казна выделит золото.', btn: 'Начать', manual: true, gold: 0,
+    say: [[1, 'Командир, наконец-то! Лейтенант Марк Ардан, ваш адъютант. Рад служить.'], [0, 'Положение тяжёлое: пираты Чёрного Зуба захватили все острова Лазурного моря. У нас осталась только крепость — но в ней уже работают все здания.'], [0, 'Наша задача — освобождать остров за островом. Я буду рядом и подскажу, с чего начать.']] },
+  { t: 'Закажите снаряды', d: 'Без снарядов корабль не стреляет. Откройте Мастерскую и закажите в Арсенале обычные снаряды.', bld: 'workshop', hub: 'Пролистайте до «Арсенала» и нажмите кнопку с ценой у обычных снарядов. Они будут готовы через несколько минут.', ok: h => !!h.ammoOrd || (h.ammoQ || []).length > 0, gold: 40,
+    say: [[0, 'Первым делом — снаряды. Без них наши пушки молчат.'], [0, 'Откройте Мастерскую и закажите в Арсенале обычные снаряды. Это недорого и быстро.']] },
+  { t: 'Освободите первый остров', d: 'Нажмите «В поход», выберите донесение разведки про остров и победите пиратский гарнизон. Ближние к крепости острова охраняются слабее.', go: 'map', ok: h => islesOwned(h).some(n => !isleOf(h, n).lost), gold: 100,
+    say: [[0, 'Разведка уже донесла, где сидят пиратские гарнизоны. Начните с ближних островов — там пиратов меньше.'], [0, 'В бою: «Плыть» — двигаться, «Огонь» — стрелять по клетке. Враг виден, только когда подойдёте ближе, так что не спешите.'], [1, 'Удачной охоты, командир!']] },
+  { t: 'Почините корабли', d: 'После боя корабли приходят побитыми. Откройте «Флот» → вкладку «Ремонт» и отправьте их в ремонт. Если всё цело — шаг засчитается сам.', bld: 'fleet', tab: 'rep', hub: 'Нажмите «🔧 Ремонт» у побитого корабля. Ремонт идёт по настоящему времени, но его можно ускорить кредитами или золотом.', ok: h => !Object.values(h.ships).some(s => s.hpLost && !s.repEnd), gold: 40,
+    say: [[1, 'Блестящая победа! Над островом снова наш флаг.'], [0, 'Но корабли побиты. В бою с пробоинами далеко не уйдёшь — отправьте их в Сухой док: «Флот», вкладка «Ремонт».']] },
+  { t: 'Оставьте гарнизон', d: 'Остров без кораблей не приносит дохода, и пираты легко его отобьют. Откройте остров на карте и оставьте на нём корабль.', go: 'map', ok: h => islesOwned(h).some(n => isleGarr(h, n).length), gold: 60,
+    say: [[0, 'Остров наш, но без гарнизона он беззащитен — пираты вернутся.'], [0, 'Нажмите на остров на карте и оставьте там корабль. Гарнизон охраняет остров и приносит золото каждый час.']] },
+  { t: 'Улучшите здание', d: 'Все здания крепости работают, но только на 1-м уровне. Начните с Торговой гавани — она приносит золото каждый час, даже когда игра закрыта.', bld: 'market', hub: 'Нажмите кнопку с ценой в строке «Улучшить». Стройка идёт по настоящему времени.', ok: h => { const f = fdata(h); return !!f.build || Object.values(f.b).some(l => l >= 2); }, gold: 60,
+    say: [[0, 'Крепость держится, но на первом уровне зданий далеко не уедешь.'], [0, 'Советую начать с Торговой гавани: больше золота — больше кораблей.']] },
+  { t: 'Заложите второй корабль', d: 'Один в море не воин. Откройте «Флот» → вкладку «Верфь» и заложите корабль. Катер самый дешёвый.', bld: 'fleet', tab: 'yard', hub: 'Нажмите на катер, затем «Заложить».', ok: h => Object.keys(h.ships).length >= 2, gold: 50,
+    say: [[0, 'Командир, одним кораблём Лазурное море не освободить.'], [0, 'Загляните на верфь: «Флот», вкладка «Верфь». Катер — самый дешёвый и быстро строится.']] },
+  { t: 'Соберите эскадру', d: 'Когда корабль спустят на воду, возьмите его в эскадру — он пойдёт в бой вместе с флагманом.', bld: 'fleet', tab: 'sq', hub: 'В списке резерва нажмите «В эскадру». Если корабль ещё строится — подождите.', ok: h => h.squad.length >= 1, gold: 40,
+    say: [[0, 'Новый корабль — это хорошо, но пользы от него в гавани немного.'], [0, 'Возьмите его в эскадру: «Флот», вкладка «Эскадры». В бою он прикроет флагман.']] },
+  { t: 'Наймите офицера', d: 'Офицеры делают корабль сильнее и растут в званиях. Откройте Морскую академию и наймите первого.', bld: 'academy', hub: 'Наймите специалиста, затем назначьте его на корабль во «Флоте».', ok: h => h.officers.length >= 1, gold: 60,
+    say: [[0, 'Корабль хорош настолько, насколько хороши его офицеры.'], [1, 'В Морской академии есть толковые мичманы. Наймите одного — не пожалеете.']] },
+  { t: 'Отправьте караван', d: 'В Торговой гавани купите товар на склад и снарядите караван в порт, где цена выше. Нужен свободный корабль, кроме флагмана.', bld: 'market', hub: 'Купите товар, посмотрите таблицу цен, затем «Снарядить караван».', ok: h => !!(h.trade && ((h.trade.runs || []).length || h.trade.sent)), gold: 80,
+    say: [[0, 'Война стоит дорого, командир. Торговля её окупает.'], [0, 'В Торговой гавани купите товар подешевле и отправьте караван туда, где он дороже. Только помните: пираты охотятся за караванами.']] },
+  { t: 'Загляните в Зал дипломатии', d: 'В Цитадели есть Зал дипломатии: там всё о фракциях морей — о пиратах Корвина, Атлантисе, учёных и рейдерах.', bld: 'citadel', hub: 'Нажмите «🕊 Зал дипломатии» в разделе «Залы цитадели».', ok: h => !!h.dipSeen, gold: 50,
+    say: [[0, 'И последнее. Знайте своих врагов и союзников.'], [0, 'В Цитадели есть Зал дипломатии. Там всё о пиратах Чёрного Зуба, Атлантисе, учёных и рейдерах Глубоких вод.']] },
 ];
 function tutData(h) { if (h.tut == null) h.tut = (h.w + h.l > 2 || Object.keys(h.ships).length > 2) ? -1 : 0; return h.tut; }
 function tutCheck(h) {
@@ -4119,7 +4139,7 @@ function tutCheck(h) {
   while (i >= 0 && i < TUT.length && !TUT[i].manual && TUT[i].ok(h)) {
     const s = TUT[i]; h.gold += s.gold; i = h.tut = i + 1; ch = true;
     toast(`✅ Наставник: «${s.t}» — выполнено! +${s.gold} 💰`); Snd.play('ach');
-    if (i >= TUT.length) { h.tut = -1; h.cred = (h.cred || 0) + 5; news(h, '🎓 Обучение пройдено: +5 💠', true); setTimeout(() => toast('🎓 Обучение пройдено! +5 💠. Не забывайте сохранять игру: кнопка 💾 в главном меню'), 1800); }
+    if (i >= TUT.length) { h.tut = -1; h.cred = (h.cred || 0) + 5; news(h, '🎓 Обучение пройдено: +5 💠', true); setTimeout(() => advSay([[1, 'Командир, вы освоились быстрее, чем я ожидал! Казна выделила вам 5 💠 за отличную службу.'], [0, 'Дальше вы справитесь сами. Но я всегда рядом: кнопка «🎖 Адъютант» в крепости — и я подскажу, что делать.'], [0, 'И не забывайте сохранять игру: кнопка 💾 в главном меню.']]), 1500); }
   }
   if (ch) saveProfiles();
   return ch;
@@ -4130,13 +4150,48 @@ function tutRender(h) {
   if (i < 0 || i >= TUT.length) { el.hidden = true; return; }
   const s = TUT[i];
   el.hidden = false; el.classList.toggle('low', !!fdata(h).raidDue);
-  el.innerHTML = `<div class="th"><span>📘 Наставник · шаг ${i + 1} из ${TUT.length}</span><button data-tx aria-label="Пропустить">✕</button></div><b>${s.t}</b><p>${s.d}</p>
+  el.innerHTML = `<div class="th"><span>🎖 Адъютант · шаг ${i + 1} из ${TUT.length}</span><button data-tx aria-label="Пропустить">✕</button></div><div class="tadj"><img src="adj.webp" alt="" data-ts><div><b>${s.t}</b><p>${s.d}</p></div></div>
     <div class="row"><button class="btn small primary" data-tg>${s.btn || (s.go === 'map' ? '🗺 В поход' : 'Перейти →')}</button>${s.gold ? `<span class="rw">награда ${s.gold} 💰</span>` : ''}</div><div class="tbar"><i style="width:${i / TUT.length * 100}%"></i></div>`;
   $('#fg-gold').textContent = h.gold;
+  el.querySelector('[data-ts]').onclick = () => s.say && advSay(s.say);
+  if (h.tutSaid !== i && s.say && $('#scr-fort').classList.contains('active')) { h.tutSaid = i; saveProfiles(); if (i === 0) advWelcome(s.say); else setTimeout(() => { if ($('#scr-fort').classList.contains('active')) advSay(s.say); }, 500); }
   el.querySelector('[data-tg]').onclick = () => { Snd.play('click'); if (s.manual) { h.tut = i + 1; saveProfiles(); return tutRender(h); } if (s.go === 'map') return showMap(); if (s.tab) HB.ftab = s.tab; openBld(s.bld); };
   el.querySelector('[data-tx]').onclick = () => { if (!HB.tutArm) { HB.tutArm = true; toast('Нажмите ✕ ещё раз, чтобы закрыть обучение. Вернуть его можно в Цитадели'); setTimeout(() => HB.tutArm = false, 3000); return; } h.tut = -1; saveProfiles(); el.hidden = true; };
 }
-const tutLine = (h, id) => { const i = tutData(h), s = TUT[i]; return s && s.bld === id ? `<div class="tutline">📘 <b>${s.t}.</b> ${s.hub || s.d}</div>` : ''; };
+const tutLine = (h, id) => { const i = tutData(h), s = TUT[i]; return s && s.bld === id ? `<div class="tutline tadj"><img src="adj_smile.webp" alt=""><div>🎖 <b>${s.t}.</b> ${s.hub || s.d}</div></div>` : ''; };
+/* ---------- Адъютант: диалоги и советы ---------- */
+function advSay(lines, done) { clanSay(lines.map(l => l.length === 2 ? ['a', !!l[0], l[1]] : l), done); }
+function advWelcome(say) {
+  const ov = $('#ov-adj'); if (!ov) return advSay(say);
+  overlay('#ov-adj', true);
+  $('#adj-go').onclick = () => { overlay('#ov-adj', false); Snd.play('click'); setTimeout(() => advSay(say), 250); };
+}
+// советы по обстановке: [ключ, условие, реплики]; одноразовые показываются сами при входе в крепость
+const ADV = [
+  ['lost', h => islesOwned(h).some(n => isleOf(h, n).lost), [[0, 'Командир, тревожные вести: пираты отбили один из наших островов!'], [0, 'Разведка скоро пришлёт донесение — тогда мы сможем вернуть остров. Если его отбивают часто, оставьте там гарнизон посильнее.']]],
+  ['unpaid', h => h.unpaid, [[0, 'Казна пуста, командир. Жалованье не платится, офицеры перестали расти в званиях.'], [0, 'Соберите доход в Казне, продайте лишние корабли или отправьте выгодный караван.']]],
+  ['raid', h => fdata(h).raidDue, [[0, 'Пираты у стен крепости! Пока осада не снята, торговля стоит.'], [0, 'Отразите набег эскадрой вместе с береговыми батареями — или откупитесь, если флот не готов.']]],
+  ['hurt', h => Object.values(h.ships).filter(s => s.hpLost && !s.repEnd).length >= 2, [[0, 'Несколько кораблей вернулись побитыми. С пробоинами они выйдут в бой ослабленными.'], [0, 'Во «Флоте» на вкладке «Ремонт» можно отправить в ремонт сразу всех.']]],
+  ['noisle', h => islesOwned(h).length && !islesOwned(h).some(n => isleGarr(h, n).length), [[0, 'Наши острова стоят без гарнизонов, командир. Ни дохода, ни защиты.'], [0, 'Оставьте хотя бы по кораблю на островах — откройте остров на карте.']]],
+  ['rich', h => h.gold >= 3000 && !fdata(h).build, [[1, 'Казна полна, командир! Золото должно работать.'], [0, 'Самое время улучшить здание крепости или заложить на верфи новый корабль.']]],
+  ['reps', h => (h.exp && h.exp.reports.length >= repMax(h)), [[0, 'Штаб разведки завален донесениями — новые просто некуда принимать.'], [0, 'Выйдите в поход и разберите их, пока цели не ушли.']]],
+  ['clan', h => clanServ(h), [[1, 'Корвин теперь с нами — кто бы мог подумать! Пираты больше не тронут острова Лазурного моря.'], [0, 'А верфи Чёрного Зуба строят для нас эсминцы «Странник». Загляните на верфь.']]],
+  ['sea2', h => h.exp && h.exp.open >= 2, [[0, 'Путь в Море Янтарных Ветров открыт! Там пираты злее, а острова богаче.'], [0, 'Перед походом укрепите флот: улучшения в Мастерской и офицеры из Академии очень пригодятся.']]],
+];
+const ADV_GEN = [
+  [[0, 'Совет: корабли в разных эскадрах можно держать про запас. Если флагман тонет, резерв выходит на подмогу.']],
+  [[0, 'Чем больше застроен остров, тем крепче его оборона и выше доход. Стройка на островах — лучшее вложение золота.']],
+  [[0, 'Острова у пиратов снижают доход крепости. Чем быстрее освободим Лазурное море, тем богаче будет казна.']],
+  [[0, 'Атлантис щедро платит за поручения. Загляните туда через Торговую гавань, когда будет свободная эскадра.']],
+  [[1, 'Разведка видит дальше, если улучшить Маяк. А знать врага в лицо — половина победы.']],
+  [[0, 'Абордаж — лучший способ пополнить флот: захваченный корабль становится вашим. Не забывайте о морпехах в Казармах.']],
+];
+function advTip(h) { const a = ADV.find(x => x[1](h)); advSay(a ? a[2] : pick(ADV_GEN)); }
+function advCheck(h) {
+  if (h.tut >= 0 && h.tut < TUT.length) return;
+  h.advSeen ||= {}; const a = ADV.find(x => !h.advSeen[x[0]] && x[1](h)); if (!a) return;
+  setTimeout(() => { if (!$('#scr-fort').classList.contains('active')) return; h.advSeen[a[0]] = 1; saveProfiles(); advSay(a[2]); }, 900);
+}
 
 /* ---------- Сохранение в файл ---------- */
 const SAVE_KEYS = ['bs-sound', 'bs-diff', 'bs-rules'];
@@ -4455,6 +4510,7 @@ function clanBattleTalk(node) {
   if (H.foes.some(f => f.corvin)) L = [['c', false, 'Это последний остров, командир. Отступать братству некуда — значит, и сдаваться мы не будем.'], ['l', false, 'Отец, их слишком много… Ладно. Орудия к бою!']];
   else if (H.obj === 'boss') L = [['c', false, 'Значит, вы пришли за Чёрным Зубом. «Чёрный Корсар» стережёт его уже много лет, и никто ещё не прошёл мимо его орудий. Посмотрим, чего стоит ваш флот.']];
   else if (!C.met) { C.met = 1; saveProfiles(); L = [['c', false, 'Вы в водах Вольного братства Чёрного Зуба. Я — Арне Корвин. Убирайтесь, пока я добрый.'], ['l', true, 'Отец всегда так говорит. Он не добрый. Поворачивайте, командир.']]; }
+  if (h.w + h.l === 0 && !h.advB) { h.advB = 1; saveProfiles(); L = [...(L || []), ['a', 0, 'Командир, враг скрыт в тумане — светлые клетки показывают, что видят наши корабли. Подойдите ближе, чтобы найти пиратов.'], ['a', 0, 'Нажмите «Огонь», затем клетку с врагом. Не забывайте: каждый корабль за ход делает одно действие.']]; }
   if (L) setTimeout(() => clanSay(L), 700);
 }
 function hMakeEl(u) {
@@ -5438,7 +5494,7 @@ function fortStage(h, W) {
     s += `<div class="fraidfx"></div>` + (reduceMotion ? [[40, 84], [66, 91], [14, 89]] : []).map(([x, y]) => `<div class="fpir" style="left:${x}%;top:${y}%">${ship}</div>`).join(''); }
   return s + `</div>`;
 }
-function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); if (p.hunt && clanSt(hdata(p)) === 'offer' && !HB.clanAsk) { HB.clanAsk = 1; setTimeout(clanOpen, 600); } }
+function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); if (p.hunt && clanSt(hdata(p)) === 'offer' && !HB.clanAsk) { HB.clanAsk = 1; setTimeout(clanOpen, 600); } else if (p.hunt) advCheck(hdata(p)); }
 function renderFort(center) {
   const p = curProfile(), h = hdata(p), f = fdata(h); fortTick(h);
   const v = $('#fview'), old = v.firstElementChild;
@@ -5470,7 +5526,7 @@ function renderFort(center) {
   tutRender(h);
   $('#fg-zoom').innerHTML = `🔍<small>${HB.fzoom ? 'общий' : 'ближе'}</small>`;
 }
-function openBld(id) { HB.bld = id; HB.pick = false; HB.cat = null; const h = hdata(curProfile()); if (!h.ships[HB.sel]) HB.sel = h.active; Snd.play('click'); show('scr-hub'); document.body.classList.remove('fort-on'); renderHub(); }
+function openBld(id) { $('#pdlg').hidden = true; HB.bld = id; HB.pick = false; HB.cat = null; const h = hdata(curProfile()); if (!h.ships[HB.sel]) HB.sel = h.active; Snd.play('click'); show('scr-hub'); document.body.classList.remove('fort-on'); renderHub(); }
 function refreshCur() { if ($('#scr-fort').classList.contains('active')) renderFort(); else renderHub(); }
 const BLD_HALL = { citadel: 'fort_hall.webp', dock: 'dock_hall.webp', treasury: 'treasury_hall.webp', battery: 'battery_hall.webp', academy: 'academy_hall.webp', walls: 'walls_hall.webp', lighthouse: 'lighthouse_hall.webp', market: 'market_hall.webp', barracks: 'barracks_hall.webp', workshop: 'workshop_hall.webp' };
 const BLD_POS = { lighthouse: '22% 50%', barracks: '35% 50%', workshop: '30% 50%' };
@@ -5591,6 +5647,7 @@ function initFortUI() {
     addEventListener('resize', () => { if ($('#scr-atlmap').classList.contains('active')) renderAtlMap(); }); }
   $('#fg-ev').onclick = () => { Snd.play('click'); evInfo(hdata(curProfile())); };
   $('#fg-log').onclick = () => { Snd.play('click'); showLog(); };
+  $('#fg-adv').onclick = () => { Snd.play('click'); advTip(hdata(curProfile())); };
   $('#fg-cred').onclick = () => { Snd.play('click'); credInfo(hdata(curProfile())); };
   $('#log-close').onclick = () => { Snd.play('click'); overlay('#ov-log', false); };
   $('#fg-go').onclick = () => { Snd.play('click'); showMap(); };
@@ -5729,7 +5786,7 @@ function seaStage(h, sea, W) {
   });
   return s + '</div>';
 }
-function showMap(sea) {
+function showMap(sea) { $('#pdlg').hidden = true;
   const p = curProfile(); if (!p) return; const h = hdata(p), E = expData(h); Snd.ensure();
   if (sea != null) E.sea = sea; if (E.sea >= E.open) E.sea = E.open - 1;
   show('scr-map'); HB.ret = 'map'; renderMap(true); $('#msheet').hidden = true;
