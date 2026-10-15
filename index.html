@@ -2359,7 +2359,7 @@ const HEQ = [
   { id: 'salvo',   ic: '💥', name: 'Залповая батарея',  price: 150, desc: 'Крест из 5 клеток, урон −1. Перезарядка 2 хода.' },
   { id: 'torp',    ic: '🚀', name: 'Торпедный аппарат', price: 220, desc: 'Торпеда по прямой до первой цели, урон ×1,5 сквозь броню. Перезарядка 3 хода.' },
   { id: 'radar',   ic: '📡', name: 'Радар',             price: 180, desc: 'Засекает всех врагов в радиусе 4 клеток. Перезарядка 4 хода.' },
-  { id: 'smoke',   ic: '🌫️', name: 'Дымовая завеса',    price: 300, rare: 0, desc: 'Корабль 2 хода скрыт в дыму — его видно только вплотную. Перезарядка 5 ходов.' },
+  { id: 'smoke',   ic: '🌫️', name: 'Дымовая завеса',    price: 300, rare: 4, desc: 'Корабль 2 хода скрыт в дыму — его видно только вплотную. Перезарядка 5 ходов.' },
   { id: 'plating', ic: '🧲', name: 'Бронеплиты',        price: 320, rare: 1, desc: 'Постоянно +1 к броне.' },
   { id: 'fire',    ic: '🔥', name: 'Огненный залп',     price: 350, rare: 2, desc: 'Накрывает квадрат 3×3, урон −1. Перезарядка 4 хода.' },
 ];
@@ -2424,6 +2424,7 @@ const BOSSES = [
   { name: 'Морской Дьявол', ic: '🦈',  type: 'sub',        ab: ['torp'],            reward: 'plating', desc: 'Подлодка-невидимка. Торпеды перезаряжает вдвое быстрее.' },
   { name: 'Адмирал Шторм',  ic: '🌪️', type: 'battleship', ab: ['fire'], weather: 'storm', reward: 'fire', desc: 'Приводит с собой шторм и бьёт огненными залпами 3×3.' },
   { name: 'Владыка Корсаров', ic: '👑', type: 'battleship', ab: ['smoke', 'fire', 'torp'], weather: 'night', reward: null, desc: 'Хозяин Обсидианового океана: дымовые завесы, огненные залпы и быстрые торпеды.' },
+  { name: 'Багровый странник', ic: '⚓', type: 'pir_dd', ab: ['smoke', 'repair'], reward: 'smoke', desc: 'Флагман капитана Арне Корвина стережёт Чёрный Зуб. Быстрый и вёрткий: прячется в дыму, латает пробоины прямо в бою и никогда не выходит один.' },
 ];
 const bossOf = m => BOSSES[Math.max(0, Math.floor(m / 5) - 1) % 3];
 const pickW = list => { let t = list.reduce((a, x) => a + x[1], 0) * Math.random(); for (const [v, w] of list) { t -= w; if (t < 0) return v; } return list[0][0]; };
@@ -3510,7 +3511,7 @@ function dipRoom(h) {
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">☠️ ${CLAN.n}</div><div class="dfimg"><img src="pir_clan.webp" alt="" style="object-position:50% 20%"></div><span class="clanst ${ST[0]}">${ST[1]}</span><small class="muted">${CLAN.d}</small>
     <div class="clanppl"><div class="clp"><img src="corvin.webp" alt=""><span><b>🧭 ${CLAN.cap} «${CLAN.nick}»</b><small>Глава братства. Когда-то — офицер флота, которого командиры предали и бросили отвечать за чужие ошибки. С тех пор он не служит никому.</small></span></div>
     <div class="clp"><img src="lucia.webp" alt=""><span><b>🗺 Лючия Корвин</b><small>Дочь капитана, штурман и его правая рука. Пошла по стопам отца: знает каждую мель Лазурного моря и первой понимает, когда пора менять курс.</small></span></div>
-    <div class="clship"><img src="pir_ship_hero.webp" alt=""><b>⚓ «${CLAN.ship}»</b><small>Флагман братства — эсминец с бортами цвета капитанского сюртука. Корвин выводит его в бой, только когда братству некуда отступать: в схватке за последний свободный остров Лазурного моря.</small></div>
+    <div class="clship"><img src="pir_ship_hero.webp" alt=""><b>⚓ «${CLAN.ship}»</b><small>Флагман братства — эсминец с бортами цвета капитанского сюртука. Корвин сам ведёт его в бой, когда враг подходит к Чёрному Зубу, — это последняя и самая трудная битва за Лазурное море.</small></div>
     <div class="clship"><img src="pir_boat_hero.webp" alt=""><b>⚔️ Пиратский катер</b><small>Рабочая лошадка братства. Корвиновы корабелы сварили его из двух корпусов старых сторожевиков, обшили клёпаной бронёй и раскрасили в цвета Чёрного Зуба — красные и белые полосы видно издалека, и купцы, завидев их, сразу сбрасывают ход. Спаренная пушка на носу и ракетные трубы по бортам делают этот катамаран куда злее флотского катера, а два мотора позволяют настичь любого торговца. Такие катера стаями рыщут у захваченных островов. Возьмите его абордажем — и он ваш; строить их верфи Чёрного Зуба станут, только когда братство перейдёт к вам на службу.</small></div>
     <div class="clship"><img src="pir_ds_hero.webp" alt=""><b>🏴‍☠️ Пиратский эсминец</b><small>Основа флота братства. Когда-то эти эсминцы служили во флоте, потом их списали, продали на слом — и они попали в руки Корвина. Корабелы Чёрного Зуба залатали ржавые борта, перекрасили их в чёрный с алой полосой, поставили на палубу ящики для добычи и шлюпки для абордажа. Две пушки и тесный строй абордажников — этого хватает, чтобы держать в страхе торговые пути. Эсминец заметно слабее «Багрового странника», но встречается в каждом бою с пиратами. Захватить его можно абордажем, строить — когда братство у вас на службе.</small></div>
     <div class="clship"><img src="pir_sub_hero.webp" alt=""><b>🤿 Пиратская подлодка</b><small>Самый подлый корабль братства. Её корпус собран из обломков старых субмарин и стянут заплатами из листовой брони, а красно-белые полосы, которые наверху видны за милю, под водой исчезают без следа. Подлодка часами лежит в засаде у торговых путей, пока на поверхности не покажется жирный купец, — а потом из глубины приходит торпеда. Пушка на палубе — лишь для острастки: настоящее оружие спрятано в носовых аппаратах. Купцы Лазурного моря боятся её больше, чем всех пиратских эсминцев вместе взятых. Захватить подлодку можно абордажем, строить — когда братство у вас на службе.</small></div></div>
@@ -4417,10 +4418,12 @@ function addFoe(type, pos, m, weak = 1) {
   H.foes.push(u); return u;
 }
 const foeTop = m => m >= 13 ? 4 : Math.min(3, Math.floor((m - 1) / 2.5));
+const pirBattle = () => !(H.node && (H.node.fac === 'raid' || H.node.deep));
 function genFoes(m, n, zone = [0, HN - 5, 5, 5]) {
-  const top = foeTop(m);
+  let top = foeTop(m);
+  if (pirBattle() && top > 2) { n = Math.min(6, n + (top >= 4 ? 2 : 1)); top = 2; }   // у пиратов нет крейсеров и линкоров — их берут числом
   for (let i = 0; i < n; i++) {
-    const type = i === 0 ? HS_ORDER[top] : HS_ORDER[rnd(top + 1)];
+    const type = i === 0 ? (top === 2 && pirBattle() ? pick(['destroyer', 'sub']) : HS_ORDER[top]) : HS_ORDER[rnd(top + 1)];
     const pos = freeCell(zone, H.foes) || freeCell(zone); if (!pos) break;
     addFoe(type, pos, m);
   }
@@ -4456,17 +4459,17 @@ function setupObjective(node) {
   } else if (o === 'boss') {
     const b = bossFor(node), pos = freeCell([0, HN - 4, 4, 4]);
     const u = mkUnit(b.type, 'foe', pos.r, pos.c, 135, { up: hireUp(Math.floor(m / 5)), crew: { gunners: 2, look: 1, acou: 2, mech: 0 }, eq: { salvo: true, torp: b.ab.includes('torp') || b.type === 'battleship', smoke: b.ab.includes('smoke'), fire: b.ab.includes('fire') } });
-    u.boss = b; u.name = b.name; u.st.hp = u.hp = Math.round(u.st.hp * 1.1 + 2 * m); u.fastTorp = b.ab.includes('torp');
+    u.boss = b; u.name = b.name; u.st.hp = u.hp = Math.round(u.st.hp * (b.type === 'pir_dd' ? 1.7 : 1.1) + (b.type === 'pir_dd' ? 3 : 2) * m); if (b.type === 'pir_dd') { u.st.armor += 1; u.st.dmg += 1; u.corvin = 1; u.fac = 'pir'; } u.fastTorp = b.ab.includes('torp');
     H.foes.push(u);
-    genFoes(m, Math.max(1, n - 1));
+    genFoes(m, Math.max(1, n - 1) + (b.type === 'pir_dd' ? 1 : 0));
   }
-  if (lastAzure(node)) { const pos = freeCell([0, HN - 5, 5, 5]); if (pos) { const u = addFoe('pir_dd', pos, Math.max(m, 3)); u.name = CLAN.ship; u.fac = 'pir'; u.st.hp = u.hp = u.st.hp + 4; u.corvin = 1; } }
+  if (lastAzure(node)) { const pos = freeCell([0, HN - 5, 5, 5]); if (pos) { const u = addFoe('pir_ds', pos, Math.max(m, 3)); u.name = 'Ласточка'; u.fac = 'pir'; u.st.hp = u.hp = u.st.hp + 5; u.st.dmg += 1; u.lucia = 1; } }
 }
 // бой за последний свободный остров Лазурного моря: на защиту выходит флагман Корвина
 const lastAzure = node => { if (!node || node.sea !== 0 || !(node.isle >= 0) || node.reclaim) return false; const h = hdata(curProfile()); return !isleOf(h, iKey(0, node.isle)).own && SEAS[0].isles.every((_, i) => i === node.isle || isleOf(h, iKey(0, i)).own); };
 function spawnReinf() {
   const pos = freeCell([0, HN - 3, 3, 3]); if (!pos) return;
-  const top = foeTop(H.mission);
+  const top = pirBattle() ? Math.min(2, foeTop(H.mission)) : foeTop(H.mission);
   const u = addFoe(HS_ORDER[rnd(top + 1)], pos, H.mission);
   u.known = { r: H.me.r, c: H.me.c, exact: false, age: 0 };
   hMakeEl(u); hMsg('⚠️ К врагу подошло подкрепление!', 'hit');
@@ -4512,7 +4515,7 @@ function startHunt(node) {
   H.acted = new Set(); H.cur = H.me;
   buildHuntMap(); show('scr-hunt');
   const o = OBJ[H.obj], w = WEATHER[H.weather];
-  hMsg(H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина вышел защищать последний остров братства!` : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
+  hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   hStartPlayerTurn(true);
   clanBattleTalk(node);
 }
@@ -4520,8 +4523,8 @@ function clanBattleTalk(node) {
   if (!node || node.sea !== 0 || H.fac === 'raid' || node.deep || node.atl || node.trade) return;
   const h = hdata(curProfile()), C = clanData(h); if (C.st !== 'war') return;
   let L = null;
-  if (H.foes.some(f => f.corvin)) L = [['c', false, 'Это последний остров, командир. Отступать братству некуда — значит, и сдаваться мы не будем.'], ['l', false, 'Отец, их слишком много… Ладно. Орудия к бою!']];
-  else if (H.obj === 'boss') L = [['c', false, 'Значит, вы пришли за Чёрным Зубом. «Чёрный Корсар» стережёт его уже много лет, и никто ещё не прошёл мимо его орудий. Посмотрим, чего стоит ваш флот.']];
+  if (H.foes.some(f => f.lucia)) L = [['l', false, 'Это последний остров братства, командир. Отец доверил его мне — и я его не отдам.'], ['c', false, 'Держись, дочка. Если падёт и он — встретимся у Чёрного Зуба.']];
+  else if (H.obj === 'boss') L = [['c', false, 'Значит, вы добрались до Чёрного Зуба. Сорок лет это мой дом, командир, и «Багровый странник» не отступит отсюда ни на кабельтов.'], ['l', false, 'Отец, их флот сильнее нас… Хорошо. Мы с тобой до конца. Орудия к бою!']];
   else if (!C.met) { C.met = 1; saveProfiles(); L = [['c', false, 'Вы в водах Вольного братства Чёрного Зуба. Я — Арне Корвин. Убирайтесь, пока я добрый.'], ['l', true, 'Отец всегда так говорит. Он не добрый. Поворачивайте, командир.']]; }
   if (h.w + h.l === 0 && !h.advB) { h.advB = 1; saveProfiles(); L = [...(L || []), ['a', 0, 'Командир, враг скрыт в тумане — светлые клетки показывают, что видят наши корабли. Подойдите ближе, чтобы найти пиратов.'], ['a', 0, 'Нажмите «Огонь», затем клетку с врагом. Не забывайте: каждый корабль за ход делает одно действие.']]; }
   if (L) setTimeout(() => clanSay(L), 700);
@@ -5677,7 +5680,7 @@ function initFortUI() {
 /* ==================== ЭКСПЕДИЦИИ И РАЗВЕДКА ==================== */
 const SEA_W = 1536, SEA_H = 1024, SEA_NEED = 5;
 const SEAS = [
-  { n: 'Лазурное море', img: 'sea1.webp', tods: ['dawn', 'dusk', 'night'], lvl: 1, boss: 0, wx: [['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]],
+  { n: 'Лазурное море', img: 'sea1.webp', tods: ['dawn', 'dusk', 'night'], lvl: 1, boss: 4, wx: [['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]],
     base: { x: 330, y: 690, n: 'Остров Рассвета' }, pir: { x: 215, y: 160, n: 'Чёрный Зуб' },
     isles: [{ x: 740, y: 215, n: 'Зелёный Венец' }, { x: 1300, y: 235, n: 'Белый Утёс' }, { x: 740, y: 425, n: 'Песчанка' }, { x: 1170, y: 500, n: 'Порт Лазурный' }, { x: 1265, y: 790, n: 'Бухта Рыбаков' }, { x: 265, y: 360, n: 'Черепаший' }, { x: 850, y: 895, n: 'Пальмовый' }, { x: 1460, y: 470, n: 'Скала Чаек' }] },
   { n: 'Море Янтарных Ветров', img: 'sea2.webp', lvl: 7, boss: 1, wx: [['clear', 6], ['storm', 1], ['night', 2]],
