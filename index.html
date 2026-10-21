@@ -260,7 +260,11 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .flife{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .ocean{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
 .board>.ocean{left:var(--cw);top:var(--cw);width:calc(var(--cw)*10);height:calc(var(--cw)*10);border-radius:0 0 12px 0}
-.hunit.sinking .hpbar{display:none}
+.hunit.sinking .hpbar,.hunit.retreat .hpbar{display:none}
+.hunit.retreat .spr{animation:hretreat 2.6s ease-in forwards}
+@keyframes hretreat{0%{opacity:1;filter:drop-shadow(0 0 0 #6cf)}25%{filter:drop-shadow(0 0 12px #8de4ff) brightness(1.4)}100%{opacity:0;transform:scale(.92) translate(-30%,0);filter:drop-shadow(0 0 4px #8de4ff)}}
+.echohero{width:100%;border-radius:14px;display:block;margin:8px 0 6px;aspect-ratio:16/9;object-fit:cover}.echolore{margin:0 0 8px;padding:8px 12px;border-radius:12px;background:rgba(0,10,30,.35);border:1px solid rgba(140,210,255,.25)}.echolore summary{cursor:pointer;font-weight:800;color:#bfe9ff}.echolore p{margin:8px 0 0;font-size:13.5px;line-height:1.45;font-style:italic;color:#e6f4ff}
+.echorow .echonx{display:block;color:#9fe0ff;margin-top:2px}.echorow .btn{flex:none;width:92px;padding:7px 4px;white-space:normal;line-height:1.15;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px}.echorow .btn .echot{font-size:10.5px;font-weight:600;opacity:.85}.echosub{display:block;margin:-2px 0 6px}
 .hunit.sinking .spr{animation:hsink 2.6s ease-in forwards}
 .hunit.sinking .spr>*{animation:hsinkd 2.6s ease-in forwards}
 @keyframes hsink{0%,30%{transform:none;opacity:1}55%{transform:rotate(9deg) scale(.95)}100%{transform:rotate(22deg) scale(.62) translateY(8%);opacity:0}}
@@ -789,7 +793,14 @@ body.menu-on #splash{opacity:1}
 body.menu-on .logo svg{display:none}
 body.menu-on .logo{margin:0}
 #scr-menu .logo h1{font-size:38px}#scr-menu .logo p{font-size:14px}
-@media (min-aspect-ratio:1/1){#splash{background-position:center 58%}}
+@media (min-aspect-ratio:1/1){#splash{background-position:center 40%}}
+@media (max-aspect-ratio:1/1){
+  #splash{background:#06203f;-webkit-mask-image:none;mask-image:none;overflow:hidden}
+  #splash::before{content:"";position:absolute;inset:-30px;background:url(menu.webp) center 30%/cover no-repeat;filter:blur(16px) brightness(.5) saturate(1.2)}
+  #splash{--ps:max(122vw,min(165vw,calc((100vh - 390px) * 1.78)));--pb:calc(max(env(safe-area-inset-top),0px) + 62px + var(--ps) * .563)}
+  #splash::after{background:linear-gradient(180deg,rgba(4,26,56,0) calc(var(--pb) - 70px),rgba(4,26,56,.75) var(--pb),rgba(4,26,56,.55) calc(var(--pb) + 40px),rgba(3,30,70,.6)),url(menu.webp) center calc(max(env(safe-area-inset-top),0px) + 62px)/var(--ps) auto no-repeat}
+  body.menu-on #scr-menu .logo h1,body.menu-on #scr-menu .logo p{visibility:hidden}
+}
 .trrow{display:flex;flex-direction:column;gap:6px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08)}
 .trrow .trn{display:grid;grid-template-columns:30px 1fr;column-gap:8px;align-items:center}.trrow .trn .ic{grid-row:span 3;font-size:22px;text-align:center}.trrow .trn small{grid-column:2;opacity:.75;font-size:12px}
 .trb{display:flex;flex-wrap:wrap;gap:6px}.trb .btn{min-width:40px}
@@ -1369,7 +1380,7 @@ const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" 
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
 const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
-const TOP_AR = { boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, pir_boat: 2.39, pir_ds: 5.3, pir_sub: 3.45};
+const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, pir_boat: 2.39, pir_ds: 5.3, pir_sub: 3.45};
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -2344,6 +2355,7 @@ const HS = {
   destroyer:  { name: 'Эсминец',  len: 2, price: 300,  hp: 10, armor: 1, speed: 2, dmg: 3, range: 4, sight: 2, mar: 4,  slots: 1, desc: 'Надёжный универсал: крепче катера и бьёт дальше.' },
   sub:        { name: 'Подлодка', len: 2, price: 500,  hp: 8,  armor: 0, speed: 2, dmg: 4, range: 4, sight: 2, mar: 2,  slots: 1, sub: true, desc: 'Невидима дальше 1 клетки, пока не стреляет. Пушек нет — бьёт только торпедами, зато сквозь броню.' },
   cruiser:    { name: 'Крейсер',  len: 3, price: 800,  hp: 14, armor: 2, speed: 2, dmg: 4, range: 5, sight: 3, mar: 6,  slots: 2, desc: 'Тяжёлая броня, хороший обзор, дальние орудия. ☄️ Ракетная установка: бьёт далеко и сквозь броню (ракеты из Арсенала).' },
+  echo:       { name: 'Дредноут', len: 5, price: 0, hp: 24, armor: 2, speed: 1, dmg: 5, range: 5, sight: 2, mar: 10, slots: 3, unique: true, echo: 1, desc: 'Древний дредноут вашего рода. Несколько поколений служит семье — и хранит больше тайн, чем раскрыл. Почти все системы спят, но корабль не тонет: разбитый, он сам уходит в док.' },
   battleship: { name: 'Линкор',   len: 4, price: 1400, hp: 22, armor: 3, speed: 1, dmg: 6, range: 6, sight: 3, mar: 10, slots: 3, desc: 'Плавучая крепость. Медленный, но сокрушительный.' },
   sub2:       { name: 'Ударная подлодка', len: 2, price: 950, hp: 11, armor: 1, speed: 2, dmg: 5, range: 5, sight: 2, mar: 3, slots: 2, sub: true, need: 2, eqBase: { torp: true }, desc: 'Атомная охотница: крепче и дальнобойнее обычной подлодки. Пушек нет: 🚀 торпеды и ☄️ ракеты.' },
   sub3:       { name: 'Ракетоносец', len: 3, price: 1800, hp: 16, armor: 2, speed: 1, dmg: 6, range: 6, sight: 2, mar: 4, slots: 2, sub: true, need: 3, eqBase: { torp: true }, desc: 'Огромный подводный крейсер. Пушек нет: 🚀 торпеды и ☄️ ракеты. Медленный, но бьёт издалека и из-под воды.' },
@@ -2386,7 +2398,7 @@ const HCREW = [
   { id: 'acou',    ic: '🎧', name: 'Акустики',   max: 2, eff: l => `слух ${4 + l * 2} клеток` },
 ];
 const CREW_COST = [100, 200, 350];
-const UP_BASE = { boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90, atl_dd: 100, pir_dd: 90, pir_boat: 55, pir_ds: 75, pir_sub: 95};
+const UP_BASE = { echo: 200, boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90, atl_dd: 100, pir_dd: 90, pir_boat: 55, pir_ds: 75, pir_sub: 95};
 const HIRE = { boat: 50, destroyer: 110, sub: 160, cruiser: 230, battleship: 380 }, HIRE_MAX = 2, SQUAD_MAX = 5;
 const hireLvl = m => Math.floor((m - 1) / 3);
 const hirePrice = (h, id) => Math.round((HIRE[id] + 25 * hireLvl(h.mission)) * (1 - .1 * (h.hireVet[id] || 0)));
@@ -2471,7 +2483,95 @@ function hdata(p) {
   fdata(h); fortMigrate(h);
   if (h.rv !== 1) { Object.values(h.ships).forEach(s => { if (s.broken && !s.repEnd) { s.broken = false; s.hpLost = Math.max(0, shipMaxHp(h, s) - 1); } }); h.rv = 1; }
   delete h.route; expData(h); ammoData(h); if (!fdata(h).b.workshop) fdata(h).b.workshop = 1;
+  if (!h.echo || !h.ships[h.echo]) {   // наследство рода: древний дредноут
+    const fresh = !(h.w + h.l) && Object.keys(h.ships).length <= 1, s = newShip(h, 'echo'); s.name = ECHO_NAME; h.echo = s.id;
+    if (fresh) { h.active = s.id; h.squad = Object.keys(h.ships).filter(id => id !== s.id).slice(0, 1); (h.advSeen ||= {}).echo = 1; }
+  }
+  echoFm(h); ECHO_FM = h.fm; echoTick(h);
   return h;
+}
+/* ==================== «ECHO PRIMAE LUCIS» — ДРЕВНИЙ ДРЕДНОУТ РОДА ==================== */
+// Пять направлений модернизации. Ступень i требует Цитадель ≥ i. Ступени с lock — ждут сюжета (технологии ещё неизвестны).
+const ECHO_NAME = 'Echo Primae Lucis', ECHO_RU = 'Эхо Первого Света';
+const ECHO_LORE = [
+  '«Echo Primae Lucis» — «Эхо Первого Света». Никто не знает, чьи руки спустили его на воду. Летописи вашего рода упоминают корабль в самых первых своих строках — и уже тогда он был древним. Несколько поколений он служит вашей семье, переходя от отца к сыну, от матери к дочери, и за все эти годы не открыл и половины своих тайн.',
+  'Ржавчина не идёт глубже краски, а золотые линии на его бортах в штормовые ночи начинают едва заметно светиться, будто корабль дышит в такт волнам.',
+  'Команда привыкла ко многому. К голосам в дальних коридорах — тихим, неразборчивым, порой похожим на смех, порой на шёпот, зовущий тебя по имени. К вещам, которые пропадают — кружка, ключ, вахтенный журнал, — а через день или через неделю лежат ровно там, где их оставили, как ни в чём не бывало. К голубому свечению, которое вдруг разливается по пустым отсекам и гаснет, стоит лишь подойти ближе.',
+  'Механики корабля — лучшие во всём Адмиралтействе — честно признаются: половину систем они не чинят, а уговаривают. Как работают машины нижних палуб, не знает никто. Знают только одно: они работают.',
+  'А бывает и так: матрос сворачивает в знакомый коридор — и выходит к своим лишь через час, бледный, с дрожащими руками. Он клянётся, что шёл по залам, которых нет ни на одном чертеже, — высоким, тихим, залитым мягким светом. Таких историй в судовом журнале уже десятки. Чертежи от них не меняются.',
+  'Старые боцманы говорят просто: «Корабль нас бережёт — он ещё ни разу не утонул». И добавляют, понизив голос: «Только вот кого он все эти годы ждёт — пока неизвестно».',
+];
+const ECHO_MODS = [
+  { k: 'gun', ic: '🎯', n: 'Главный калибр', t: [
+    { n: 'Две башни 203 мм', d: 'Старые орудия, но ещё бьют метко.' },
+    { n: 'Три башни 254 мм', d: 'Третья башня и новые стволы.', cost: 3000, min: 240, fx: { dmg: 1 } },
+    { n: 'Четыре башни 305 мм', d: 'Полный бортовой залп главного калибра.', cost: 9000, min: 600, fx: { dmg: 1, range: 1 } },
+    { n: 'Четыре башни 406 мм', d: 'Снаряды весом с автомобиль.', cost: 25000, min: 1200, fx: { dmg: 2 } },
+    { n: 'Рельсовые орудия', d: 'Электромагнитные пушки: снаряд летит быстрее звука.', cost: 60000, min: 2160, fx: { dmg: 2, range: 1 } },
+    { n: '??? Оружие Древних', d: 'В погребах есть пустые гнёзда для чего-то… совсем иного.', lock: 1, fx: { dmg: 3, range: 2 } },
+  ] },
+  { k: 'pow', ic: '⚙️', n: 'Силовая установка', t: [
+    { n: 'Старый судовой дизель', d: 'Огромный, шумный и упрямый. Тянет, но едва-едва.' },
+    { n: 'Паровые турбины', d: 'Корабль наконец-то набирает ход.', cost: 3500, min: 300, fx: { speed: 1 } },
+    { n: 'Газовые турбины', d: 'Энергии хватает на новые системы.', cost: 10000, min: 720, fx: { hp: 4 } },
+    { n: 'Атомный реактор', d: 'Годы хода без дозаправки.', cost: 30000, min: 1440, fx: { speed: 1, hp: 4 } },
+    { n: 'Термоядерный реактор', d: 'Звезда, запертая в машинном отделении.', cost: 70000, min: 2880, fx: { hp: 6, regen: 4 } },
+    { n: '??? Реактор Древних', d: 'Под машинным отделением есть отсек, который не открывается ничем.', lock: 1, fx: { speed: 1, hp: 8 } },
+  ] },
+  { k: 'nav', ic: '🧭', n: 'Навигация', t: [
+    { n: 'Компас и секстант', d: 'Как у предков: звёзды и опыт штурмана.' },
+    { n: 'Радиолокатор', d: 'Враг виден дальше.', cost: 3000, min: 240, fx: { sight: 1 } },
+    { n: 'Радар кругового обзора', d: 'Точнее наводка орудий.', cost: 8000, min: 600, fx: { scatter: .1 } },
+    { n: 'Боевая информационная система', d: 'Компьютер сам рассчитывает упреждение.', cost: 22000, min: 1200, fx: { sight: 1, scatter: .1 } },
+    { n: 'Нейросеть флота', d: 'Корабль видит всё, что видят его спутники.', cost: 55000, min: 2160, fx: { sight: 1, range: 1 } },
+    { n: '??? Разум Древних', d: 'Иногда приборы показывают то, чего нет на картах. Или есть?', lock: 1, fx: { sight: 2, range: 1 } },
+  ] },
+  { k: 'core', ic: '💠', n: 'Ядро', t: [
+    { n: 'Неизвестный механизм', d: 'Глубоко в трюме гудит странный механизм. Когда корабль разбит, он сам уводит его в док — никто не знает как.' },
+    { n: 'Стабилизация корпуса', d: 'Механизм отзывается на ремонт: попадания гасятся мягче.', cost: 12000, min: 720, fx: { armor: 1 } },
+    { n: 'Восстановление в бою', d: 'Обшивка медленно затягивается прямо в бою.', cost: 30000, min: 1440, fx: { regen: 3 } },
+    { n: 'Отклоняющее поле', d: 'Вокруг корабля дрожит воздух. Снаряды будто вязнут.', cost: 65000, min: 2880, fx: { armor: 1, hp: 4 } },
+    { n: '??? Пробуждение', d: 'Иногда ночью механизм… будто прислушивается.', lock: 1, fx: { armor: 1, regen: 2 } },
+    { n: '???', d: 'Неизвестно.', lock: 1, fx: { hp: 6 } },
+  ] },
+  { k: 'hull', ic: '🛡', n: 'Корпус', t: [
+    { n: 'Древний корпус', d: 'Сплав, который не берёт ржавчина. Вмятины — следы прошлых войн.' },
+    { n: 'Бронепояс', d: 'Новые плиты вдоль ватерлинии.', cost: 4000, min: 300, fx: { hp: 4 } },
+    { n: 'Расширение корпуса', d: 'Корабль становится больше: новые палубы и места для десанта.', cost: 12000, min: 900, fx: { hp: 6, mar: 4 }, grow: 1 },
+    { n: 'Композитная броня', d: 'Слоистая броня держит даже тяжёлые снаряды.', cost: 30000, min: 1440, fx: { armor: 1, hp: 4 } },
+    { n: 'Второе расширение', d: 'Ещё больше и ещё грознее.', cost: 70000, min: 2880, fx: { hp: 8, mar: 6 }, grow: 1 },
+    { n: '??? Антигравитационный корпус', d: 'Корпус легче воды, чем должен быть. Почему?', lock: 1, fx: { hp: 10 }, grow: 1 },
+  ] },
+];
+let ECHO_FM = null;   // ступени модернизации текущего профиля
+const ECHO_FX = { dmg: '⚔️ урон', range: '🎯 дальность', speed: '💨 ход', hp: '❤ прочность', armor: '🛡 броня', sight: '👁 обзор', scatter: '🎯 точность', regen: '🔋 самовосстановление', mar: '🪖 десант' };
+const echoFxTxt = fx => Object.entries(fx || {}).map(([k, v]) => k === 'regen' ? `${ECHO_FX[k]} (+1 ❤ раз в ${v} хода)` : k === 'scatter' ? `${ECHO_FX[k]} +` : `${ECHO_FX[k]} +${v}`).join(', ');
+function echoTick(h) {
+  const b = h.fmB; if (!b || Date.now() < b.end) return false;
+  echoFm(h)[b.k] = b.lvl; h.fmB = null; const m = ECHO_MODS.find(x => x.k === b.k);
+  news(h, `💠 «${ECHO_NAME}»: установлено — ${m.n}: ${m.t[b.lvl].n}`, true); try { toast(`💠 Модернизация завершена: ${m.t[b.lvl].n}`); Snd.play('ach'); } catch (e) {}
+  saveProfiles(); return true;
+}
+function echoPanel(h) {
+  const fm = echoFm(h), cit = fL(h, 'citadel'), B = h.fmB;
+  let o = `<img class="echohero" src="echo_hero.webp" alt="${ECHO_NAME}"><details class="echolore"><summary>📜 Летопись корабля</summary>${ECHO_LORE.map(x => `<p>${x}</p>`).join('')}</details><div class="sec-t">💠 Модернизация «${ECHO_NAME}»</div><small class="muted echosub">«${ECHO_RU}» — древний дредноут вашего рода. Большинство его систем спит. Каждая ступень требует Цитадель того же уровня.</small>`;
+  if (B) { const m = ECHO_MODS.find(x => x.k === B.k); o += `<div class="repbox"><b>🔧 Идут работы: ${m.n} — ${m.t[B.lvl].n}</b><small>Осталось <span data-until="${B.end}">${fmtLeft(B.end - Date.now())}</span>. Корабль при этом остаётся в строю.</small></div>`; }
+  ECHO_MODS.forEach(m => {
+    const l = fm[m.k] || 0, cur = m.t[l], nx = m.t[l + 1];
+    let btn;
+    if (!nx) btn = `<button class="btn small" disabled>макс.</button>`;
+    else if (nx.lock) btn = `<button class="btn small" disabled>🔒 ???</button>`;
+    else if (cit < l + 1) btn = `<button class="btn small" disabled>🏰 Цит. ${l + 1}</button>`;
+    else btn = `<button class="btn small primary" data-act="fmup" data-id="${m.k}" ${B || h.gold < nx.cost ? 'disabled' : ''}>${nx.cost} 💰<small class="echot">⏱ ${fmtLeft(nx.min * 60000)}</small></button>`;
+    o += `<div class="uprow echorow"><span class="ic">${m.ic}</span><span class="nm">${m.n}: ${cur.n}<small>${cur.d}</small>${nx ? `<small class="echonx">${nx.lock ? '🔒 ' + nx.n + ' — ' + nx.d : '▶ ' + nx.n + ': ' + echoFxTxt(nx.fx)}</small>` : ''}${lvBar(l, m.t.length - 1)}</span>${btn}</div>`;
+  });
+  return o;
+}
+const echoFm = h => { h.fm ||= { gun: 0, pow: 0, nav: 0, core: 0, hull: 0 }; return h.fm; };
+const echoGrow = fm => 1 + .1 * ECHO_MODS.find(m => m.k === 'hull').t.slice(1, (fm && fm.hull || 0) + 1).filter(x => x.grow).length;
+function echoApply(s, fm) {
+  if (!fm) return;
+  ECHO_MODS.forEach(m => { for (let i = 1; i <= (fm[m.k] || 0); i++) { const e = m.t[i].fx || {}; for (const k in e) { if (k === 'scatter') s.scatter = Math.max(0, s.scatter - e[k]); else if (k === 'regen') s.regen = s.regen ? Math.min(s.regen, e[k]) : e[k]; else if (k === 'mar') s.cap += e[k]; else s[k] = (s[k] || 0) + e[k]; } } });
 }
 function shipStats(id, up = {}, crew = {}, x = {}) {
   const b = HS[id];
@@ -2495,9 +2595,10 @@ function shipStats(id, up = {}, crew = {}, x = {}) {
   const rk = RANKS[x.rank || 0]; s.hp += rk.hp || 0; s.dmg += rk.dmg || 0; s.armor += rk.armor || 0;
   if (x.eq && x.eq.plating) s.armor += 1;
   if (b.future) { s.regen = s.regen ? Math.min(s.regen, 3) : 3; s.cloak = true; s.pulse = true; }
+  if (b.echo) echoApply(s, x.fm || ECHO_FM);
   return s;
 }
-const ownStats = (h, id) => { const s = h.ships[id]; if (!s) return shipStats(id, {}, h.crew); const st = shipStats(s.type, s.up, h.crew, { spec: offSpec(h, id), rank: rankOf(s.xp), eq: s.eq }); st.cap += Math.floor(fL(h, 'barracks') / 2); return st; };
+const ownStats = (h, id) => { const s = h.ships[id]; if (!s) return shipStats(id, {}, h.crew); const st = shipStats(s.type, s.up, h.crew, { spec: offSpec(h, id), rank: rankOf(s.xp), eq: s.eq, fm: s.type === 'echo' ? echoFm(h) : null }); st.cap += Math.floor(fL(h, 'barracks') / 2); return st; };
 function subSVG() {
   return `<svg viewBox="0 0 200 100" width="100%" height="100%" preserveAspectRatio="none" style="overflow:visible">
     <ellipse cx="100" cy="50" rx="94" ry="28" fill="url(#gHull)" stroke="#111a22" stroke-width="3"/>
@@ -2516,7 +2617,7 @@ function fortSVG(mine, tower) {
     <rect x="41" y="60" width="18" height="28" rx="9" fill="#3b2f22"/><rect x="24" y="48" width="9" height="9" fill="#3b2f22"/><rect x="67" y="48" width="9" height="9" fill="#3b2f22"/>
     <line x1="50" y1="22" x2="50" y2="3" stroke="#3b2f22" stroke-width="4"/><path d="M50 3h24l-7 6 7 6H50z" fill="${flag}"/></svg>`;
 }
-const SHIP_SC = { boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95, atl_dd: .85, pir_dd: .85, pir_boat: .65, pir_ds: .82, pir_sub: .8};
+const SHIP_SC = { echo: 1.15, boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95, atl_dd: .85, pir_dd: .85, pir_boat: .65, pir_ds: .82, pir_sub: .8};
 const shipImg = (id, cls = '', own) => `<img class="shimg ${cls}" src="ship_${id}.webp" alt="" draggable="false" style="--sc:${SHIP_SC[id] || 1};${skinF(own)}" onerror="this.style.visibility='hidden'">`;
 const shipPic = (id, foam) => HS[id].fort ? fortSVG(HS[id].mine, HS[id].tower) : HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
 const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5', 'board1', 'boss1', 'legend'];
@@ -2528,8 +2629,9 @@ function checkAch(p, ids) {
 }
 
 /* ---------- Флот без ограничений: корабли-экземпляры, офицеры, острова ---------- */
-const UPK = { boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3, pir_dd: 3, pir_boat: 1, pir_ds: 2, pir_sub: 3}, OFF_UPK = 1, GARR_MAX = 999;
+const UPK = { echo: 8, boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3, pir_dd: 3, pir_boat: 1, pir_ds: 2, pir_sub: 3}, OFF_UPK = 1, GARR_MAX = 999;
 const SHIP_POOL = {
+  echo: ['Echo Primae Lucis'],
   boat: ['Стриж', 'Чайка', 'Вьюн', 'Ласточка', 'Кречет', 'Сокол', 'Ястреб', 'Баклан', 'Бриз', 'Шквал', 'Пчела', 'Вихрь'],
   destroyer: ['Стремительный', 'Грозный', 'Бесстрашный', 'Быстрый', 'Резвый', 'Смелый', 'Верный', 'Лихой', 'Дерзкий', 'Громкий'],
   atl_dd: ['Мистраль', 'Кетцаль', 'Иштар', 'Леван-Тэ'],
@@ -2648,7 +2750,7 @@ const isleOcc = (h, n) => occOn(h) && String(n).startsWith('0:') && (!isleOf(h, 
 const occN = h => occOn(h) ? SEAS[0].isles.filter((_, i) => isleOcc(h, iKey(0, i))).length : 0;
 const occPen = h => clanServ(h) ? 0 : Math.min(.3, .035 * occN(h));
 // шанс гибели корабля гарнизона при захвате острова: зависит от модели, звания и улучшений
-const SINK_BASE = { boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, pir_boat: .52, pir_ds: .4, pir_sub: .4, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
+const SINK_BASE = { echo: 0, boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, pir_boat: .52, pir_ds: .4, pir_sub: .4, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
 const sinkCh = s => Math.max(.04, (SINK_BASE[s.type] ?? .4) - .04 * rankOf(s.xp) - .015 * Object.values(s.up || {}).reduce((a, v) => a + (+v || 0), 0));
 const isleSafe = (h, n) => (isleOf(h, n).safe || 0) > Date.now();
 const netRate = h => fRate(h) + isleIncome(h) - upkeep(h);
@@ -2682,6 +2784,7 @@ function awaySummary(h, ms, un) {
   h.seenT = Date.now(); h.newsNew = 0; saveProfiles();
 }
 function econTick(h) {
+  echoTick(h);
   const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (decTick(h)) ch = true; if (atlTick(h)) ch = true; if (deepTick(h)) ch = true; if (devTick(h)) ch = true; if (ammoTick(h)) ch = true; if (clanTick(h)) ch = true;
   if (!h.econT) { h.econT = now; return true; }
   if (now - h.econT > 10 * 60000) h.away = Math.max(h.away || 0, now - h.econT);
@@ -2728,7 +2831,7 @@ const TPORTS = [
   { n: 'Обсидиановый Рынок', sea: 3, min: 120, risk: .36, threat: 60, mul: { food: 1.38, fuel: 1.35, shells: 1.42, gold: 1.4, gems: 1.45 } },
   { n: 'Атлантис', sea: -1, min: 150, risk: .22, threat: 40, mul: { food: 1.32, fuel: 1.36, shells: 1.36, gold: 1.38, gems: 1.4 } },
 ];
-const CARGO = { boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 40, atl_bb: 14, atl_cargo: 60, atl_dd: 10, pir_dd: 8, pir_boat: 5, pir_ds: 9, pir_sub: 3};
+const CARGO = { echo: 18, boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 40, atl_bb: 14, atl_cargo: 60, atl_dd: 10, pir_dd: 8, pir_boat: 5, pir_ds: 9, pir_sub: 3};
 const SHELL_BOX = 8, TR_PER = 3 * 3600e3;
 const tGood = id => TGOODS.find(g => g.id === id);
 function trRand(a, b, c) { let x = (Math.imul(a, 73856093) ^ Math.imul(b, 19349663) ^ Math.imul(c, 83492791)) >>> 0; x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return (x % 10007) / 10007; }
@@ -3435,7 +3538,7 @@ function atlAct(act, id) {
 }
 
 /* ---------- Команда кораблей и Мемориал ---------- */
-const CREW = { boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, pir_boat: 14, pir_ds: 34, pir_sub: 26};
+const CREW = { echo: 140, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, pir_boat: 14, pir_ds: 34, pir_sub: 26};
 const crewWord = (t, n) => HS[t].sub ? plural(n, 'подводник', 'подводника', 'подводников') : plural(n, 'матрос', 'матроса', 'матросов');
 const crewEff = u => u && u.crewMax ? Math.max(0, Math.min(1, u.crew / u.crewMax)) : 1;
 const effDmg = u => Math.max(1, Math.round(u.st.dmg * (.5 + .5 * crewEff(u))));
@@ -3665,7 +3768,7 @@ function memorialPanel(h) {
 }
 
 /* ---------- Гибель и ремонт кораблей ---------- */
-const REP_MIN = { boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70, atl_dd: 50, pir_dd: 45, pir_boat: 25, pir_ds: 42, pir_sub: 55};
+const REP_MIN = { echo: 180, boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70, atl_dd: 50, pir_dd: 45, pir_boat: 25, pir_ds: 42, pir_sub: 55};
 const shipMaxHp = (h, s) => ownStats(h, s.id).hp;
 const shipHp = (h, s) => Math.max(1, shipMaxHp(h, s) - (s.hpLost || 0));
 function repairInfo(h, s) {
@@ -3696,6 +3799,11 @@ function pickFlag(h, lines) {
 }
 function loseShip(h, id, lines, place, u) {
   const s = h.ships[id]; if (!s) return;
+  if (s.type === 'echo') {   // древнее ядро не даёт кораблю утонуть: аварийный протокол уводит его в док
+    s.hpLost = Math.max(0, shipMaxHp(h, s) - 1); s.isle = 0; s.trade = 0; if (u && u.crewMax) s.crew = Math.max(1, Math.round(u.crew * .85)); s.marines = u ? u.marines : s.marines;
+    lines.push(`💠 «${s.name}» разбит, но не затонул: странный механизм в трюме увёл корабль из боя. Он ждёт ремонта в Сухом доке.`);
+    return;
+  }
   const offs = offOf(h, id), saved = [], lostOffs = [];
   offs.forEach(o => { if (Math.random() < .5) { o.ship = null; saved.push(o.name); } else { lostOffs.push(`${OFF_RANKS[o.lvl].toLowerCase()} ${o.name}`); h.officers.splice(h.officers.indexOf(o), 1); } });
   const crewNow = u ? u.crew : s.crew ?? CREW[s.type], marNow = u ? u.marines : s.marines, dead = Math.round(crewNow * (.4 + Math.random() * .4)) + Math.round(marNow * (.5 + Math.random() * .4));
@@ -3748,7 +3856,7 @@ const ammoOf = id => AMMO.find(a => a.id === id);
 const arsLines = h => 1 + Math.floor(fL(h, 'workshop') / 2);
 const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'workshop'))));
 const ammoGold = (h, a) => Math.round(a.gold * (1 - .08 * fL(h, 'workshop')));
-const SHIP_MIN = { boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, pir_boat: 15, pir_ds: 32, pir_sub: 48};
+const SHIP_MIN = { echo: 600, boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, pir_boat: 15, pir_ds: 32, pir_sub: 48};
 const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock')) * (fortressOn(h) ? .8 : 1)));
 const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv)).length;
 function ammoData(h) {
@@ -3850,6 +3958,7 @@ function hubShips(h, part = 'dock') {
   pn += statGrid(st, shipHp(h, own)) + crewLine(h, own);
   pn += `<small class="muted">📦 Трюм для каравана: ${CARGO[t]}</small>`;
   if (s.future) pn += `<div class="futureline">⚡ Импульсная пушка · 👻 стелс-поле · 🔋 самовосстановление</div>`;
+  if (t === 'echo') pn += echoPanel(h);
   const offs = offOf(h, id);
   if (sec !== 'academy' && offs.length) pn += `<small class="muted">🧑‍✈️ ${offs.map(o => `${SPEC.find(z => z.id === o.t).ic} ${o.name}`).join(', ')}</small>`;
   if (all) pn += shipTabs(h);
@@ -3862,7 +3971,7 @@ function hubShips(h, part = 'dock') {
     if (post === 'squad') btns.push(`<button class="btn small" data-act="sqdel" data-id="${id}">Убрать из эскадры</button>`);
     else if (post !== 'flag' && !own.isle && !own.trade) btns.push(`<button class="btn small" data-act="sqadd" data-id="${id}" ${own.broken || squadCount(h) >= SQUAD_MAX ? 'disabled' : ''}>⚓ В эскадру</button>`);
     if (own.isle) btns.push(`<button class="btn small" data-act="ungarr" data-id="${id}">Вернуть с острова</button>`);
-    if (post !== 'flag' && !own.trade) btns.push(`<button class="btn small" data-act="sell">Продать · ${sellPrice(h, own)} 💰</button>`);
+    if (post !== 'flag' && !own.trade && own.type !== 'echo') btns.push(`<button class="btn small" data-act="sell">Продать · ${sellPrice(h, own)} 💰</button>`);
     if (btns.length) pn += `<div class="row" style="flex-wrap:wrap">${btns.join('')}</div>`;
   } else if (own.buildEnd) pn += `<div class="warnline">🏗 Корабль ещё строится: <span data-until="${own.buildEnd}">${fmtLeft(own.buildEnd - Date.now())}</span></div>`;
   else if (own.repEnd) pn += `<div class="warnline">🔧 Корабль на ремонте в Сухом доке: ещё <span data-until="${own.repEnd}">${fmtLeft(own.repEnd - Date.now())}</span></div>${repSpd(h, own)}`;
@@ -4088,6 +4197,11 @@ function hubAct(act, id) {
   const p = curProfile(), h = hdata(p), sid = HB.sel, own = h.ships[sid];
   const pay = n => { if (h.gold < n) return false; h.gold -= n; return true; };
   let snd = 'buy';
+  if (act === 'fmup') {
+    const m = ECHO_MODS.find(x => x.k === id), fm = echoFm(h), l = fm[id] || 0, nx = m && m.t[l + 1];
+    if (!nx || nx.lock || h.fmB || fL(h, 'citadel') < l + 1 || !pay(nx.cost)) { Snd.play('bad'); return; }
+    h.fmB = { k: id, lvl: l + 1, end: Date.now() + nx.min * 60000 * (perk(h, 'builder') ? .7 : 1) }; saveProfiles(); Snd.play('buy'); toast(`🔧 Начата модернизация: ${nx.n}`); return renderHub();
+  }
   if (act === 'omap') { Snd.play('click'); return showMap(); }
   if (act === 'oreq') { if (urgentIntel(h)) renderHub(); return; }
   if (act === 'isle') { Snd.play('click'); showMap(+String(id).split(':')[0]); return mapSheet('isle', id); }
@@ -4100,7 +4214,7 @@ function hubAct(act, id) {
   if (act === 'pick') { HB.pick = true; Snd.play('click'); return renderHub(); }
   if (act === 'buy' && HB.cat) { const t = HB.cat; if (buyLock(h, t)) { toast(buyLock(h, t).long); return; } if (slipBusy(h) >= repSlots(h)) { toast('Все стапели заняты'); return; } if (!pay(pShip(h, t))) return; const s = newShip(h, t); s.buildEnd = Date.now() + shipMin(h, t) * 60000; s.broken = true; HB.sel = s.id; HB.cat = null; toast(`🏗 Заложен ${sName(s)} — будет готов через ${fmtMin(shipMin(h, t))}`); checkAch(p, HUNT_ACH); snd = 'build'; }
   else if (act === 'activate' && own && !own.broken && !own.isle && !own.trade) { h.squad = h.squad.filter(x => x !== sid); h.active = sid; snd = 'click'; }
-  else if (act === 'sell' && own && sid !== h.active && !own.trade) {
+  else if (act === 'sell' && own && sid !== h.active && !own.trade && own.type !== 'echo') {
     h.gold += sellPrice(h, own); h.squad = h.squad.filter(x => x !== sid); h.officers.forEach(o => { if (o.ship === sid) o.ship = null; });
     toast(`💰 ${sName(own)} продан`); delete h.ships[sid]; HB.sel = h.active;
   }
@@ -4142,8 +4256,8 @@ function hubAct(act, id) {
 /* ---------- Наставник: обучение по шагам ---------- */
 const ADJ = { n: 'Лейтенант Марк Ардан', t: 'ваш личный адъютант' };
 const TUT = [
-  { t: 'Добро пожаловать, командир!', d: 'Я Марк Ардан, ваш адъютант. Лазурное море захватили пираты Чёрного Зуба — у нас осталась только крепость. Я проведу вас по первым шагам, а за каждый выполненный приказ казна выделит золото.', btn: 'Начать', manual: true, gold: 0,
-    say: [[1, 'Командир, наконец-то! Лейтенант Марк Ардан, ваш адъютант. Рад служить.'], [0, 'Положение тяжёлое: пираты Чёрного Зуба захватили все острова Лазурного моря. У нас осталась только крепость — но в ней уже работают все здания.'], [0, 'Наша задача — освобождать остров за островом. Я буду рядом и подскажу, с чего начать.']] },
+  { t: 'Добро пожаловать, командир!', d: 'Я Марк Ардан, ваш адъютант. По праву наследия вам достались регион и древний дредноут рода «Echo Primae Lucis». Лазурное море захватили пираты Чёрного Зуба — у нас осталась только крепость. Я проведу вас по первым шагам, а за каждый выполненный приказ казна выделит золото.', btn: 'Начать', manual: true, gold: 0,
+    say: [[0, 'Командир… примите мои соболезнования. Ваши родители были лучшими из нас, и Лазурное море их помнит.'], [1, 'Лейтенант Марк Ардан, ваш адъютант. Служил вашей семье — теперь служу вам.'], [0, 'По праву наследия Объединённое Адмиралтейство передаёт вам этот регион и корабль вашего рода — «Echo Primae Lucis», «Эхо Первого Света».'], [1, 'Говорят, он старше самых древних карт. Огромный, медлительный и упрямый — но он ни разу не утонул.'], [0, 'Положение тяжёлое: пираты Чёрного Зуба захватили все острова Лазурного моря. У нас осталась только крепость — но в ней уже работают все здания.'], [0, 'Наша задача — освобождать остров за островом. Я буду рядом и подскажу, с чего начать.']] },
   { t: 'Закажите снаряды', d: 'Без снарядов корабль не стреляет. Откройте Мастерскую и закажите в Арсенале обычные снаряды.', bld: 'workshop', hub: 'Пролистайте до «Арсенала» и нажмите кнопку с ценой у обычных снарядов. Они будут готовы через несколько минут.', ok: h => !!h.ammoOrd || (h.ammoQ || []).length > 0, gold: 40,
     say: [[0, 'Первым делом — снаряды. Без них наши пушки молчат.'], [0, 'Откройте Мастерскую и закажите в Арсенале обычные снаряды. Это недорого и быстро.']] },
   { t: 'Освободите первый остров', d: 'Нажмите «В поход», выберите донесение разведки про остров и победите пиратский гарнизон. Ближние к крепости острова охраняются слабее.', go: 'map', ok: h => islesOwned(h).some(n => !isleOf(h, n).lost), gold: 100,
@@ -4215,6 +4329,7 @@ function advWelcome(say) {
 }
 // советы по обстановке: [ключ, условие, реплики]; одноразовые показываются сами при входе в крепость
 const ADV = [
+  ['echo', h => !!h.echo, [[0, 'Командир, донесение из Объединённого Адмиралтейства. По праву наследия вашему роду возвращён корабль — «Echo Primae Lucis».'], [1, 'Древний дредноут вашей семьи уже стоит в гавани. Огромный, как остров, и, говорят, не тонет.'], [0, 'Почти все его системы спят. Загляните во «Флот»: там можно начать модернизацию — от орудий до странного механизма в трюме.']]],
   ['lost', h => islesOwned(h).some(n => isleOf(h, n).lost), [[0, 'Командир, тревожные вести: пираты отбили один из наших островов!'], [0, 'Разведка скоро пришлёт донесение — тогда мы сможем вернуть остров. Если его отбивают часто, оставьте там гарнизон посильнее.']]],
   ['unpaid', h => h.unpaid, [[0, 'Казна пуста, командир. Жалованье не платится, офицеры перестали расти в званиях.'], [0, 'Соберите доход в Казне, продайте лишние корабли или отправьте выгодный караван.']]],
   ['raid', h => fdata(h).raidDue, [[0, 'Пираты у стен крепости! Пока осада не снята, торговля стоит.'], [0, 'Отразите набег эскадрой вместе с береговыми батареями — или откупитесь, если флот не готов.']]],
@@ -4573,7 +4688,7 @@ function clanBattleTalk(node) {
   if (L) setTimeout(() => clanSay(L), 700);
 }
 function hMakeEl(u) {
-  const len = HS[u.type].len, w = HS[u.type].fort ? 1 : .8 + .2 * len;
+  const len = HS[u.type].len, w = u.type === 'echo' ? 2.55 * echoGrow(ECHO_FM) : HS[u.type].fort ? 1 : .8 + .2 * len;
   const el = document.createElement('div');
   el.className = 'hunit ' + u.side + (u.ally ? ' ally' : '') + (u.auto ? ' npc' : '') + (u.boss ? ' boss' : '') + (HS[u.type].fort ? ' fortu' : '') + (HS[u.type].pir ? ' piru' : '');
   const ar = TOP_AR[u.type], spr = ar ? `<div class="spr simg" style="width:calc(var(--hc)*${w * 1.2});height:calc(var(--hc)*${w * 1.2 / ar})"><img src="top_${u.type}.webp" alt="" draggable="false"${u.skin && SKINS[u.skin] ? ` style="filter:${SKINS[u.skin].f}"` : ''}></div>` : `<div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${HS[u.type].fort ? 1 : w / len})">${shipPic(u.type, u.side === 'me')}</div>`;
@@ -4657,7 +4772,7 @@ function renderHunt() {
     const el = H.els[u.id]; if (!el) return;
     const sinking = u.hp <= 0 && u.sinkAt && performance.now() - u.sinkAt < 2700 + (HS[u.type].len || 1) * 200;
     const vis = sinking || (u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u)));
-    el.classList.toggle('hidden', !vis); el.classList.toggle('sinking', !!sinking);
+    el.classList.toggle('hidden', !vis); el.classList.toggle('sinking', !!sinking && u.type !== 'echo'); el.classList.toggle('retreat', !!sinking && u.type === 'echo');
     el.classList.toggle('smoked', u.smoke > 0); { const f = u.hp / u.st.hp; el.classList.toggle('hurt', f < .6 && u.hp > 0); el.classList.toggle('crit', f < .3 && u.hp > 0); }
     el.style.left = `calc(var(--hc) * ${u.c})`; el.style.top = `calc(var(--hc) * ${u.r})`;
     el.querySelector('.rot').style.transform = `translate(-50%,-50%) rotate(${u.dir}deg)`;
@@ -4911,7 +5026,7 @@ async function hFire(u, kind, r, c) {
   return { text, cls, hits: hits.length };
 }
 function hResult() {
-  if (H.me.hp <= 0) return ['lose', H.node && H.node.trade ? 'Ведущий корабль каравана потоплен' : 'Флагман потоплен'];
+  if (H.me.hp <= 0) return ['lose', H.node && H.node.trade ? 'Ведущий корабль каравана потоплен' : H.me.type === 'echo' ? 'Флагман разбит — аварийный протокол уводит его в док' : 'Флагман потоплен'];
   const alive = H.foes.filter(f => f.hp > 0 && !f.gone && !HS[f.type].npc);
   switch (H.obj) {
     case 'convoy': {
@@ -6254,6 +6369,13 @@ FxLayer.prototype = {
   },
   sink(u) {
     if (!this.lo || !this.fit()) return;
+    if (u.type === 'echo') {   // древний корабль не тонет: вспышка ядра, пар — и он уходит
+      const [x, y] = this.xy(u.r, u.c), cs = this.cs;
+      this.add({ k: 'ring', x, y, s: cs * .2, s1: cs * 2.4, life: 1200, c: '120,220,255', w: 3 });
+      this.add({ k: 'flash', x, y, s: cs * 1.6, life: 400 });
+      if (this === BFX) { GLSea.light(x / cs, y / cs, 1.4, 2, [.45, .8, 1], 1600); GLFx.puff(x, y, cs, true); }
+      u.sinkAt = performance.now(); return;
+    }
     const len = HS[u.type].len || 1, a = (u.dir || 0) * Math.PI / 180, [x, y] = this.xy(u.r, u.c), cs = this.cs, pts = [];
     if (this === BFX) { GLSea.sink(x / cs, y / cs, .45 + .18 * len); GLFx.puff(x, y, cs, true); GLFx.puff(x, y, cs, false); }
     const span = Math.min(1.4, .35 * len);
@@ -6987,7 +7109,7 @@ void main(){
       if (moved) { if (!T.mv) { T.mv = 1; T.sx = T.x; T.sy = T.y; } T.tl = Math.min(3.5, Math.hypot(x - T.sx, y - T.sy) + .4); }
       else if (T.mv) { T.mv = 0; T.stop = now; }
       T.x = x; T.y = y;
-      const len = HS[u.type].len || 1, w = .8 + .2 * len, ar = TOP_AR[u.type] || 3.2, hl = w * .6 * .92, hw = Math.max(.08, w * .6 / ar * .9);
+      const len = HS[u.type].len || 1, w = u.type === 'echo' ? 2.55 * echoGrow(ECHO_FM) : .8 + .2 * len, ar = TOP_AR[u.type] || 3.2, hl = w * .6 * .92, hw = Math.max(.08, w * .6 / ar * .9);
       const age = T.mv ? 0 : (now - T.stop) / 1000;
       o.S.set([x, y, (u.dir || 0) * Math.PI / 180, hl], n * 4);
       o.Mm.set([age, T.tl, hw, u.hp > 0 ? 1 : 0], n * 4); n++;
