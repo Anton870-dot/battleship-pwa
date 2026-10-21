@@ -6503,6 +6503,15 @@ const Terrain = {
     const samp = (m, u, v) => { const cx = u - .5, cy = v - .5, i = Math.floor(cx), j = Math.floor(cy); let fx = cx - i, fy = cy - j; fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy); const a = at(m, j, i), b = at(m, j, i + 1), c = at(m, j + 1, i), e = at(m, j + 1, i + 1); return a + (b - a) * fx + (c - a) * fy + (a - b - c + e) * fx * fy; };
     const TH = .4, F = new Float32Array(S * S);
     for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { const u = x / PX, v = y / PX; F[y * S + x] = samp(land, u, v) + (fbm(u * 1.9, v * 1.9) - .5) * .34 + (vn(u * 9, v * 9) - .5) * .05; }
+    if (GLSea.o) {   // острова рисует шейдер моря: отдаём ему высоты, наклоны и мели
+      const D = new Uint8Array(S * S * 4), cl = v => Math.max(0, Math.min(255, Math.round(v)));
+      for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+        const k = y * S + x, u = x / PX, v = y / PX, gx = F[k + (x < S - 1 ? 1 : 0)] - F[k - (x > 0 ? 1 : 0)], gy = F[k + (y < S - 1 ? S : 0)] - F[k - (y > 0 ? S : 0)];
+        const fs = samp(shoal, u, v) + (fbm(u * 2.3 + 20, v * 2.3 + 11) - .5) * .3;
+        D[k * 4] = cl((F[k] + .3) / 1.6 * 255); D[k * 4 + 1] = cl(128 + gx * 1400); D[k * 4 + 2] = cl(128 + gy * 1400); D[k * 4 + 3] = cl(fs * 255);
+      }
+      GLSea.terrain(D, S); return;
+    }
     const mix = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
     const WET = [176, 150, 98], SAND = [238, 220, 164], G1 = [150, 196, 96], G2 = [88, 156, 74], G3 = [46, 108, 58], ROCK = [138, 130, 118];
     for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
@@ -6670,7 +6679,7 @@ const GLSea = {
 uniform vec2 uR; uniform float uT, uN, uStorm, uFog, uSpec;
 uniform vec4 uS[16]; uniform vec4 uM[16]; uniform vec4 uI[10]; uniform vec4 uLt[10]; uniform vec3 uLc[10]; uniform vec4 uSk[6];
 uniform vec3 uDeep, uShal, uSky, uSun, uFogC;
-uniform sampler2D uNz;
+uniform sampler2D uNz, uTr; uniform float uHasT; uniform vec3 uLand;
 varying vec2 vU;
 float sdn(float a, float b, float x){ return 1. - smoothstep(b, a, x); }
 vec3 nzs(vec2 p){ return texture2D(uNz, p).rgb; }
@@ -6778,6 +6787,72 @@ void main(){
   if (oil > .001) { vec3 film = .5 + .5 * cos(6.283 * (oilH * .6 + vec3(0., .33, .67))); col = mix(col, col * .55 + film * .22, oil * .75); col += uSun * pow(max(dot(R, L), 0.), 60.) * oil * .9 * uSpec; }
   col = mix(col, fc, clamp(foam, 0., .95));
   col *= shade;
+  // ---------- острова и мелководье ----------
+  if (uHasT > .5) {
+    vec4 T = texture2D(uTr, vU);
+    float f = T.r * 1.6 - .3, e = f - .4;
+    vec3 nzA = nzs(p * .31), nzB = nzs(p * 1.27 + .5);
+    if (e >= 0.) {
+      vec2 tg = (T.gb - .5) * 255. / 1400.;
+      vec3 nl = normalize(vec3(-tg * 14., 1.));
+      vec3 WET = vec3(.66, .57, .4), SAND = vec3(.95, .88, .66), SAND2 = vec3(.9, .81, .58), G1 = vec3(.6, .77, .37), G2 = vec3(.38, .64, .29), G3 = vec3(.22, .48, .23), ROCK = vec3(.6, .57, .52);
+      vec3 c;
+      float run = .012 * sin(t * 1.3 + nzA.r * 12.);
+      if (e < .035 + run) c = mix(WET, SAND, clamp(e / (.035 + run), 0., 1.));
+      else if (e < .1 + nzA.r * .04) c = mix(SAND, SAND2, nzB.r);
+      else if (e < .16 + nzA.r * .05) c = mix(SAND2, G1, clamp((e - .1) / .06, 0., 1.));
+      else { float kk = clamp((e - .16) / .3, 0., 1.); c = mix(mix(G1, G2, clamp(kk * 2., 0., 1.)), G3, clamp(kk * 2. - 1., 0., 1.) * (.5 + nzA.r * .5)); c *= .88 + .24 * nzB.r; }
+      float slope = length(tg) * 24.;
+      float rock = clamp(smoothstep(.9, 1.6, slope) * smoothstep(.08, .16, e) * .6 + smoothstep(.45, .6, e) * smoothstep(.66, .8, nzB.r) * .55, 0., 1.);
+      c = mix(c, ROCK * (.75 + .4 * nzs(p * 1.3).r), rock);
+      float dif = max(dot(nl, L), 0.);
+      vec3 lc = c * (.55 + .75 * dif);
+      // деревья: круглые кроны с объёмом и тенью, слегка качаются
+      float fd = smoothstep(.13, .22, e + (nzA.r - .5) * .16) * (1. - rock) * (.55 + .6 * nzs(p * .17 + 3.).r);
+      vec2 q = p * 5.2;
+      vec2 Ls = normalize(L.xy) * .32;
+      float best = 9., sh = 9., rr = 0.; vec2 bo = vec2(0.);
+      for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+        vec2 g = vec2(float(x), float(y)), ci = floor(q) + g;
+        vec3 hh = fract(sin(vec3(dot(ci, vec2(127.1, 311.7)), dot(ci, vec2(269.5, 183.3)), dot(ci, vec2(419.2, 371.9)))) * 43758.5453);
+        if (hh.z > fd * 1.15) continue;
+        vec2 cp = ci + .18 + .64 * hh.xy + vec2(sin(t * 1.1 + hh.x * 6.), cos(t * .9 + hh.y * 6.)) * .025;
+        float r = .36 + .2 * hh.z / max(fd, .1) * .5;
+        vec2 o = fract(q) - (cp - floor(q)); float d = length(o) / r;
+        if (d < best) { best = d; bo = o / r; rr = hh.x; }
+        float ds = length(o + Ls) / r; sh = min(sh, ds);
+      }
+      if (sh < 1.) lc *= .62 + .38 * smoothstep(.6, 1., sh);
+      if (best < 1.) {
+        vec3 tN = normalize(vec3(bo, sqrt(max(0., 1. - best * best)) * .9));
+        float leaf = nzs(p * 2.3 + rr).r;
+        vec3 TC = mix(vec3(.14, .4, .15), vec3(.4, .64, .22), rr) * (.85 + .3 * leaf);
+        vec3 tree = TC * (.35 + .95 * max(dot(tN, L), 0.)) + vec3(.9, 1., .7) * pow(max(dot(reflect(-V, tN), L), 0.), 16.) * .1;
+        lc = mix(lc, tree, smoothstep(1., .82, best) * 0. + 1. - smoothstep(.85, 1., best));
+      }
+      col = lc * uLand;
+    } else {
+      float dd = -e, near = clamp((f - .02) / .38, 0., 1.);
+      float sh = pow(near, 1.3) * .78;
+      vec3 bottom = mix(vec3(.3, .88, .8), vec3(.88, .86, .68), smoothstep(.78, 1., near) * .6);
+      // песчаные мели
+      float bar = clamp((T.a - .38) / .3, 0., 1.), rip = .93 + .07 * sin((p.x + p.y * .6 + nzA.r * 1.5) * 9.);
+      bottom = mix(bottom, vec3(.9, .83, .62) * rip, bar);
+      float wet = max(sh, bar * .62);
+      col = mix(col, bottom * (.75 + .35 * max(dot(n, L), 0.)) * uLand, wet);
+      // солнечные «сеточки» на дне
+      float ca = 1. - abs(nzs(p * .8 + vec2(t * .03, t * .02)).r - nzs(p * 1.05 - vec2(t * .025, -t * .018)).r) * 4.;
+      col += vec3(.6, .95, .9) * pow(clamp(ca, 0., 1.), 6.) * wet * .35 * uSpec;
+      col += uSun * sp * uSpec * wet * .6;
+      // прибой: пенные валы бегут к берегу
+      float ph = nzA.r;
+      float a = dd < .022 ? .45 + .25 * sin(t * 1.3 + ph * 20.) : 0.;
+      for (int w = 0; w < 2; w++) { float pp = fract(t * .16 + ph * 1.3 + float(w) * .5), front = .27 * (1. - pp), q = (dd - front) / .028; a += exp(-q * q) * sin(min(1., pp * 1.4) * 3.1416) * .75; }
+      a *= sdn(.3, 0., dd) * (1. + st * .6);
+      a *= .55 + .45 * nzs(p * 1.6 + vec2(t * .05)).r;
+      col = mix(col, vec3(.97, .99, 1.) * mix(1., uLand.g, .5), clamp(a * 1.3, 0., .92));
+    }
+  }
   // свет вспышек, взрывов и пожаров на воде
   for (int i = 0; i < 10; i++) {
     vec4 Q = uLt[i];
@@ -6795,12 +6870,12 @@ void main(){
   gl_FragColor = vec4(col, 1.);
 }`,
   MOOD: {
-    clear: { deep: [.03, .34, .58], shal: [.08, .68, .82], sky: [.66, .88, 1.], sun: [1.3, 1.25, 1.12], spec: 1, storm: 0, fog: 0 },
-    dawn: { deep: [.05, .24, .42], shal: [.16, .5, .62], sky: [.98, .78, .72], sun: [1.4, 1.0, .75], spec: 1.1, storm: 0, fog: 0 },
-    dusk: { deep: [.06, .2, .36], shal: [.2, .44, .56], sky: [1., .68, .5], sun: [1.5, .9, .5], spec: 1.2, storm: 0, fog: 0 },
-    night: { deep: [.015, .06, .14], shal: [.04, .16, .28], sky: [.14, .2, .34], sun: [.8, .9, 1.1], spec: .75, storm: 0, fog: 0 },
-    storm: { deep: [.04, .12, .16], shal: [.13, .26, .29], sky: [.45, .5, .56], sun: [.55, .6, .65], spec: .35, storm: 1, fog: 0 },
-    fog: { deep: [.04, .18, .28], shal: [.12, .38, .46], sky: [.7, .77, .82], sun: [.8, .82, .85], spec: .4, storm: 0, fog: .32 },
+    clear: { deep: [.03, .34, .58], shal: [.08, .68, .82], sky: [.66, .88, 1.], sun: [1.3, 1.25, 1.12], spec: 1, storm: 0, fog: 0, land: [1, 1, 1] },
+    dawn: { deep: [.05, .24, .42], shal: [.16, .5, .62], sky: [.98, .78, .72], sun: [1.4, 1.0, .75], spec: 1.1, storm: 0, fog: 0, land: [1.04, .93, .86] },
+    dusk: { deep: [.06, .2, .36], shal: [.2, .44, .56], sky: [1., .68, .5], sun: [1.5, .9, .5], spec: 1.2, storm: 0, fog: 0, land: [1.06, .86, .72] },
+    night: { deep: [.015, .06, .14], shal: [.04, .16, .28], sky: [.14, .2, .34], sun: [.8, .9, 1.1], spec: .75, storm: 0, fog: 0, land: [.36, .43, .62] },
+    storm: { deep: [.04, .12, .16], shal: [.13, .26, .29], sky: [.45, .5, .56], sun: [.55, .6, .65], spec: .35, storm: 1, fog: 0, land: [.7, .73, .76] },
+    fog: { deep: [.04, .18, .28], shal: [.12, .38, .46], sky: [.7, .77, .82], sun: [.8, .82, .85], spec: .4, storm: 0, fog: .32, land: [.92, .95, .97] },
   },
   noise() {
     const N = 128, v = new Float32Array(N * N), out = new Uint8Array(N * N * 4);
@@ -6832,11 +6907,12 @@ void main(){
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 128, 128, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.NZ);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    const U = {}; ['uR', 'uT', 'uN', 'uStorm', 'uFog', 'uSpec', 'uS', 'uM', 'uI', 'uLt', 'uLc', 'uSk', 'uDeep', 'uShal', 'uSky', 'uSun', 'uFogC', 'uNz'].forEach(k => U[k] = gl.getUniformLocation(pr, k));
+    const U = {}; ['uR', 'uT', 'uN', 'uStorm', 'uFog', 'uSpec', 'uS', 'uM', 'uI', 'uLt', 'uLc', 'uSk', 'uDeep', 'uShal', 'uSky', 'uSun', 'uFogC', 'uNz', 'uTr', 'uHasT', 'uLand'].forEach(k => U[k] = gl.getUniformLocation(pr, k));
+    gl.uniform1i(U.uTr, 1); gl.uniform1f(U.uHasT, 0);
     gl.uniform1i(U.uNz, 0);
     const tod = todNow(), mk = weather === 'clear' || !weather ? (tod === 'dawn' || tod === 'dusk' ? tod : 'clear') : weather, M = this.MOOD[mk] || this.MOOD.clear;
     gl.uniform3fv(U.uDeep, M.deep); gl.uniform3fv(U.uShal, M.shal); gl.uniform3fv(U.uSky, M.sky); gl.uniform3fv(U.uSun, M.sun); gl.uniform3fv(U.uFogC, [.62, .7, .76]);
-    gl.uniform1f(U.uSpec, M.spec); gl.uniform1f(U.uStorm, M.storm); gl.uniform1f(U.uFog, M.fog); gl.uniform1f(U.uN, HN);
+    gl.uniform3fv(U.uLand, M.land); gl.uniform1f(U.uSpec, M.spec); gl.uniform1f(U.uStorm, M.storm); gl.uniform1f(U.uFog, M.fog); gl.uniform1f(U.uN, HN);
     map.prepend(c);
     this.stop();
     this.o = { c, gl, U, map, q: Math.min(1.5, window.devicePixelRatio || 1), avg: 25, qt: 0, t0: performance.now() - Math.random() * 60000, last: 0, S: new Float32Array(64), Mm: new Float32Array(64), I: new Float32Array(40), Lt: new Float32Array(40), Lc: new Float32Array(30), Sk: new Float32Array(24) };
@@ -6850,6 +6926,14 @@ void main(){
   stop() { if (this.o) { cancelAnimationFrame(this.o.raf); GLWater.lose(this.o.gl); } this.o = null; },
   light(x, y, i = 1, r = 1, col = [1, .62, .25], life = 350) { if (!this.o) return; this.lts.push({ x, y, i, r, col, life, t: performance.now() }); if (this.lts.length > 10) this.lts.shift(); },
   sink(x, y, s = .7) { if (!this.o) return; this.sks.push({ x, y, s, t: performance.now() }); if (this.sks.length > 6) this.sks.shift(); },
+  terrain(D, S) {
+    const o = this.o; if (!o) return; const gl = o.gl;
+    gl.activeTexture(gl.TEXTURE1); const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, S, S, 0, gl.RGBA, gl.UNSIGNED_BYTE, D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.activeTexture(gl.TEXTURE0); gl.uniform1f(o.U.uHasT, 1); this.draw(performance.now());
+  },
   imp(x, y, s = 1) { if (!this.o) return; this.imps.push({ x, y, t: performance.now(), s }); if (this.imps.length > 10) this.imps.shift(); },
   ships(now) {
     const o = this.o, map = o.map, hc = map.clientWidth / HN; let n = 0;
