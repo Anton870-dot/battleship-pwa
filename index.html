@@ -334,7 +334,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .amjobs{position:absolute;left:10px;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 48px);z-index:6;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
 .amjobs .fchip{font-weight:700;font-size:12px;height:30px}
 .mstage{position:relative;line-height:0}
-.mlife{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.mlife{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:1}.glwater{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:1}
 .mpin.done{box-shadow:0 0 0 3px rgba(255,207,74,.22),0 0 14px rgba(255,200,80,.55)}.mpin.home{box-shadow:0 0 0 4px rgba(120,200,255,.25),0 0 18px rgba(120,200,255,.6)}
 .mbase{display:block;width:100%;height:auto;-webkit-user-drag:none;user-select:none}
 .mpath{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -4554,7 +4554,7 @@ function buildHuntMap() {
   wrap.appendChild(m);
   if (!GLSea.add(m, H.weather)) { Ocean.add(m, 160); Ocean.list[Ocean.list.length - 1].mood = H.weather; }
   Terrain.build(m, H.land, H.shoal, HN);
-  BFX.attach(m);
+  BFX.attach(m); GLFx.attach(m, H.weather);
   { const fc = document.createElement('canvas'); fc.className = 'fogc'; fc.width = fc.height = HN; m.appendChild(fc); H.fogc = fc; }
   Weather.attach(m, H.weather);
 }
@@ -6143,19 +6143,20 @@ FxLayer.prototype = {
   },
   boomXY(x, y, k = 1, sec = true) {
     if (this === BFX && this.cs) { GLSea.imp(x / this.cs, y / this.cs, Math.min(1.4, .7 + k * .35)); GLSea.light(x / this.cs, y / this.cs, 1.3 * k, 1.5 * k, [1, .55, .2], 750); }
-    const cs = this.cs, R = this.rnd.bind(this);
+    const cs = this.cs, R = this.rnd.bind(this), gx = this === BFX && GLFx.on();
+    if (gx) GLFx.boom(x, y, cs, k);
     this.add({ k: 'sflash', life: 90 + 60 * Math.min(2, k), a: Math.min(.4, .12 * k) });
     this.add({ k: 'flash', x, y, s: cs * 1.4 * k, life: 230 });
     this.add({ k: 'core', x, y, s: cs * .6 * k, life: 280 });
     this.add({ k: 'shock', x, y, s: cs * .15, s1: cs * 1.9 * k, life: 560, lo: true });
     this.add({ k: 'ring', x, y, s: cs * .1, s1: cs * 1.1 * k, life: 950, c: '255,255,255', w: 2, lo: true, dl: 100 });
     this.add({ k: 'scorch', x, y, s: cs * .5 * k, life: 3800, lo: true });
-    for (let i = 0; i < 7 * k; i++) this.add({ k: 'ball', x: x + R(-.22, .22) * cs * k, y: y + R(-.22, .22) * cs * k, vx: R(-14, 14), vy: R(-28, -6), s: cs * R(.22, .42) * k, life: R(520, 950), dl: R(0, 140) });
-    for (let i = 0; i < 16 * k; i++) { const a = Math.random() * 6.283, v = R(20, 85) * k; this.add({ k: 'fire', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 12, s: cs * R(.14, .3) * k, life: R(380, 760) }); }
+    if (!gx) for (let i = 0; i < 7 * k; i++) this.add({ k: 'ball', x: x + R(-.22, .22) * cs * k, y: y + R(-.22, .22) * cs * k, vx: R(-14, 14), vy: R(-28, -6), s: cs * R(.22, .42) * k, life: R(520, 950), dl: R(0, 140) });
+    if (!gx) for (let i = 0; i < 16 * k; i++) { const a = Math.random() * 6.283, v = R(20, 85) * k; this.add({ k: 'fire', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 12, s: cs * R(.14, .3) * k, life: R(380, 760) }); }
     for (let i = 0; i < 18 * k; i++) { const a = Math.random() * 6.283, v = R(80, 220) * k; this.add({ k: 'spark', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: R(260, 600) }); }
     for (let i = 0; i < 10 * k; i++) { const a = Math.random() * 6.283, v = R(15, 55) * k; this.add({ k: 'ember', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, z: 0, vz: R(70, 170), life: R(900, 1700), s: R(1.2, 2.4) }); }
     for (let i = 0; i < 6 * k; i++) this.add({ k: 'debris', x, y, vx: R(-70, 70) * k, vy: R(-70, 70) * k, z: 0, vz: R(60, 130), rot: Math.random() * 6, life: R(650, 1000), s: cs * R(.05, .11), trail: 1, burn: Math.random() < .5 });
-    for (let i = 0; i < 11 * k; i++) this.add({ k: 'smoke', x: x + R(-.25, .25) * cs, y: y + R(-.25, .25) * cs, vx: R(-9, 9), vy: R(-30, -8), s: cs * R(.2, .36) * k, g: cs * 1.15, life: R(1200, 2200), c: 30 + (Math.random() * 40 | 0), dl: R(80, 420) });
+    if (!gx) for (let i = 0; i < 11 * k; i++) this.add({ k: 'smoke', x: x + R(-.25, .25) * cs, y: y + R(-.25, .25) * cs, vx: R(-9, 9), vy: R(-30, -8), s: cs * R(.2, .36) * k, g: cs * 1.15, life: R(1200, 2200), c: 30 + (Math.random() * 40 | 0), dl: R(80, 420) });
     if (sec && k >= .9 && Math.random() < .6) { const n = 1 + (Math.random() * 2 | 0); for (let i = 0; i < n; i++) this.later(R(140, 460), () => { this.boomXY(x + R(-.55, .55) * cs, y + R(-.55, .55) * cs, k * .45, false); Snd.play('hit'); }); }
     this.shake = Math.max(this.shake, 4.5 * k);
   },
@@ -6214,7 +6215,7 @@ FxLayer.prototype = {
   sink(u) {
     if (!this.lo || !this.fit()) return;
     const len = HS[u.type].len || 1, a = (u.dir || 0) * Math.PI / 180, [x, y] = this.xy(u.r, u.c), cs = this.cs, pts = [];
-    if (this === BFX) GLSea.sink(x / cs, y / cs, .45 + .18 * len);
+    if (this === BFX) { GLSea.sink(x / cs, y / cs, .45 + .18 * len); GLFx.puff(x, y, cs, true); GLFx.puff(x, y, cs, false); }
     const span = Math.min(1.4, .35 * len);
     for (let i = 0; i < Math.max(2, len); i++) { const t = len > 1 ? i / (Math.max(2, len) - 1) - .5 : (i - .5) * .6; pts.push([x + Math.cos(a) * t * span * cs, y + Math.sin(a) * t * span * cs]); }
     const img = SHIPIMG[u.type], ok = img && img.complete && img.naturalWidth && TOP_AR[u.type];
@@ -6841,12 +6842,12 @@ void main(){
     this.o = { c, gl, U, map, q: Math.min(1.5, window.devicePixelRatio || 1), avg: 25, qt: 0, t0: performance.now() - Math.random() * 60000, last: 0, S: new Float32Array(64), Mm: new Float32Array(64), I: new Float32Array(40), Lt: new Float32Array(40), Lc: new Float32Array(30), Sk: new Float32Array(24) };
     this.imps = []; this.trk = {}; this.lts = []; this.sks = [];
     c.addEventListener('webglcontextlost', e => { e.preventDefault(); this.stop(); });
-    const loop = t => { const o = this.o; if (!o || !o.c.isConnected) { this.o = null; return; } o.raf = requestAnimationFrame(loop); if (document.hidden || !o.c.offsetParent || t - o.last < 22) return; const dt = t - o.last; o.last = t; if (dt < 200) { o.avg = o.avg * .95 + dt * .05; if (o.avg > 42 && o.q > .55 && t - o.qt > 1500) { o.q = Math.max(.55, o.q * .82); o.qt = t; o.avg = 30; } } this.draw(t); };
+    const loop = t => { const o = this.o; if (!o || !o.c.isConnected) { if (o) GLWater.lose(o.gl); this.o = null; return; } o.raf = requestAnimationFrame(loop); if (document.hidden || !o.c.offsetParent || t - o.last < 22) return; const dt = t - o.last; o.last = t; if (dt < 200) { o.avg = o.avg * .95 + dt * .05; if (o.avg > 42 && o.q > .55 && t - o.qt > 1500) { o.q = Math.max(.55, o.q * .82); o.qt = t; o.avg = 30; } } this.draw(t); };
     this.draw(performance.now());
     if (!reduceMotion) this.o.raf = requestAnimationFrame(loop);
     return true;
   },
-  stop() { if (this.o && this.o.raf) cancelAnimationFrame(this.o.raf); this.o = null; },
+  stop() { if (this.o) { cancelAnimationFrame(this.o.raf); GLWater.lose(this.o.gl); } this.o = null; },
   light(x, y, i = 1, r = 1, col = [1, .62, .25], life = 350) { if (!this.o) return; this.lts.push({ x, y, i, r, col, life, t: performance.now() }); if (this.lts.length > 10) this.lts.shift(); },
   sink(x, y, s = .7) { if (!this.o) return; this.sks.push({ x, y, s, t: performance.now() }); if (this.sks.length > 6) this.sks.shift(); },
   imp(x, y, s = 1) { if (!this.o) return; this.imps.push({ x, y, t: performance.now(), s }); if (this.imps.length > 10) this.imps.shift(); },
@@ -6884,6 +6885,221 @@ void main(){
     const U = o.U;
     gl.uniform2f(U.uR, px, px); gl.uniform1f(U.uT, ((now - o.t0) / 1000) % 3000);
     gl.uniform4fv(U.uS, o.S); gl.uniform4fv(U.uM, o.Mm); gl.uniform4fv(U.uI, o.I); gl.uniform4fv(U.uLt, o.Lt); gl.uniform3fv(U.uLc, o.Lc); gl.uniform4fv(U.uSk, o.Sk);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  },
+};
+
+/* ==================== ОГОНЬ, ДЫМ И ТЕНИ ОБЛАКОВ НА WebGL (бой) ==================== */
+const GLFx = {
+  o: null, P: [],
+  VS: `attribute vec2 aP; attribute vec4 aD; uniform vec2 uR; uniform float uMax;
+varying vec4 vD;
+void main(){ vD = aD; gl_Position = vec4(aP / uR * 2. - 1., 0., 1.); gl_Position.y = -gl_Position.y; gl_PointSize = min(uMax, aD.x); }`,
+  // aD: size(px), type(0 дым, 1 огонь, 2 искра, 3 ореол, 4 пар), heat/свет, alpha; seed — через gl_Position не передать, берём из размера
+  FS: `precision mediump float;
+uniform sampler2D uNz; uniform float uT;
+varying vec4 vD;
+float sdn(float a, float b, float x){ return 1. - smoothstep(b, a, x); }
+void main(){
+  vec2 pc = gl_PointCoord * 2. - 1.; float r = length(pc);
+  if (r > 1.) discard;
+  float ty = vD.y, h = vD.z, a = vD.w, sd = fract(vD.x * .137);
+  if (ty < .5 || ty > 3.5) {
+    float n = texture2D(uNz, pc * .85 + vec2(sd * 7.1, sd * 3.3) + vec2(uT * .02, -uT * .015)).r;
+    float n2 = texture2D(uNz, pc * 1.6 + vec2(sd * 2.9, sd * 5.7) - vec2(uT * .03)).r;
+    float m = sdn(1., .15, r + (n - .5) * .95 + (n2 - .5) * .35) * a;
+    vec3 c = ty > 3.5 ? vec3(.86, .9, .93) * (.8 + .25 * n2) : mix(vec3(.07, .065, .06), vec3(.42, .4, .38), n * .7 + .15);
+    c = mix(c, vec3(1., .5, .15) * 1.2, h * sdn(1.1, 0., r + n * .4));
+    gl_FragColor = vec4(c * m, m);
+  } else if (ty < 1.5) {
+    float n = texture2D(uNz, pc * 1.1 + vec2(sd * 5.3, sd * 1.9) + vec2(0., uT * .08)).r;
+    float e = sdn(1., 0., r * (1.15 - h * .3) + (n - .5) * 1.1);
+    float k = h * e;
+    vec3 c = vec3(1., .95, .75) * smoothstep(.55, .95, k) + vec3(1., .48, .09) * smoothstep(.18, .6, k) + vec3(.55, .08, .02) * smoothstep(0., .25, k);
+    gl_FragColor = vec4(c * a * e, 0.);
+  } else if (ty < 2.5) {
+    float e = exp(-r * r * 5.);
+    gl_FragColor = vec4(vec3(1., .78, .45) * e * a * 1.4, 0.);
+  } else {
+    float e = exp(-r * r * 2.6);
+    gl_FragColor = vec4(vec3(1., .55, .2) * e * a, 0.);
+  }
+}`,
+  CS: `precision mediump float;
+uniform sampler2D uNz; uniform float uT, uK, uN; uniform vec2 uW;
+varying vec2 vU;
+void main(){
+  vec2 p = vU * uN;
+  float n = texture2D(uNz, p * .028 + uW * uT).r * .65 + texture2D(uNz, p * .06 + uW * uT * 1.4 + .37).r * .35;
+  float s = smoothstep(.4, .62, n) * uK;
+  gl_FragColor = vec4(0., 0., 0., s);
+}`,
+  attach(map, weather) {
+    this.stop();
+    if (reduceMotion) return false;
+    let c, gl;
+    try { c = document.createElement('canvas'); c.className = 'bfx glfx'; c.style.zIndex = 4; gl = c.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false }); } catch (e) { gl = null; }
+    if (!gl) return false;
+    const mk = (vs, fs) => { const p = gl.createProgram(); [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].forEach(([t, src]) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); gl.attachShader(p, s); }); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; };
+    let pp, pc;
+    try { pp = mk(this.VS, this.FS); pc = mk('attribute vec2 a;varying vec2 vU;void main(){vU=a*.5+.5;vU.y=1.-vU.y;gl_Position=vec4(a,0.,1.);}', this.CS); } catch (e) { console.warn('GLFx', e); return false; }
+    const tx = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tx);
+    if (!GLSea.NZ) GLSea.NZ = GLSea.noise();
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 128, 128, 0, gl.RGBA, gl.UNSIGNED_BYTE, GLSea.NZ);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    const qb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const pb = gl.createBuffer();
+    const loc = (p, n) => gl.getUniformLocation(p, n);
+    const W = { clear: [.55, .32], storm: [1, .45], fog: [0, 0], night: [.35, .15] }[weather] || [.55, .32];
+    map.appendChild(c);
+    this.P = [];
+    this.o = { c, gl, pp, pc, qb, pb, last: performance.now(), t0: performance.now(), max: gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] || 64,
+      U: { uR: loc(pp, 'uR'), uMax: loc(pp, 'uMax'), uNz: loc(pp, 'uNz'), uT: loc(pp, 'uT'), cNz: loc(pc, 'uNz'), cT: loc(pc, 'uT'), cK: loc(pc, 'uK'), cN: loc(pc, 'uN'), cW: loc(pc, 'uW') },
+      A: { aP: gl.getAttribLocation(pp, 'aP'), aD: gl.getAttribLocation(pp, 'aD'), a: gl.getAttribLocation(pc, 'a') },
+      cloud: W[1], wind: weather === 'storm' ? [22, -6] : [9, -4], map, buf: new Float32Array(6 * 2400), emit: 0 };
+    const loop = t => { const o = this.o; if (!o || !o.c.isConnected) { if (o) GLWater.lose(o.gl); this.o = null; return; } o.raf = requestAnimationFrame(loop); if (document.hidden || !o.c.offsetParent || t - o.last < 16) return; const dt = Math.min(.1, (t - o.last) / 1000); o.last = t; this.step(dt, t); this.draw(t); };
+    this.o.raf = requestAnimationFrame(loop);
+    return true;
+  },
+  stop() { if (this.o) { cancelAnimationFrame(this.o.raf); GLWater.lose(this.o.gl); } this.o = null; this.P = []; },
+  on() { return !!this.o; },
+  R(a, b) { return a + Math.random() * (b - a); },
+  add(p) { if (this.P.length > 2300) this.P.splice(0, 200); p.age = -(p.dl || 0); this.P.push(p); },
+  // взрыв: огненный шар, клубы дыма, искры, ореол. x, y — css-пиксели поля, cs — размер клетки
+  boom(x, y, cs, k = 1) {
+    if (!this.o) return; const R = this.R;
+    this.add({ t: 3, x, y, s: cs * 3.2 * k, s1: cs * 3.8 * k, a: .9, life: 420 });
+    for (let i = 0; i < 13 * k; i++) { const a = Math.random() * 6.283, v = R(15, 70) * k; this.add({ t: 1, x: x + Math.cos(a) * cs * .15, y: y + Math.sin(a) * cs * .15, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 10, s: cs * R(.7, 1.2) * k, s1: cs * R(1.5, 2.2) * k, h: 1, h1: .05, a: 1, life: R(520, 900), dl: R(0, 120) }); }
+    for (let i = 0; i < 14 * k; i++) { const a = Math.random() * 6.283, v = R(8, 30) * k; this.add({ t: 0, x: x + R(-.3, .3) * cs * k, y: y + R(-.3, .3) * cs * k, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 6, s: cs * R(.5, .8) * k, s1: cs * R(1.5, 2.4) * k, h: .9, h1: 0, a: .82, life: R(1700, 3200), dl: R(150, 500) }); }
+    for (let i = 0; i < 46 * k; i++) { const a = Math.random() * 6.283, v = R(60, 260) * k; this.add({ t: 2, x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: 1, s: R(3, 6), s1: 1.5, a: 1, life: R(300, 900), dr: 2.2 }); }
+  },
+  puff(x, y, cs, steam) { if (!this.o) return; const R = this.R; for (let i = 0; i < (steam ? 14 : 5); i++) this.add({ t: steam ? 4 : 0, x: x + R(-.35, .35) * cs, y: y + R(-.35, .35) * cs, vx: R(-8, 8), vy: R(-14, -2), s: cs * R(.4, .7), s1: cs * R(1.2, 2), h: 0, h1: 0, a: steam ? .55 : .5, life: R(1400, 2600), dl: R(0, 600) }); },
+  step(dt, now) {
+    const o = this.o, [wx, wy] = o.wind, P = this.P;
+    // горящие корабли дымят постоянно
+    o.emit += dt;
+    if (o.emit > .09 && typeof H !== 'undefined' && H.fleet && BFX.cs) {
+      o.emit = 0; const cs = BFX.cs;
+      hUnits().forEach(u => { if (!u.st || u.hp <= 0 || u.gone || HS[u.type].fort || !BFX.visible(u)) return; const f = u.hp / u.st.hp, burn = u.burn > 0; if (!burn && f >= .3) return; const T = GLSea.trk[u.id]; const x = T ? T.x * cs : (u.c + .5) * cs, y = T ? T.y * cs : (u.r + .5) * cs;
+        if (Math.random() < (burn ? .9 : .5)) this.add({ t: 0, x: x + this.R(-.2, .2) * cs, y: y + this.R(-.15, .15) * cs, vx: this.R(-4, 4), vy: this.R(-16, -8), s: cs * this.R(.3, .45), s1: cs * this.R(1.1, 1.7), h: burn ? .7 : .3, h1: 0, a: burn ? .75 : .5, life: this.R(1800, 2800) });
+        if (burn && Math.random() < .8) this.add({ t: 1, x: x + this.R(-.18, .18) * cs, y: y + this.R(-.12, .12) * cs, vx: this.R(-3, 3), vy: this.R(-22, -10), s: cs * this.R(.22, .36), s1: cs * this.R(.4, .6), h: .9, h1: .1, a: .9, life: this.R(380, 650) });
+      });
+    }
+    for (let i = P.length - 1; i >= 0; i--) {
+      const p = P[i]; p.age += dt * 1000; if (p.age < 0) continue;
+      if (p.age >= p.life) { P.splice(i, 1); continue; }
+      const k = p.age / p.life;
+      if (p.t === 0 || p.t === 4) { p.vx += (wx - p.vx) * dt * .6; p.vy += (wy - p.vy) * dt * .6; }
+      else if (p.t === 1) { p.vx *= 1 - dt * 2.2; p.vy = p.vy * (1 - dt * 2.2) - dt * 18; }
+      else if (p.t === 2) { p.vx *= 1 - dt * p.dr; p.vy *= 1 - dt * p.dr; }
+      p.x += (p.vx || 0) * dt; p.y += (p.vy || 0) * dt;
+    }
+  },
+  draw(now) {
+    const o = this.o, gl = o.gl, c = o.c, w = o.map.clientWidth; if (!w) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1), px = Math.round(w * dpr);
+    if (c.width !== px) { c.width = c.height = px; gl.viewport(0, 0, px, px); }
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND); gl.activeTexture(gl.TEXTURE0);
+    const t = (now - o.t0) / 1000;
+    // тени облаков
+    if (o.cloud > 0) {
+      gl.useProgram(o.pc); gl.bindBuffer(gl.ARRAY_BUFFER, o.qb); gl.enableVertexAttribArray(o.A.a); gl.vertexAttribPointer(o.A.a, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform1i(o.U.cNz, 0); gl.uniform1f(o.U.cT, t % 3000); gl.uniform1f(o.U.cK, o.cloud); gl.uniform1f(o.U.cN, HN); gl.uniform2f(o.U.cW, o.wind[0] * .00045, o.wind[1] * .00045);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.disableVertexAttribArray(o.A.a);
+    }
+    if (!this.P.length) return;
+    // частицы: сначала дым (обычное смешивание), потом огонь (сложение света)
+    const B = o.buf; let ns = 0, nf = 0;
+    const put = (p, j) => { const k = p.age / p.life, s = (p.s + (p.s1 - p.s) * (p.t === 2 ? k : 1 - Math.pow(1 - k, 2))) * dpr, fade = p.t === 2 ? 1 - k : p.t === 3 ? Math.pow(1 - k, 2) : Math.min(1, k * 6) * (1 - k * k); const h = p.h !== undefined ? p.h + (p.h1 - p.h) * Math.pow(k, .7) : 0; B.set([p.x * dpr, p.y * dpr, Math.max(1, s) + (j % 7) * .01, p.t, Math.max(0, h * (p.t === 0 ? Math.max(0, 1 - k * 3) : 1)), p.a * fade], j * 6); };
+    const smoke = [], fire = [];
+    this.P.forEach(p => { if (p.age < 0) return; (p.t === 0 || p.t === 4 ? smoke : fire).push(p); });
+    smoke.forEach((p, i) => put(p, i)); ns = smoke.length;
+    fire.forEach((p, i) => put(p, ns + i)); nf = fire.length;
+    gl.useProgram(o.pp); gl.bindBuffer(gl.ARRAY_BUFFER, o.pb); gl.bufferData(gl.ARRAY_BUFFER, B.subarray(0, (ns + nf) * 6), gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(o.A.aP); gl.vertexAttribPointer(o.A.aP, 2, gl.FLOAT, false, 24, 0);
+    gl.enableVertexAttribArray(o.A.aD); gl.vertexAttribPointer(o.A.aD, 4, gl.FLOAT, false, 24, 8);
+    gl.uniform2f(o.U.uR, px, px); gl.uniform1f(o.U.uMax, o.max); gl.uniform1i(o.U.uNz, 0); gl.uniform1f(o.U.uT, t % 3000);
+    if (ns) { gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.drawArrays(gl.POINTS, 0, ns); }
+    if (nf) { gl.blendFunc(gl.ONE, gl.ONE); gl.drawArrays(gl.POINTS, ns, nf); }
+  },
+};
+
+/* ==================== ЖИВАЯ ВОДА НА КАРТЕ И В ГАВАНИ (WebGL) ==================== */
+// Прозрачный слой поверх нарисованного моря: бегущая рябь, тени волн и солнечные блики — только там, где вода
+const GLWater = {
+  L: [],
+  FS: `precision mediump float;
+uniform sampler2D uM, uNz; uniform float uT, uK; uniform vec2 uA; uniform vec3 uC;
+varying vec2 vU;
+void main(){
+  float m = texture2D(uM, vU).r;
+  if (m < .03) { gl_FragColor = vec4(0.); return; }
+  vec2 p = vU * uA; float t = uT;
+  vec3 n1 = texture2D(uNz, p * .045 + vec2(t * .006, t * .004)).rgb - .5;
+  vec3 n2 = texture2D(uNz, p * .11 - vec2(t * .008, -t * .011)).rgb - .5;
+  vec3 n3 = texture2D(uNz, p * .27 + vec2(-t * .017, t * .013)).rgb - .5;
+  vec2 g = n1.gb * .5 + n2.gb * .55 + n3.gb * .6;
+  float ph = dot(p, vec2(.62, .78)) * 1.9 - t * 1.25;
+  g += vec2(.62, .78) * cos(ph) * .22;
+  vec3 n = normalize(vec3(-g, 1.)), V = vec3(0., 0., 1.), L = normalize(vec3(-.45, -.55, .7));
+  vec3 R = reflect(-V, n);
+  float rl = max(dot(R, L), 0.);
+  float sp = pow(rl, 420.) * 2. + pow(rl, 60.) * .08;
+  float d = dot(n, L) - L.z;
+  m = smoothstep(.03, .6, m);
+  vec3 rgb = uC * sp * uK + vec3(.75, .9, 1.) * max(d, 0.) * .22 * uK;
+  float a = max(-d, 0.) * .45;
+  gl_FragColor = vec4(rgb * m, a * m);
+}`,
+  attach(stage, getMask, MW, MH, opts = {}) {
+    if (reduceMotion) return;
+    this.L = this.L.filter(o => o.c.isConnected);
+    let c, gl;
+    try { c = document.createElement('canvas'); c.className = 'glwater'; gl = c.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false }); } catch (e) { gl = null; }
+    if (!gl) return;
+    let pr;
+    try {
+      pr = gl.createProgram();
+      [[gl.VERTEX_SHADER, 'attribute vec2 a;varying vec2 vU;void main(){vU=a*.5+.5;vU.y=1.-vU.y;gl_Position=vec4(a,0.,1.);}'], [gl.FRAGMENT_SHADER, this.FS]].forEach(([t, src]) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); gl.attachShader(pr, s); });
+      gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pr));
+    } catch (e) { console.warn('GLWater', e); return; }
+    gl.useProgram(pr);
+    const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const al = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(al); gl.vertexAttribPointer(al, 2, gl.FLOAT, false, 0, 0);
+    if (!GLSea.NZ) GLSea.NZ = GLSea.noise();
+    const tex = (unit, w, h, fmt, data, rep) => { const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); gl.texImage2D(gl.TEXTURE_2D, 0, fmt, w, h, 0, fmt, gl.UNSIGNED_BYTE, data); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); const wr = rep ? gl.REPEAT : gl.CLAMP_TO_EDGE; gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wr); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wr); return t; };
+    tex(1, 128, 128, gl.RGBA, GLSea.NZ, true);
+    const U = {}; ['uM', 'uNz', 'uT', 'uK', 'uA', 'uC'].forEach(k => U[k] = gl.getUniformLocation(pr, k));
+    gl.uniform1i(U.uM, 0); gl.uniform1i(U.uNz, 1);
+    const tod = opts.tod || todNow(), night = tod === 'night';
+    gl.uniform1f(U.uK, night ? .55 : tod === 'dusk' || tod === 'dawn' ? .9 : 1);
+    gl.uniform3fv(U.uC, night ? [.75, .85, 1] : tod === 'dusk' ? [1.2, .85, .5] : tod === 'dawn' ? [1.15, .9, .7] : [1.2, 1.15, 1.05]);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    if (opts.beforeEl) stage.insertBefore(c, opts.beforeEl); else stage.prepend(c);
+    const o = { c, gl, U, stage, getMask, MW, MH, mtex: null, last: 0, t0: performance.now() - Math.random() * 1e5, unit: opts.unit || 40 };
+    this.L.push(o);
+    const loop = t => { if (!o.c.isConnected) { GLWater.lose(gl); return; } o.raf = requestAnimationFrame(loop); if (document.hidden || !o.c.offsetParent || t - o.last < 33) return; o.last = t; this.draw(o, t); };
+    o.raf = requestAnimationFrame(loop);
+  },
+  lose(gl) { try { const x = gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) {} },
+  draw(o, now) {
+    const gl = o.gl, c = o.c;
+    if (!o.mtex) {
+      const m = o.getMask(); if (!m) return;
+      const d = new Uint8Array(o.MW * o.MH); for (let i = 0; i < d.length; i++) d[i] = m[i] ? 255 : 0;
+      gl.activeTexture(gl.TEXTURE0); o.mtex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, o.mtex); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, o.MW, o.MH, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, d);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
+    const W = o.stage.offsetWidth, Hh = o.stage.offsetHeight; if (!W || !Hh) return;
+    const k = Math.min(1.25, window.devicePixelRatio || 1, 1500 / W), cw = Math.round(W * k), ch = Math.round(Hh * k);
+    if (c.width !== cw || c.height !== ch) { c.width = cw; c.height = ch; gl.viewport(0, 0, cw, ch); }
+    gl.uniform1f(o.U.uT, ((now - o.t0) / 1000) % 3000); gl.uniform2f(o.U.uA, W / o.unit, Hh / o.unit);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   },
 };
@@ -6927,6 +7143,7 @@ const MapLife = {
     if (reduceMotion) return; this.init();
     const S = SEAS[sea]; this.loadMask(S.img);
     const c = document.createElement('canvas'); c.className = 'mlife'; stage.insertBefore(c, stage.children[1] || null);
+    GLWater.attach(stage, () => this.masks[S.img], this.MW, this.MH, { unit: 24, beforeEl: c, tod: this.tod });
     this.cv = c; this.g = c.getContext('2d'); this.stage = stage; this.W = 0;
     if (sea !== this.sea) { this.sea = sea; this.ships = []; this.fogs = []; this.clouds = []; this.P = []; this.sig = ''; }
     this.h = h;
@@ -7099,6 +7316,7 @@ const FortLife = {
   },
   attach(stage) {
     if (reduceMotion) return; this.init();
+    GLWater.attach(stage, () => this.mask, this.MW, this.MH, { unit: 34 });
     const c = document.createElement('canvas'); c.className = 'flife'; stage.appendChild(c);
     this.cv = c; this.g = c.getContext('2d'); this.stage = stage; this.W = 0;
     if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame(t => this.frame(t)); }
