@@ -77,6 +77,8 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .tile.camp b{color:#ffe08a}
 .tile.camp .go{color:var(--gold)}
 .mbar .btn{padding:11px 4px;font-size:13.5px;border-radius:16px;gap:5px;white-space:nowrap}
+#m-classic{display:flex;flex-direction:column;gap:8px}#m-classic[hidden]{display:none}.clhead{display:flex;align-items:center;gap:10px;padding:2px 2px 0}.clhead b{font-size:17px;text-shadow:0 2px 8px rgba(0,0,0,.6)}.clhead .iconbtn{width:40px;height:40px;font-size:18px;border-radius:50%}
+#scr-menu #m-main .tile.wide{padding:12px 16px}#scr-menu #m-main .tile.wide b{font-size:18px}#scr-menu #m-main .tile.wide .ti{font-size:28px}
 /* компактное главное меню */
 #scr-menu .mbottom{gap:8px}
 #scr-menu .mgrid{grid-template-columns:repeat(4,1fr);gap:8px}
@@ -795,10 +797,8 @@ body.menu-on .logo{margin:0}
 #scr-menu .logo h1{font-size:38px}#scr-menu .logo p{font-size:14px}
 @media (min-aspect-ratio:1/1){#splash{background-position:center 40%}}
 @media (max-aspect-ratio:1/1){
-  #splash{background:#06203f;-webkit-mask-image:none;mask-image:none;overflow:hidden}
-  #splash::before{content:"";position:absolute;inset:-30px;background:url(menu.webp) center 30%/cover no-repeat;filter:blur(16px) brightness(.5) saturate(1.2)}
-  #splash{--ps:max(122vw,min(165vw,calc((100vh - 390px) * 1.78)));--pb:calc(max(env(safe-area-inset-top),0px) + 62px + var(--ps) * .563)}
-  #splash::after{background:linear-gradient(180deg,rgba(4,26,56,0) calc(var(--pb) - 70px),rgba(4,26,56,.75) var(--pb),rgba(4,26,56,.55) calc(var(--pb) + 40px),rgba(3,30,70,.6)),url(menu.webp) center calc(max(env(safe-area-inset-top),0px) + 62px)/var(--ps) auto no-repeat}
+  #splash{background:#06203f url(menu_m.webp) center top/cover no-repeat;-webkit-mask-image:none;mask-image:none}
+  #splash::after{background:linear-gradient(180deg,rgba(3,20,45,0) 55%,rgba(3,22,50,.45) 78%,rgba(3,30,70,.75))}
   body.menu-on #scr-menu .logo h1,body.menu-on #scr-menu .logo p{visibility:hidden}
 }
 .trrow{display:flex;flex-direction:column;gap:6px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08)}
@@ -882,18 +882,24 @@ body.menu-on .logo{margin:0}
   </div>
 
   <div class="mbottom">
-    <div class="mgrid">
-      <button class="tile wide primary" id="t-ai"><span class="ti">⚔️</span><span class="tt"><b>Против компьютера</b><small id="t-ai-sub">Средний · Классика</small></span><span class="go">›</span></button>
+    <div class="mgrid" id="m-main">
       <button class="tile wide camp" id="btn-hunt"><span class="ti">🔱</span><span class="tt"><b>Хозяин морей</b><small>кампания: флот, крепость, боссы</small></span><span class="go">›</span></button>
-      <button class="tile" id="t-duo"><span class="ti">👥</span><b>Вдвоём</b><small>на одном устройстве</small></button>
-      <button class="tile" id="btn-adm"><span class="ti">🎩</span><b>Адмиралы</b><small id="t-adm-sub">6 противников</small></button>
-      <button class="tile" id="btn-daily"><span class="ti">🗓</span><b>Вызов дня</b><small id="daily-sub">новая расстановка</small></button>
-      <button class="tile" id="t-tasks"><span class="ti">📋</span><b>Задания дня</b><small id="t-tasks-sub">3 цели на сегодня</small><span class="badge" id="tasks-badge">0/3</span></button>
+      <button class="tile wide primary" id="t-classic"><span class="ti">⚔️</span><span class="tt"><b>Классический режим</b><small>против компьютера, вдвоём, адмиралы</small></span><span class="go">›</span><span class="badge" id="cl-badge" hidden></span></button>
     </div>
-    <div class="mbar">
-      <button class="btn glass" id="btn-yard">🛠 Верфь <span class="badge" id="yard-pts">0</span></button>
-      <button class="btn glass" id="btn-ach">🏆 Награды</button>
-      <button class="btn glass" id="btn-help">📖 Правила</button>
+    <div id="m-classic" hidden>
+      <div class="clhead"><button class="iconbtn glass" id="cl-back" aria-label="Назад">←</button><b>⚔️ Классический режим</b></div>
+      <div class="mgrid">
+        <button class="tile wide primary" id="t-ai"><span class="ti">⚔️</span><span class="tt"><b>Против компьютера</b><small id="t-ai-sub">Средний · Классика</small></span><span class="go">›</span></button>
+        <button class="tile" id="t-duo"><span class="ti">👥</span><b>Вдвоём</b><small>на одном устройстве</small></button>
+        <button class="tile" id="btn-adm"><span class="ti">🎩</span><b>Адмиралы</b><small id="t-adm-sub">6 противников</small></button>
+        <button class="tile" id="btn-daily"><span class="ti">🗓</span><b>Вызов дня</b><small id="daily-sub">новая расстановка</small></button>
+        <button class="tile" id="t-tasks"><span class="ti">📋</span><b>Задания дня</b><small id="t-tasks-sub">3 цели на сегодня</small><span class="badge" id="tasks-badge">0/3</span></button>
+      </div>
+      <div class="mbar">
+        <button class="btn glass" id="btn-yard">🛠 Верфь <span class="badge" id="yard-pts">0</span></button>
+        <button class="btn glass" id="btn-ach">🏆 Награды</button>
+        <button class="btn glass" id="btn-help">📖 Правила</button>
+      </div>
     </div>
   </div>
 </section>
@@ -7859,6 +7865,9 @@ function initExtra() {
   const sheets = () => document.querySelectorAll('.overlay.sheet').forEach(o => o.classList.remove('show'));
   document.querySelectorAll('.overlay.sheet').forEach(o => o.addEventListener('click', e => { if (e.target === o) { Snd.play('click'); o.classList.remove('show'); } }));
   $('#t-ai').onclick = () => { Snd.ensure(); Snd.play('click'); overlay('#ov-ai', true); };
+  const clSet = on => { $('#m-main').hidden = on; $('#m-classic').hidden = !on; document.body.classList.toggle('cl-on', on); };
+  $('#t-classic').onclick = () => { Snd.ensure(); Snd.play('click'); clSet(true); };
+  $('#cl-back').onclick = () => { Snd.play('click'); clSet(false); };
   $('#t-duo').onclick = () => { Snd.ensure(); Snd.play('click'); overlay('#ov-duo', true); };
   $('#t-tasks').onclick = async () => { Snd.ensure(); Snd.play('click'); await ensureCaptain(); renderDaily(); overlay('#ov-tasks', true); };
   $('#btn-ai').addEventListener('click', sheets); $('#btn-duo').addEventListener('click', sheets);
