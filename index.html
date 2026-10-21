@@ -6077,7 +6077,7 @@ FxLayer.prototype = {
     return true;
   },
   xy(r, c) { const o = this.opt.off || 0; return [(c + o + .5) * this.cs, (r + o + .5) * this.cs]; },
-  add(p) { if (this.P.length > 1400) { const i = this.P.findIndex(q => q.k !== 'hull' && q.k !== 'emit' && q.k !== 'oil'); this.P.splice(i < 0 ? 0 : i, 1); } p.age = 0; this.P.push(p); return p; },
+  add(p) { if (this === BFX && p.k === 'flash' && this.cs) GLSea.light(p.x / this.cs, p.y / this.cs, .9, Math.max(.6, (p.s || this.cs) / this.cs * 1.1), [1, .72, .38], 320); if (this.P.length > 1400) { const i = this.P.findIndex(q => q.k !== 'hull' && q.k !== 'emit' && q.k !== 'oil'); this.P.splice(i < 0 ? 0 : i, 1); } p.age = 0; this.P.push(p); return p; },
   rnd(a, b) { return a + Math.random() * (b - a); },
   later(ms, fn) { setTimeout(() => { if (this.raf) fn(); }, ms); },
   // ---------- события ----------
@@ -6142,7 +6142,7 @@ FxLayer.prototype = {
     const [x, y] = this.xy(r, c); this.boomXY(x, y, big ? 1.5 : 1);
   },
   boomXY(x, y, k = 1, sec = true) {
-    if (this === BFX && this.cs) GLSea.imp(x / this.cs, y / this.cs, Math.min(1.4, .7 + k * .35));
+    if (this === BFX && this.cs) { GLSea.imp(x / this.cs, y / this.cs, Math.min(1.4, .7 + k * .35)); GLSea.light(x / this.cs, y / this.cs, 1.3 * k, 1.5 * k, [1, .55, .2], 750); }
     const cs = this.cs, R = this.rnd.bind(this);
     this.add({ k: 'sflash', life: 90 + 60 * Math.min(2, k), a: Math.min(.4, .12 * k) });
     this.add({ k: 'flash', x, y, s: cs * 1.4 * k, life: 230 });
@@ -6214,6 +6214,7 @@ FxLayer.prototype = {
   sink(u) {
     if (!this.lo || !this.fit()) return;
     const len = HS[u.type].len || 1, a = (u.dir || 0) * Math.PI / 180, [x, y] = this.xy(u.r, u.c), cs = this.cs, pts = [];
+    if (this === BFX) GLSea.sink(x / cs, y / cs, .45 + .18 * len);
     const span = Math.min(1.4, .35 * len);
     for (let i = 0; i < Math.max(2, len); i++) { const t = len > 1 ? i / (Math.max(2, len) - 1) - .5 : (i - .5) * .6; pts.push([x + Math.cos(a) * t * span * cs, y + Math.sin(a) * t * span * cs]); }
     const img = SHIPIMG[u.type], ok = img && img.complete && img.naturalWidth && TOP_AR[u.type];
@@ -6663,10 +6664,10 @@ const Ocean = {
 /* ==================== МОРЕ НА WebGL (бой) ==================== */
 // Шейдерная вода: волны, блики солнца, пена у бортов, кильватерный след, круги от взрывов
 const GLSea = {
-  o: null, imps: [], trk: {},
+  o: null, imps: [], trk: {}, lts: [], sks: [],
   FS: `precision highp float;
 uniform vec2 uR; uniform float uT, uN, uStorm, uFog, uSpec;
-uniform vec4 uS[16]; uniform vec4 uM[16]; uniform vec4 uI[10];
+uniform vec4 uS[16]; uniform vec4 uM[16]; uniform vec4 uI[10]; uniform vec4 uLt[10]; uniform vec3 uLc[10]; uniform vec4 uSk[6];
 uniform vec3 uDeep, uShal, uSky, uSun, uFogC;
 uniform sampler2D uNz;
 varying vec2 vU;
@@ -6732,6 +6733,24 @@ void main(){
     foam += (ring * .45 + ring2 * .2);
     foam += sdn(.55 * I.w, 0., dd) * max(0., 1. - a / 1.7) * (.55 + .45 * nzs(p * .8).r) * I.w;
   }
+  // места гибели кораблей: водоворот и масляное пятно
+  float oil = 0., oilH = 0.;
+  for (int i = 0; i < 6; i++) {
+    vec4 K = uSk[i];
+    if (K.w <= 0.) continue;
+    vec2 q = p - K.xy; float dd = length(q) / K.w, a = K.z;
+    if (dd > 3.) continue;
+    float on = nzs(p * .23 + vec2(t * .004)).r;
+    float m = sdn(1.6, .45, dd + (on - .5) * .9) * smoothstep(0., 2.5, a) * max(0., 1. - a / 240.);
+    oil = max(oil, m); oilH += nzs(p * .09 - vec2(t * .003)).r * 1.3 + dd * .9;
+    if (a < 6.) {
+      float ang = atan(q.y, q.x), sw = sin(ang * 3. + dd * 9. - t * 5.5);
+      float wf = smoothstep(.35, 1., sw) * sdn(1.5, .1, dd) * (1. - a / 6.);
+      foam += wf * .85; g += vec2(-q.y, q.x) / (length(q) + .05) * wf * .6;
+      shade *= 1. - sdn(.7, 0., dd) * .35 * (1. - a / 6.);
+    }
+  }
+  g *= 1. - oil * .75; foam *= 1. - oil * .6;
   // освещение
   vec3 n = normalize(vec3(-g * .55, 1.));
   vec3 V = normalize(vec3(0., .38, 1.)), L = normalize(vec3(-.5, -.62, .6));
@@ -6754,8 +6773,21 @@ void main(){
   float wc = smoothstep(.78 - st * .2, 1.02, hn + (nzs(p * .32 + t * .02).r - .5) * .55) * (.18 + st * .75);
   foam += wc;
   vec3 fc = mix(vec3(.93, .97, 1.), uSky, .25);
+  // радужная плёнка нефти
+  if (oil > .001) { vec3 film = .5 + .5 * cos(6.283 * (oilH * .6 + vec3(0., .33, .67))); col = mix(col, col * .55 + film * .22, oil * .75); col += uSun * pow(max(dot(R, L), 0.), 60.) * oil * .9 * uSpec; }
   col = mix(col, fc, clamp(foam, 0., .95));
   col *= shade;
+  // свет вспышек, взрывов и пожаров на воде
+  for (int i = 0; i < 10; i++) {
+    vec4 Q = uLt[i];
+    if (Q.z <= 0.) continue;
+    vec2 q = Q.xy - p; float dd = length(q);
+    if (dd > Q.w * 3.) continue;
+    float att = Q.z * exp(-dd * dd / (Q.w * Q.w));
+    vec3 Ld = normalize(vec3(q, .55 * Q.w));
+    float ls = pow(max(dot(R, Ld), 0.), 40.) * 2.2 + max(dot(n, Ld), 0.) * .45;
+    col += uLc[i] * att * (.3 + ls);
+  }
   col = mix(col, uFogC, uFog);
   // мягкая виньетка
   vec2 vv = vU - .5; col *= 1. - dot(vv, vv) * .35;
@@ -6799,15 +6831,15 @@ void main(){
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 128, 128, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.NZ);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    const U = {}; ['uR', 'uT', 'uN', 'uStorm', 'uFog', 'uSpec', 'uS', 'uM', 'uI', 'uDeep', 'uShal', 'uSky', 'uSun', 'uFogC', 'uNz'].forEach(k => U[k] = gl.getUniformLocation(pr, k));
+    const U = {}; ['uR', 'uT', 'uN', 'uStorm', 'uFog', 'uSpec', 'uS', 'uM', 'uI', 'uLt', 'uLc', 'uSk', 'uDeep', 'uShal', 'uSky', 'uSun', 'uFogC', 'uNz'].forEach(k => U[k] = gl.getUniformLocation(pr, k));
     gl.uniform1i(U.uNz, 0);
     const tod = todNow(), mk = weather === 'clear' || !weather ? (tod === 'dawn' || tod === 'dusk' ? tod : 'clear') : weather, M = this.MOOD[mk] || this.MOOD.clear;
     gl.uniform3fv(U.uDeep, M.deep); gl.uniform3fv(U.uShal, M.shal); gl.uniform3fv(U.uSky, M.sky); gl.uniform3fv(U.uSun, M.sun); gl.uniform3fv(U.uFogC, [.62, .7, .76]);
     gl.uniform1f(U.uSpec, M.spec); gl.uniform1f(U.uStorm, M.storm); gl.uniform1f(U.uFog, M.fog); gl.uniform1f(U.uN, HN);
     map.prepend(c);
     this.stop();
-    this.o = { c, gl, U, map, q: Math.min(1.5, window.devicePixelRatio || 1), avg: 25, qt: 0, t0: performance.now() - Math.random() * 60000, last: 0, S: new Float32Array(64), Mm: new Float32Array(64), I: new Float32Array(40) };
-    this.imps = []; this.trk = {};
+    this.o = { c, gl, U, map, q: Math.min(1.5, window.devicePixelRatio || 1), avg: 25, qt: 0, t0: performance.now() - Math.random() * 60000, last: 0, S: new Float32Array(64), Mm: new Float32Array(64), I: new Float32Array(40), Lt: new Float32Array(40), Lc: new Float32Array(30), Sk: new Float32Array(24) };
+    this.imps = []; this.trk = {}; this.lts = []; this.sks = [];
     c.addEventListener('webglcontextlost', e => { e.preventDefault(); this.stop(); });
     const loop = t => { const o = this.o; if (!o || !o.c.isConnected) { this.o = null; return; } o.raf = requestAnimationFrame(loop); if (document.hidden || !o.c.offsetParent || t - o.last < 22) return; const dt = t - o.last; o.last = t; if (dt < 200) { o.avg = o.avg * .95 + dt * .05; if (o.avg > 42 && o.q > .55 && t - o.qt > 1500) { o.q = Math.max(.55, o.q * .82); o.qt = t; o.avg = 30; } } this.draw(t); };
     this.draw(performance.now());
@@ -6815,6 +6847,8 @@ void main(){
     return true;
   },
   stop() { if (this.o && this.o.raf) cancelAnimationFrame(this.o.raf); this.o = null; },
+  light(x, y, i = 1, r = 1, col = [1, .62, .25], life = 350) { if (!this.o) return; this.lts.push({ x, y, i, r, col, life, t: performance.now() }); if (this.lts.length > 10) this.lts.shift(); },
+  sink(x, y, s = .7) { if (!this.o) return; this.sks.push({ x, y, s, t: performance.now() }); if (this.sks.length > 6) this.sks.shift(); },
   imp(x, y, s = 1) { if (!this.o) return; this.imps.push({ x, y, t: performance.now(), s }); if (this.imps.length > 10) this.imps.shift(); },
   ships(now) {
     const o = this.o, map = o.map, hc = map.clientWidth / HN; let n = 0;
@@ -6840,11 +6874,16 @@ void main(){
     const px = Math.min(1000, Math.round(w * o.q));
     if (c.width !== px) { c.width = c.height = px; gl.viewport(0, 0, px, px); }
     this.ships(now);
+    o.Lt.fill(0); o.Lc.fill(0); this.lts = this.lts.filter(l => now - l.t < l.life);
+    const L = this.lts.map(l => { const k = 1 - (now - l.t) / l.life; return { x: l.x, y: l.y, i: l.i * k * k, r: l.r * (.8 + .4 * (1 - k)), col: l.col }; });
+    if (typeof H !== 'undefined' && H.fleet) hUnits().forEach(u => { if (L.length >= 10 || !u.st || u.hp <= 0 || u.gone || HS[u.type].fort || !BFX.visible(u)) return; const f = u.hp / u.st.hp; if (!(u.burn > 0 || f < .3)) return; const T = this.trk[u.id]; if (!T) return; const sd = (u.r * 13 + u.c * 7) % 10, fl = .55 + .25 * Math.sin(now * .013 + sd * 7) + .2 * Math.sin(now * .031 + sd); L.push({ x: T.x, y: T.y, i: (u.burn > 0 ? 1 : .55) * fl, r: 1.35, col: [1, .5, .18] }); });
+    L.slice(0, 10).forEach((l, i) => { o.Lt.set([l.x, l.y, l.i, l.r], i * 4); o.Lc.set(l.col, i * 3); });
+    o.Sk.fill(0); this.sks.forEach((k, i) => o.Sk.set([k.x, k.y, (now - k.t) / 1000, k.s], i * 4));
     o.I.fill(0); this.imps = this.imps.filter(m => now - m.t < 2600);
     this.imps.forEach((m, i) => o.I.set([m.x, m.y, (now - m.t) / 1000, m.s], i * 4));
     const U = o.U;
     gl.uniform2f(U.uR, px, px); gl.uniform1f(U.uT, ((now - o.t0) / 1000) % 3000);
-    gl.uniform4fv(U.uS, o.S); gl.uniform4fv(U.uM, o.Mm); gl.uniform4fv(U.uI, o.I);
+    gl.uniform4fv(U.uS, o.S); gl.uniform4fv(U.uM, o.Mm); gl.uniform4fv(U.uI, o.I); gl.uniform4fv(U.uLt, o.Lt); gl.uniform3fv(U.uLc, o.Lc); gl.uniform4fv(U.uSk, o.Sk);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   },
 };
