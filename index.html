@@ -77,6 +77,22 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .tile.camp b{color:#ffe08a}
 .tile.camp .go{color:var(--gold)}
 .mbar .btn{padding:11px 4px;font-size:13.5px;border-radius:16px;gap:5px;white-space:nowrap}
+/* компактное главное меню */
+#scr-menu .mbottom{gap:8px}
+#scr-menu .mgrid{grid-template-columns:repeat(4,1fr);gap:8px}
+#scr-menu .tile.wide{min-height:0;padding:9px 14px;gap:11px;border-radius:18px}
+#scr-menu .tile.wide .ti{font-size:25px}
+#scr-menu .tile.wide b{font-size:16.5px}
+#scr-menu .tile.wide small{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scr-menu .tile.wide .tt{min-width:0}
+#scr-menu .tile.wide .go{font-size:24px}
+#scr-menu .tile:not(.wide){min-height:0;padding:9px 3px 8px;align-items:center;justify-content:center;text-align:center;gap:4px;border-radius:16px}
+#scr-menu .tile:not(.wide) .ti{font-size:23px;margin:0;padding:0}
+#scr-menu .tile:not(.wide) b{font-size:11.5px;font-weight:800;line-height:1.1}
+#scr-menu .tile:not(.wide) small{display:none}
+#scr-menu .tile .badge{top:4px;right:4px;min-width:20px;height:20px;font-size:10.5px;padding:0 5px}
+#scr-menu .mbar{gap:8px}
+#scr-menu .mbar .btn{padding:8px 4px;font-size:12.5px;border-radius:14px}
 .overlay.sheet{align-items:flex-end;padding:0}
 .overlay.sheet .card{width:min(520px,100%);border-radius:26px 26px 0 0;padding:14px 18px max(22px,env(safe-area-inset-bottom));text-align:left;gap:10px;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);max-height:90vh}
 .overlay.sheet h2{text-align:center;font-size:21px}
@@ -2430,7 +2446,7 @@ const bossOf = m => BOSSES[Math.max(0, Math.floor(m / 5) - 1) % 3];
 const pickW = list => { let t = list.reduce((a, x) => a + x[1], 0) * Math.random(); for (const [v, w] of list) { t -= w; if (t < 0) return v; } return list[0][0]; };
 
 function hdata(p) {
-  if (!p.hunt) p.hunt = { gold: 150, mission: 1, ships: {}, crew: {}, w: 0, l: 0, sunk: 0, occ: 1, fort: { b: { citadel: 1, market: 1, treasury: 1, dock: 1, barracks: 1, academy: 1, workshop: 1, lighthouse: 1, battery: 1, walls: 1 }, build: null, last: Date.now(), nextRaid: null, raidDue: false, raidSince: 0, raids: { w: 0, l: 0 } } };
+  if (!p.hunt) p.hunt = { gold: 800, mission: 1, ships: {}, crew: {}, w: 0, l: 0, sunk: 0, occ: 1, fort: { b: { citadel: 1, market: 1, treasury: 1, dock: 1, barracks: 1, academy: 1, workshop: 1, lighthouse: 1, battery: 1, walls: 1 }, build: null, last: Date.now(), nextRaid: null, raidDue: false, raidSince: 0, raids: { w: 0, l: 0 } } };
   const h = p.hunt;
   h.hired ||= []; h.squad ||= []; h.hireVet ||= {}; h.drill ||= 0; h.unlock ||= {}; h.caps ||= 0; h.bosses ||= 0; h.forts ||= 0; if (!h.troph) h.troph = { log: [], f: {}, old: { sunk: h.sunk || 0, cap: h.caps || 0, fort: h.forts || 0, boss: h.bosses || 0 } };
   if (h.cred == null) h.cred = 5;
@@ -4136,9 +4152,9 @@ const TUT = [
     say: [[1, 'Блестящая победа! Над островом снова наш флаг.'], [0, 'Но корабли побиты. В бою с пробоинами далеко не уйдёшь — отправьте их в Сухой док: «Флот», вкладка «Ремонт».']] },
   { t: 'Оставьте гарнизон', d: 'Остров без кораблей не приносит дохода, и пираты легко его отобьют. Откройте остров на карте и оставьте на нём корабль.', go: 'map', ok: h => islesOwned(h).some(n => isleGarr(h, n).length), gold: 60,
     say: [[0, 'Остров наш, но без гарнизона он беззащитен — пираты вернутся.'], [0, 'Нажмите на остров на карте и оставьте там корабль. Гарнизон охраняет остров и приносит золото каждый час.']] },
-  { t: 'Улучшите здание', d: 'Все здания крепости работают, но только на 1-м уровне. Начните с Торговой гавани — она приносит золото каждый час, даже когда игра закрыта.', bld: 'market', hub: 'Нажмите кнопку с ценой в строке «Улучшить». Стройка идёт по настоящему времени.', ok: h => { const f = fdata(h); return !!f.build || Object.values(f.b).some(l => l >= 2); }, gold: 60,
+  { t: 'Улучшите здание', d: 'Все здания крепости работают, но только на 1-м уровне. Начните с Торговой гавани — она приносит золото каждый час, даже когда игра закрыта.', bld: 'market', hub: 'Нажмите кнопку с ценой в строке «Улучшить». Стройка идёт по настоящему времени.', ok: h => { const f = fdata(h); return !!f.build || Object.values(f.b).some(l => l >= 2); }, gold: 200,
     say: [[0, 'Крепость держится, но на первом уровне зданий далеко не уедешь.'], [0, 'Советую начать с Торговой гавани: больше золота — больше кораблей.']] },
-  { t: 'Заложите второй корабль', d: 'Один в море не воин. Откройте «Флот» → вкладку «Верфь» и заложите корабль. Катер самый дешёвый.', bld: 'fleet', tab: 'yard', hub: 'Нажмите на катер, затем «Заложить».', ok: h => Object.keys(h.ships).length >= 2, gold: 50,
+  { t: 'Заложите второй корабль', d: 'Один в море не воин. Откройте «Флот» → вкладку «Верфь» и заложите корабль. Катер самый дешёвый.', bld: 'fleet', tab: 'yard', hub: 'Нажмите на катер, затем «Заложить».', ok: h => Object.keys(h.ships).length >= 2, gold: 200,
     say: [[0, 'Командир, одним кораблём Лазурное море не освободить.'], [0, 'Загляните на верфь: «Флот», вкладка «Верфь». Катер — самый дешёвый и быстро строится.']] },
   { t: 'Соберите эскадру', d: 'Когда корабль спустят на воду, возьмите его в эскадру — он пойдёт в бой вместе с флагманом.', bld: 'fleet', tab: 'sq', hub: 'В списке резерва нажмите «В эскадру». Если корабль ещё строится — подождите.', ok: h => h.squad.length >= 1, gold: 40,
     say: [[0, 'Новый корабль — это хорошо, но пользы от него в гавани немного.'], [0, 'Возьмите его в эскадру: «Флот», вкладка «Эскадры». В бою он прикроет флагман.']] },
@@ -4149,11 +4165,26 @@ const TUT = [
   { t: 'Загляните в Зал дипломатии', d: 'В Цитадели есть Зал дипломатии: там всё о фракциях морей — о пиратах Корвина, Атлантисе, учёных и рейдерах.', bld: 'citadel', hub: 'Нажмите «🕊 Зал дипломатии» в разделе «Залы цитадели».', ok: h => !!h.dipSeen, gold: 50,
     say: [[0, 'И последнее. Знайте своих врагов и союзников.'], [0, 'В Цитадели есть Зал дипломатии. Там всё о пиратах Чёрного Зуба, Атлантисе, учёных и рейдерах Глубоких вод.']] },
 ];
+// похвала адъютанта за выполненный шаг — звучит перед следующим заданием
+const TUT_DONE = [
+  [[1, 'Отлично, командир! С вами я спокоен за Лазурное море.']],
+  [[1, 'Погреба полны, пушки заряжены. Теперь пиратам будет чем ответить!']],
+  [[1, 'Ура, командир! Первый остров свободен — люди на берегу машут нашим флагам!'], [0, 'Весть о победе уже летит по морю. На Чёрном Зубе сегодня будут нервничать.']],
+  [[1, 'Корабли снова как новенькие. Бережёте флот — значит, флот сбережёт вас.']],
+  [[1, 'Теперь остров под надёжной защитой. Жители спят спокойно — и всё благодаря вам.']],
+  [[1, 'Стройка кипит! Крепость растёт, а вместе с ней и наша сила.']],
+  [[1, 'На стапелях застучали молотки. Скоро в строю будет ещё один корабль!']],
+  [[1, 'Вот это уже настоящая эскадра! Вместе корабли бьют втрое крепче.']],
+  [[1, 'Отличный выбор, командир. У этого мичмана горят глаза — далеко пойдёт.']],
+  [[1, 'Караван в пути! Пусть ветер будет попутным, а трюмы вернутся полными золота.']],
+  null,
+];
+TUT.forEach((s, i) => s.done = TUT_DONE[i]);
 function tutData(h) { if (h.tut == null) h.tut = (h.w + h.l > 2 || Object.keys(h.ships).length > 2) ? -1 : 0; return h.tut; }
 function tutCheck(h) {
   let i = tutData(h), ch = false;
   while (i >= 0 && i < TUT.length && !TUT[i].manual && TUT[i].ok(h)) {
-    const s = TUT[i]; h.gold += s.gold; i = h.tut = i + 1; ch = true;
+    const s = TUT[i]; h.gold += s.gold; i = h.tut = i + 1; ch = true; h.tutPraise = i - 1;
     toast(`✅ Наставник: «${s.t}» — выполнено! +${s.gold} 💰`); Snd.play('ach');
     if (i >= TUT.length) { h.tut = -1; h.cred = (h.cred || 0) + 5; news(h, '🎓 Обучение пройдено: +5 💠', true); setTimeout(() => advSay([[1, 'Командир, вы освоились быстрее, чем я ожидал! Казна выделила вам 5 💠 за отличную службу.'], [0, 'Дальше вы справитесь сами. Но я всегда рядом: кнопка «🎖 Адъютант» в крепости — и я подскажу, что делать.'], [0, 'И не забывайте сохранять игру: кнопка 💾 в главном меню.']]), 1500); }
   }
@@ -4170,7 +4201,7 @@ function tutRender(h) {
     <div class="row"><button class="btn small primary" data-tg>${s.btn || (s.go === 'map' ? '🗺 В поход' : 'Перейти →')}</button>${s.gold ? `<span class="rw">награда ${s.gold} 💰</span>` : ''}</div><div class="tbar"><i style="width:${i / TUT.length * 100}%"></i></div>`;
   $('#fg-gold').textContent = h.gold;
   el.querySelector('[data-ts]').onclick = () => s.say && advSay(s.say);
-  if (h.tutSaid !== i && s.say && $('#scr-fort').classList.contains('active')) { h.tutSaid = i; saveProfiles(); if (i === 0) advWelcome(s.say); else setTimeout(() => { if ($('#scr-fort').classList.contains('active')) advSay(s.say); }, 500); }
+  if (h.tutSaid !== i && s.say && $('#scr-fort').classList.contains('active')) { const pr = h.tutPraise != null && TUT[h.tutPraise] && TUT[h.tutPraise].done || [], lines = [...pr, ...s.say]; h.tutSaid = i; h.tutPraise = null; saveProfiles(); if (i === 0) advWelcome(s.say); else setTimeout(() => { if ($('#scr-fort').classList.contains('active')) advSay(lines); }, 500); }
   el.querySelector('[data-tg]').onclick = () => { Snd.play('click'); if (s.manual) { h.tut = i + 1; saveProfiles(); return tutRender(h); } if (s.go === 'map') return showMap(); if (s.tab) HB.ftab = s.tab; openBld(s.bld); };
   el.querySelector('[data-tx]').onclick = () => { if (!HB.tutArm) { HB.tutArm = true; toast('Нажмите ✕ ещё раз, чтобы закрыть обучение. Вернуть его можно в Цитадели'); setTimeout(() => HB.tutArm = false, 3000); return; } h.tut = -1; saveProfiles(); el.hidden = true; };
 }
@@ -4195,6 +4226,15 @@ const ADV = [
   ['sea2', h => h.exp && h.exp.open >= 2, [[0, 'Путь в Море Янтарных Ветров открыт! Там пираты злее, а острова богаче.'], [0, 'Перед походом укрепите флот: улучшения в Мастерской и офицеры из Академии очень пригодятся.']]],
 ];
 const ADV_GEN = [
+  [[1, 'Экипажи говорят о вас с гордостью, командир. Такого капитана Лазурное море ещё не видело.']],
+  [[1, 'Каждый освобождённый остров — это сотни людей, которые снова верят в нас. Мы на верном пути.']],
+  [[0, 'Даже великие адмиралы проигрывали сражения. Главное — вернуться, залатать пробоины и снова выйти в море.'], [1, 'А возвращаться вы умеете, командир.']],
+  [[1, 'Ещё недавно у нас был один катер, а теперь — флот. Скоро пираты будут обходить нас десятой дорогой.']],
+  [[1, 'Моряки в гавани поют песни о ваших победах. Признаюсь, одну я и сам выучил наизусть.']],
+  [[0, 'Море любит терпеливых, командир: хорошая разведка и крепкий флот решают больше, чем лихость.'], [1, 'Хотя и отваги вам не занимать!']],
+  [[1, 'Знаете, командир, служить под вашим началом — честь. Я говорю это не по уставу, а от сердца.']],
+  [[1, 'Ветер попутный, казна растёт, флот крепнет. Отличный день, чтобы гнать пиратов прочь!']],
+  [[0, 'Я помню день, когда над крепостью развевался последний наш флаг.'], [1, 'А теперь посмотрите вокруг — море снова становится нашим. Это ваша заслуга.']],
   [[0, 'Совет: корабли в разных эскадрах можно держать про запас. Если флагман тонет, резерв выходит на подмогу.']],
   [[0, 'Чем больше застроен остров, тем крепче его оборона и выше доход. Стройка на островах — лучшее вложение золота.']],
   [[0, 'Острова у пиратов снижают доход крепости. Чем быстрее освободим Лазурное море, тем богаче будет казна.']],
