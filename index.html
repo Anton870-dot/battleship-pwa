@@ -2363,7 +2363,7 @@ const HS = {
   destroyer:  { name: 'Эсминец',  len: 2, price: 300,  hp: 10, armor: 1, speed: 2, dmg: 3, range: 4, sight: 2, mar: 4,  slots: 1, desc: 'Надёжный универсал: крепче катера и бьёт дальше.' },
   sub:        { name: 'Подлодка', len: 2, price: 500,  hp: 8,  armor: 0, speed: 2, dmg: 4, range: 4, sight: 2, mar: 2,  slots: 1, sub: true, desc: 'Невидима дальше 1 клетки, пока не стреляет. Пушек нет — бьёт только торпедами, зато сквозь броню.' },
   cruiser:    { name: 'Крейсер',  len: 3, price: 800,  hp: 14, armor: 2, speed: 2, dmg: 4, range: 5, sight: 3, mar: 6,  slots: 2, desc: 'Тяжёлая броня, хороший обзор, дальние орудия. ☄️ Ракетная установка: бьёт далеко и сквозь броню (ракеты из Арсенала).' },
-  echo:       { name: 'Дредноут', len: 5, price: 0, hp: 40, armor: 3, speed: 1, dmg: 8, range: 6, sight: 2, mar: 10, slots: 3, unique: true, echo: 1, desc: 'Древний дредноут вашего рода. Несколько поколений служит семье — и хранит больше тайн, чем раскрыл. Почти все системы спят, но корабль не тонет: разбитый, он сам уходит в док.' },
+  echo:       { name: 'Дредноут', len: 5, price: 0, hp: 40, armor: 3, speed: 1, dmg: 8, range: 6, sight: 2, mar: 160, slots: 3, unique: true, echo: 1, desc: 'Древний дредноут вашего рода. Несколько поколений служит семье — и хранит больше тайн, чем раскрыл. Почти все системы спят, но корабль не тонет: разбитый, он сам уходит в док.' },
   battleship: { name: 'Линкор',   len: 4, price: 1400, hp: 22, armor: 3, speed: 1, dmg: 6, range: 6, sight: 3, mar: 10, slots: 3, desc: 'Плавучая крепость. Медленный, но сокрушительный.' },
   sub2:       { name: 'Ударная подлодка', len: 2, price: 950, hp: 11, armor: 1, speed: 2, dmg: 5, range: 5, sight: 2, mar: 3, slots: 2, sub: true, need: 2, eqBase: { torp: true }, desc: 'Атомная охотница: крепче и дальнобойнее обычной подлодки. Пушек нет: 🚀 торпеды и ☄️ ракеты.' },
   sub3:       { name: 'Ракетоносец', len: 3, price: 1800, hp: 16, armor: 2, speed: 1, dmg: 6, range: 6, sight: 2, mar: 4, slots: 2, sub: true, need: 3, eqBase: { torp: true }, desc: 'Огромный подводный крейсер. Пушек нет: 🚀 торпеды и ☄️ ракеты. Медленный, но бьёт издалека и из-под воды.' },
@@ -2495,6 +2495,7 @@ function hdata(p) {
     const fresh = !(h.w + h.l) && Object.keys(h.ships).length <= 1, s = newShip(h, 'echo'); s.name = ECHO_NAME; h.echo = s.id;
     if (fresh) { h.active = s.id; h.squad = Object.keys(h.ships).filter(id => id !== s.id).slice(0, 1); (h.advSeen ||= {}).echo = 1; }
   }
+  if (!h.echoCrew) { const e = h.ships[h.echo]; if (e) { e.crew = Math.max(e.crew || 0, CREW.echo); h.echoCrew = 1; if (h.w + h.l) news(h, '⚓ Адмиралтейство пополнило экипаж «Echo Primae Lucis»: теперь на борту 1000 моряков. Мест для морпехов — до 160 (до 400 с «Десантными палубами»).', true); } }
   echoFm(h); ECHO_FM = h.fm; echoTick(h);
   return h;
 }
@@ -2545,9 +2546,9 @@ const ECHO_MODS = [
   { k: 'hull', ic: '🛡', n: 'Корпус', t: [
     { n: 'Древний корпус', d: 'Сплав, который не берёт ржавчина. Вмятины — следы прошлых войн.' },
     { n: 'Бронепояс', d: 'Новые плиты вдоль ватерлинии.', cost: 4000, min: 300, fx: { hp: 4 } },
-    { n: 'Расширение корпуса', d: 'Корабль становится больше: новые палубы и места для десанта.', cost: 12000, min: 900, fx: { hp: 6, mar: 4 }, grow: 1 },
+    { n: 'Расширение корпуса', d: 'Корабль становится больше: новые палубы и места для десанта.', cost: 12000, min: 900, fx: { hp: 6, mar: 20 }, grow: 1 },
     { n: 'Композитная броня', d: 'Слоистая броня держит даже тяжёлые снаряды.', cost: 30000, min: 1440, fx: { armor: 1, hp: 4 } },
-    { n: 'Второе расширение', d: 'Ещё больше и ещё грознее.', cost: 70000, min: 2880, fx: { hp: 8, mar: 6 }, grow: 1 },
+    { n: 'Второе расширение', d: 'Ещё больше и ещё грознее.', cost: 70000, min: 2880, fx: { hp: 8, mar: 20 }, grow: 1 },
     { n: '??? Антигравитационный корпус', d: 'Корпус легче воды, чем должен быть. Почему?', lock: 1, fx: { hp: 10 }, grow: 1 },
   ] },
   { k: 'air', ic: '🛩', n: 'Авиакрыло', t: [
@@ -2568,10 +2569,10 @@ const ECHO_MODS = [
   ] },
   { k: 'mar', ic: '🪖', n: 'Десантные палубы', t: [
     { n: 'Кубрик для десанта', d: 'Тесно, но морпехи не жалуются.' },
-    { n: 'Казарма морпехов', d: 'Больше мест для десанта.', cost: 3000, min: 240, fx: { mar: 4 } },
-    { n: 'Штурмовые катера', d: 'Абордажные группы высаживаются быстрее.', cost: 9000, min: 600, fx: { board: .2 } },
-    { n: 'Десантный батальон', d: 'Целый батальон на борту.', cost: 24000, min: 1200, fx: { mar: 6, board: .2 } },
-    { n: 'Элитная морская пехота', d: 'Лучшие бойцы флота служат здесь.', cost: 55000, min: 2160, fx: { mar: 4, board: .3 } },
+    { n: 'Казарма морпехов', d: 'Ещё одна палуба под кубрики десанта.', cost: 3000, min: 240, fx: { mar: 60 } },
+    { n: 'Штурмовые катера', d: 'Абордажные группы высаживаются быстрее.', cost: 9000, min: 600, fx: { mar: 40, board: .2 } },
+    { n: 'Десантный батальон', d: 'Целый батальон на борту.', cost: 24000, min: 1200, fx: { mar: 80, board: .2 } },
+    { n: 'Элитная морская пехота', d: 'Лучшие бойцы флота служат здесь.', cost: 55000, min: 2160, fx: { mar: 20, board: .3 } },
     { n: '??? Стражи корабля', d: 'Иногда в пустых каютах видят людей в незнакомой форме…', lock: 1, fx: { board: .5 } },
   ] },
   { k: 'mine', ic: '💣', n: 'Минный отсек', t: [
@@ -3586,7 +3587,7 @@ function atlAct(act, id) {
 }
 
 /* ---------- Команда кораблей и Мемориал ---------- */
-const CREW = { echo: 140, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, pir_boat: 14, pir_ds: 34, pir_sub: 26};
+const CREW = { echo: 1000, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, pir_boat: 14, pir_ds: 34, pir_sub: 26};
 const crewWord = (t, n) => HS[t].sub ? plural(n, 'подводник', 'подводника', 'подводников') : plural(n, 'матрос', 'матроса', 'матросов');
 const crewEff = u => u && u.crewMax ? Math.max(0, Math.min(1, u.crew / u.crewMax)) : 1;
 const effDmg = u => Math.max(1, Math.round(u.st.dmg * (.5 + .5 * crewEff(u))));
@@ -4827,8 +4828,9 @@ function buildHuntMap() {
 }
 function hMsg(t, cls) { const m = $('#hmsg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
 function boardTargets(u) { return H.foes.filter(f => f.hp > 0 && !f.gone && !f.boss && cheb(u, f) <= 1 && (foeVisible(f) || HS[f.type].fort)); }
+const BOARD_PARTY = 60;   // в одну атаку идёт не больше 60 морпехов, остальные — резерв
 function boardChance(u, t) {
-  const str = u.marines * (1 + .3 * H.drill) * (1 + u.st.board);
+  const str = Math.min(u.marines, BOARD_PARTY) * (1 + .3 * H.drill) * (1 + u.st.board);
   const def = HS[t.type].fort ? (8 + H.mission) * (.35 + .65 * t.hp / t.st.hp) : (2 + 2 * HS[t.type].len + Math.floor(H.mission / 3)) * (.3 + .7 * t.hp / t.st.hp);
   return Math.max(.05, Math.min(.95, str / (str + def)));
 }
@@ -4954,7 +4956,7 @@ function hAction(id) {
   if (id === 'radar') return (async () => { H.busy = true; const res = await hFire(u, 'radar'); hMsg(res.found ? `📡 Радар засёк врагов: ${res.found}` : '📡 В радиусе 4 клеток пусто', 'info'); hUnitDone(); })();
   if (id === 'smoke') { u.smoke = 2; u.cd.smoke = 5; u.movedLast = false; hfx(u.r, u.c, 'ping'); Snd.play('plane'); hMsg(`🌫️ ${u === H.me ? 'Вы скрылись' : shipName(u) + ' скрылся'} в дымовой завесе на 2 хода`, 'info'); return hUnitDone(); }
   H.mode = id;
-  if (id === 'board') { const ts = boardTargets(u); hMsg(`⚔️ Абордаж (🪖${u.marines}): ` + ts.map(t => `${shipName(t)} — ${Math.round(boardChance(u, t) * 100)}%`).join(', '), 'info'); }
+  if (id === 'board') { const ts = boardTargets(u); hMsg(`⚔️ Абордаж (🪖${Math.min(u.marines, BOARD_PARTY)}${u.marines > BOARD_PARTY ? ` из ${u.marines}` : ''}): ` + ts.map(t => `${shipName(t)} — ${Math.round(boardChance(u, t) * 100)}%`).join(', '), 'info'); }
   else hMsg({ move: 'Выберите клетку, куда плыть', gun: 'Выберите клетку для выстрела', salvo: 'Выберите центр залпа', fire: 'Выберите центр огненного залпа 3×3', torp: 'Выберите направление торпеды', msl: `☄️ Ракета: выберите цель в радиусе ${mslRange(u)} клеток (урон ${mslDmg(u)}, сквозь броню)`, pulse: '⚡ Выберите направление: импульс пробьёт всех врагов на линии, броня не спасёт', mine: 'Выберите соседнюю клетку для мины' }[id], 'info');
   renderHunt();
 }
@@ -5025,7 +5027,7 @@ async function hBoard(u, t) {
   u.movedLast = false; u.fired = true;
   H.foes.forEach(f => { if (f.hp > 0) f.known = { r: u.r, c: u.c, exact: true, age: 0 }; });
   Snd.play('clang'); hfx(t.r, t.c, 'boom'); renderHunt(); await sleep(450);
-  const loss = Math.min(u.marines, Math.max(1, Math.ceil(u.marines * (ok ? .1 + .2 * Math.random() : .35 + .3 * Math.random())))), back = Math.floor(loss * u.st.heal);
+  const party = Math.min(u.marines, BOARD_PARTY), loss = Math.min(party, Math.max(1, Math.ceil(party * (ok ? .1 + .2 * Math.random() : .35 + .3 * Math.random())))), back = Math.floor(loss * u.st.heal);
   u.marines -= loss - back;
   const lostTxt = `потери: ${loss - back} 🪖${back ? ` (врач спас ${back})` : ''}`;
   if (ok) {
