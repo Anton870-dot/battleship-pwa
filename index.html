@@ -8158,7 +8158,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   // музыка по экранам: меню/крепость, карта экспедиций, бой (2 трека по очереди)
   var A=[document.getElementById('bgm'),document.getElementById('bgm2')], b=document.getElementById('bgmBtn');
   var cur=0, track=null, battleN=Math.floor(Math.random()*2), fadeT=null;
-  var TR={menu:{src:'music.mp3',v:.5}, map:{src:'music_map.mp3',v:.5}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}};
+  var TR={menu:{src:'music_menu.mp3',v:.5}, map:{src:'music_map.mp3',v:.5}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}};
   var a={pause:function(){A.forEach(function(x){x.pause();});}};
   var on=localStorage.getItem('bgm')!=='off';
   function want(){
