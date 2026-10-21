@@ -487,6 +487,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .tutline.tadj img{width:42px;height:42px}
 .pdlg.adjd .dlgbox{border-color:rgba(255,207,74,.8)}.pdlg.adjd .dlgbox b{color:#ffe08a}.pdlg.adjd .dlgbox small{color:#cfe3f3}
 .advchip{display:flex;align-items:center;gap:5px}.advchip img{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid var(--gold)}
+.irq{width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 8px;border:2px solid var(--gold)}#ev-btns:has(.irq){}
 .adjcard{max-width:380px;padding:0 0 14px;overflow:hidden;text-align:center}.adjcard img{width:100%;max-height:60vh;object-fit:cover;object-position:50% 15%;display:block}
 .adjcap{margin:-46px 12px 10px;position:relative;background:rgba(3,18,38,.85);border:1px solid rgba(255,207,74,.7);border-radius:12px;padding:6px 10px}.adjcap b{color:#ffe08a;font-size:15px}.adjcap small{display:block;color:#cfe3f3;font-size:11px}
 .spdpair{display:inline-flex;gap:6px;flex-wrap:wrap;margin-top:4px}.col2 .spdpair{justify-content:flex-end}
@@ -988,7 +989,7 @@ body.menu-on .logo{margin:0}
     <button class="fchip" id="fg-build" data-bld=""></button>
   </div>
   <div class="tutcard" id="tutcard" hidden></div>
-  <div class="fside"><button class="fchip decchip" id="fg-dec" hidden></button><button class="fchip" id="fg-ev" hidden></button><button class="fchip" id="fg-cred">💠 0</button><button class="fchip" id="fg-log">📖 Журнал<em hidden></em></button><button class="fchip advchip" id="fg-adv"><img src="adj.webp" alt="">Адъютант</button></div>
+  <div class="fside"><button class="fchip decchip" id="fg-dec" hidden></button><button class="fchip" id="fg-ev" hidden></button><button class="fchip" id="fg-cred">💠 0</button><button class="fchip" id="fg-log">📖 Журнал<em hidden></em></button><button class="fchip advchip" id="fg-adv"><img src="adj.webp" alt="">Адъютант</button><button class="fchip advchip irchip" id="fg-ir" hidden><img src="irena.webp" alt="">Старпом</button></div>
   <button class="fraidchip" id="fg-raid" hidden>☠️ Пираты у стен! Оборона →</button>
   <div class="fhud-bot">
     <button class="fbtn" data-bld="fleet" data-ftab="sq">⚓<small>Флот</small></button>
@@ -1172,6 +1173,7 @@ body.menu-on .logo{margin:0}
   </div>
 </div>
 
+<div class="overlay" id="ov-ir"><div class="card glass adjcard"><img src="irena_full.webp" alt=""><div class="adjcap"><b>Капитан-лейтенант Ирэна Вальд</b><small>старший помощник «Echo Primae Lucis»</small></div><button class="btn primary" id="ir-go">Приятно познакомиться</button></div></div>
 <div class="overlay" id="ov-adj"><div class="card glass adjcard"><img src="adj_full.webp" alt=""><div class="adjcap"><b>Лейтенант Марк Ардан</b><small>ваш личный адъютант</small></div><button class="btn primary" id="adj-go">Слушаю, лейтенант</button></div></div>
 <div class="dpdlg pdlg" id="pdlg" hidden><img src="corvin.webp" alt=""><div class="dlgbox"><b></b><small></small><p class="dlgtxt"></p><span class="dlgmore"></span></div></div>
 <div class="overlay" id="ov-clan">
@@ -2595,7 +2597,7 @@ const echoFxTxt = fx => Object.entries(fx || {}).map(([k, v]) => v === true ? EC
 function echoTick(h) {
   const b = h.fmB; if (!b || Date.now() < b.end) return false;
   echoFm(h)[b.k] = b.lvl; h.fmB = null; const m = ECHO_MODS.find(x => x.k === b.k);
-  news(h, `💠 «${ECHO_NAME}»: установлено — ${m.n}: ${m.t[b.lvl].n}`, true); try { toast(`💠 Модернизация завершена: ${m.t[b.lvl].n}`); Snd.play('ach'); } catch (e) {}
+  news(h, `💠 «${ECHO_NAME}»: установлено — ${m.n}: ${m.t[b.lvl].n}`, true); try { toast(`💠 Модернизация завершена: ${m.t[b.lvl].n}`); Snd.play('ach'); if (typeof echoIn === 'function' && echoIn(h)) setTimeout(() => { const d = $('#pdlg'); if (d && d.hidden && $('#scr-fort').classList.contains('active')) clanSay([['i', true, pick(IR_UPG)]]); }, 900); } catch (e) {}
   saveProfiles(); return true;
 }
 function echoPanel(h) {
@@ -3636,7 +3638,7 @@ function trophyTotals(h) {
 /* ---- Вольное братство Чёрного Зуба (пираты Лазурного моря) ---- */
 const CLAN = { n: 'Вольное братство Чёрного Зуба', cap: 'Капитан Арне Корвин', nick: 'Старый Ворон', ship: 'Багровый странник', inc: 350, gold: 15000,
   d: 'Сорок лет Чёрный Зуб держит в страхе торговые пути Лазурного моря. Братство живёт по своему закону: добычу делят поровну, тонущих не бросают — даже врагов, — а слово капитана крепче якорной цепи.' };
-const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'], a: ['Лейтенант Марк Ардан', 'ваш адъютант', 'adj'] };
+const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'], a: ['Лейтенант Марк Ардан', 'ваш адъютант', 'adj'], i: ['Ирэна Вальд', 'старпом «Echo Primae Lucis»', 'irena'] };
 // lines: [[кто 'c'|'l', улыбка true/false, текст], ...]
 function clanSay(lines, done) {
   const box = $('#pdlg'); let i = 0, tm = null;
@@ -4366,6 +4368,70 @@ function tutRender(h) {
   el.querySelector('[data-tx]').onclick = () => { if (!HB.tutArm) { HB.tutArm = true; toast('Нажмите ✕ ещё раз, чтобы закрыть обучение. Вернуть его можно в Цитадели'); setTimeout(() => HB.tutArm = false, 3000); return; } h.tut = -1; saveProfiles(); el.hidden = true; };
 }
 const tutLine = (h, id) => { const i = tutData(h), s = TUT[i]; return s && s.bld === id ? `<div class="tutline tadj"><img src="adj_smile.webp" alt=""><div>🎖 <b>${s.t}.</b> ${s.hub || s.d}</div></div>` : ''; };
+/* ---------- Старпом «Echo Primae Lucis»: Ирэна Вальд ---------- */
+// говорит только когда дредноут в эскадре (флагман или в составе)
+const echoIn = h => { const s = h && h.echo && h.ships[h.echo]; return !!s && !s.isle && !s.trade && (h.active === h.echo || h.squad.includes(h.echo)); };
+const IR_MEET = [
+  [0, 'Капитан-лейтенант Ирэна Вальд, старший помощник «Echo Primae Lucis». Добро пожаловать на борт, капитан.'],
+  [0, 'Двадцать лет я на этом корабле. Пришла сюда младшим офицером — вы тогда, наверное, ещё только учились ходить. Служила вашим родителям. До последнего дня.'],
+  [0, 'Не буду лукавить: команда волнуется. Вчерашний выпускник академии — и вдруг капитан Древнего. Но я видела, как вы поднимались по трапу. Вы ни разу не оглянулись. Это хороший знак.'],
+  [1, 'Корабль мы зовём просто — Древний. Или Эхо, когда он в хорошем настроении. Да, у него бывает настроение. Привыкнете.'],
+  [0, 'Есть несколько правил, которых нет в уставе. Первое: если в нижних коридорах кто-то зовёт вас по имени — не отвечайте. Просто идите дальше.'],
+  [0, 'Второе: если вещь пропала — не ищите. Она вернётся. Обычно туда же, где лежала.'],
+  [0, 'Третье: голубого света в отсеках не бойтесь. За двадцать лет он никому не причинил вреда. По крайней мере, насколько мне известно.'],
+  [1, 'И главное. Древний не тонет. Никогда. Как бы ни шёл бой — он уведёт нас домой. Механики не знают как. Я тоже. Но он ещё ни разу не подвёл.'],
+  [0, 'Ваш отец любил повторять: этот корабль сам выбирает капитана. Я долго считала это красивыми словами.'],
+  [0, 'А сегодня, когда вы впервые взялись за штурвал, золотые линии на бортах засветились. Так было только при нём.'],
+  [1, 'Если появятся вопросы — о корабле, о команде, о чём угодно, — ищите меня на мостике. Я всегда там. Добро пожаловать домой, капитан.'],
+];
+const IR_Q = [
+  ['🚢 Расскажите о корабле', h => [[0, 'Никто не знает, сколько ему лет. Архивы вашего рода упоминают его с самых первых страниц — и уже тогда он звался древним.'], [0, 'Ржавчина не идёт глубже краски, золотые линии светятся в шторм, а машины нижних палуб работают сами по себе. Мы называем это характером.'], [1, 'Остальное вы узнаете сами. Он любит, когда его узнают постепенно.']]],
+  ['💠 Что за механизм в трюме?', h => [[0, 'Он размером с дом и спрятан за тремя слоями переборок. Гудит — тихо, ровно, все двадцать лет, что я здесь служу.'], [0, 'Когда корабль разбит, механизм сам уводит его из боя и ведёт в док. Мы им не управляем. Мы просто благодарим.'], [1, 'Механики говорят, что он похож на сердце. Я бы сказала — на спящего.']]],
+  ['👂 Голоса в коридорах — правда?', h => [[0, 'Правда. Тихие, неразборчивые. Иногда смеются. Иногда зовут по имени.'], [0, 'Однажды я услышала голос вашей матери. Через год после того, как её не стало.'], [0, 'Больше я об этом говорить не буду, капитан. Простите.']]],
+  ['🌀 Вы сами терялись на корабле?', h => [[0, 'Дважды. Первый раз — на третьем году службы. Свернула в знакомый коридор и вышла к своим через два часа.'], [0, 'Там был зал. Высокий, тихий, с колоннами из света. Его нет ни на одном чертеже — я проверяла. Много раз.'], [1, 'А про второй раз я никому не рассказывала. И вам пока не расскажу.']]],
+  ['🕯 Какими были мои родители?', h => [[0, 'Ваш отец был упрям, как Древний, и так же надёжен. Ваша мать — лучший штурман, какого я знала. Она читала море, как книгу.'], [0, 'Они верили, что этот корабль — не оружие, а наследство. Что его мало водить в бой — его нужно понять.'], [1, 'Думаю, теперь это ваша задача, капитан. И я помогу, чем смогу.']]],
+  ['🔧 Как усилить корабль?', h => [[0, 'Во «Флоте», в карточке корабля, — модернизация: орудия, машины, навигация, корпус и многое другое. Каждая ступень требует Цитадель того же уровня.'], [0, 'Странное дело: новые системы встают так, будто Древний их ждал. А некоторые гнёзда в трюме не подходят ни к чему, что умеют делать люди.'], [1, 'Пока не подходят.']]],
+  ['⚓ Как вам команда?', h => [[1, 'Лучшая во флоте. Ворчат, суеверничают и каждую ночь оставляют Древнему кружку чая в машинном отделении.'], [0, 'Утром она пустая. Не спрашивайте. Мы и сами не спрашиваем.']]],
+  ['✨ Что нового на корабле?', h => [[0, pick(IR_MYST)]]],
+  ['🎖 Что вы думаете обо мне?', h => h.w < 3 ? [[0, 'Пока — что вы очень молоды. Но это проходит быстрее, чем кажется.'], [0, 'Покажите себя в бою, капитан. Команда смотрит на вас. И Древний тоже.']] : h.w < 15 ? [[1, 'Что вы учитесь быстрее, чем я ожидала. Команда уже спорит, на кого из родителей вы больше похожи.']] : [[1, 'Что Древний не ошибся с выбором.'], [1, 'И я тоже.']]],
+];
+const IR_MYST = [
+  'Вчера ночью свечение было в трюме номер семь. У нас нет трюма номер семь.',
+  'Мой судовой журнал опять пропал. А утром лежал на столе — открытый на странице, которую я не писала.',
+  'Иногда мне кажется, что Древний не просто слушается штурвала. Он… соглашается.',
+  'Боцман клянётся, что вчера на камбузе стало на одну дверь больше. Сегодня всё как было.',
+  'В машинном кто-то оставил чертёж. Механики говорят, такого механизма не существует. К обеду чертёж исчез.',
+  'Когда вы на мостике, линии на бортах светятся ярче. Команда заметила. Я тоже.',
+  'Ночная вахта слышала, как в пустом коридоре кто-то напевал. Мелодию никто не узнал, но все потом весь день её насвистывали.',
+  'Компас на мостике сегодня час показывал не на север, а в глубину. Потом успокоился.',
+];
+const IR_START = ['Главный калибр к бою. Покажем им, почему Древний до сих пор на плаву.', 'Древний сегодня гудит громче обычного. Он чувствует драку.', 'Держитесь ближе к нам, капитан. В лоб нас ещё никто не переиграл.', 'Орудия заряжены, курс проложен. Ждём вашего слова, капитан.', 'Линии на бортах светятся. Похоже, он сегодня в настроении.'];
+const IR_WIN = ['Чистая работа, капитан. Ваша мать гордилась бы.', 'Неплохо. Для начала — очень неплохо.', 'Команда видела, как вы держались. Теперь они пойдут за вами куда угодно.', 'Древний доволен. Я это слышу — он гудит тише.', 'Вот теперь я узнаю почерк вашего отца.'];
+const IR_LOSE = ['Мы проиграли бой, а не войну. Залатаем — и вернёмся.', 'Отступить — тоже искусство, капитан. Главное — вернуть людей домой.'];
+const IR_DOCK = ['Не смотрите так, капитан. Он не тонет. Никогда.', 'Механизм опять увёл нас из боя. Механики снова клянутся, что ничего не трогали.'];
+const IR_UPG = ['Новые системы встали как родные. Будто Древний сам их ждал.', 'Механики говорят, установка заработала раньше, чем её подключили. Я уже не удивляюсь.', 'Слышите? Он гудит иначе. Кажется, ему нравится.'];
+const irSay = (lines, done) => clanSay(lines.map(([sm, t]) => ['i', !!sm, t]), done);
+function irCheck(h) {
+  if (h.irMet || !echoIn(h) || (h.tut >= 0 && h.tut < 2) || HB.irWait) return;
+  HB.irWait = 1;
+  setTimeout(() => { HB.irWait = 0; const d = $('#pdlg'); if (!$('#scr-fort').classList.contains('active') || (d && !d.hidden) || document.querySelector('.overlay.show')) return; h.irMet = 1; saveProfiles(); overlay('#ov-ir', true);
+    $('#ir-go').onclick = () => { overlay('#ov-ir', false); Snd.play('click'); setTimeout(() => irSay(IR_MEET), 250); }; }, 1800);
+}
+function irAsk(h) {
+  if (!echoIn(h)) return;
+  showEv('🗨', 'Ирэна Вальд', `<img class="irq" src="irena_smile.webp" alt=""><i>«Слушаю, капитан. Спрашивайте — что знаю, расскажу».</i>`, [
+    ...IR_Q.map(([q, f]) => ({ t: q, fn: () => { overlay('#ov-ev', false); Snd.play('click'); setTimeout(() => irSay(f(h), () => irAsk(h)), 200); } })),
+    { t: 'Вольно, старпом', fn: () => overlay('#ov-ev', false) },
+  ]);
+}
+function irBattleTalk() {
+  if (!H.fleet || !H.fleet.some(u => u.type === 'echo' && !u.ally) || Math.random() > .45) return;
+  setTimeout(() => { const d = $('#pdlg'); if (d && d.hidden && $('#scr-hunt').classList.contains('active')) clanSay([['i', false, pick(IR_START)]]); }, 1300);
+}
+function irAfterBattle(won, lines) {
+  const u = H.fleet && H.fleet.find(x => x.type === 'echo' && !x.ally); if (!u || Math.random() > .7) return;
+  lines.push(`🗨 Ирэна Вальд: «${pick(u.hp <= 0 ? IR_DOCK : won ? IR_WIN : IR_LOSE)}»`);
+}
 /* ---------- Адъютант: диалоги и советы ---------- */
 function advSay(lines, done) { clanSay(lines.map(l => l.length === 2 ? ['a', !!l[0], l[1]] : l), done); }
 function advWelcome(say) {
@@ -4403,7 +4469,7 @@ const ADV_GEN = [
   [[1, 'Разведка видит дальше, если улучшить Маяк. А знать врага в лицо — половина победы.']],
   [[0, 'Абордаж — лучший способ пополнить флот: захваченный корабль становится вашим. Не забывайте о морпехах в Казармах.']],
 ];
-function advTip(h) { const a = ADV.find(x => x[1](h)); advSay(a ? a[2] : pick(ADV_GEN)); }
+function advTip(h) { if (echoIn(h) && Math.random() < .3) return clanSay([['i', false, pick(IR_MYST)]]); const a = ADV.find(x => x[1](h)); advSay(a ? a[2] : pick(ADV_GEN)); }
 function advCheck(h) {
   if (h.tut >= 0 && h.tut < TUT.length) return;
   h.advSeen ||= {}; const a = ADV.find(x => !h.advSeen[x[0]] && x[1](h)); if (!a) return;
@@ -4721,7 +4787,7 @@ function startHunt(node) {
   const o = OBJ[H.obj], w = WEATHER[H.weather];
   hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   hStartPlayerTurn(true);
-  clanBattleTalk(node);
+  clanBattleTalk(node); irBattleTalk();
 }
 function clanBattleTalk(node) {
   if (!node || node.sea !== 0 || H.fac === 'raid' || node.deep || node.atl || node.trade) return;
@@ -5278,6 +5344,7 @@ function hFinish(won, reason) {
       return;
     }
   });
+  irAfterBattle(won, lines);
   fleetAfterBattle(h, won, lines, (u, s) => {
     const before = rankOf(s.xp), gain = ((won ? 1 : 0) + u.kills + 2 * u.caps) * (evOn(h, 'glory') ? 2 : 1) + (won ? paraXp(h) : 0);
     s.xp += gain;
@@ -5714,7 +5781,7 @@ function fortStage(h, W) {
     s += `<div class="fraidfx"></div>` + (reduceMotion ? [[40, 84], [66, 91], [14, 89]] : []).map(([x, y]) => `<div class="fpir" style="left:${x}%;top:${y}%">${ship}</div>`).join(''); }
   return s + `</div>`;
 }
-function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); if (p.hunt && clanSt(hdata(p)) === 'offer' && !HB.clanAsk) { HB.clanAsk = 1; setTimeout(clanOpen, 600); } else if (p.hunt) advCheck(hdata(p)); }
+function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); if (p.hunt && clanSt(hdata(p)) === 'offer' && !HB.clanAsk) { HB.clanAsk = 1; setTimeout(clanOpen, 600); } else if (p.hunt) { advCheck(hdata(p)); irCheck(hdata(p)); } }
 function renderFort(center) {
   const p = curProfile(), h = hdata(p), f = fdata(h); fortTick(h);
   const v = $('#fview'), old = v.firstElementChild;
@@ -5735,6 +5802,7 @@ function renderFort(center) {
   else if (h.newsNew) { const n = h.news.find(x => !x.q); if (n) toast(n.txt.replace(/<[^>]+>/g, '')); h.newsNew = 0; saveProfiles(); }
   decChip(h);
   { const e = evNow(h), b = $('#fg-ev'); b.hidden = !e; if (e) b.innerHTML = `${evDef(e).ic} ${evDef(e).n} · <span data-until="${e.end}">${fmtLeft(e.end - Date.now())}</span>`; }
+  $('#fg-ir').hidden = !echoIn(h);
   $('#fg-cred').innerHTML = `💠 ${h.cred || 0}`; { const n = logNew(h), b = $('#fg-log em'); b.hidden = !n; b.textContent = n; }
   const bchip = $('#fg-build');
   if (f.build) { const b = FB.find(x => x.id === f.build.id); bchip.innerHTML = `🏗 ${b.name} <span data-until="${f.build.end}">${fmtLeft(f.build.end - Date.now())}</span>`; bchip.dataset.bld = b.id; bchip.hidden = false; }
@@ -5868,6 +5936,7 @@ function initFortUI() {
   $('#fg-ev').onclick = () => { Snd.play('click'); evInfo(hdata(curProfile())); };
   $('#fg-log').onclick = () => { Snd.play('click'); showLog(); };
   $('#fg-adv').onclick = () => { Snd.play('click'); advTip(hdata(curProfile())); };
+  $('#fg-ir').onclick = () => { Snd.play('click'); irAsk(hdata(curProfile())); };
   $('#fg-cred').onclick = () => { Snd.play('click'); credInfo(hdata(curProfile())); };
   $('#log-close').onclick = () => { Snd.play('click'); overlay('#ov-log', false); };
   $('#fg-go').onclick = () => { Snd.play('click'); showMap(); };
