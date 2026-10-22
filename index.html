@@ -1174,6 +1174,7 @@ body.menu-on .logo{margin:0}
   </div>
 </div>
 
+<div class="overlay" id="ov-scene"><div class="card glass dpcard"><div class="dpsplash"><img id="sc-img" src="" alt=""></div><h2 id="sc-title"></h2><p class="dpquote" id="sc-text" style="text-align:center;padding:0 14px"></p><div class="dpbtns"><button class="btn primary" id="sc-go"></button></div></div></div>
 <div class="overlay" id="ov-ir"><div class="card glass adjcard"><img src="irena_full.webp" alt=""><div class="adjcap"><b>Капитан-лейтенант Ирэна Вальд</b><small>старший помощник «Echo Primae Lucis»</small></div><button class="btn primary" id="ir-go">Приятно познакомиться</button></div></div>
 <div class="overlay" id="ov-adj"><div class="card glass adjcard"><img src="adj_full.webp" alt=""><div class="adjcap"><b>Лейтенант Марк Ардан</b><small>ваш личный адъютант</small></div><button class="btn primary" id="adj-go">Слушаю, лейтенант</button></div></div>
 <div class="dpdlg pdlg" id="pdlg" hidden><img src="corvin.webp" alt=""><div class="dlgbox"><b></b><small></small><p class="dlgtxt"></p><span class="dlgmore"></span></div></div>
@@ -3643,14 +3644,14 @@ function trophyTotals(h) {
 /* ---- Вольное братство Чёрного Зуба (пираты Лазурного моря) ---- */
 const CLAN = { n: 'Вольное братство Чёрного Зуба', cap: 'Капитан Арне Корвин', nick: 'Старый Ворон', ship: 'Багровый странник', inc: 350, gold: 15000,
   d: 'Сорок лет Чёрный Зуб держит в страхе торговые пути Лазурного моря. Братство живёт по своему закону: добычу делят поровну, тонущих не бросают — даже врагов, — а слово капитана крепче якорной цепи.' };
-const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'], a: ['Лейтенант Марк Ардан', 'ваш адъютант', 'adj'], i: ['Ирэна Вальд', 'старпом «Echo Primae Lucis»', 'irena'], v: ['Тесса Ренье', 'старейшина беженцев Семи Огней', null], k: ['Изабель Корран', 'герцогиня, глава дома Корран', null], g: ['Капитан Ренар Скейл', 'гвардия дома Корран', null] };
+const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'], a: ['Лейтенант Марк Ардан', 'ваш адъютант', 'adj'], i: ['Ирэна Вальд', 'старпом «Echo Primae Lucis»', 'irena'], v: ['Тесса Ренье', 'старейшина беженцев Семи Огней', 'tessa', 1], k: ['Изабель Корран', 'герцогиня, глава дома Корран', 'isabel', 1], g: ['Капитан Ренар Скейл', 'гвардия дома Корран', 'renar', 1], w: ['Варго Кнут', 'вожак Солёных Псов', 'vargo', 1], t: ['Стелла «Стальная»', 'капитан Солёных Псов', 'stella', 1] };
 // lines: [[кто 'c'|'l', улыбка true/false, текст], ...]
 function clanSay(lines, done) {
   const box = $('#pdlg'); let i = 0, tm = null;
   const step = () => {
     if (i >= lines.length) { box.hidden = true; if (done) done(); return; }
     const [who, sm, txt] = lines[i++], W = CLAN_WHO[who], el = box.querySelector('.dlgtxt');
-    { const im = box.querySelector('img'); im.style.display = W[2] ? '' : 'none'; if (W[2]) im.src = W[2] + (sm ? '_smile' : '') + '.webp'; } box.querySelector('b').textContent = W[0]; box.querySelector('small').textContent = W[1]; box.classList.toggle('adjd', who === 'a');
+    { const im = box.querySelector('img'); im.style.display = W[2] ? '' : 'none'; if (W[2]) im.src = W[2] + (sm && !W[3] ? '_smile' : '') + '.webp'; } box.querySelector('b').textContent = W[0]; box.querySelector('small').textContent = W[1]; box.classList.toggle('adjd', who === 'a');
     el.textContent = ''; let k = 0; clearInterval(tm);
     box.querySelector('.dlgmore').textContent = i < lines.length ? '▼ дальше' : '✕ закрыть';
     tm = setInterval(() => { k += 2; el.textContent = txt.slice(0, k); if (k >= txt.length) clearInterval(tm); }, 18);
@@ -3683,7 +3684,7 @@ function dipRoom(h) {
   const ST = { war: ['war', '⚔️ Война'], offer: ['offer', '🏳️ Просят мира'], serv: ['serv', '🤝 На вашей службе'], jail: ['offer', '⛓ В тюрьме'], gone: ['gone', h.clan && h.clan.how === 'hang' ? '⚖️ Казнены' : '💨 Братство распущено'] }[st];
   const fk = HB.dfac || 'pir', FX = DIP_FAC;
   let s = `<div class="roomhero wide"><img src="diplomacy_room.webp" alt="Зал дипломатии" style="object-position:50% 40%"><div class="bh-cap"><b>🕊 Зал дипломатии</b><small>фракции морей и отношения с ними</small></div></div>
-    <div class="dfacs">${Object.keys(FX).map(k => `<button class="dfac${k === fk ? ' on' : ''}" data-dfac="${k}"><span>${FX[k].ic}</span><b>${FX[k].n}</b><small>${FX[k].sea}</small>${k === 'pir' && st === 'offer' ? '<i>!</i>' : ''}</button>`).join('')}</div>`;
+    <div class="dfacs">${Object.keys(FX).filter(k => !FX[k].amb || (h.exp && h.exp.open >= 2)).map(k => `<button class="dfac${k === fk ? ' on' : ''}" data-dfac="${k}"><span>${FX[k].ic}</span><b>${FX[k].n}</b><small>${FX[k].sea}</small>${k === 'pir' && st === 'offer' ? '<i>!</i>' : ''}</button>`).join('')}</div>`;
   if (fk !== 'pir') return s + dipOther(h, fk);
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">☠️ ${CLAN.n}</div><div class="dfimg"><img src="${{ serv: 'pir_clan_serv.webp', jail: 'pir_jail.webp', gone: h.clan && h.clan.how === 'hang' ? 'pir_hang.webp' : 'pir_clan.webp', offer: 'pir_captured.webp' }[st] || 'pir_clan.webp'}" alt="" style="object-position:50% 20%"></div><span class="clanst ${ST[0]}">${ST[1]}</span><small class="muted">${CLAN.d}</small>
     <div class="clanppl"><div class="clp"><img src="corvin.webp" alt=""><span><b>🧭 ${CLAN.cap} «${CLAN.nick}»</b><small>Глава братства. Когда-то — офицер флота, которого командиры предали и бросили отвечать за чужие ошибки. С тех пор он не служит никому.</small></span></div>
@@ -3702,8 +3703,18 @@ function dipRoom(h) {
   else s += `<small class="muted">Братство распущено. Уцелевшие пираты ушли в дальние моря — тамошние разбойники стали злее (+15% к силе нападений на острова).</small>`;
   return s + `</div>`;
 }
-const DIP_FAC = { pir: { ic: '☠️', n: 'Пираты', sea: 'Лазурное море' }, atl: { ic: '🔱', n: 'Атлантис', sea: 'свободный город' }, sci: { ic: '🔬', n: 'Учёные', sea: 'Глубокие воды' }, raid: { ic: '🦈', n: 'Рейдеры', sea: 'Глубокие воды' } };
+const DIP_FAC = { pir: { ic: '☠️', n: 'Пираты', sea: 'Лазурное море' }, atl: { ic: '🔱', n: 'Атлантис', sea: 'свободный город' }, sci: { ic: '🔬', n: 'Учёные', sea: 'Глубокие воды' }, raid: { ic: '🦈', n: 'Рейдеры', sea: 'Глубокие воды' }, dogs: { ic: '⛓', n: 'Солёные Псы', sea: 'Янтарное море', amb: 1 }, corr: { ic: '🏛', n: 'Дом Корран', sea: 'Златоград', amb: 1 } };
 function dipOther(h, fk) {
+  if (fk === 'dogs') return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⛓ Солёные Псы</div><div class="dfimg"><img src="vargo_full.webp" alt="" style="object-position:50% 18%"></div><span class="clanst war">⚔️ Война</span>
+    <small class="muted">Работорговцы и мародёры Янтарного моря. Ни кодекса, ни чести: захватывают людей и продают их на южные рудники. Пленных не берут — пленных продают. Логово — Чёрный Шпиль, крепость в чёрных скалах с невольничьим рынком.</small>
+    <div class="clanppl"><div class="clp"><img src="vargo.webp" alt=""><span><b>⛓ Варго Кнут</b><small>Вожак Псов. Бывший надсмотрщик каторги: когда-то поднял бунт, перебил охрану и увёл каторжников в море. Освободил рабов — чтобы сделать рабами других. Кнут на поясе носит как корону.</small></span></div>
+    <div class="clp"><img src="stella.webp" alt=""><span><b>⚙️ Стелла «Стальная»</b><small>Капитан Псов и правая рука Варго. Руку потеряла в абордаже — новую ей собрали механики Чёрного Шпиля. Говорят, этой рукой она гнёт якорные цепи. Умна, расчётлива и жестока не меньше вожака.</small></span></div></div>
+    <div class="sec-t">🗺 Ваша война с Псами</div><ul class="cllist"><li>🏝 Островов Янтарного моря под вашим флагом: <b>${seaOwn(h, 1)} из ${SEAS[1].isles.length}</b></li><li>${h.exp.cleared.includes(1) ? '✅' : '⬜'} Чёрный Шпиль взят</li></ul></div>`;
+  if (fk === 'corr') { const A = ambData(h); return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏛 Дом Корран</div><div class="dfimg"><img src="corran_court.webp" alt="" style="object-position:50% 30%"></div><span class="clanst ${A.st >= 2 ? 'serv' : 'offer'}">${A.st >= 2 ? `🤝 Договор · налог ${Math.round(ambTax(h) * 100)}%` : A.st >= 1 ? '⏳ Ждут вас в Златограде' : '❔ Неизвестны'}</span>
+    <small class="muted">Старейший дом Янтарного моря: триста лет правит Ардессой и Златоградом. Официально — союзник Адмиралтейства. Держит порядок, собирает налоги и знает всё, что происходит в этих водах. Иногда — даже раньше, чем это происходит.</small>
+    <div class="clanppl"><div class="clp"><img src="isabel.webp" alt=""><span><b>👑 Герцогиня Изабель Корран</b><small>Глава дома. Холодная, умная и безупречно вежливая. Никогда не повышает голос и никогда ничего не забывает. На груди носит кулон с голубым камнем — свет в нём бьётся, как сердце.${A.grudge ? ' Помнит, что вы с ней торговались.' : ''}</small></span></div>
+    <div class="clp"><img src="renar.webp" alt=""><span><b>⚔️ Капитан Ренар Скейл</b><small>Командир гвардии дома Корран. Шрам через бровь — память о дуэли, о которой он не рассказывает. Предан герцогине. Или делает вид.</small></span></div></div>
+    <div class="sec-t">👥 Свита герцогини</div><ul class="cllist"><li>📖 <b>Маргит Ольве</b> — казначей дома, седая и неумолимая. Считает каждый грош с ваших островов.</li><li>📊 <b>Лукас Корран</b> — племянник герцогини и её секретарь. Молод, амбициозен и вечно что-то записывает.</li><li>🗝 <b>Вера Тамм</b> — хранительница архива Златограда. Ключ на её груди открывает двери, о которых не знает даже гвардия.</li></ul></div>`; }
   const bar = (v, a, b) => `<div class="rankline"><span class="bar"><i style="width:${b ? Math.min(100, (v - a) / (b - a) * 100) : 100}%"></i></span><small>${b ? `доверие ${v}/${b}` : 'высшее доверие'}</small></div>`;
   if (fk === 'atl') {
     const A = atlData(h), k = atlRank(h), nx = ATL_RANKS[k + 1];
@@ -4502,6 +4513,19 @@ const AMB_SAY = {
   g3: [['v', 0, 'Командир, к нам приплыли беглецы с рудников. Говорят, Псы держат пленных на Кремневых Сёстрах.'], ['v', 0, 'А ещё — что их корабли спокойно заходят в бухты Ардессы: к Мысу Скорби и в Южную бухту. В порты, которые Корран будто бы «не контролирует».'], ['a', 0, 'Под самым носом у герцогини. Странно, не правда ли, командир?']],
   g4: [['a', 0, 'Командир, на северо-западе — Люмен-Нокс. Остров, над которым никогда не гаснет голубое свечение. Местные туда не ходят. Говорят, там поёт море.']],
 };
+function sceneShow(img, title, text, btn, done) {
+  $('#sc-img').src = img; $('#sc-title').textContent = title; $('#sc-text').textContent = text; $('#sc-go').textContent = btn;
+  overlay('#ov-scene', true); $('#sc-go').onclick = () => { overlay('#ov-scene', false); Snd.play('click'); setTimeout(() => done && done(), 220); };
+}
+function ambBattleTalk(node) {
+  if (!node || node.sea !== 1 || node.deep || node.atl || node.trade) return;
+  const h = hdata(curProfile()), A = ambData(h); let L = null;
+  if (node.amb === 'land') L = [['w', 0, 'Эй, флотские! Это мой улов. Каждая лодка, каждая баба и каждый сопляк на них — мои. Разворачивайтесь, пока я добрый.'], ['t', 0, 'Варго, у них дредноут. Настоящий.'], ['w', 1, 'Тем лучше, Стелла. Большой корабль — много цепей. Псы, взять их!']];
+  else if (node.isle === -1) L = [['w', 0, 'Ты пришёл в мой дом, флотский. Знаешь, сколько людей прошло через эти клетки? Я перестал считать на третьей тысяче.'], ['t', 0, 'Корран не придёт тебе на помощь, командир. Она никогда не приходит. Мы-то знаем.'], ['w', 1, 'Сегодня ты либо умрёшь, либо поплывёшь на рудники. Мне нравятся оба варианта.']];
+  else if (!A.metW) { A.metW = 1; saveProfiles(); L = [['t', 0, 'Опять ты. Флотский, который возится с беженцами.'], ['t', 1, 'Знаешь, сколько стоит на рынке Чёрного Шпиля один здоровый гребец? Больше, чем твои пушки. Мы тебя запомнили.']]; }
+  else if (Math.random() < .25) L = [pick([['w', 0, 'Чем больше ты топишь моих лодок, флотский, тем дороже будет твоя голова.'], ['t', 0, 'Держите строй, Псы! Дредноут неповоротлив — заходите с кормы!'], ['w', 1, 'Твоим беженцам понравятся мои рудники. Там тепло — под землёй всегда тепло.'], ['t', 1, 'У тебя хорошая команда, командир. Будет жалко продавать её по частям.']])];
+  if (L) setTimeout(() => clanSay(L), 900);
+}
 function ambCheck(h) {
   const A = ambData(h); if (HB.ambBusy) return;
   const d = $('#pdlg'); if (d && !d.hidden) return;
@@ -4509,7 +4533,8 @@ function ambCheck(h) {
   if (A.say) { L = [...(AMB_SAY[A.say] || [])]; if (A.say === 'land' && echoIn(h)) L.push(['i', 0, 'Древний гудел всю дорогу сюда, капитан. Он знает эти воды. Только мне не говорит — откуда.']); if (A.say === 'g4' && echoIn(h)) L.push(['i', 0, 'Капитан… Древний развернулся к Люмен-Ноксу сам. На полрумба. Механики клянутся, что руль никто не трогал.']); A.say = null; }
   else if (!A.intro && expData(h).open >= 2) { A.intro = 1; L = AMB_SAY.intro; }
   if (!L) return; saveProfiles(); HB.ambBusy = 1;
-  setTimeout(() => { HB.ambBusy = 0; clanSay(L); }, 600);
+  const isLand = L[0] && L[0][2] && L[0][2].startsWith('Мы думали, это конец');
+  setTimeout(() => { HB.ambBusy = 0; if (isLand) sceneShow('amb_refugees.webp', '🛟 Беженцы спасены', 'Гражданский флот Семи Огней входит в бухту Иглы Отлива. Ваши моряки раздают воду и одеяла, дети машут с палуб. Впервые за месяц эти люди не оглядываются на горизонт.', 'Поговорить со старейшиной', () => clanSay(L)); else clanSay(L); }, 600);
 }
 function ambCity(h) {
   const A = ambData(h);
@@ -4525,11 +4550,11 @@ function ambCity(h) {
       ['a', 0, '(шёпотом) Командир, это грабёж. Но ссориться с ней в первый же день…'],
       ['k', 1, 'Решайте, командир. Я не тороплю. Хотя Псы — торопят.']];
     if (echoIn(h)) L.splice(3, 0, ['i', 0, '(тихо) Капитан, взгляните на её кулон. Голубой камень, и свет в нём бьётся, как сердце. Такой свет я видела только в трюме Древнего.']);
-    return clanSay(L, () => showEv('🏛', 'Условия дома Корран', 'Герцогиня Изабель Корран ждёт ответа. Без её лоцманов пути к островам Янтарного моря закрыты.', [
+    return sceneShow('corran_throne.webp', '🏛 Тронный зал Златограда', 'Мраморный зал на вершине самой высокой башни. За стеклом — порт, верфи и серое штормовое небо. На троне — герцогиня Изабель Корран. На её груди бьётся голубым светом камень.', 'Подойти к трону', () => clanSay(L, () => showEv('🏛', 'Условия дома Корран', 'Герцогиня Изабель Корран ждёт ответа. Без её лоцманов пути к островам Янтарного моря закрыты.', [
       { t: '🤝 Принять условия · налог 15%', cls: 'primary', fn: () => { overlay('#ov-ev', false); ambDeal(h, .15); } },
       { t: '⚖️ Торговаться · налог 10%', fn: () => { overlay('#ov-ev', false); ambDeal(h, .1); } },
       { t: '✋ Отказаться', fn: () => { overlay('#ov-ev', false); clanSay([['k', 0, 'Отказаться? Как пожелаете. Тогда ни лоцманов, ни карт. Возвращайтесь, когда передумаете, командир.'], ['g', 0, 'Выход — там. Оружие вам вернут на пристани.']]); } },
-    ]));
+    ])));
   }
   showEv('🏙', 'Златоград', `Столица дома Корран: небоскрёбы, верфи, аэродром и самый богатый порт Янтарного моря.<br><br>💰 Налог дома Корран с ваших островов Янтарного моря: <b>${Math.round(ambTax(h) * 100)}%</b>.<br><small class="muted">Скоро: торговля, поручения дома Корран и наёмники.</small>`, [{ t: 'Закрыть', fn: () => overlay('#ov-ev', false) }]);
 }
@@ -5099,7 +5124,7 @@ function startHunt(node) {
   const o = OBJ[H.obj], w = WEATHER[H.weather];
   hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   hStartPlayerTurn(true);
-  clanBattleTalk(node); irBattleTalk();
+  clanBattleTalk(node); irBattleTalk(); ambBattleTalk(node);
 }
 function clanBattleTalk(node) {
   if (!node || node.sea !== 0 || H.fac === 'raid' || node.deep || node.atl || node.trade) return;
