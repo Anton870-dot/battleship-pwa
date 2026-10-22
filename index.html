@@ -1390,7 +1390,7 @@ const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" 
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
 const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
-const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, pir_boat: 2.39, dog_boat: 3.12, dog_ds: 3.93, pir_ds: 5.3, pir_sub: 3.45};
+const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, pir_boat: 2.39, dog_boat: 3.12, dog_ds: 3.93, pir_ds: 5.3, pir_sub: 3.45, dog_slaver: 3.31};
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -3715,7 +3715,9 @@ function dipOther(h, fk) {
     <div class="clp"><img src="stella.webp" alt=""><span><b>⚙️ Стелла «Стальная»</b><small>Капитан Псов и правая рука Варго. Руку потеряла в абордаже — новую ей собрали механики Чёрного Шпиля. Говорят, этой рукой она гнёт якорные цепи. Умна, расчётлива и жестока не меньше вожака.</small></span></div></div>
     <div class="clship"><img src="dog_boat_hero.webp" alt=""><b>⛓ Катер Псов</b><small style="display:block">Ловчий катер работорговцев. Ржавая броня, пушка на носу и две железные клетки на корме — для тех, кого поймают. Псы охотятся на них стаями: загоняют рыбацкие лодки к рифам и забирают всех, кто выжил.</small></div>
     <div class="clship"><img src="dog_ds_hero.webp" alt=""><b>⚔️ Эсминец Псов</b><small style="display:block">Основа флота Псов. Нос усеян стальными шипами — эсминец таранит лодки беглецов и вспарывает борта тем, кто не сдался. За дымящими трубами — восемь клеток на корме: в каждую набивают по двадцать человек. Из труб валит чёрный дым, и рыбаки Янтарного моря узнают его за милю.</small></div>
-    <div class="sec-t">🗺 Ваша война с Псами</div><ul class="cllist"><li>🏝 Островов Янтарного моря под вашим флагом: <b>${seaOwn(h, 1)} из ${SEAS[1].isles.length}</b></li><li>${h.exp.cleared.includes(1) ? '✅' : '⬜'} Чёрный Шпиль взят</li></ul></div>`;
+    <div class="clship"><img src="dog_slaver_hero.webp" alt=""><b>⛓ Невольничий транспорт</b><small style="display:block">Плавучая тюрьма Солёных Псов. Бывший сухогруз, вместо трюмов — пятнадцать стальных клеток под брезентом, краны для погрузки «товара» и две пушки на носу. За один рейс увозит на южные рудники до трёхсот человек. Его не топят — его берут на абордаж: в клетках живые люди.</small></div>
+    <div class="sec-t">🗺 Ваша война с Псами</div>
+    ${h.freed ? `<small class="muted">⛓ Освобождено вами пленников: <b>${h.freed}</b></small>` : ''}<ul class="cllist"><li>🏝 Островов Янтарного моря под вашим флагом: <b>${seaOwn(h, 1)} из ${SEAS[1].isles.length}</b></li><li>${h.exp.cleared.includes(1) ? '✅' : '⬜'} Чёрный Шпиль взят</li></ul></div>`;
   if (fk === 'corr') { const A = ambData(h); return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏛 Дом Корран</div><div class="dfimg"><img src="corran_court.webp" alt="" style="object-position:50% 30%"></div><span class="clanst ${A.st >= 2 ? 'serv' : 'offer'}">${A.st >= 2 ? `🤝 Договор · налог ${Math.round(ambTax(h) * 100)}%` : A.st >= 1 ? '⏳ Ждут вас в Златограде' : '❔ Неизвестны'}</span>
     <small class="muted">Старейший дом Янтарного моря: триста лет правит Ардессой и Златоградом. Официально — союзник Адмиралтейства. Держит порядок, собирает налоги и знает всё, что происходит в этих водах. Иногда — даже раньше, чем это происходит.</small>
     <div class="clanppl"><div class="clp"><img src="isabel.webp" alt=""><span><b>👑 Герцогиня Изабель Корран</b><small>Глава дома. Холодная, умная и безупречно вежливая. Никогда не повышает голос и никогда ничего не забывает. На груди носит кулон с голубым камнем — свет в нём бьётся, как сердце.${A.grudge ? ' Помнит, что вы с ней торговались.' : ''}</small></span></div>
@@ -5057,7 +5059,7 @@ function setupObjective(node) {
     while (H.boats.length < 3 && cells.length) { const x = cells.splice(rnd(cells.length), 1)[0]; if (!H.boats.some(b => cheb(b, x) < 3)) H.boats.push({ r: x.r, c: x.c, done: false }); }
     for (let r = 3; r < 10 && H.boats.length < 3; r++) for (let c = 1; c < 10 && H.boats.length < 3; c++) { if (!H.land[hidx(r, c)] && !H.boats.some(x => cheb(x, { r, c }) < 3) && H.foes.every(f => cheb(f, { r, c }) >= 3)) H.boats.push({ r, c, done: false }); }
   } else if (o === 'intercept') {
-    const t = Object.assign(mkUnit('transport', 'foe', 1, HN - 2, 180), { revealed: 99, name: 'Транспорт' });
+    const t = Object.assign(mkUnit('transport', 'foe', 1, HN - 2, 180), { revealed: 99, name: 'Транспорт' }); if (H.node && H.node.sea === 1) { t.img = 'dog_slaver'; t.name = 'Невольничий транспорт'; t.slaver = 1; }
     t.st.hp = t.hp = 10 + 2 * m; H.foes.push(t);
     genFoes(m, Math.max(1, n - 1), [0, HN - 5, 5, 5]);
   } else if (o === 'fort') {
@@ -5146,8 +5148,8 @@ function hMakeEl(u) {
   const len = HS[u.type].len, w = u.type === 'echo' ? 2.55 * echoGrow(ECHO_FM) : HS[u.type].fort ? 1 : .8 + .2 * len;
   const el = document.createElement('div');
   el.className = 'hunit ' + u.side + (u.ally ? ' ally' : '') + (u.auto ? ' npc' : '') + (u.boss ? ' boss' : '') + (HS[u.type].fort ? ' fortu' : '') + (HS[u.type].pir ? ' piru' : '');
-  const ar = TOP_AR[u.type], spr = ar ? `<div class="spr simg" style="width:calc(var(--hc)*${w * 1.2});height:calc(var(--hc)*${w * 1.2 / ar})"><img src="top_${u.type}.webp" alt="" draggable="false"${u.skin && SKINS[u.skin] ? ` style="filter:${SKINS[u.skin].f}"` : ''}></div>` : `<div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${HS[u.type].fort ? 1 : w / len})">${shipPic(u.type, u.side === 'me')}</div>`;
-  el.style.setProperty('--bd', (-Math.random() * 4).toFixed(2) + 's'); if (ar) el.style.setProperty('--mk', `url(top_${u.type}.webp)`);
+  const it = u.img || u.type, ar = TOP_AR[it], spr = ar ? `<div class="spr simg" style="width:calc(var(--hc)*${w * 1.2});height:calc(var(--hc)*${w * 1.2 / ar})"><img src="top_${it}.webp" alt="" draggable="false"${u.skin && SKINS[u.skin] ? ` style="filter:${SKINS[u.skin].f}"` : ''}></div>` : `<div class="spr" style="width:calc(var(--hc)*${w});height:calc(var(--hc)*${HS[u.type].fort ? 1 : w / len})">${shipPic(u.type, u.side === 'me')}</div>`;
+  el.style.setProperty('--bd', (-Math.random() * 4).toFixed(2) + 's'); if (ar) el.style.setProperty('--mk', `url(top_${it}.webp)`);
   el.innerHTML = `<div class="rot">${spr}</div><div class="hpbar"><i></i></div>${u.boss ? '<div class="bosstag">☠️</div>' : ''}`;
   H.layer.appendChild(el); H.els[u.id] = el;
 }
@@ -5193,7 +5195,7 @@ function objStatus() {
   switch (H.obj) {
     case 'convoy': { const ms = H.fleet.filter(u => u.type === 'merchant'); return `🚢 Конвой: дошло ${ms.filter(u => u.gone).length}, в пути ${ms.filter(u => u.hp > 0 && !u.gone).length}, потоплено ${ms.filter(u => u.hp <= 0).length}`; }
     case 'rescue': return `🛟 Спасено ${H.rescued} · потеряно ${H.lostBoats} · в воде ${H.boats.filter(b => !b.done).length} (нужно 2)`;
-    case 'intercept': { const t = H.foes.find(f => f.type === 'transport'); return t.hp > 0 ? `🎯 Транспорт: ❤ ${t.hp}/${t.st.hp}, до края ${t.c} ${plural(t.c, 'клетка', 'клетки', 'клеток')}` : '🎯 Транспорт остановлен'; }
+    case 'intercept': { const t = H.foes.find(f => f.type === 'transport'); return t.hp > 0 ? `🎯 ${t.slaver ? '⛓ Невольники' : 'Транспорт'}: ❤ ${t.hp}/${t.st.hp}, до края ${t.c} ${plural(t.c, 'клетка', 'клетки', 'клеток')}` : '🎯 Транспорт остановлен'; }
     case 'fort': { const f = H.foes.find(x => x.type === 'fort'); return `🏰 Форт: ❤ ${Math.max(0, f.hp)}/${f.st.hp} · штурм морпехами — вплотную, кнопка ⚔️`; }
     case 'raid': return `🏰 Цитадель ❤ ${Math.max(0, H.citadel.hp)}/${H.citadel.st.hp} · ${H.wavesLeft ? `волн впереди: ${H.wavesLeft}` : 'последняя волна'}`;
     case 'survive': return `⏳ Продержитесь: ход ${Math.min(H.turn, H.surviveN)} из ${H.surviveN}`;
@@ -5653,7 +5655,7 @@ function hFinish(won, reason) {
       if (e) { h.unlock[b.reward] = true; h.ships[h.active].eq[b.reward] = true; lines.push(`☠️ ${b.name} повержен! Трофей: ${e.ic} <b>${e.name}</b> — уже установлен на флагман, а для других кораблей появился в продаже`); }
       else { gold += 1500; lines.push(`☠️ ${b.name} повержен! Казна корсаров: +1500 💰`); }
     }
-    if (H.obj === 'intercept') { const t = H.foes.find(x => x.type === 'transport'); if (!t.captured) lines.push('🎯 Транспорт потоплен'); }
+    if (H.obj === 'intercept') { const t = H.foes.find(x => x.type === 'transport'); if (!t.captured) lines.push(t.slaver ? '🕯 Невольничий транспорт потоплен. Вместе с ним ушли на дно пленники в трюмах. В следующий раз — абордаж' : '🎯 Транспорт потоплен'); }
     if (node.reclaim) { isleOf(h, node.reclaim).lost = false; if (String(node.reclaim).startsWith('0:')) isleOf(h, node.reclaim).safe = Date.now() + ISLE_GRACE; lines.push(`🏝 Остров «${isleName(node.reclaim)}» снова под вашим флагом`); }
     if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 250; lines.push('🏰 Форт взят штурмом: +250 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
     h.w++; if (h.w % 3 === 0) cr++; if (evOn(h, 'armada') && H.obj !== 'raid') cr++; if (!node.bonus) h.mission = m + 1; p.st.huntW = (p.st.huntW || 0) + 1;
@@ -5677,6 +5679,7 @@ function hFinish(won, reason) {
   H.captured.forEach(t => {
     h.caps++;
     if (HS[t.type].fort) return;
+    if (t.type === 'transport' && t.slaver) { const n = 90 + rnd(80), s = h.ships[h.active], add = s ? Math.max(0, Math.min(Math.round(n * .2), CREW[s.type] - s.crew)) : 0; if (add) s.crew += add; gold += 150; h.freed = (h.freed || 0) + n; lines.push(`⛓ Невольничий транспорт взят! Освобождено ${n} пленников. ${add ? `${add} из них сразу записались в экипаж флагмана.` : 'Многие просятся во флот.'} Трюм с выкупом: +150 💰`); return; }
     if (t.type === 'transport') { gold += 250; lines.push('📦 Груз транспорта: +250 💰'); return; }
     if (won && HS[t.type].price) { const ns = newShip(h, t.type); ns.xp = 1; ns.hpLost = Math.round(shipMaxHp(h, ns) * .5); lines.push(`🏴 Трофей: ${sName(ns)} теперь ваш! Он в резерве флота, но сильно побит — нужен ремонт`); }
     else { const g = Math.round(HS[t.type].price * .55) || 90; gold += g; lines.push(`🏴 Захваченный ${HS[t.type].name} продан: +${g} 💰`); }
@@ -6376,7 +6379,7 @@ function repDesc(h, r) {
   if (r.amb === 'land') return 'Гражданский флот с Семи Огней бежит от Солёных Псов к Игле Отлива. Проведите суда беженцев в безопасный угол карты и разгоните работорговцев. Победа даст вам первую опору в Янтарном море.';
   if (r.kind !== 'battle') return EVENTS[r.kind].desc;
   let d = OBJ[r.obj].desc;
-  if (r.sea === 1 && !r.reclaim && !r.patrol) d = ({ hunt: 'Стая Солёных Псов рыщет у берегов. ', rescue: 'Беглые рабы с рудников Псов дрейфуют на плотах. ', intercept: 'Невольничий транспорт Псов идёт на юг — в трюмах люди. ', convoy: 'Гражданские суда просят сопровождения: Псы идут по пятам. ', fort: 'Сторожевой форт Псов держит остров в страхе. ', survive: 'Псы окружили лагерь беженцев. ' }[r.obj] || '') + d;
+  if (r.sea === 1 && !r.reclaim && !r.patrol) d = ({ hunt: 'Стая Солёных Псов рыщет у берегов. ', rescue: 'Беглые рабы с рудников Псов дрейфуют на плотах. ', intercept: 'Невольничий транспорт Псов идёт на юг — в трюмах люди. Возьмите его абордажем, чтобы освободить пленных: если потопить — погибнут все. ', convoy: 'Гражданские суда просят сопровождения: Псы идут по пятам. ', fort: 'Сторожевой форт Псов держит остров в страхе. ', survive: 'Псы окружили лагерь беженцев. ' }[r.obj] || '') + d;
   if (r.reclaim) d = 'Пираты захватили ваш остров. ' + d;
   else if (r.patrol) d = 'Пиратская вылазка у ваших берегов. ' + d;
   else if (r.occ) d = `Остров удерживает пиратский гарнизон${r.occB === 2 ? ' — сильный, остров далеко от крепости' : r.occB ? ' средней силы' : ' — небольшой, остров рядом с крепостью'}. ` + d + (islePort(iKey(0, r.isle)) ? ' Победа снимет блокаду вольного порта.' : ' Победа освободит остров.');
