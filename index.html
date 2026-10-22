@@ -1390,7 +1390,7 @@ const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" 
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
 const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
-const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, pir_boat: 2.39, pir_ds: 5.3, pir_sub: 3.45};
+const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, pir_boat: 2.39, dog_boat: 3.12, pir_ds: 5.3, pir_sub: 3.45};
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -2373,6 +2373,7 @@ const HS = {
   cargo:      { name: 'Грузовое судно', len: 3, price: 650, hp: 14, armor: 0, speed: 1, dmg: 1, range: 2, sight: 2, mar: 2, slots: 1, hauler: true, desc: 'Огромный трюм на 40 мест — в два с половиной раза больше, чем у крейсера. В бою почти беззащитно: водите его в караване под охраной боевых кораблей.' },
   atl_cargo:  { name: 'Грузовоз Атлантиса', len: 3, price: 1150, hp: 20, armor: 2, speed: 2, dmg: 3, range: 4, sight: 3, mar: 3, slots: 2, hauler: true, atl: 1, desc: 'Гордость торгового флота Атлантиса: трюм на 60 мест, крепкий корпус и собственные пушки. Может постоять за себя в караване.' },
   atl_dd:     { name: 'Эсминец Атлантиса', len: 2, price: 900, hp: 14, armor: 2, speed: 3, dmg: 4, range: 5, sight: 3, mar: 5, slots: 2, atl: 1, eqBase: { radar: true }, desc: 'Быстрый страж караванов Гильдии: крепче и быстрее обычного эсминца, бьёт дальше. Радар — с верфи. Трюм на 10 мест.' },
+  dog_boat:   { name: 'Катер Псов', len: 1, price: 300, hp: 9, armor: 1, speed: 3, dmg: 3, range: 3, sight: 2, mar: 5, slots: 1, pir: 1, desc: 'Ловчий катер Солёных Псов: ржавая броня, пушка на носу и две клетки для живого товара на корме. Быстро догоняет беглецов и не тонет от первого попадания.' },
   pir_boat:   { name: 'Пиратский катер', len: 1, price: 260, hp: 8, armor: 1, speed: 3, dmg: 3, range: 3, sight: 2, mar: 3, slots: 1, pir: 1, desc: 'Бронированный катамаран Вольного братства: два корпуса, спаренная пушка и ракетные трубы по бортам. Крепче и злее обычного катера, но такой же быстрый. Добыть его можно абордажем, а строить — только когда братство Корвина у вас на службе.' },
   pir_ds:     { name: 'Пиратский эсминец', len: 2, price: 420, hp: 11, armor: 1, speed: 2, dmg: 3, range: 4, sight: 2, mar: 6, slots: 1, pir: 1, desc: 'Старый эсминец, переделанный корабелами Чёрного Зуба: две пушки, ящики трофеев на палубе и абордажная команда побольше, чем у флотских. Чуть крепче обычного эсминца. Добыть его можно абордажем, а строить — только когда братство Корвина у вас на службе.' },
   pir_sub:    { name: 'Пиратская подлодка', len: 2, price: 600, hp: 9, armor: 1, speed: 2, dmg: 4, range: 4, sight: 2, mar: 3, slots: 1, sub: true, pir: 1, eqBase: { torp: true }, desc: 'Ржавая подлодка Вольного братства, залатанная листами брони. Невидима дальше 1 клетки, пока не стреляет. Бьёт только торпедами — сквозь броню. Чуть крепче флотской подлодки. Добыть её можно абордажем, строить — только когда братство Корвина у вас на службе.' },
@@ -2408,7 +2409,7 @@ const HCREW = [
   { id: 'acou',    ic: '🎧', name: 'Акустики',   max: 2, eff: l => `слух ${4 + l * 2} клеток` },
 ];
 const CREW_COST = [100, 200, 350];
-const UP_BASE = { echo: 200, boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90, atl_dd: 100, pir_dd: 90, pir_boat: 55, pir_ds: 75, pir_sub: 95};
+const UP_BASE = { echo: 200, boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90, atl_dd: 100, pir_dd: 90, pir_boat: 55, dog_boat: 60, pir_ds: 75, pir_sub: 95};
 const HIRE = { boat: 50, destroyer: 110, sub: 160, cruiser: 230, battleship: 380 }, HIRE_MAX = 2, SQUAD_MAX = 5;
 const hireLvl = m => Math.floor((m - 1) / 3);
 const hirePrice = (h, id) => Math.round((HIRE[id] + 25 * hireLvl(h.mission)) * (1 - .1 * (h.hireVet[id] || 0)));
@@ -2671,7 +2672,7 @@ function fortSVG(mine, tower) {
     <rect x="41" y="60" width="18" height="28" rx="9" fill="#3b2f22"/><rect x="24" y="48" width="9" height="9" fill="#3b2f22"/><rect x="67" y="48" width="9" height="9" fill="#3b2f22"/>
     <line x1="50" y1="22" x2="50" y2="3" stroke="#3b2f22" stroke-width="4"/><path d="M50 3h24l-7 6 7 6H50z" fill="${flag}"/></svg>`;
 }
-const SHIP_SC = { echo: 1.15, boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95, atl_dd: .85, pir_dd: .85, pir_boat: .65, pir_ds: .82, pir_sub: .8};
+const SHIP_SC = { echo: 1.15, boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95, atl_dd: .85, pir_dd: .85, pir_boat: .65, dog_boat: .7, pir_ds: .82, pir_sub: .8};
 const shipImg = (id, cls = '', own) => `<img class="shimg ${cls}" src="ship_${id}.webp" alt="" draggable="false" style="--sc:${SHIP_SC[id] || 1};${skinF(own)}" onerror="this.style.visibility='hidden'">`;
 const shipPic = (id, foam) => HS[id].fort ? fortSVG(HS[id].mine, HS[id].tower) : HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
 const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5', 'board1', 'boss1', 'legend'];
@@ -2683,12 +2684,13 @@ function checkAch(p, ids) {
 }
 
 /* ---------- Флот без ограничений: корабли-экземпляры, офицеры, острова ---------- */
-const UPK = { echo: 8, boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3, pir_dd: 3, pir_boat: 1, pir_ds: 2, pir_sub: 3}, OFF_UPK = 1, GARR_MAX = 999;
+const UPK = { echo: 8, boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3, pir_dd: 3, pir_boat: 1, dog_boat: 1, pir_ds: 2, pir_sub: 3}, OFF_UPK = 1, GARR_MAX = 999;
 const SHIP_POOL = {
   echo: ['Echo Primae Lucis'],
   boat: ['Стриж', 'Чайка', 'Вьюн', 'Ласточка', 'Кречет', 'Сокол', 'Ястреб', 'Баклан', 'Бриз', 'Шквал', 'Пчела', 'Вихрь'],
   destroyer: ['Стремительный', 'Грозный', 'Бесстрашный', 'Быстрый', 'Резвый', 'Смелый', 'Верный', 'Лихой', 'Дерзкий', 'Громкий'],
   atl_dd: ['Мистраль', 'Кетцаль', 'Иштар', 'Леван-Тэ'],
+  dog_boat: ['Цепная Сука', 'Кандальщик', 'Ржавый Ошейник', 'Клетка', 'Вонючка', 'Загонщик'],
   pir_boat: ['Ржавый клык', 'Шальная пуля', 'Морская оса', 'Двойной удар', 'Щука', 'Красная полоса'],
   pir_ds: ['Чёрная акула', 'Ржавый якорь', 'Пороховая бочка', 'Морской волк', 'Головорез', 'Старая ведьма'],
   pir_sub: ['Тихая смерть', 'Морской чёрт', 'Глубинная крыса', 'Сирена', 'Ржавая мурена'],
@@ -2804,7 +2806,7 @@ const isleOcc = (h, n) => occOn(h) && String(n).startsWith('0:') && (!isleOf(h, 
 const occN = h => occOn(h) ? SEAS[0].isles.filter((_, i) => isleOcc(h, iKey(0, i))).length : 0;
 const occPen = h => clanCalm(h) || clanJail(h) ? 0 : Math.min(.3, .035 * occN(h));
 // шанс гибели корабля гарнизона при захвате острова: зависит от модели, звания и улучшений
-const SINK_BASE = { echo: 0, boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, pir_boat: .52, pir_ds: .4, pir_sub: .4, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
+const SINK_BASE = { echo: 0, boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, pir_boat: .52, dog_boat: .5, pir_ds: .4, pir_sub: .4, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
 const sinkCh = s => Math.max(.04, (SINK_BASE[s.type] ?? .4) - .04 * rankOf(s.xp) - .015 * Object.values(s.up || {}).reduce((a, v) => a + (+v || 0), 0));
 const isleSafe = (h, n) => (isleOf(h, n).safe || 0) > Date.now();
 const netRate = h => fRate(h) + isleIncome(h) - upkeep(h);
@@ -2885,7 +2887,7 @@ const TPORTS = [
   { n: 'Обсидиановый Рынок', sea: 3, min: 120, risk: .36, threat: 60, mul: { food: 1.38, fuel: 1.35, shells: 1.42, gold: 1.4, gems: 1.45 } },
   { n: 'Атлантис', sea: -1, min: 150, risk: .22, threat: 40, mul: { food: 1.32, fuel: 1.36, shells: 1.36, gold: 1.38, gems: 1.4 } },
 ];
-const CARGO = { echo: 18, boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 40, atl_bb: 14, atl_cargo: 60, atl_dd: 10, pir_dd: 8, pir_boat: 5, pir_ds: 9, pir_sub: 3};
+const CARGO = { echo: 18, boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 40, atl_bb: 14, atl_cargo: 60, atl_dd: 10, pir_dd: 8, pir_boat: 5, dog_boat: 6, pir_ds: 9, pir_sub: 3};
 const SHELL_BOX = 8, TR_PER = 3 * 3600e3;
 const tGood = id => TGOODS.find(g => g.id === id);
 function trRand(a, b, c) { let x = (Math.imul(a, 73856093) ^ Math.imul(b, 19349663) ^ Math.imul(c, 83492791)) >>> 0; x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return (x % 10007) / 10007; }
@@ -3592,7 +3594,7 @@ function atlAct(act, id) {
 }
 
 /* ---------- Команда кораблей и Мемориал ---------- */
-const CREW = { echo: 1000, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, pir_boat: 14, pir_ds: 34, pir_sub: 26};
+const CREW = { echo: 1000, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, pir_boat: 14, dog_boat: 16, pir_ds: 34, pir_sub: 26};
 const crewWord = (t, n) => HS[t].sub ? plural(n, 'подводник', 'подводника', 'подводников') : plural(n, 'матрос', 'матроса', 'матросов');
 const crewEff = u => u && u.crewMax ? Math.max(0, Math.min(1, u.crew / u.crewMax)) : 1;
 const effDmg = u => Math.max(1, Math.round(u.st.dmg * (.5 + .5 * crewEff(u))));
@@ -3709,6 +3711,7 @@ function dipOther(h, fk) {
     <small class="muted">Работорговцы и мародёры Янтарного моря. Ни кодекса, ни чести: захватывают людей и продают их на южные рудники. Пленных не берут — пленных продают. Логово — Чёрный Шпиль, крепость в чёрных скалах с невольничьим рынком.</small>
     <div class="clanppl"><div class="clp"><img src="vargo.webp" alt=""><span><b>⛓ Варго Кнут</b><small>Вожак Псов. Бывший надсмотрщик каторги: когда-то поднял бунт, перебил охрану и увёл каторжников в море. Освободил рабов — чтобы сделать рабами других. Кнут на поясе носит как корону.</small></span></div>
     <div class="clp"><img src="stella.webp" alt=""><span><b>⚙️ Стелла «Стальная»</b><small>Капитан Псов и правая рука Варго. Руку потеряла в абордаже — новую ей собрали механики Чёрного Шпиля. Говорят, этой рукой она гнёт якорные цепи. Умна, расчётлива и жестока не меньше вожака.</small></span></div></div>
+    <div class="clship"><img src="dog_boat_hero.webp" alt=""><b>⛓ Катер Псов</b><small style="display:block">Ловчий катер работорговцев. Ржавая броня, пушка на носу и две железные клетки на корме — для тех, кого поймают. Псы охотятся на них стаями: загоняют рыбацкие лодки к рифам и забирают всех, кто выжил.</small></div>
     <div class="sec-t">🗺 Ваша война с Псами</div><ul class="cllist"><li>🏝 Островов Янтарного моря под вашим флагом: <b>${seaOwn(h, 1)} из ${SEAS[1].isles.length}</b></li><li>${h.exp.cleared.includes(1) ? '✅' : '⬜'} Чёрный Шпиль взят</li></ul></div>`;
   if (fk === 'corr') { const A = ambData(h); return `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏛 Дом Корран</div><div class="dfimg"><img src="corran_court.webp" alt="" style="object-position:50% 30%"></div><span class="clanst ${A.st >= 2 ? 'serv' : 'offer'}">${A.st >= 2 ? `🤝 Договор · налог ${Math.round(ambTax(h) * 100)}%` : A.st >= 1 ? '⏳ Ждут вас в Златограде' : '❔ Неизвестны'}</span>
     <small class="muted">Старейший дом Янтарного моря: триста лет правит Ардессой и Златоградом. Официально — союзник Адмиралтейства. Держит порядок, собирает налоги и знает всё, что происходит в этих водах. Иногда — даже раньше, чем это происходит.</small>
@@ -3925,7 +3928,7 @@ function memorialPanel(h) {
 }
 
 /* ---------- Гибель и ремонт кораблей ---------- */
-const REP_MIN = { echo: 180, boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70, atl_dd: 50, pir_dd: 45, pir_boat: 25, pir_ds: 42, pir_sub: 55};
+const REP_MIN = { echo: 180, boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70, atl_dd: 50, pir_dd: 45, pir_boat: 25, dog_boat: 28, pir_ds: 42, pir_sub: 55};
 const shipMaxHp = (h, s) => ownStats(h, s.id).hp;
 const shipHp = (h, s) => Math.max(1, shipMaxHp(h, s) - (s.hpLost || 0));
 function repairInfo(h, s) {
@@ -4013,7 +4016,7 @@ const ammoOf = id => AMMO.find(a => a.id === id);
 const arsLines = h => 1 + Math.floor(fL(h, 'workshop') / 2);
 const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'workshop'))));
 const ammoGold = (h, a) => Math.round(a.gold * (1 - .08 * fL(h, 'workshop')));
-const SHIP_MIN = { echo: 600, boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, pir_boat: 15, pir_ds: 32, pir_sub: 48};
+const SHIP_MIN = { echo: 600, boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, pir_boat: 15, dog_boat: 18, pir_ds: 32, pir_sub: 48};
 const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock')) * (fortressOn(h) ? .8 : 1)));
 const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv)).length;
 function ammoData(h) {
@@ -5019,7 +5022,7 @@ function foeCfg(m) {
   return { up, crew, eq, marines };
 }
 function addFoe(type, pos, m, weak = 1) {
-  if ((!H.node || H.node.fac !== 'raid') && !(H.node && H.node.deep)) { if (type === 'boat') type = 'pir_boat'; else if (type === 'destroyer') type = 'pir_ds'; else if (type === 'sub') type = 'pir_sub'; }
+  if ((!H.node || H.node.fac !== 'raid') && !(H.node && H.node.deep)) { if (type === 'boat') type = H.node && H.node.sea === 1 ? 'dog_boat' : 'pir_boat'; else if (type === 'destroyer') type = 'pir_ds'; else if (type === 'sub') type = 'pir_sub'; }
   const u = mkUnit(type, 'foe', pos.r, pos.c, 135, foeCfg(m));
   u.st.hp = Math.max(3, Math.round(u.st.hp * (m === 1 ? .5 : m === 2 ? .65 : m === 3 ? .8 : m <= 6 ? .9 : 1) * weak)); u.hp = u.st.hp; if (m <= 2) u.st.scatter = m === 1 ? .5 : .4;
   H.foes.push(u); return u;
