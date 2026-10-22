@@ -2793,7 +2793,7 @@ function devPanel(h, n) {
   s += `<small class="muted">Если пираты захватят остров, они разграбят его: застройка откатится на одну ступень.</small></div>`;
   return s;
 }
-const isleIncome = h => islesOwned(h).reduce((a, n) => a + isleInc(h, n), 0) + (clanServ(h) ? CLAN.inc : 0);
+const isleIncome = h => islesOwned(h).reduce((a, n) => a + Math.round(isleInc(h, n) * (String(n).startsWith('1:') ? 1 - ambTax(h) : 1)), 0) + (clanServ(h) ? CLAN.inc : 0);
 const islePower = (h, n) => isleGarr(h, n).reduce((a, s) => { const st = ownStats(h, s.id); return a + st.hp + 2 * st.dmg + 3 * st.armor; }, 0);
 const isleThreat = (h, n) => Math.round((12 + 2.5 * h.mission) * (n && String(n).split(':')[0] === '0' ? .5 : 1) * (n && !String(n).startsWith('0:') && h.clan && h.clan.st === 'gone' ? 1.15 : 1));
 const ISLE_GRACE = 24 * 3600e3;
@@ -2837,7 +2837,7 @@ function awaySummary(h, ms, un) {
   h.seenT = Date.now(); h.newsNew = 0; saveProfiles();
 }
 function econTick(h) {
-  echoTick(h);
+  echoTick(h); if (h.exp) ambTick(h);
   const now = Date.now(); let ch = repairTick(h); if (intelTick(h)) ch = true; if (tradeTick(h)) ch = true; if (evTick(h)) ch = true; if (decTick(h)) ch = true; if (atlTick(h)) ch = true; if (deepTick(h)) ch = true; if (devTick(h)) ch = true; if (ammoTick(h)) ch = true; if (clanTick(h)) ch = true;
   if (!h.econT) { h.econT = now; return true; }
   if (now - h.econT > 10 * 60000) h.away = Math.max(h.away || 0, now - h.econT);
@@ -3613,7 +3613,7 @@ function hCasualty(t, d) {
   t.crew -= k; t.marines -= m; H.fallen = (H.fallen || 0) + k + m;
   (H.casNow ||= []).push(`☠️ ${t.name || HS[t.type].name}: ${k === 1 && !m ? 'погиб' : 'погибли'} ${k} ${crewWord(t.type, k)}${m ? ` и ${m} ${plural(m, 'морпех', 'морпеха', 'морпехов')}` : ''}`);
 }
-const battlePlace = () => { const n = H.node || {}; if (n.deep) return 'Глубокие воды'; if (n.atl) return 'у берегов Атлантиса'; if (n.trade) { const r = hdata(curProfile()).trade.runs.find(x => x.id === n.trade); return r ? TPORTS[r.port].n + ', караван' : 'торговый путь'; } return n.report ? (n.isle < 0 ? SEAS[n.sea].pir.n : SEAS[n.sea].isles[n.isle].n) + ', ' + SEAS[n.sea].n : H.obj === 'raid' ? 'у стен родной крепости' : 'в открытом море'; };
+const battlePlace = () => { const n = H.node || {}; if (n.deep) return 'Глубокие воды'; if (n.atl) return 'у берегов Атлантиса'; if (n.trade) { const r = hdata(curProfile()).trade.runs.find(x => x.id === n.trade); return r ? TPORTS[r.port].n + ', караван' : 'торговый путь'; } return n.report ? (n.isle === -2 ? SEAS[n.sea].base.n : n.isle < 0 ? SEAS[n.sea].pir.n : SEAS[n.sea].isles[n.isle].n) + ', ' + SEAS[n.sea].n : H.obj === 'raid' ? 'у стен родной крепости' : 'в открытом море'; };
 /* ---------- Трофейный зал ---------- */
 const FACTIONS = { pir: { n: 'Пираты', ic: '☠️', d: 'Береговое братство: корсары и их форты' }, raid: { n: 'Морские рейдеры', ic: '🦈', d: 'Кровожадные и беспощадные головорезы Глубоких вод' } };
 const facOf = u => (u && u.fac) || (typeof H !== 'undefined' && H.fac) || 'pir';
@@ -3643,14 +3643,14 @@ function trophyTotals(h) {
 /* ---- Вольное братство Чёрного Зуба (пираты Лазурного моря) ---- */
 const CLAN = { n: 'Вольное братство Чёрного Зуба', cap: 'Капитан Арне Корвин', nick: 'Старый Ворон', ship: 'Багровый странник', inc: 350, gold: 15000,
   d: 'Сорок лет Чёрный Зуб держит в страхе торговые пути Лазурного моря. Братство живёт по своему закону: добычу делят поровну, тонущих не бросают — даже врагов, — а слово капитана крепче якорной цепи.' };
-const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'], a: ['Лейтенант Марк Ардан', 'ваш адъютант', 'adj'], i: ['Ирэна Вальд', 'старпом «Echo Primae Lucis»', 'irena'] };
+const CLAN_WHO = { c: ['Арне Корвин', 'капитан «Багрового странника»', 'corvin'], l: ['Лючия Корвин', 'штурман братства', 'lucia'], a: ['Лейтенант Марк Ардан', 'ваш адъютант', 'adj'], i: ['Ирэна Вальд', 'старпом «Echo Primae Lucis»', 'irena'], v: ['Тесса Ренье', 'старейшина беженцев Семи Огней', null], k: ['Изабель Корран', 'герцогиня, глава дома Корран', null], g: ['Капитан Ренар Скейл', 'гвардия дома Корран', null] };
 // lines: [[кто 'c'|'l', улыбка true/false, текст], ...]
 function clanSay(lines, done) {
   const box = $('#pdlg'); let i = 0, tm = null;
   const step = () => {
     if (i >= lines.length) { box.hidden = true; if (done) done(); return; }
     const [who, sm, txt] = lines[i++], W = CLAN_WHO[who], el = box.querySelector('.dlgtxt');
-    box.querySelector('img').src = W[2] + (sm ? '_smile' : '') + '.webp'; box.querySelector('b').textContent = W[0]; box.querySelector('small').textContent = W[1]; box.classList.toggle('adjd', who === 'a');
+    { const im = box.querySelector('img'); im.style.display = W[2] ? '' : 'none'; if (W[2]) im.src = W[2] + (sm ? '_smile' : '') + '.webp'; } box.querySelector('b').textContent = W[0]; box.querySelector('small').textContent = W[1]; box.classList.toggle('adjd', who === 'a');
     el.textContent = ''; let k = 0; clearInterval(tm);
     box.querySelector('.dlgmore').textContent = i < lines.length ? '▼ дальше' : '✕ закрыть';
     tm = setInterval(() => { k += 2; el.textContent = txt.slice(0, k); if (k >= txt.length) clearInterval(tm); }, 18);
@@ -4466,6 +4466,79 @@ function tutRender(h) {
   el.querySelector('[data-tx]').onclick = () => { if (!HB.tutArm) { HB.tutArm = true; toast('Нажмите ✕ ещё раз, чтобы закрыть обучение. Вернуть его можно в Цитадели'); setTimeout(() => HB.tutArm = false, 3000); return; } h.tut = -1; saveProfiles(); el.hidden = true; };
 }
 const tutLine = (h, id) => { const i = tutData(h), s = TUT[i]; return s && s.bld === id ? `<div class="tutline tadj"><img src="adj_smile.webp" alt=""><div>🎖 <b>${s.t}.</b> ${s.hub || s.d}</div></div>` : ''; };
+/* ==================== ЯНТАРНОЕ МОРЕ: сюжет ==================== */
+// st: 0 — высадка у Иглы Отлива, 1 — база взята, ждёт Златоград, 2 — условия Корран приняты (Огни, Тихий Гром),
+// 3 — открыты Сёстры и берега Ардессы, 4 — открыт Люмен-Нокс
+const AMB_G = [2, 2, 2, 3, 3, 3, 3, 4];   // с какой стадии сюжета открывается остров
+const ambData = h => (h.amb ||= { st: 0 });
+const ambOpen = (h, i) => ambData(h).st >= AMB_G[i];
+const ambTax = h => ambData(h).tax || 0;
+function ambLand(h) {
+  const E = expData(h), A = ambData(h);
+  if (E.open < 2 || A.st > 0 || E.reports.some(r => r.amb === 'land')) return false;
+  E.reports.push({ id: 'r' + (++E.seq), kind: 'battle', obj: 'convoy', isle: -2, amb: 'land', sea: 1, lvl: Math.max(5, seaLvl(h, 1) - 1), weather: 'clear', t: Date.now(), exp: Date.now() + 3650 * 864e5 });
+  return true;
+}
+function ambTick(h) {
+  const A = ambData(h); let ch = ambLand(h);
+  const own = i => isleOf(h, iKey(1, i)).own;
+  if (A.st === 2 && [0, 1, 2].filter(own).length >= 2) { A.st = 3; A.say = 'g3'; news(h, '🗺 Беглецы с рудников рассказали о Кремневых Сёстрах и берегах Ардессы. На карте открыты новые острова.', true); ch = true; }
+  if (A.st === 3 && seaOwn(h, 1) >= 5) { A.st = 4; A.say = 'g4'; news(h, '⚡ На северо-западе Янтарного моря открыт Люмен-Нокс — остров голубого свечения.', true); ch = true; }
+  return ch;
+}
+const AMB_SAY = {
+  intro: [['a', 0, 'Командир, Адмиралтейство почти ничего не знает о Янтарном море. Карты столетней давности, лоции врут, а местные чужаков не любят.'], ['a', 0, 'Разведка перехватила сигнал бедствия: у Иглы Отлива гражданские суда бегут от Солёных Псов. Это работорговцы, командир. Пощады от них не ждите.'], ['a', 1, 'Если поможем беженцам — получим первую опору в этих водах. Донесение уже в штабе.']],
+  land: [
+    ['v', 0, 'Мы думали, это конец. Когда на горизонте показались ещё корабли, мы решили — новая стая Псов.'],
+    ['v', 0, 'Меня зовут Тесса Ренье. Мы с Семи Огней… были. Псы пришли месяц назад. Забрали всех, кто мог держать кирку. Остальных забирать не стали.'],
+    ['a', 0, 'Куда вы держали курс?'],
+    ['v', 0, 'Куда угодно, где нет Псов и нет Корран. Игла Отлива — голая скала, но у подножия есть пресная вода и тихая бухта. Псы сюда не суются: течения здесь злые.'],
+    ['v', 0, 'Только без защиты нас всё равно найдут. Через неделю. Может, через две.'],
+    ['a', 1, 'Командир, Игла — идеальная опора для флота. Узкая бухта, скала прикрывает от штормов. Поставим базу — защитим и их, и себя.'],
+    ['v', 1, 'Тогда скала ваша, командир. А мы — ваши. Рыбаки, плотники, лекари — найдётся кого поставить к делу.'],
+    ['v', 0, 'И ещё. Если хотите жить в Янтарном море, вам придётся говорить с Корран. Здесь ничего не происходит без ведома Златограда.'],
+    ['a', 0, 'Дом Корран правит Ардессой. Официально — союзники Адмиралтейства.'],
+    ['v', 0, 'Официально. Съездите в Златоград, командир. Сами всё поймёте.']],
+  g3: [['v', 0, 'Командир, к нам приплыли беглецы с рудников. Говорят, Псы держат пленных на Кремневых Сёстрах.'], ['v', 0, 'А ещё — что их корабли спокойно заходят в бухты Ардессы: к Мысу Скорби и в Южную бухту. В порты, которые Корран будто бы «не контролирует».'], ['a', 0, 'Под самым носом у герцогини. Странно, не правда ли, командир?']],
+  g4: [['a', 0, 'Командир, на северо-западе — Люмен-Нокс. Остров, над которым никогда не гаснет голубое свечение. Местные туда не ходят. Говорят, там поёт море.']],
+};
+function ambCheck(h) {
+  const A = ambData(h); if (HB.ambBusy) return;
+  const d = $('#pdlg'); if (d && !d.hidden) return;
+  let L = null;
+  if (A.say) { L = [...(AMB_SAY[A.say] || [])]; if (A.say === 'land' && echoIn(h)) L.push(['i', 0, 'Древний гудел всю дорогу сюда, капитан. Он знает эти воды. Только мне не говорит — откуда.']); if (A.say === 'g4' && echoIn(h)) L.push(['i', 0, 'Капитан… Древний развернулся к Люмен-Ноксу сам. На полрумба. Механики клянутся, что руль никто не трогал.']); A.say = null; }
+  else if (!A.intro && expData(h).open >= 2) { A.intro = 1; L = AMB_SAY.intro; }
+  if (!L) return; saveProfiles(); HB.ambBusy = 1;
+  setTimeout(() => { HB.ambBusy = 0; clanSay(L); }, 600);
+}
+function ambCity(h) {
+  const A = ambData(h);
+  if (A.st < 1) { toast('🏙 Златоград пока закрыт для вас'); return; }
+  if (A.st === 1) {
+    const L = [
+      ['a', 0, 'Златоград, командир. Говорят, тут даже пыль на мостовых позолоченная.'],
+      ['g', 0, 'Командир флота Адмиралтейства? Герцогиня вас примет. Оружие сдайте у двери — таков порядок.'],
+      ['k', 1, 'Добро пожаловать в Златоград. Я наслышана о ваших подвигах в Лазурном море. Корвин, кажется? Какая… трогательная история.'],
+      ['k', 0, 'Вы заняли Иглу Отлива. Без моего разрешения. Но я великодушна: будем считать, что разрешение вы получили — задним числом.'],
+      ['k', 0, 'Янтарное море — владение дома Корран уже триста лет. Адмиралтейство далеко, а Псы близко. Мы держим здесь порядок. А порядок стоит денег.'],
+      ['k', 0, 'Условия просты. Каждый остров, который вы освободите, платит дому Корран пятнадцать процентов дохода. За защиту, торговые права и моё доброе отношение.'],
+      ['a', 0, '(шёпотом) Командир, это грабёж. Но ссориться с ней в первый же день…'],
+      ['k', 1, 'Решайте, командир. Я не тороплю. Хотя Псы — торопят.']];
+    if (echoIn(h)) L.splice(3, 0, ['i', 0, '(тихо) Капитан, взгляните на её кулон. Голубой камень, и свет в нём бьётся, как сердце. Такой свет я видела только в трюме Древнего.']);
+    return clanSay(L, () => showEv('🏛', 'Условия дома Корран', 'Герцогиня Изабель Корран ждёт ответа. Без её лоцманов пути к островам Янтарного моря закрыты.', [
+      { t: '🤝 Принять условия · налог 15%', cls: 'primary', fn: () => { overlay('#ov-ev', false); ambDeal(h, .15); } },
+      { t: '⚖️ Торговаться · налог 10%', fn: () => { overlay('#ov-ev', false); ambDeal(h, .1); } },
+      { t: '✋ Отказаться', fn: () => { overlay('#ov-ev', false); clanSay([['k', 0, 'Отказаться? Как пожелаете. Тогда ни лоцманов, ни карт. Возвращайтесь, когда передумаете, командир.'], ['g', 0, 'Выход — там. Оружие вам вернут на пристани.']]); } },
+    ]));
+  }
+  showEv('🏙', 'Златоград', `Столица дома Корран: небоскрёбы, верфи, аэродром и самый богатый порт Янтарного моря.<br><br>💰 Налог дома Корран с ваших островов Янтарного моря: <b>${Math.round(ambTax(h) * 100)}%</b>.<br><small class="muted">Скоро: торговля, поручения дома Корран и наёмники.</small>`, [{ t: 'Закрыть', fn: () => overlay('#ov-ev', false) }]);
+}
+function ambDeal(h, tax) {
+  const A = ambData(h); A.tax = tax; A.st = 2; if (tax < .15) A.grudge = 1;
+  news(h, `🏛 Договор с домом Корран: ${Math.round(tax * 100)}% дохода островов Янтарного моря. Лоцманы показали пути к Семи Огням и Тихому Грому.`, true); saveProfiles();
+  clanSay(tax < .15 ? [['k', 0, 'Торговаться? Со мной?'], ['k', 1, '…Десять. Но я запомню, что вы не умеете просто благодарить, командир.'], ['g', 0, 'Герцогиня никогда ничего не забывает. Приятного пути. Лоцманы будут у вас утром.']]
+    : [['k', 1, 'Мудрое решение. Капитан Скейл проводит вас. Мои лоцманы покажут пути к ближним островам — к Семи Огням и Тихому Грому.'], ['g', 0, 'Добро пожаловать в Янтарное море, командир. Постарайтесь в нём задержаться.']], () => { if ($('#scr-map').classList.contains('active')) renderMap(); });
+}
 /* ---------- Старпом «Echo Primae Lucis»: Ирэна Вальд ---------- */
 // говорит только когда дредноут в эскадре (флагман или в составе)
 const echoIn = h => { const s = h && h.echo && h.ships[h.echo]; return !!s && !s.isle && !s.trade && (h.active === h.echo || h.squad.includes(h.echo)); };
@@ -4657,7 +4730,7 @@ const ADV = [
   ['rich', h => h.gold >= 3000 && !fdata(h).build, [[1, 'Казна полна, командир! Золото должно работать.'], [0, 'Самое время улучшить здание крепости или заложить на верфи новый корабль.']]],
   ['reps', h => (h.exp && h.exp.reports.length >= repMax(h)), [[0, 'Штаб разведки завален донесениями — новые просто некуда принимать.'], [0, 'Выйдите в поход и разберите их, пока цели не ушли.']]],
   ['clan', h => clanServ(h), [[1, 'Корвин теперь с нами — кто бы мог подумать! Пираты больше не тронут острова Лазурного моря.'], [0, 'А верфи Чёрного Зуба строят для нас эсминцы «Странник». Загляните на верфь.']], 1],
-  ['sea2', h => h.exp && h.exp.open >= 2, [[0, 'Путь в Море Янтарных Ветров открыт! Там пираты злее, а острова богаче.'], [0, 'Перед походом укрепите флот: улучшения в Мастерской и офицеры из Академии очень пригодятся.']]],
+  ['sea2', h => h.exp && h.exp.open >= 2, [[0, 'Путь в Янтарное море открыт! Там пираты злее, а острова богаче.'], [0, 'Перед походом укрепите флот: улучшения в Мастерской и офицеры из Академии очень пригодятся.']]],
 ];
 const ADV_GEN = [
   [[0, 'Знаете, что я понял за годы в академии? Победы в море куются на берегу: в доках, на складах, в казармах.'], [1, 'А на море их только забирают.']],
@@ -5151,7 +5224,7 @@ function renderHunt() {
     fb.appendChild(b);
   });
   if (canReinf()) { const b = document.createElement('button'); b.className = 'glass reinf'; b.innerHTML = `🚩 Подкрепление<span class="mini none">${H.reserve.length} в резерве</span>`; b.onclick = hReinf; fb.appendChild(b); }
-  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : cmd.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : (H.node && H.node.report ? `Ваш ход · ${H.node.isle < 0 ? SEAS[H.node.sea].pir.n : SEAS[H.node.sea].isles[H.node.isle].n}` : `Ваш ход · сила врага ${H.mission}`);
+  $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : cmd.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : (H.node && H.node.report ? `Ваш ход · ${H.node.isle === -2 ? SEAS[H.node.sea].base.n : H.node.isle < 0 ? SEAS[H.node.sea].pir.n : SEAS[H.node.sea].isles[H.node.isle].n}` : `Ваш ход · сила врага ${H.mission}`);
   $('#hstatus').className = 'status ' + (H.busy ? 'theirs' : 'mine');
   // actions
   const acts = [
@@ -5557,6 +5630,7 @@ function hFinish(won, reason) {
     if (node.atl) { const A = atlData(h), j = A.jobs.find(x => x.id === node.atl); if (j) { gold += j.gold; A.rep += j.rep; A.done++; A.jobs = A.jobs.filter(x => x !== j); lines.push(`🏙 Совет Атлантиса доволен: +${j.gold} 💰, доверие +${j.rep}`); } }
     if (node.report) {
       const E = expData(h); E.reports = E.reports.filter(r => r.id !== node.report); h.mission++;
+      if (node.amb === 'land') { const A = ambData(h); A.st = 1; A.say = 'land'; lines.push('⚓ Игла Отлива — ваша передовая база в Янтарном море! Беженцы спасены'); news(h, '⚓ Игла Отлива стала вашей передовой базой. На карте открыт Златоград.', true); }
       if (node.bossIdx != null) { if (!E.cleared.includes(node.sea)) E.cleared.push(node.sea); if (E.open < SEAS.length && E.open === node.sea + 1) { E.open++; lines.push(`🗺 Путь открыт: ${SEAS[E.open - 1].n}! Разведка уже отправилась туда`); genReport(h); } }
       else if (node.isle >= 0 && !node.reclaim) { const st = isleOf(h, iKey(node.sea, node.isle)); if (!st.own) { const wasOcc = isleOcc(h, iKey(node.sea, node.isle)), nm0 = SEAS[node.sea].isles[node.isle].n; st.own = true; st.lost = false; if (node.sea === 0) st.safe = Date.now() + ISLE_GRACE; cr += 2; if (wasOcc) { const bon = 200 + 150 * (node.occB || 0); gold += bon; const port = islePort(iKey(node.sea, node.isle)); lines.push(port ? `⚓ Блокада снята! Вольный «${nm0}» снова открыт для торговли. Купцы в благодарность передали ${bon} 💰` : `🎉 Жители острова «${nm0}» встречают ваш флот: над островом впервые за много лет поднят ваш флаг! Подарок жителей: ${bon} 💰`); news(h, port ? `⚓ Блокада порта «${nm0}» снята` : `🎉 Остров «${nm0}» освобождён от пиратов`, true); } lines.push(`🏝 Остров «${nm0}» теперь ваш! Оставьте на нём гарнизон — он начнёт приносить золото`); if (seaOwn(h, node.sea) === SEA_NEED && !E.cleared.includes(node.sea)) lines.push(`🔭 Разведка нашла подходы к логову «${SEAS[node.sea].pir.n}»`); } }
     }
@@ -5602,7 +5676,7 @@ function hFinish(won, reason) {
   if (typeof dailyEvent === 'function') dailyEvent('hunt', { won, sunk, caps: H.captured.length, boss: won && H.obj === 'boss' });
   saveProfiles();
   $('#hov-ico').textContent = won ? (H.obj === 'boss' ? '👑' : '🏆') : '🌊';
-  $('#hov-title').textContent = won && H.obj === 'raid' ? 'Набег отбит!' : won ? (node.report ? `${node.isle < 0 ? SEAS[node.sea].pir.n : SEAS[node.sea].isles[node.isle].n}: победа!` : node.bonus ? `${OBJ[H.obj].name}: победа!` : `Миссия ${m} пройдена!`) : (reason || 'Поражение');
+  $('#hov-title').textContent = won && H.obj === 'raid' ? 'Набег отбит!' : won ? (node.report ? `${node.isle === -2 ? SEAS[node.sea].base.n : node.isle < 0 ? SEAS[node.sea].pir.n : SEAS[node.sea].isles[node.isle].n}: победа!` : node.bonus ? `${OBJ[H.obj].name}: победа!` : `Миссия ${m} пройдена!`) : (reason || 'Поражение');
   $('#hov-text').innerHTML = `Потоплено врагов: ${sunk} из ${warships.length}${H.captured.length ? ` · захвачено: ${H.captured.length}` : ''}<br><b class="goldchip">+${gold} 💰</b>${won ? ' · +1 очко на Верфь 🛠' : ''}` +
     (lines.length ? `<br><span class="hlines">${lines.join('<br>')}</span>` : '');
   Snd.play(won ? 'win' : 'lose');
@@ -6021,7 +6095,7 @@ function fortStage(h, W) {
     s += `<div class="fraidfx"></div>` + (reduceMotion ? [[40, 84], [66, 91], [14, 89]] : []).map(([x, y]) => `<div class="fpir" style="left:${x}%;top:${y}%">${ship}</div>`).join(''); }
   return s + `</div>`;
 }
-function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); if (p.hunt && clanSt(hdata(p)) === 'offer' && !HB.clanAsk) { HB.clanAsk = 1; setTimeout(clanOpen, 600); } else if (p.hunt) { advCheck(hdata(p)); irCheck(hdata(p)); setTimeout(() => { const q = curProfile(); if (q && q.hunt) eeCheck(hdata(q)); }, 3200); } }
+function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); if (p.hunt && clanSt(hdata(p)) === 'offer' && !HB.clanAsk) { HB.clanAsk = 1; setTimeout(clanOpen, 600); } else if (p.hunt) { advCheck(hdata(p)); irCheck(hdata(p)); if (hdata(p).exp && hdata(p).exp.open >= 2) ambCheck(hdata(p)); setTimeout(() => { const q = curProfile(); if (q && q.hunt) eeCheck(hdata(q)); }, 3200); } }
 function renderFort(center) {
   const p = curProfile(), h = hdata(p), f = fdata(h); fortTick(h);
   const v = $('#fview'), old = v.firstElementChild;
@@ -6196,9 +6270,9 @@ const SEAS = [
   { n: 'Лазурное море', img: 'sea1.webp', tods: ['dawn', 'dusk', 'night'], lvl: 1, boss: 4, wx: [['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]],
     base: { x: 330, y: 690, n: 'Остров Рассвета' }, pir: { x: 215, y: 160, n: 'Чёрный Зуб' },
     isles: [{ x: 740, y: 215, n: 'Зелёный Венец' }, { x: 1300, y: 235, n: 'Белый Утёс' }, { x: 740, y: 425, n: 'Песчанка' }, { x: 1170, y: 500, n: 'Порт Лазурный' }, { x: 1265, y: 790, n: 'Бухта Рыбаков' }, { x: 265, y: 360, n: 'Черепаший' }, { x: 850, y: 895, n: 'Пальмовый' }, { x: 1460, y: 470, n: 'Скала Чаек' }] },
-  { n: 'Море Янтарных Ветров', img: 'sea2.webp', lvl: 7, boss: 1, wx: [['clear', 6], ['storm', 1], ['night', 2]],
-    base: { x: 1330, y: 240, n: 'Солнечный Форт' }, pir: { x: 650, y: 165, n: 'Разбойничий Атолл' },
-    isles: [{ x: 140, y: 120, n: 'Янтарный Карьер' }, { x: 250, y: 390, n: 'Медовый' }, { x: 620, y: 475, n: 'Ласточки' }, { x: 290, y: 760, n: 'Порт Бриз' }, { x: 1010, y: 750, n: 'Шумящий Лес' }, { x: 1400, y: 630, n: 'Остров Запасов' }, { x: 1080, y: 130, n: 'Кокосовый' }, { x: 1045, y: 475, n: 'Жемчужный' }] },
+  { n: 'Янтарное море', img: 'sea2.webp', tods: ['dawn', 'dusk', 'night'], lvl: 7, boss: 1, wx: [['clear', 5], ['storm', 2], ['night', 2]],
+    base: { x: 1075, y: 797, n: 'Игла Отлива' }, pir: { x: 266, y: 714, n: 'Чёрный Шпиль' }, city: { x: 1148, y: 493, n: 'Златоград' },
+    isles: [{ x: 854, y: 714, n: 'Восточные Огни' }, { x: 661, y: 755, n: 'Западные Огни' }, { x: 248, y: 434, n: 'Тихий Гром' }, { x: 1350, y: 640, n: 'Южная бухта' }, { x: 928, y: 342, n: 'Мыс Скорби' }, { x: 804, y: 190, n: 'Старшая Сестра' }, { x: 928, y: 200, n: 'Младшая Сестра' }, { x: 266, y: 218, n: 'Люмен-Нокс' }] },
   { n: 'Море Седых Туманов', img: 'sea3.webp', lvl: 13, boss: 2, wx: [['clear', 2], ['fog', 5], ['storm', 2], ['night', 2]],
     base: { x: 330, y: 250, n: 'Северный Щит' }, pir: { x: 1350, y: 210, n: 'Волчий Клык' },
     isles: [{ x: 885, y: 245, n: 'Гранитный' }, { x: 1255, y: 440, n: 'Топливный' }, { x: 280, y: 560, n: 'Еловый' }, { x: 250, y: 800, n: 'Тихая Гавань' }, { x: 1200, y: 760, n: 'Порт Туманный' }, { x: 665, y: 420, n: 'Одинокий' }, { x: 710, y: 870, n: 'Серый Камень' }, { x: 1010, y: 925, n: 'Утёсник' }] },
@@ -6231,9 +6305,9 @@ function expData(h) {
 }
 function genReport(h) {
   const E = h.exp, R = E.reports, open = E.open;
-  const sea = Math.random() < .65 ? open - 1 : rnd(open), S = SEAS[sea];
+  let sea = Math.random() < .65 ? open - 1 : rnd(open); if (sea === 1 && ambData(h).st < 2) sea = 0; const S = SEAS[sea];
   const taken = new Set(R.filter(r => r.sea === sea).map(r => r.isle));
-  const idx = S.isles.map((_, i) => i).filter(i => !taken.has(i));
+  const idx = S.isles.map((_, i) => i).filter(i => !taken.has(i) && (sea !== 1 || ambOpen(h, i)));
   const st = i => isleOf(h, iKey(sea, i));
   const lvl = seaLvl(h, sea), now = Date.now();
   const wx = () => pickW(S.wx);
@@ -6263,13 +6337,15 @@ function intelTick(h) {
   if (got) { toast(got > 1 ? `📜 Разведка прислала донесений: ${got}` : '📜 Новое донесение разведки'); Snd.play('radar'); ch = true; }
   return ch;
 }
-const repTitle = r => r.kind === 'boss' ? `☠️ ${SEAS[r.sea].pir.n}` : r.kind === 'battle' ? `${OBJ[r.obj].ic} ${OBJ[r.obj].name}` : `${EVENTS[r.kind].ic} ${EVENTS[r.kind].name}`;
-const repPlace = r => r.isle < 0 ? SEAS[r.sea].pir.n : SEAS[r.sea].isles[r.isle].n;
+const repTitle = r => r.amb === 'land' ? '🛟 Сигнал бедствия' : r.kind === 'boss' ? `☠️ ${SEAS[r.sea].pir.n}` : r.kind === 'battle' ? `${OBJ[r.obj].ic} ${OBJ[r.obj].name}` : `${EVENTS[r.kind].ic} ${EVENTS[r.kind].name}`;
+const repPlace = r => r.isle === -2 ? SEAS[r.sea].base.n : r.isle < 0 ? SEAS[r.sea].pir.n : SEAS[r.sea].isles[r.isle].n;
 function repDesc(h, r) {
   const L = fL(h, 'lighthouse'), W = WEATHER[r.weather];
   if (r.kind === 'boss') { const b = BOSSES[r.bossIdx], eq = b.reward && HEQ.find(e => e.id === b.reward); return `Логово: ${b.ic} <b>${b.name}</b>. ${b.desc}${eq ? ` Трофей: ${eq.ic} ${eq.name}.` : ' Трофей: казна пиратов.'} Победа откроет путь дальше.`; }
+  if (r.amb === 'land') return 'Гражданский флот с Семи Огней бежит от Солёных Псов к Игле Отлива. Проведите суда беженцев в безопасный угол карты и разгоните работорговцев. Победа даст вам первую опору в Янтарном море.';
   if (r.kind !== 'battle') return EVENTS[r.kind].desc;
   let d = OBJ[r.obj].desc;
+  if (r.sea === 1 && !r.reclaim && !r.patrol) d = ({ hunt: 'Стая Солёных Псов рыщет у берегов. ', rescue: 'Беглые рабы с рудников Псов дрейфуют на плотах. ', intercept: 'Невольничий транспорт Псов идёт на юг — в трюмах люди. ', convoy: 'Гражданские суда просят сопровождения: Псы идут по пятам. ', fort: 'Сторожевой форт Псов держит остров в страхе. ', survive: 'Псы окружили лагерь беженцев. ' }[r.obj] || '') + d;
   if (r.reclaim) d = 'Пираты захватили ваш остров. ' + d;
   else if (r.patrol) d = 'Пиратская вылазка у ваших берегов. ' + d;
   else if (r.occ) d = `Остров удерживает пиратский гарнизон${r.occB === 2 ? ' — сильный, остров далеко от крепости' : r.occB ? ' средней силы' : ' — небольшой, остров рядом с крепостью'}. ` + d + (islePort(iKey(0, r.isle)) ? ' Победа снимет блокаду вольного порта.' : ' Победа освободит остров.');
@@ -6282,7 +6358,7 @@ function repCard(h, r, i) {
   const gold = battle ? nodeGold({ obj: r.obj, sos: r.kind === 'sos' }, r.lvl) + (r.kind === 'boss' ? 200 : 0) : 0;
   return `<div class="rnode glass ${r.kind === 'boss' ? 'bossnode' : ''}"><div class="ni">${r.kind === 'boss' ? BOSSES[r.bossIdx].ic : r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic}</div>
     <div class="nb"><b>${repPlace(r)}</b><small>${repTitle(r).replace(/^\S+ /, '')} · ${SEAS[r.sea].n}</small><small>${repDesc(h, r)}</small>
-    <div class="chips">${battle ? `<span>${W.ic} ${W.name}</span><span>⚔️ сила ${r.lvl}</span><span>≈ ${gold} 💰</span>` : '<span>без боя… наверное</span>'}<span>⏳ <i data-until="${r.exp}">${fmtLeft(r.exp - Date.now())}</i></span></div></div>
+    <div class="chips">${battle ? `<span>${W.ic} ${W.name}</span><span>⚔️ сила ${r.lvl}</span><span>≈ ${gold} 💰</span>` : '<span>без боя… наверное</span>'}${r.amb ? '<span>🆘 ждут помощи</span>' : `<span>⏳ <i data-until="${r.exp}">${fmtLeft(r.exp - Date.now())}</i></span>`}</div></div>
     <div class="col2"><button class="btn primary small" data-rgo="${r.id}" ${h.ships[h.active].broken ? 'disabled' : ''}>${battle ? 'Отплыть' : 'Зайти'}</button>${i !== 'map' ? `<button class="btn small" data-rmap="${r.id}">На карте</button>` : ''}</div></div>`;
 }
 function intelHead(h) {
@@ -6305,13 +6381,15 @@ const spc = p => `left:${p.x / SEA_W * 100}%;top:${p.y / SEA_H * 100}%`;
 function seaStage(h, sea, W) {
   const E = h.exp, S = SEAS[sea], reps = E.reports.filter(r => r.sea === sea), cleared = E.cleared.includes(sea);
   let s = `<div class="mstage" style="width:${W}px"><img class="mbase" src="${seaImg(S)}" alt="" draggable="false">`;
-  s += `<button class="mpin home" data-sp="base" style="${spc(S.base)}"><span>🏰</span><em>${sea === 0 ? 'Ваша крепость' : 'Передовая база'}</em></button>`;
+  { const lr = sea === 1 && ambData(h).st === 0 && reps.find(r => r.amb === 'land');
+    s += lr ? `<button class="mpin now rep" data-sp="base" style="${spc(S.base)}"><span>🛟</span><em>${S.base.n}</em></button>` : sea === 1 && ambData(h).st === 0 ? '' : `<button class="mpin home" data-sp="base" style="${spc(S.base)}"><span>${sea === 0 ? '🏰' : '⚓'}</span><em>${sea === 0 ? 'Ваша крепость' : S.base.n}</em></button>`;
+    if (S.city && sea === 1 && ambData(h).st >= 1) s += `<button class="mpin ${ambData(h).st === 1 ? 'now rep' : 'done'}" data-sp="city" style="${spc(S.city)}"><span>🏙</span><em>${S.city.n}</em></button>`; }
   const br = reps.find(r => r.isle === -1);
   s += `<button class="mpin ${br ? 'now boss rep' : cleared ? 'done' : 'lock boss'}" data-sp="-1" style="${spc(S.pir)}"><span>${cleared ? '🏳️' : '☠️'}</span>${br ? `<em>${BOSSES[S.boss].name}</em>` : ''}</button>`;
   S.isles.forEach((p, i) => {
     const st = isleOf(h, iKey(sea, i)), r = reps.find(x => x.isle === i), garr = st.own && !st.lost && isleGarr(h, iKey(sea, i)).length;
-    const occ = isleOcc(h, iKey(sea, i)) && !st.lost, cls = r ? 'now rep' : st.lost ? 'done lost' : st.own ? 'done' + (garr ? ' garr' : '') : occ ? 'lock occ' : 'lock fog';
-    const dv = st.own && !st.lost ? (st.dev || 0) : 0, ic = r ? (r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic) : st.lost ? '☠️' : dv ? devTrack(iKey(sea, i))[dv].ic : st.build ? '🏗' : garr ? '🚩' : st.own ? '✓' : occ ? (islePort(iKey(sea, i)) ? '⛓' : '☠️') : '?';
+    const shut = sea === 1 && !ambOpen(h, i), occ = isleOcc(h, iKey(sea, i)) && !st.lost, cls = shut ? 'lock fog shut' : r ? 'now rep' : st.lost ? 'done lost' : st.own ? 'done' + (garr ? ' garr' : '') : occ ? 'lock occ' : 'lock fog';
+    const dv = st.own && !st.lost ? (st.dev || 0) : 0, ic = r ? (r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic) : st.lost ? '☠️' : dv ? devTrack(iKey(sea, i))[dv].ic : st.build ? '🏗' : garr ? '🚩' : st.own ? '✓' : shut ? '🔒' : occ ? (islePort(iKey(sea, i)) ? '⛓' : '☠️') : '?';
     s += `<button class="mpin ${cls}" data-sp="${i}" style="${spc(p)}"><span>${ic}</span>${r ? `<em>${p.n}</em>` : ''}</button>`;
   });
   return s + '</div>';
@@ -6319,7 +6397,7 @@ function seaStage(h, sea, W) {
 function showMap(sea) { $('#pdlg').hidden = true;
   const p = curProfile(); if (!p) return; const h = hdata(p), E = expData(h); Snd.ensure();
   if (sea != null) E.sea = sea; if (E.sea >= E.open) E.sea = E.open - 1;
-  show('scr-map'); HB.ret = 'map'; renderMap(true); $('#msheet').hidden = true;
+  show('scr-map'); HB.ret = 'map'; renderMap(true); $('#msheet').hidden = true; if (h.exp.open >= 2) ambCheck(h);
 }
 function renderMap(center) {
   const h = hdata(curProfile()), E = expData(h), v = $('#mview'), sea = E.sea || 0, S = SEAS[sea];
@@ -6330,7 +6408,7 @@ function renderMap(center) {
   MapLife.attach(v.firstElementChild, h, sea);
   const Hh = W * SEA_H / SEA_W;
   if (keep) { v.scrollLeft = keep[0]; v.scrollTop = keep[1]; }
-  else { const f = E.reports.find(r => r.sea === sea), tgt = f ? (f.isle < 0 ? S.pir : S.isles[f.isle]) : S.base; v.scrollLeft = Math.max(0, Math.min(W - vw, tgt.x / SEA_W * W - vw / 2)); v.scrollTop = Math.max(0, (Hh - vh) / 2); }
+  else { const f = E.reports.find(r => r.sea === sea), tgt = f ? (f.isle === -2 ? S.base : f.isle < 0 ? S.pir : S.isles[f.isle]) : S.base; v.scrollLeft = Math.max(0, Math.min(W - vw, tgt.x / SEA_W * W - vw / 2)); v.scrollTop = Math.max(0, (Hh - vh) / 2); }
   v.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { if (HB.dragged) return; mapTap(b.dataset.sp); });
   $('#mg-gold').textContent = h.gold;
   $('#mg-ch').textContent = `🧭 ${S.n}`;
@@ -6362,6 +6440,16 @@ const ISLE_INFO = {
     'Город обнесли каменными стенами с башнями и коваными воротами. В гавани выросли просторные склады, а на мысе зажёгся маяк: каждую ночь его луч ведёт корабли домой. Пиратам больше не взять Белый Утёс голыми руками.',
     'В гавани теперь возведены военные причалы и сухой док, рядом — топливные цистерны и склады снарядов. Корабли приходят сюда израненными, а уходят с восстановленными, блестящими бортами и полными трюмами. Для моряков Белый Утёс стал домом, куда всегда хочется вернуться.',
     'Белая Твердыня — мраморная цитадель на вершине утёса. По всему берегу несут дозор бастионы с орудийными башнями, над городом возвышается дворец-штаб флота, а на рейде дремлют линкоры. Когда закат окрашивает мрамор в золото, моряки говорят: нет в Лазурном море места прекраснее — и неприступнее.'], extra: { n: 'Белая Твердыня', ic: '🏯', cost: 60000, min: 1080, inc: 1100, d: 'Мраморная цитадель на вершине утёса: бастионы, мраморные верфи и штаб флота. Корабли на всех верфях дешевле на 10% и строятся на 20% быстрее, а береговые бастионы дают острову +20% обороны.' }, img: ['isle_white_cliff.webp', 'isle_white_cliff_1.webp', 'isle_white_cliff_2.webp', 'isle_white_cliff_3.webp', 'isle_white_cliff_4.webp', 'isle_white_cliff_5.webp', 'isle_white_cliff_6.webp'], d: 'Белые скалы Утёса видны издалека: в солнечный день они сияют над морем, будто парус на горизонте, и по ним штурманы сверяют курс. На вершине острова добывают знаменитый белый мрамор, а у причала круглый год грузят камень на корабли — из него возводят дворцы и крепости по всему морю.', f: ['🏗 мраморный карьер', '⚓ грузовой причал', '🧱 склады белого камня', '🐦 гнездовья альбатросов', '🌊 гроты в подножии скал'] },
+  'Игла Отлива': { d: 'Одинокий скальный пик посреди злых течений. У подножия — тихая бухта и родник с пресной водой. Псы сюда не суются: течения разбивают неопытные корабли о камни. Для тех, кто бежит, — последнее убежище. Для флота — идеальная опора.', f: ['🗻 скальный пик', '💧 родник', '⚓ узкая бухта', '🌊 злые течения'] },
+  'Чёрный Шпиль': { d: 'Крепость Солёных Псов, вырубленная прямо в чёрных скалах. Причалы, клетки для пленных, невольничий рынок. Над бухтой днём и ночью дымят костры, а ветер приносит оттуда звон цепей.', f: ['☠️ логово Солёных Псов', '⛓ невольничий рынок', '🏴‍☠️ пиратские причалы', '🔥 сторожевые костры'] },
+  'Восточные Огни': { d: 'Восточная дуга атолла Семь Огней. Когда-то на каждом островке горел сигнальный костёр, и корабли находили по ним путь сквозь рифы. Теперь огни погашены — Псы держат здесь пленных перед отправкой на рудники.', f: ['🔥 сигнальные башни', '🐠 коралловые рифы', '🏝 белые пляжи', '⛓ лагерь Псов'] },
+  'Западные Огни': { d: 'Западная дуга атолла — дом беженцев Тессы Ренье. Рыбацкие хижины пусты, сети гниют на шестах, но в лагуне по-прежнему плещется рыба, а родник не иссяк. Люди мечтают вернуться.', f: ['🛖 покинутая деревня', '🐟 богатая лагуна', '🔥 погасший маяк', '🌴 пальмовые рощи'] },
+  'Тихий Гром': { d: 'Лесистый остров, над которым гремит гром — даже при ясном небе. Травники говорят, что это поёт гора. Охотники — что под горой спит буря. В джунглях растут целебные травы, за которыми плавают даже из Златограда.', f: ['⛰ гремящая гора', '🌿 целебные травы', '🌳 густые джунгли', '🏹 охотничьи тропы'] },
+  'Южная бухта': { d: 'Солнечная бухта на юге Ардессы: белый песок, рыбацкие лодки и старый причал. Официально — земли дома Корран. Неофициально — сюда по ночам заходят корабли Псов, и никто из стражи их не замечает.', f: ['🏖 белые пляжи', '⚓ старый причал', '🌙 ночные гости', '🏛 земли Корран'] },
+  'Мыс Скорби': { d: 'Скалистый мыс на северо-западе Ардессы. Отсюда когда-то провожали в море тех, кто не вернулся, — отсюда и имя. Теперь здесь разгружают «товар» Псов, а мост к Златограду охраняет гвардия, которая смотрит в другую сторону.', f: ['🪨 скалистый мыс', '🌉 мост к Златограду', '📦 тайные склады', '🕯 часовня у обрыва'] },
+  'Старшая Сестра': { d: 'Больший из двух кремневых островов-близнецов. Острые скалы, каменоломни и старая смотровая вышка. Псы держат здесь каторжный лагерь: пленные ломают кремень от рассвета до заката.', f: ['🪨 кремневые каменоломни', '🗼 смотровая вышка', '⛓ каторжный лагерь', '🌊 рифы'] },
+  'Младшая Сестра': { d: 'Меньшая из Кремневых Сестёр. Крутые утёсы и единственная бухта, куда может зайти корабль. В пещерах под утёсом Псы прячут оружие и награбленное.', f: ['🪨 крутые утёсы', '🕳 пещеры', '💰 тайник Псов', '⚓ узкая бухта'] },
+  'Люмен-Нокс': { d: 'Остров-кратер, над которым никогда не гаснет голубое свечение. Над ним бьют беззвучные молнии, а в центре кратера — озеро, светящееся изнутри. Местные туда не ходят. Говорят, ночью там поёт море. Говорят, свет в озере — того же цвета, что и в трюме одного древнего корабля.', f: ['⚡ светящийся кратер', '🌀 беззвучные молнии', '💠 голубое озеро', '❔ тайна Древних'] },
   'Песчанка': { d: 'Плоский остров из белого песка. В отлив по косе можно дойти до соседней отмели пешком.', f: ['🐢 пляжи, где черепахи откладывают яйца', '🏖 песчаная коса', '⚓ удобная якорная стоянка', '🐚 ракушечные отмели'] },
   'Порт Лазурный': { img: ['isle_port.webp', 'isle_port_1.webp', 'isle_port_2.webp', 'isle_port_3.webp', 'isle_port_4.webp', 'isle_port_5.webp', 'isle_port_6.webp'], ds: [null,
     'Порт вырвался за старые причалы. Вдоль новой гавани выросли сухие доки и стапели, над ними, словно журавли, склонились краны, а у пирсов тесно стоят танкеры и сухогрузы. Буксиры снуют между ними с утра до ночи, и кажется, будто вся бухта дышит работой. Пошлины текут в казну рекой: чем больше причалов, тем больше кораблей хотят бросить здесь якорь.',
@@ -6436,6 +6524,9 @@ document.addEventListener('click', e => {
 });
 function mapTap(k) {
   const h = hdata(curProfile()), E = h.exp, sea = E.sea || 0, S = SEAS[sea];
+  if (k === 'city') { Snd.play('click'); return ambCity(h); }
+  if (k === 'base' && sea === 1 && ambData(h).st === 0) { const lr = E.reports.find(x => x.amb === 'land'); Snd.play('click'); if (lr) return mapSheet('rep', lr.id); return; }
+  if (k !== 'base' && sea === 1 && +k >= 0 && !ambOpen(h, +k)) { Snd.play('bad'); toast(ambData(h).st < 2 ? '🔒 Пути к этому острову знают только лоцманы Златограда' : '🔒 Эти воды пока не изучены — местные ещё не показали путь'); return; }
   if (k === 'base') { Snd.play('click'); if (sea === 0) return mapSheet('info', 'base', '🏰 Ваша крепость. Загляните в неё — там строятся здания и собирается флот.'); toast(`🏰 ${S.base.n} — ваша передовая база в этом море`); return; }
   const i = +k, r = E.reports.find(x => x.sea === sea && x.isle === i);
   if (r) { Snd.play('click'); return mapSheet('rep', r.id); }
@@ -6459,7 +6550,7 @@ function mapSheet(kind, n, note) {
     s += `<div class="mst"><b>${repTitle(r)}</b><small>${repPlace(r)} · ${SEAS[r.sea].n}</small></div>`;
     s += `<div class="glass hub-panel mfleet">${sqChips(h)}<div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
     s += repCard(h, r, 'map');
-    s += isleInfoHtml(h, r.isle < 0 ? SEAS[r.sea].pir.n : SEAS[r.sea].isles[r.isle].n, r.isle < 0 ? null : iKey(r.sea, r.isle));
+    s += isleInfoHtml(h, repPlace(r), r.isle < 0 ? null : iKey(r.sea, r.isle));
   } else if (kind === 'info') {
     const S = SEAS[E.sea || 0], nm = n === 'pir' ? S.pir.n : n === 'base' ? S.base.n : isleName(n);
     const oc = n.includes(':') && isleOcc(h, n), pt = oc && islePort(n);
@@ -6498,7 +6589,7 @@ function urgentIntel(h) {
 function runReport(id) {
   const p = curProfile(), h = hdata(p), r = h.exp.reports.find(x => x.id === id); if (!r) return;
   if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
-  const base = { report: r.id, sea: r.sea, isle: r.isle, lvl: r.lvl, weather: evOn(h, 'storm') && evOn(h, 'storm').sea === r.sea ? 'storm' : r.weather, bonus: true };
+  const base = { report: r.id, amb: r.amb, sea: r.sea, isle: r.isle, lvl: r.lvl, weather: evOn(h, 'storm') && evOn(h, 'storm').sea === r.sea ? 'storm' : r.weather, bonus: true };
   if (evOn(h, 'bounty')) { base.extra = 1; base.mult = 1.5; }
   if (r.mult) base.mult = (base.mult || 1) * r.mult;
   if ((r.kind === 'battle' || r.kind === 'boss') && !SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале Мастерской'); return; }
@@ -7828,7 +7919,7 @@ const MapLife = {
     // --- маршруты к донесениям
     const reps = h.exp.reports.filter(r => r.sea === this.sea);
     reps.forEach((r, i) => {
-      const p = r.isle < 0 ? S.pir : S.isles[r.isle]; if (!p) return;
+      const p = r.isle === -2 ? S.base : r.isle < 0 ? S.pir : S.isles[r.isle]; if (!p) return;
       const x0 = X(S.base.x), y0 = X(S.base.y), x1 = X(p.x), y1 = X(p.y), mx = (x0 + x1) / 2 + (y1 - y0) * .18, my = (y0 + y1) / 2 - (x1 - x0) * .18;
       g.save(); g.setLineDash([X(14), X(12)]); g.lineDashOffset = -this.t * X(40); g.lineCap = 'round';
       g.strokeStyle = 'rgba(0,15,35,.35)'; g.lineWidth = Math.max(3, X(6)); g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(mx, my, x1, y1); g.stroke();
