@@ -682,8 +682,8 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 /* ===== Бой на весь экран: море за полем, панели поверх ===== */
 #scr-hunt.active{position:fixed;inset:0;z-index:5;display:grid;overflow:hidden;gap:6px;
   padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
-  grid-template-columns:40px minmax(0,1fr) 40px;grid-template-rows:auto auto minmax(0,1fr) auto auto;
-  grid-template-areas:"x fleet snd" "obj obj obj" "map map map" "msg msg msg" "acts acts acts";align-items:center;justify-items:center;
+  grid-template-columns:38px minmax(0,1fr) 34px 38px;grid-template-rows:auto auto minmax(0,1fr) auto auto;
+  grid-template-areas:"x fleet zm snd" "obj obj obj obj" "map map map map" "msg msg msg msg" "acts acts acts acts";align-items:center;justify-items:center;
   --bw:min(calc(100vw - 8px),calc(100dvh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),900px)}
 body:has(#scr-hunt.active){overflow:hidden}
 #scr-hunt .hbg{position:absolute;inset:-40px;z-index:-1;width:calc(100% + 80px);height:calc(100% + 80px);filter:blur(18px) brightness(.62) saturate(1.05);pointer-events:none;background:#0b3a5c}
@@ -691,9 +691,9 @@ body:has(#scr-hunt.active){overflow:hidden}
 #scr-hunt #hunt-exit{grid-area:x}#scr-hunt #hunt-sound{grid-area:snd}
 #scr-hunt #hunt-exit,#scr-hunt #hunt-sound{width:38px;height:38px;font-size:15px;align-self:center}
 #scr-hunt .hud{display:none}
-#scr-hunt .hfleet{grid-area:fleet;width:100%;justify-content:center;gap:5px;padding:0}
+#scr-hunt .hfleet{grid-area:fleet;width:100%;justify-content:safe center;gap:4px;padding:0;overflow-x:auto;scrollbar-width:none}
 #scr-hunt .hfleet:empty{display:flex}
-#scr-hunt .hfleet button{flex:0 1 auto;min-width:58px;max-width:118px;padding:4px 7px 5px;font-size:11px;border-radius:12px;gap:2px;background:rgba(4,22,48,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#scr-hunt .hfleet button{flex:0 0 auto;min-width:54px;max-width:112px;padding:4px 6px 5px;font-size:10.5px;border-radius:12px;gap:2px;background:rgba(4,22,48,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 #scr-hunt .hfleet button.cur{background:rgba(255,207,74,.22)}
 #scr-hunt .hfleet .st{font-size:9.5px;font-weight:700;opacity:.85}
 #scr-hunt .hobj{grid-area:obj;width:auto;max-width:100%;font-size:11px;padding:3px 12px;border-radius:20px;background:rgba(4,22,48,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -704,20 +704,21 @@ body:has(#scr-hunt.active){overflow:hidden}
 #scr-hunt #hunt-map::-webkit-scrollbar{display:none}
 #scr-hunt #hunt-map>.hmap{margin:auto;flex:none}
 #scr-hunt .hfleet,#scr-hunt .hobj,#scr-hunt #hstatus,#scr-hunt #hmsg,#scr-hunt .hacts,#scr-hunt #hunt-exit,#scr-hunt #hunt-sound,#scr-hunt #hunt-zoom{z-index:2;position:relative}
-#scr-hunt #hunt-zoom{grid-area:obj;justify-self:end;width:34px;height:34px;font-size:14px;border-radius:50%}
+#scr-hunt #hunt-zoom{grid-area:zm;width:34px;height:34px;font-size:14px;border-radius:50%;align-self:center}
 #scr-hunt.zfit #hunt-map{padding:0}
 #scr-hunt .hmap{--hw:var(--bw);border-radius:14px;box-shadow:0 20px 50px rgba(0,10,30,.55),0 0 0 1px rgba(255,255,255,.18)}
 #scr-hunt #hmsg{grid-area:msg;font-size:12px;line-height:1.25;max-width:min(560px,100%);text-align:center;padding:4px 12px;border-radius:14px;background:rgba(4,22,48,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #scr-hunt #hmsg:empty{visibility:hidden}
-#scr-hunt .hacts{grid-area:acts;width:min(100%,640px);display:flex;justify-content:center;gap:6px;overflow-x:auto;scrollbar-width:none;padding:6px;border-radius:22px;background:rgba(4,22,48,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,10,30,.4)}
+#scr-hunt .hacts{grid-area:acts;width:auto;max-width:min(100%,640px);display:flex;flex-wrap:wrap;justify-content:center;gap:4px;overflow:visible;padding:5px;border-radius:20px;background:rgba(4,22,48,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,10,30,.4),inset 0 0 0 1px rgba(255,255,255,.08)}
 #scr-hunt .hacts::-webkit-scrollbar{display:none}
-#scr-hunt .hact{flex:0 0 auto;width:58px;padding:6px 2px 5px;font-size:10.5px;border-radius:16px;background:rgba(255,255,255,.06);box-shadow:none}
-#scr-hunt .hact span{font-size:19px}
+#scr-hunt .hact{flex:0 0 auto;width:54px;min-height:46px;padding:4px 1px 3px;font-size:9px;letter-spacing:-.2px;line-height:1.05;border-radius:14px;background:rgba(255,255,255,.07);box-shadow:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;justify-content:center}
+#scr-hunt .hact span{font-size:17px;line-height:1.1}
+#scr-hunt .hact .cd{top:1px;right:2px;font-size:9px;padding:0 4px}
 #scr-hunt .hact.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#3b2300;text-shadow:none}
 #scr-hunt .hlegend{display:none}
 @media (orientation:landscape) and (max-height:600px){
-  #scr-hunt.active{grid-template-columns:auto 40px minmax(0,1fr) 40px;grid-template-rows:auto auto minmax(0,1fr) auto auto;
-    grid-template-areas:"map x fleet snd" "map obj obj obj" "map . . ." "map msg msg msg" "map acts acts acts";justify-items:stretch;column-gap:8px;
+  #scr-hunt.active{grid-template-columns:auto 38px minmax(0,1fr) 34px 38px;grid-template-rows:auto auto minmax(0,1fr) auto auto;
+    grid-template-areas:"map x fleet zm snd" "map obj obj obj obj" "map . . . ." "map msg msg msg msg" "map acts acts acts acts";justify-items:stretch;column-gap:8px;
     --bw:min(calc(100dvh - 14px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),calc(100vw - 320px))}
   #scr-hunt .hfleet{flex-wrap:wrap}
   #scr-hunt .hacts{flex-wrap:wrap;width:auto}
@@ -5446,12 +5447,13 @@ function hReinf() {
 // масштаб поля: 0 — всё поле, 1 — крупно, 2 — во весь экран (поле листается пальцем)
 function hZoom(center) {
   const sc = $('#scr-hunt'), v = $('#hunt-map'); if (!sc || !v) return;
-  if (HB.hz == null) { try { const z = localStorage.getItem('bs-hz'); HB.hz = z == null ? 2 : +z; } catch (e) { HB.hz = 2; } }
+  if (HB.hz == null) { try { const z = localStorage.getItem('bs-hz2'); HB.hz = z == null ? 1 : +z; } catch (e) { HB.hz = 1; } }
   const W = innerWidth, Hh = innerHeight, land = W > Hh && Hh < 600;
   let bw;
   if (land) bw = Math.min(Hh - 14, W - 320) * (HB.hz === 0 ? 1 : HB.hz === 1 ? 1.25 : 1.5);
   else bw = HB.hz === 0 ? Math.min(W - 8, Hh - 190, 900) : HB.hz === 1 ? Math.min(W * 1.4, Hh - 150) : Math.max(W, Hh - 40);
   sc.style.setProperty('--bw', Math.round(bw) + 'px'); sc.classList.toggle('zfit', HB.hz === 0 && !land);
+  { const top = $('#hunt-fleet'), act = $('#hunt-actions'); const t = top ? top.getBoundingClientRect().bottom + 30 : 96, bt = act ? innerHeight - act.getBoundingClientRect().top + 34 : 130; sc.style.setProperty('--padT', Math.round(t) + 'px'); sc.style.setProperty('--padB', Math.round(bt) + 'px'); }
   if (center) requestAnimationFrame(() => hCenter(H.cur || H.me, false));
 }
 function hCenter(u, smooth = true) {
@@ -5852,7 +5854,7 @@ function initHunt() {
   $('#btn-hunt').onclick = async () => { Snd.ensure(); await ensureCaptain(); HB.sel = null; showFort(); };
   $('#hov-ok').onclick = () => { overlay('#ov-hunt', false); backFromHunt(); };
   $('#hunt-sound').onclick = toggleSound;
-  $('#hunt-zoom').onclick = () => { Snd.play('click'); HB.hz = ((HB.hz ?? 2) + 1) % 3; try { localStorage.setItem('bs-hz', HB.hz); } catch (e) {} hZoom(true); toast(['🔍 Всё поле', '🔍 Крупно', '🔍 Во весь экран'][HB.hz]); };
+  $('#hunt-zoom').onclick = () => { Snd.play('click'); HB.hz = ((HB.hz ?? 1) + 1) % 3; try { localStorage.setItem('bs-hz2', HB.hz); } catch (e) {} hZoom(true); toast(['🔍 Всё поле', '🔍 Крупно', '🔍 Во весь экран'][HB.hz]); };
   addEventListener('resize', () => { if ($('#scr-hunt').classList.contains('active')) hZoom(); });
   { const v = $('#hunt-map'); let dr = null; v.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; dr = { x: e.clientX, y: e.clientY, l: v.scrollLeft, t: v.scrollTop, m: 0 }; });
     addEventListener('pointermove', e => { if (!dr) return; const dx = e.clientX - dr.x, dy = e.clientY - dr.y; if (Math.abs(dx) + Math.abs(dy) > 6) dr.m = 1; if (dr.m) { v.scrollLeft = dr.l - dx; v.scrollTop = dr.t - dy; } });
