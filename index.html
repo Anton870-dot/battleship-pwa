@@ -228,14 +228,16 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 #hmsg{height:auto;min-height:20px;font-size:14px;line-height:1.25}
 .hmap{--hw:min(94vw,470px,56vh);--hc:calc(var(--hw) / 12);position:relative;display:grid;grid-template-columns:repeat(12,var(--hc));grid-auto-rows:var(--hc);width:var(--hw);border-radius:14px;overflow:hidden;
   box-shadow:0 12px 30px rgba(0,40,90,.35),inset 0 0 0 1px rgba(255,255,255,.3);background:rgba(120,210,255,.06)}
-.hc{position:relative;border:1px solid rgba(255,255,255,.035);margin:-.5px;transition:background .25s}
+.hc{position:relative;border:1px solid rgba(255,255,255,.028);margin:-.5px;transition:background .25s,box-shadow .25s}
 .hc.fog{background:transparent;border-color:transparent}
 .fogc{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;image-rendering:auto;filter:blur(calc(var(--hc) * .18))}
 .hc.land{border-color:transparent}
 .hc.land.fog{background:transparent}
 .terrain{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}.terrain.surf{image-rendering:auto}
-.hc.reach{background:rgba(90,255,170,.3);cursor:pointer}.hc.reach:hover{background:rgba(90,255,170,.55)}
-.hc.inr{background:rgba(255,207,74,.24);cursor:crosshair}.hc.inr:hover{background:rgba(255,207,74,.55)}
+.hc.reach{background:radial-gradient(circle at 50% 50%,rgba(120,255,190,.42) 0 18%,rgba(90,255,170,.16) 55%,rgba(90,255,170,.05) 100%);box-shadow:inset 0 0 0 1px rgba(150,255,210,.38);border-radius:7px;cursor:pointer;animation:hcPulse 2.2s ease-in-out infinite}.hc.reach:hover{background:radial-gradient(circle,rgba(150,255,210,.7) 0 25%,rgba(90,255,170,.3) 70%);box-shadow:inset 0 0 0 2px rgba(180,255,220,.9)}
+.hc.reach,.hc.inr{z-index:5}
+@keyframes hcPulse{50%{box-shadow:inset 0 0 0 1px rgba(150,255,210,.7),0 0 10px rgba(90,255,170,.25)}}
+.hc.inr{background:radial-gradient(circle at 50% 50%,rgba(255,220,120,.55) 0 7%,rgba(255,190,80,.12) 9% 32%,transparent 34%);cursor:crosshair}.hc.inr:hover{background:radial-gradient(circle,rgba(255,120,60,.6) 0 22%,rgba(255,180,60,.25) 60%,transparent 72%);box-shadow:inset 0 0 0 2px rgba(255,140,80,.95),0 0 12px rgba(255,120,60,.5)}
 .hc.noise{box-shadow:inset 0 0 0 2px rgba(255,130,130,.7);background-image:repeating-linear-gradient(45deg,rgba(255,90,90,.18) 0 4px,transparent 4px 8px)}
 .hc .mk{position:absolute;inset:36%;border-radius:50%;background:#fff;opacity:.75;z-index:2}.hc .mk.hit{background:#ff5a3c;opacity:.9}
 .hlayer{position:absolute;inset:0;pointer-events:none}
@@ -635,6 +637,16 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .hunit.smoked .spr{opacity:.45;filter:blur(1px) grayscale(.6)}
 .bosstag{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:13px}
 .wxc{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.hvig{position:absolute;inset:0;z-index:6;pointer-events:none;border-radius:inherit;background:radial-gradient(120% 120% at 50% 45%,transparent 55%,rgba(0,10,30,.38) 100%),linear-gradient(160deg,rgba(255,240,200,.07),transparent 40%)}
+.hmap.w-night .hvig{background:radial-gradient(110% 110% at 50% 50%,transparent 45%,rgba(0,4,16,.6) 100%)}
+.hmap.w-storm .hvig{background:radial-gradient(120% 120% at 50% 45%,transparent 50%,rgba(5,12,20,.5) 100%)}
+.hmap.tod-dusk .hvig{background:radial-gradient(120% 120% at 50% 45%,transparent 50%,rgba(40,10,30,.4) 100%),linear-gradient(160deg,rgba(255,150,70,.16),transparent 55%)}
+.hmap.tod-dawn .hvig{background:radial-gradient(120% 120% at 50% 45%,transparent 50%,rgba(30,20,50,.35) 100%),linear-gradient(200deg,rgba(255,190,150,.14),transparent 55%)}
+.hmap.w-night .hunit .spr img{filter:brightness(.62) saturate(.75) hue-rotate(8deg)}
+.hmap.w-storm .hunit .spr img{filter:brightness(.82) saturate(.8)}
+.hmap.w-fog .hunit .spr img{filter:brightness(.92) saturate(.75) contrast(.92)}
+.hmap.tod-dusk .hunit .spr img{filter:sepia(.25) saturate(1.15) brightness(.95)}
+.hmap.tod-dawn .hunit .spr img{filter:sepia(.15) saturate(1.05) brightness(1.02) hue-rotate(-5deg)}
 .hmap.w-night .terrain{filter:brightness(.6) saturate(.7) hue-rotate(12deg)}.hmap.w-storm .terrain{filter:brightness(.72) saturate(.75)}.hmap.w-fog .terrain{filter:saturate(.7) brightness(.95)}
 .hunit .spr{position:relative;animation:bob 3.6s ease-in-out var(--bd,0s) infinite alternate}
 .hunit.fortu .spr,.hunit.npc.fortu .spr{animation:none}
@@ -5212,6 +5224,7 @@ function buildHuntMap() {
   Terrain.build(m, H.land, H.shoal, HN);
   BFX.attach(m); GLFx.attach(m, H.weather);
   { const fc = document.createElement('canvas'); fc.className = 'fogc'; fc.width = fc.height = HN; m.appendChild(fc); H.fogc = fc; }
+  { const td = todNow(); if (H.weather === 'clear' && (td === 'dawn' || td === 'dusk')) m.classList.add('tod-' + td); const vg = document.createElement('div'); vg.className = 'hvig'; m.appendChild(vg); }
   Weather.attach(m, H.weather);
 }
 function hMsg(t, cls) { const m = $('#hmsg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
@@ -7336,8 +7349,6 @@ const Weather = {
       } else if (kind === 'night') {
         const vg = g.createRadialGradient(w * .5, w * .5, w * .15, w * .5, w * .5, w * .8); vg.addColorStop(0, 'rgba(2,8,30,.18)'); vg.addColorStop(1, 'rgba(1,4,20,.5)'); g.fillStyle = vg; g.fillRect(0, 0, w, w);
         g.globalCompositeOperation = 'lighter';
-        // лунная дорожка
-        for (let i = 0; i < 26; i++) { const yy = (i + .5) / 26 * w, wob = Math.sin(st.t * 1.1 + i * 1.7) * .012 + Math.sin(st.t * .5 + i) * .008, len = (.05 + .09 * (i / 26)) * w * (.6 + .4 * Math.sin(st.t * 2 + i * 2.3)), a = .05 + .1 * Math.abs(Math.sin(st.t * 1.6 + i * .9)), mx = (st.moon + wob) * w, mg = g.createRadialGradient(mx, yy, 0, mx, yy, len); mg.addColorStop(0, `rgba(190,215,255,${a * 2})`); mg.addColorStop(1, 'rgba(190,215,255,0)'); g.fillStyle = mg; g.beginPath(); g.ellipse(mx, yy, len, w * .012, 0, 0, 6.283); g.fill(); }
         // огни кораблей и луч маяка
         if (typeof H !== 'undefined' && H.fleet) {
           hUnits().forEach(u => { if (!u.st || u.hp <= 0 || u.gone || !BFX.visible(u)) return; const x = (u.c + .5) * cs, y = (u.r + .5) * cs, fort = HS[u.type].fort, rr = cs * (fort ? 1.1 : .85), gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, u.side === 'me' ? 'rgba(255,214,130,.4)' : 'rgba(255,120,90,.34)'); gr.addColorStop(1, 'rgba(255,200,120,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rr, 0, 6.283); g.fill();
@@ -7742,6 +7753,20 @@ void main(){
   float s = smoothstep(.4, .62, n) * uK;
   gl_FragColor = vec4(0., 0., 0., s);
 }`,
+  FOG: `precision mediump float;
+uniform sampler2D uNz, uM; uniform float uT, uN, uA; uniform vec3 uC, uH;
+varying vec2 vU;
+void main(){
+  vec2 p = vU * uN;
+  float m = texture2D(uM, vU).r;
+  float n = texture2D(uNz, p * .05 + vec2(uT * .007, uT * .004)).r * .55 + texture2D(uNz, p * .12 - vec2(uT * .011, -uT * .006)).r * .3 + texture2D(uNz, p * .27 + vec2(-uT * .02, uT * .015)).r * .15;
+  float d = smoothstep(.2, .85, m + (n - .5) * .55);
+  if (d < .003) { gl_FragColor = vec4(0.); return; }
+  float edge = smoothstep(.2, .45, m) * (1. - smoothstep(.45, .9, m));
+  vec3 c = mix(uC, uH, smoothstep(.45, .8, n) * .55 + edge * .35);
+  float a = d * uA * (.82 + .18 * n);
+  gl_FragColor = vec4(c * a, a);
+}`,
   attach(map, weather) {
     this.stop();
     if (reduceMotion) return false;
@@ -7750,7 +7775,8 @@ void main(){
     if (!gl) return false;
     const mk = (vs, fs) => { const p = gl.createProgram(); [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].forEach(([t, src]) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); gl.attachShader(p, s); }); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; };
     let pp, pc;
-    try { pp = mk(this.VS, this.FS); pc = mk('attribute vec2 a;varying vec2 vU;void main(){vU=a*.5+.5;vU.y=1.-vU.y;gl_Position=vec4(a,0.,1.);}', this.CS); } catch (e) { console.warn('GLFx', e); return false; }
+    let pf; const QV = 'attribute vec2 a;varying vec2 vU;void main(){vU=a*.5+.5;vU.y=1.-vU.y;gl_Position=vec4(a,0.,1.);}';
+    try { pp = mk(this.VS, this.FS); pc = mk(QV, this.CS); pf = mk(QV, this.FOG); } catch (e) { console.warn('GLFx', e); return false; }
     const tx = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tx);
     if (!GLSea.NZ) GLSea.NZ = GLSea.noise();
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 128, 128, 0, gl.RGBA, gl.UNSIGNED_BYTE, GLSea.NZ);
@@ -7758,11 +7784,16 @@ void main(){
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
     const qb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
     const pb = gl.createBuffer();
+    gl.activeTexture(gl.TEXTURE1); const ft = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, ft); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, HN, HN, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, new Uint8Array(HN * HN));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); gl.activeTexture(gl.TEXTURE0);
     const loc = (p, n) => gl.getUniformLocation(p, n);
     const W = { clear: [.55, .32], storm: [1, .45], fog: [0, 0], night: [.35, .15] }[weather] || [.55, .32];
     map.appendChild(c);
     this.P = [];
-    this.o = { c, gl, pp, pc, qb, pb, last: performance.now(), t0: performance.now(), max: gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] || 64,
+    const FC = { night: [[.01, .03, .08], [.08, .14, .26], .82], fog: [[.42, .5, .58], [.75, .8, .85], .78], storm: [[.06, .09, .13], [.25, .3, .36], .72] }[weather] || [[.02, .07, .16], [.22, .38, .55], .62];
+    this.o = { c, gl, pp, pc, pf, ft, FC, fm: new Float32Array(HN * HN), fb: new Uint8Array(HN * HN), Uf: { uNz: loc(pf, 'uNz'), uM: loc(pf, 'uM'), uT: loc(pf, 'uT'), uN: loc(pf, 'uN'), uA: loc(pf, 'uA'), uC: loc(pf, 'uC'), uH: loc(pf, 'uH'), a: gl.getAttribLocation(pf, 'a') }, qb, pb, last: performance.now(), t0: performance.now(), max: gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] || 64,
       U: { uR: loc(pp, 'uR'), uMax: loc(pp, 'uMax'), uNz: loc(pp, 'uNz'), uT: loc(pp, 'uT'), cNz: loc(pc, 'uNz'), cT: loc(pc, 'uT'), cK: loc(pc, 'uK'), cN: loc(pc, 'uN'), cW: loc(pc, 'uW') },
       A: { aP: gl.getAttribLocation(pp, 'aP'), aD: gl.getAttribLocation(pp, 'aD'), a: gl.getAttribLocation(pc, 'a') },
       cloud: W[1], wind: weather === 'storm' ? [22, -6] : [9, -4], map, buf: new Float32Array(6 * 2400), emit: 0 };
@@ -7811,6 +7842,16 @@ void main(){
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND); gl.activeTexture(gl.TEXTURE0);
     const t = (now - o.t0) / 1000;
+    // туман войны: живые облака над неразведанными клетками
+    if (H.cells && (H.phase === 'play' || H.phase === 'over')) {
+      const dt = Math.min(.1, (now - (o.fl || now)) / 1000); o.fl = now;
+      for (let k = 0; k < HN * HN; k++) { const tg = H.cells && H.cells[k] && H.cells[k].classList.contains('fog') ? 1 : 0; o.fm[k] += (tg - o.fm[k]) * Math.min(1, dt * 3.5); o.fb[k] = o.fm[k] * 255; }
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, o.ft); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, HN, HN, gl.LUMINANCE, gl.UNSIGNED_BYTE, o.fb); gl.activeTexture(gl.TEXTURE0);
+      const F = o.Uf; gl.useProgram(o.pf); gl.bindBuffer(gl.ARRAY_BUFFER, o.qb); gl.enableVertexAttribArray(F.a); gl.vertexAttribPointer(F.a, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform1i(F.uNz, 0); gl.uniform1i(F.uM, 1); gl.uniform1f(F.uT, t % 3000); gl.uniform1f(F.uN, HN); gl.uniform1f(F.uA, o.FC[2]); gl.uniform3fv(F.uC, o.FC[0]); gl.uniform3fv(F.uH, o.FC[1]);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); gl.disableVertexAttribArray(F.a);
+      if (H.fogc && !o.fogOff) { H.fogc.style.display = 'none'; o.fogOff = 1; }
+    }
     // тени облаков
     if (o.cloud > 0) {
       gl.useProgram(o.pc); gl.bindBuffer(gl.ARRAY_BUFFER, o.qb); gl.enableVertexAttribArray(o.A.a); gl.vertexAttribPointer(o.A.a, 2, gl.FLOAT, false, 0, 0);
