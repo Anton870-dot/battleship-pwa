@@ -2859,7 +2859,7 @@ function econTick(h) {
     const unpaid = h.gold <= 0 && net < 0; if (unpaid !== !!h.unpaid) { h.unpaid = unpaid; ch = true; }
   }
   // пираты нападают на острова с гарнизонами
-  const guarded = islesOwned(h).filter(n => (isleGarr(h, n).length || devLvl(h, n) || isleOf(h, n).build) && !isleOf(h, n).lost && !isleSafe(h, n) && !(clanCalm(h) && String(n).startsWith('0:')) && !(clanJail(h) && String(n).startsWith('0:') && Math.random() < .7));
+  const guarded = islesOwned(h).filter(n => (isleGarr(h, n).length || devLvl(h, n) || isleOf(h, n).build) && !isleOf(h, n).lost && !isleSafe(h, n) && !(clanCalm(h) && String(n).startsWith('0:') && !(dogsAzure(h) && Math.random() < .35)) && !(clanJail(h) && String(n).startsWith('0:') && Math.random() < .7));
   if (!h.isleNext) { h.isleNext = now + (4 + Math.random() * 4) * 3600e3; ch = true; }
   else if (now >= h.isleNext) {
     h.isleNext = now + (4 + Math.random() * 4) * 3600e3; ch = true;
@@ -2867,8 +2867,11 @@ function econTick(h) {
       const n = pick(guarded);
       if (glOn(h) && String(n).startsWith('0:') && Math.random() < .4) { news(h, `🗼 Пираты шли к острову «${isleName(n)}», но заметили свет Великого маяка и повернули назад.`); return true; }
       if (extraOn(h, 'Цитадель Первого Света') && String(n).startsWith('1:') && Math.random() < .4) { news(h, `🗼 Псы шли к острову «${isleName(n)}», но луч Цитадели Первого Света нашёл их ещё за горизонтом. Стая повернула назад.`); return true; }
-      const PN = String(n).startsWith('1:') ? 'Солёные Псы' : 'Пираты', pn = String(n).startsWith('1:') ? 'Псов' : 'пиратов';
-      const win = Math.random() < isleHold(h, n);
+      const dg = String(n).startsWith('1:') || (String(n).startsWith('0:') && clanCalm(h)), PN = dg ? 'Солёные Псы' : 'Пираты', pn = dg ? 'Псов' : 'пиратов';
+      const help = String(n).startsWith('0:') && clanServ(h) && dg;
+      const win = Math.random() < Math.min(.97, isleHold(h, n) + (help ? .25 : 0));
+      if (dg) isleOf(h, n).lostBy = 'dogs';
+      if (win && help) news(h, `🏴‍☠️ Корабли братства Корвина первыми заметили Псов у острова «${isleName(n)}» и пришли на помощь гарнизону.`);
       if (win) { isleGarr(h, n).forEach(s => s.xp++); news(h, `🛡 Гарнизон острова «${isleName(n)}» отбил ${pn}. Корабли получили опыт.`); }
       else { isleOf(h, n).lost = true; { const I = isleOf(h, n); I.build = null; if (I.dev) { I.dev--; news(h, `🔥 ${PN} разграбили застройку на острове «${isleName(n)}»: теперь там ${devTrack(n)[I.dev].n.toLowerCase()}`); } } const ln = []; isleGarr(h, n).forEach(s => { s.isle = 0; if (Math.random() < sinkCh(s)) loseShip(h, s.id, ln, isleName(n)); else s.hpLost = Math.round(shipMaxHp(h, s) * .7); }); news(h, `☠️ ${PN} захватили остров «${isleName(n)}»! ${ln.length ? ln.join('. ') + '. ' : ''}Уцелевшие корабли вернулись в гавань тяжело повреждёнными. Отбейте остров на карте.`); }
     }
@@ -3681,6 +3684,8 @@ const clanSt = h => clanData(h).st;
 const clanServ = h => !!(h.clan && h.clan.st === 'serv');
 const clanCalm = h => !!(h.clan && (h.clan.st === 'serv' || h.clan.st === 'gone'));   // в Лазурном море пиратов больше нет
 const clanJail = h => !!(h.clan && h.clan.st === 'jail');
+const dogsAzure = h => clanCalm(h) && !!h.exp && h.exp.open >= 2;   // братства нет — в Лазурное море изредка заходят Солёные Псы
+const isDogs = () => !!(H.node && (H.node.sea === 1 || H.node.dogs));
 const azureAll = h => SEAS[0].isles.every((_, i) => { const I = isleOf(h, iKey(0, i)); return I.own && !I.lost; });
 function clanTick(h) {
   const C = clanData(h);
@@ -4533,8 +4538,9 @@ function sceneShow(img, title, text, btn, done) {
   overlay('#ov-scene', true); $('#sc-go').onclick = () => { overlay('#ov-scene', false); Snd.play('click'); setTimeout(() => done && done(), 220); };
 }
 function ambBattleTalk(node) {
-  if (!node || node.sea !== 1 || node.deep || node.atl || node.trade) return;
+  if (!node || !(node.sea === 1 || node.dogs) || node.deep || node.atl || node.trade) return;
   const h = hdata(curProfile()), A = ambData(h); let L = null;
+  if (node.dogs && node.sea === 0 && Math.random() < .6) { L = [pick([['t', 1, 'Корвина больше нет в этих водах, командир. Значит, тут теперь ничьё. А ничьё — наше.'], ['w', 0, 'Лазурное море мягкое, жирное, без единого пса. Хорошие здесь будут гребцы.'], ['t', 0, 'Думал, мы сюда не дотянемся? Цепи у Псов длинные, командир.']])]; setTimeout(() => clanSay(L), 900); return; }
   if (node.amb === 'land') L = [['w', 0, 'Эй, флотские! Это мой улов. Каждая лодка, каждая баба и каждый сопляк на них — мои. Разворачивайтесь, пока я добрый.'], ['t', 0, 'Варго, у них дредноут. Настоящий.'], ['w', 1, 'Тем лучше, Стелла. Большой корабль — много цепей. Псы, взять их!']];
   else if (node.isle === -1) L = [['w', 0, 'Ты пришёл в мой дом, флотский. Знаешь, сколько людей прошло через эти клетки? Я перестал считать на третьей тысяче.'], ['t', 0, 'Корран не придёт тебе на помощь, командир. Она никогда не приходит. Мы-то знаем.'], ['w', 1, 'Сегодня ты либо умрёшь, либо поплывёшь на рудники. Мне нравятся оба варианта.']];
   else if (!A.metW) { A.metW = 1; saveProfiles(); L = [['t', 0, 'Опять ты. Флотский, который возится с беженцами.'], ['t', 1, 'Знаешь, сколько стоит на рынке Чёрного Шпиля один здоровый гребец? Больше, чем твои пушки. Мы тебя запомнили.']]; }
@@ -5034,14 +5040,14 @@ function foeCfg(m) {
   return { up, crew, eq, marines };
 }
 function addFoe(type, pos, m, weak = 1) {
-  if ((!H.node || H.node.fac !== 'raid') && !(H.node && H.node.deep)) { if (type === 'boat') type = H.node && H.node.sea === 1 ? 'dog_boat' : 'pir_boat'; else if (type === 'destroyer') type = H.node && H.node.sea === 1 ? 'dog_ds' : 'pir_ds'; else if (type === 'sub') type = H.node && H.node.sea === 1 ? pick(['dog_ds', 'dog_ds', 'dog_boat']) : 'pir_sub'; else if (type === 'cruiser' && H.node && H.node.sea === 1) type = 'dog_yacht'; }
+  if ((!H.node || H.node.fac !== 'raid') && !(H.node && H.node.deep)) { if (type === 'boat') type = isDogs() ? 'dog_boat' : 'pir_boat'; else if (type === 'destroyer') type = isDogs() ? 'dog_ds' : 'pir_ds'; else if (type === 'sub') type = isDogs() ? pick(['dog_ds', 'dog_ds', 'dog_boat']) : 'pir_sub'; else if (type === 'cruiser' && isDogs()) type = 'dog_yacht'; }
   const u = mkUnit(type, 'foe', pos.r, pos.c, 135, foeCfg(m));
   u.st.hp = Math.max(3, Math.round(u.st.hp * (m === 1 ? .5 : m === 2 ? .65 : m === 3 ? .8 : m <= 6 ? .9 : 1) * weak)); u.hp = u.st.hp; if (m <= 2) u.st.scatter = m === 1 ? .5 : .4;
   H.foes.push(u); return u;
 }
 const foeTop = m => m >= 13 ? 4 : Math.min(3, Math.floor((m - 1) / 2.5));
 const pirBattle = () => !(H.node && (H.node.fac === 'raid' || H.node.deep));
-const pirCap = () => H.node && H.node.sea === 1 ? 3 : 2;   // у Псов есть боевые яхты
+const pirCap = () => isDogs() ? 3 : 2;   // у Псов есть боевые яхты
 function genFoes(m, n, zone = [0, HN - 5, 5, 5]) {
   let top = foeTop(m);
   if (pirBattle() && top > pirCap()) { n = Math.min(6, n + (top > pirCap() + 1 ? 2 : 1)); top = pirCap(); }   // у пиратов нет крейсеров и линкоров — их берут числом
@@ -5067,7 +5073,7 @@ function setupObjective(node) {
     while (H.boats.length < 3 && cells.length) { const x = cells.splice(rnd(cells.length), 1)[0]; if (!H.boats.some(b => cheb(b, x) < 3)) H.boats.push({ r: x.r, c: x.c, done: false }); }
     for (let r = 3; r < 10 && H.boats.length < 3; r++) for (let c = 1; c < 10 && H.boats.length < 3; c++) { if (!H.land[hidx(r, c)] && !H.boats.some(x => cheb(x, { r, c }) < 3) && H.foes.every(f => cheb(f, { r, c }) >= 3)) H.boats.push({ r, c, done: false }); }
   } else if (o === 'intercept') {
-    const t = Object.assign(mkUnit('transport', 'foe', 1, HN - 2, 180), { revealed: 99, name: 'Транспорт' }); if (H.node && H.node.sea === 1) { t.img = 'dog_slaver'; t.name = 'Невольничий транспорт'; t.slaver = 1; }
+    const t = Object.assign(mkUnit('transport', 'foe', 1, HN - 2, 180), { revealed: 99, name: 'Транспорт' }); if (isDogs()) { t.img = 'dog_slaver'; t.name = 'Невольничий транспорт'; t.slaver = 1; }
     t.st.hp = t.hp = 10 + 2 * m; H.foes.push(t);
     genFoes(m, Math.max(1, n - 1), [0, HN - 5, 5, 5]);
   } else if (o === 'fort') {
@@ -5664,7 +5670,7 @@ function hFinish(won, reason) {
       else { gold += 1500; lines.push(`☠️ ${b.name} повержен! Казна корсаров: +1500 💰`); }
     }
     if (H.obj === 'intercept') { const t = H.foes.find(x => x.type === 'transport'); if (!t.captured) lines.push(t.slaver ? '🕯 Невольничий транспорт потоплен. Вместе с ним ушли на дно пленники в трюмах. В следующий раз — абордаж' : '🎯 Транспорт потоплен'); }
-    if (node.reclaim) { isleOf(h, node.reclaim).lost = false; if (String(node.reclaim).startsWith('0:')) isleOf(h, node.reclaim).safe = Date.now() + ISLE_GRACE; lines.push(`🏝 Остров «${isleName(node.reclaim)}» снова под вашим флагом`); }
+    if (node.reclaim) { isleOf(h, node.reclaim).lost = false; delete isleOf(h, node.reclaim).lostBy; if (String(node.reclaim).startsWith('0:')) isleOf(h, node.reclaim).safe = Date.now() + ISLE_GRACE; lines.push(`🏝 Остров «${isleName(node.reclaim)}» снова под вашим флагом`); }
     if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 250; lines.push('🏰 Форт взят штурмом: +250 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
     h.w++; if (h.w % 3 === 0) cr++; if (evOn(h, 'armada') && H.obj !== 'raid') cr++; if (!node.bonus) h.mission = m + 1; p.st.huntW = (p.st.huntW || 0) + 1;
     if (node.deep) { const r = deepAfter(h, node, true, lines); gold += r.gold; cr += r.cr; }
@@ -6356,7 +6362,9 @@ function genReport(h) {
   const pool = ['hunt']; if (lvl >= 2) pool.push('rescue', 'intercept'); if (lvl >= 3) pool.push('convoy'); if (lvl >= 4) pool.push('fort'); if (lvl >= 6) pool.push('survive');
   let r = null;
   const lost = idx.filter(i => st(i).own && st(i).lost), free = idx.filter(i => !st(i).own);
-  if (lost.length && Math.random() < .7) r = { kind: 'battle', isle: pick(lost), obj: pick(['hunt', 'fort']), reclaim: true };
+  const ownS0 = sea === 0 && dogsAzure(h) ? idx.filter(i => st(i).own && !st(i).lost) : [];
+  if (lost.length && Math.random() < .7) { const li = pick(lost); r = { kind: 'battle', isle: li, obj: pick(['hunt', 'fort']), reclaim: true, dogs: st(li).lostBy === 'dogs' ? 1 : 0 }; }
+  else if (ownS0.length && Math.random() < .25) r = { kind: 'battle', isle: pick(ownS0), obj: pick(['hunt', 'hunt', 'rescue', 'intercept', 'convoy']), patrol: true, dogs: 1 };
   else if (!E.cleared.includes(sea) && seaOwn(h, sea) >= SEA_NEED && !taken.has(-1) && Math.random() < .6) r = { kind: 'boss', isle: -1, obj: 'boss' };
   else if (free.length && Math.random() < .8) r = { kind: 'battle', isle: pick(free), obj: pick(pool) };
   else if (idx.length && Math.random() < .6) { const k = pick(['trade', 'bay', 'sos', 'cache']); r = { kind: k, isle: pick(idx), obj: k === 'sos' ? 'rescue' : null }; }
@@ -6388,7 +6396,8 @@ function repDesc(h, r) {
   if (r.kind !== 'battle') return EVENTS[r.kind].desc;
   let d = OBJ[r.obj].desc;
   if (r.sea === 1 && !r.reclaim && !r.patrol) d = ({ hunt: 'Стая Солёных Псов рыщет у берегов. ', rescue: 'Беглые рабы с рудников Псов дрейфуют на плотах. ', intercept: 'Невольничий транспорт Псов идёт на юг — в трюмах люди. Возьмите его абордажем, чтобы освободить пленных: если потопить — погибнут все. ', convoy: 'Гражданские суда просят сопровождения: Псы идут по пятам. ', fort: 'Сторожевой форт Псов держит остров в страхе. ', survive: 'Псы окружили лагерь беженцев. ' }[r.obj] || '') + d;
-  if (r.reclaim) d = 'Пираты захватили ваш остров. ' + d;
+  if (r.reclaim) d = (r.dogs ? 'Солёные Псы захватили ваш остров. ' : 'Пираты захватили ваш остров. ') + d;
+  else if (r.dogs) d = '⛓ Солёные Псы зашли в Лазурное море — охотятся за людьми у ваших островов. ' + d;
   else if (r.patrol) d = 'Пиратская вылазка у ваших берегов. ' + d;
   else if (r.occ) d = `Остров удерживает пиратский гарнизон${r.occB === 2 ? ' — сильный, остров далеко от крепости' : r.occB ? ' средней силы' : ' — небольшой, остров рядом с крепостью'}. ` + d + (islePort(iKey(0, r.isle)) ? ' Победа снимет блокаду вольного порта.' : ' Победа освободит остров.');
   else d += ' Победа — и остров ваш.';
@@ -6644,7 +6653,7 @@ function urgentIntel(h) {
 function runReport(id) {
   const p = curProfile(), h = hdata(p), r = h.exp.reports.find(x => x.id === id); if (!r) return;
   if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
-  const base = { report: r.id, amb: r.amb, sea: r.sea, isle: r.isle, lvl: r.lvl, weather: evOn(h, 'storm') && evOn(h, 'storm').sea === r.sea ? 'storm' : r.weather, bonus: true };
+  const base = { report: r.id, amb: r.amb, dogs: r.dogs, sea: r.sea, isle: r.isle, lvl: r.lvl, weather: evOn(h, 'storm') && evOn(h, 'storm').sea === r.sea ? 'storm' : r.weather, bonus: true };
   if (evOn(h, 'bounty')) { base.extra = 1; base.mult = 1.5; }
   if (r.mult) base.mult = (base.mult || 1) * r.mult;
   if ((r.kind === 'battle' || r.kind === 'boss') && !SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале Мастерской'); return; }
