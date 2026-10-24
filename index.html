@@ -2466,6 +2466,7 @@ const BOSSES = [
   { name: 'Адмирал Шторм',  ic: '🌪️', type: 'battleship', ab: ['fire'], weather: 'storm', reward: 'fire', desc: 'Приводит с собой шторм и бьёт огненными залпами 3×3.' },
   { name: 'Владыка Корсаров', ic: '👑', type: 'battleship', ab: ['smoke', 'fire', 'torp'], weather: 'night', reward: null, desc: 'Хозяин Обсидианового океана: дымовые завесы, огненные залпы и быстрые торпеды.' },
   { name: 'Багровый странник', ic: '⚓', type: 'pir_dd', ab: ['smoke', 'repair'], reward: 'smoke', desc: 'Флагман капитана Арне Корвина стережёт Чёрный Зуб. Быстрый и вёрткий: прячется в дыму, латает пробоины прямо в бою и никогда не выходит один.' },
+  { name: 'Кандальник', ic: '⛓', type: 'dog_yacht', ab: ['torp', 'fire', 'repair'], reward: 'fire', desc: 'Флагман Варго Кнута стережёт Чёрный Шпиль. Бронированная громада с клетками в трюмах, торпедами по бортам и огнемётами на палубе. Варго сам стоит на мостике — и никогда не выходит без Стеллы.' },
 ];
 const bossOf = m => BOSSES[Math.max(0, Math.floor(m / 5) - 1) % 3];
 const pickW = list => { let t = list.reduce((a, x) => a + x[1], 0) * Math.random(); for (const [v, w] of list) { t -= w; if (t < 0) return v; } return list[0][0]; };
@@ -2865,9 +2866,10 @@ function econTick(h) {
     if (guarded.length) {
       const n = pick(guarded);
       if (glOn(h) && String(n).startsWith('0:') && Math.random() < .4) { news(h, `🗼 Пираты шли к острову «${isleName(n)}», но заметили свет Великого маяка и повернули назад.`); return true; }
+      const PN = String(n).startsWith('1:') ? 'Солёные Псы' : 'Пираты', pn = String(n).startsWith('1:') ? 'Псов' : 'пиратов';
       const win = Math.random() < isleHold(h, n);
-      if (win) { isleGarr(h, n).forEach(s => s.xp++); news(h, `🛡 Гарнизон острова «${isleName(n)}» отбил пиратов. Корабли получили опыт.`); }
-      else { isleOf(h, n).lost = true; { const I = isleOf(h, n); I.build = null; if (I.dev) { I.dev--; news(h, `🔥 Пираты разграбили застройку на острове «${isleName(n)}»: теперь там ${devTrack(n)[I.dev].n.toLowerCase()}`); } } const ln = []; isleGarr(h, n).forEach(s => { s.isle = 0; if (Math.random() < sinkCh(s)) loseShip(h, s.id, ln, isleName(n)); else s.hpLost = Math.round(shipMaxHp(h, s) * .7); }); news(h, `☠️ Пираты захватили остров «${isleName(n)}»! ${ln.length ? ln.join('. ') + '. ' : ''}Уцелевшие корабли вернулись в гавань тяжело повреждёнными. Отбейте остров на карте.`); }
+      if (win) { isleGarr(h, n).forEach(s => s.xp++); news(h, `🛡 Гарнизон острова «${isleName(n)}» отбил ${pn}. Корабли получили опыт.`); }
+      else { isleOf(h, n).lost = true; { const I = isleOf(h, n); I.build = null; if (I.dev) { I.dev--; news(h, `🔥 ${PN} разграбили застройку на острове «${isleName(n)}»: теперь там ${devTrack(n)[I.dev].n.toLowerCase()}`); } } const ln = []; isleGarr(h, n).forEach(s => { s.isle = 0; if (Math.random() < sinkCh(s)) loseShip(h, s.id, ln, isleName(n)); else s.hpLost = Math.round(shipMaxHp(h, s) * .7); }); news(h, `☠️ ${PN} захватили остров «${isleName(n)}»! ${ln.length ? ln.join('. ') + '. ' : ''}Уцелевшие корабли вернулись в гавань тяжело повреждёнными. Отбейте остров на карте.`); }
     }
   }
   return ch;
@@ -5030,7 +5032,7 @@ function foeCfg(m) {
   return { up, crew, eq, marines };
 }
 function addFoe(type, pos, m, weak = 1) {
-  if ((!H.node || H.node.fac !== 'raid') && !(H.node && H.node.deep)) { if (type === 'boat') type = H.node && H.node.sea === 1 ? 'dog_boat' : 'pir_boat'; else if (type === 'destroyer') type = H.node && H.node.sea === 1 ? 'dog_ds' : 'pir_ds'; else if (type === 'sub') type = 'pir_sub'; else if (type === 'cruiser' && H.node && H.node.sea === 1) type = 'dog_yacht'; }
+  if ((!H.node || H.node.fac !== 'raid') && !(H.node && H.node.deep)) { if (type === 'boat') type = H.node && H.node.sea === 1 ? 'dog_boat' : 'pir_boat'; else if (type === 'destroyer') type = H.node && H.node.sea === 1 ? 'dog_ds' : 'pir_ds'; else if (type === 'sub') type = H.node && H.node.sea === 1 ? pick(['dog_ds', 'dog_ds', 'dog_boat']) : 'pir_sub'; else if (type === 'cruiser' && H.node && H.node.sea === 1) type = 'dog_yacht'; }
   const u = mkUnit(type, 'foe', pos.r, pos.c, 135, foeCfg(m));
   u.st.hp = Math.max(3, Math.round(u.st.hp * (m === 1 ? .5 : m === 2 ? .65 : m === 3 ? .8 : m <= 6 ? .9 : 1) * weak)); u.hp = u.st.hp; if (m <= 2) u.st.scatter = m === 1 ? .5 : .4;
   H.foes.push(u); return u;
@@ -5078,9 +5080,9 @@ function setupObjective(node) {
   } else if (o === 'boss') {
     const b = bossFor(node), pos = freeCell([0, HN - 4, 4, 4]);
     const u = mkUnit(b.type, 'foe', pos.r, pos.c, 135, { up: hireUp(Math.floor(m / 5)), crew: { gunners: 2, look: 1, acou: 2, mech: 0 }, eq: { salvo: true, torp: b.ab.includes('torp') || b.type === 'battleship', smoke: b.ab.includes('smoke'), fire: b.ab.includes('fire') } });
-    u.boss = b; u.name = b.name; u.st.hp = u.hp = Math.round(u.st.hp * (b.type === 'pir_dd' ? 1.7 : 1.1) + (b.type === 'pir_dd' ? 3 : 2) * m); if (b.type === 'pir_dd') { u.st.armor += 1; u.st.dmg += 1; u.corvin = 1; u.fac = 'pir'; } u.fastTorp = b.ab.includes('torp');
+    u.boss = b; u.name = b.name; const bb = b.type === 'pir_dd' || b.type === 'dog_yacht'; u.st.hp = u.hp = Math.round(u.st.hp * (bb ? 1.7 : 1.1) + (bb ? 3 : 2) * m); if (b.type === 'pir_dd') { u.st.armor += 1; u.st.dmg += 1; u.corvin = 1; u.fac = 'pir'; } if (b.type === 'dog_yacht') { u.st.armor += 1; u.st.dmg += 2; u.vargo = 1; u.fac = 'dogs'; } u.fastTorp = b.ab.includes('torp');
     H.foes.push(u);
-    genFoes(m, Math.max(1, n - 1) + (b.type === 'pir_dd' ? 1 : 0));
+    genFoes(m, Math.max(1, n - 1) + (b.type === 'pir_dd' || b.type === 'dog_yacht' ? 1 : 0));
   }
   if (lastAzure(node)) { const pos = freeCell([0, HN - 5, 5, 5]); if (pos) { const u = addFoe('pir_ds', pos, Math.max(m, 3)); u.name = 'Ласточка'; u.fac = 'pir'; u.st.hp = u.hp = u.st.hp + 5; u.st.dmg += 1; u.lucia = 1; } }
 }
@@ -5134,7 +5136,7 @@ function startHunt(node) {
   H.acted = new Set(); H.cur = H.me;
   buildHuntMap(); show('scr-hunt');
   const o = OBJ[H.obj], w = WEATHER[H.weather];
-  hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
+  hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.foes.some(f => f.vargo) ? '⛓ «Кандальник» Варго Кнута защищает Чёрный Шпиль!' : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   hStartPlayerTurn(true);
   clanBattleTalk(node); irBattleTalk(); ambBattleTalk(node);
 }
@@ -6308,7 +6310,7 @@ const SEAS = [
   { n: 'Лазурное море', img: 'sea1.webp', tods: ['dawn', 'dusk', 'night'], lvl: 1, boss: 4, wx: [['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]],
     base: { x: 330, y: 690, n: 'Остров Рассвета' }, pir: { x: 215, y: 160, n: 'Чёрный Зуб' },
     isles: [{ x: 740, y: 215, n: 'Зелёный Венец' }, { x: 1300, y: 235, n: 'Белый Утёс' }, { x: 740, y: 425, n: 'Песчанка' }, { x: 1170, y: 500, n: 'Порт Лазурный' }, { x: 1265, y: 790, n: 'Бухта Рыбаков' }, { x: 265, y: 360, n: 'Черепаший' }, { x: 850, y: 895, n: 'Пальмовый' }, { x: 1460, y: 470, n: 'Скала Чаек' }] },
-  { n: 'Янтарное море', img: 'sea2.webp', tods: ['dawn', 'dusk', 'night'], lvl: 7, boss: 1, wx: [['clear', 5], ['storm', 2], ['night', 2]],
+  { n: 'Янтарное море', img: 'sea2.webp', tods: ['dawn', 'dusk', 'night'], lvl: 7, boss: 5, wx: [['clear', 5], ['storm', 2], ['night', 2]],
     base: { x: 1075, y: 797, n: 'Игла Отлива' }, pir: { x: 266, y: 714, n: 'Чёрный Шпиль' }, city: { x: 1148, y: 493, n: 'Златоград' },
     isles: [{ x: 854, y: 714, n: 'Восточные Огни' }, { x: 661, y: 755, n: 'Западные Огни' }, { x: 248, y: 434, n: 'Тихий Гром' }, { x: 1350, y: 640, n: 'Южная бухта' }, { x: 928, y: 342, n: 'Мыс Скорби' }, { x: 804, y: 190, n: 'Старшая Сестра' }, { x: 928, y: 200, n: 'Младшая Сестра' }, { x: 266, y: 218, n: 'Люмен-Нокс' }] },
   { n: 'Море Седых Туманов', img: 'sea3.webp', lvl: 13, boss: 2, wx: [['clear', 2], ['fog', 5], ['storm', 2], ['night', 2]],
@@ -7878,6 +7880,7 @@ const MapLife = {
   init() {
     if (this.inited) return; this.inited = true;
     ['cargo', 'destroyer', 'cruiser', 'boat', 'atl_cargo'].forEach(k => { const i = new Image(); i.src = `top_${k}.webp`; this.img[k] = i; });
+    { const di = new Image(); di.src = 'top_dog_ds.webp'; this.img.dog = di; }
     const pi = new Image(); pi.onload = () => { const c = document.createElement('canvas'); c.width = pi.width; c.height = pi.height; const x = c.getContext('2d'); x.drawImage(pi, 0, 0); this.img.pirate = c; };
     pi.src = 'top_pir_ds.webp';
   },
@@ -7989,7 +7992,7 @@ const MapLife = {
     });
     this.ships.forEach(b => {
       if (b.x === undefined) return;
-      const im = b.role === 'pirate' ? this.img.pirate : this.img[b.type]; if (!im || !(im.width || im.naturalWidth)) return;
+      const im = b.role === 'pirate' ? (this.sea === 1 && this.img.dog && this.img.dog.naturalWidth ? this.img.dog : this.img.pirate) : this.img[b.type]; if (!im || !(im.width || im.naturalWidth)) return;
       const L = X(b.role === 'merchant' && b.type === 'boat' ? 34 : b.type === 'cruiser' ? 62 : 52), ar = TOP_AR[b.role === 'pirate' ? 'pir_ds' : b.type] || 4, Wd = L / ar;
       const bob = Math.sin(this.t * 2 + b.x * .01) * .03;
       g.save(); g.translate(X(b.x), X(b.y)); g.rotate(b.a + bob);
