@@ -2860,7 +2860,7 @@ const paraHire = h => { const l = paraLvl(h); return l >= 6 ? .65 : l >= 4 ? .8 
 const paraXp = h => { const l = paraLvl(h); return l >= 6 ? 2 : l >= 5 ? 1 : 0; };
 function devTick(h) {
   const now = Date.now(); let ch = false;
-  islesOwned(h).forEach(n => { const i = isleOf(h, n); if (i.build && now >= i.build.end) { i.dev = i.build.lvl; i.build = null; ch = true; const L = devTrack(n)[i.dev]; news(h, `${L.ic} Остров «${isleName(n)}»: построено — ${L.n}! Доход острова +${L.inc} 💰/ч`); Snd.play('build'); } });
+  islesOwned(h).forEach(n => { const i = isleOf(h, n); if (i.build && now >= i.build.end) { i.dev = i.build.lvl; i.build = null; ch = true; if (n === '0:8' && clanServ(h) && TOOTH_SAY[i.dev]) clanData(h).say = i.dev; const L = devTrack(n)[i.dev]; news(h, `${L.ic} Остров «${isleName(n)}»: построено — ${L.n}! Доход острова +${L.inc} 💰/ч`); Snd.play('build'); } });
   return ch;
 }
 function devPanel(h, n) {
@@ -3752,7 +3752,22 @@ const CLAN_TALK = [
   [['l', false, 'Я сверила лоции: у Песчанки после шторма намыло новую мель. Предупредите своих капитанов.']],
   [['c', true, '«Багровый странник» стар, но злее любого новенького эсминца. Как и его капитан.']],
   [['c', false, 'Флот когда-то бросил меня отвечать за чужие ошибки. Вы — не флот, командир. Поэтому братство и служит вам.']],
+  [['c', true, 'Командир, мои ребята научились отдавать честь. Правда, пока левой рукой и с кружкой в правой. Работаем.']],
+  [['l', true, 'Грег Медведь устроил на складе спортзал. Штанга из якорной цепи и двух бочек. Говорит, для дисциплины.'], ['c', true, 'Для дисциплины у него ром под штангой. Я проверял.']],
+  [['l', false, 'Механик Финч просит передать: он нашёл, как выжать из старых катеров ещё узел хода. Правда, для этого нужно снять с них… почти всё.']],
+  [['c', false, 'Сорок лет я грабил это море. Теперь его охраняю. Знаете, что самое странное, командир? Спится лучше.']],
+  [['l', true, 'Мара Шафран третий день учит новичков стрелять. Говорит, из десяти девять безнадёжны, а десятый — тоже, но очень старается.']],
+  [['c', true, 'Мои старые знакомые из южных морей прислали письмо: спрашивают, правда ли Корвин теперь носит мундир. Я ответил — правда. И что он мне идёт.']],
+  [['l', false, 'Вчера у Скалы Чаек видели катер Солёных Псов. Развернулся, как только заметил наш флаг. Наш, командир. Я всё ещё привыкаю так говорить.']],
+  [['c', false, 'Если когда-нибудь встретите адмирала, который меня судил, — передайте ему привет. Скажите, что Корвин теперь служит человеку, которому не стыдно служить.']],
+  [['l', true, 'Отец пытался научиться пить чай вместо рома. Продержался до обеда.'], ['c', false, 'Это был очень длинный обед, дочка.']],
   [['l', true, 'Наши корабелы на Чёрном Зубе уже закладывают новый «Странник». Только дайте знать — спустим на воду.']],
+];
+const TOOTH_SAY = [null,
+  [['c', true, 'Ворота! Стальные ворота на гидравлике, командир! Сорок лет я закрывал вход в бухту старой сетью и молился, чтобы никто не заметил.'], ['l', true, 'Отец полчаса открывал и закрывал их с пульта. Вахтенные устали стоять смирно.'], ['c', false, 'А флаг… Ваш флаг над моей скалой. Странно. Но, кажется, правильно.']],
+  [['l', true, 'Командир, вы видели крытый док? Туда целиком заходит подлодка! Мы раньше прятали катера в пещере и вычерпывали воду вёдрами.'], ['c', true, 'Финч заперся внутри и не выходит. Говорит, это лучший день в его жизни, и он хочет его продлить.'], ['l', false, 'Отец попросил поставить в одном из бункеров кресло. Говорит — «для старого ворона». По-моему, просто будет там дремать.']],
+  [['c', true, 'Командный центр, командир. Радары, связь, карты на стенах — всё как в настоящем штабе. Я стоял там и вспоминал свой первый корабль.'], ['l', true, 'Отец полдня ходил по эсминцам у пирса и трогал всё руками. Матросы думали, что он инспектор.'], ['c', false, 'Я и есть инспектор. Неофициальный. Кто-то же должен проверить, что ваши мальчишки правильно вяжут узлы.']],
+  [['l', true, 'Обсерватория… Командир, у нас на Чёрном Зубе — купол из стекла и учёные в белых халатах! Если бы мне это сказали год назад, я бы рассмеялась.'], ['c', false, 'Они спросили, нет ли у меня старых записей о течениях. Я принёс сорок лет пиратских лоций. Старший учёный чуть не прослезился.'], ['c', true, 'Теперь я почётный консультант Адмиралтейства. Корвин — консультант. Если бы мой старый адмирал это видел, его бы хватил удар. Ради одного этого стоило жить.']],
 ];
 const clanData = h => (h.clan ||= { st: 'war' });
 const clanSt = h => clanData(h).st;
@@ -4623,6 +4638,13 @@ function ambBattleTalk(node) {
   else if (!A.metW) { A.metW = 1; saveProfiles(); L = [['t', 0, 'Опять ты. Флотский, который возится с беженцами.'], ['t', 1, 'Знаешь, сколько стоит на рынке Чёрного Шпиля один здоровый гребец? Больше, чем твои пушки. Мы тебя запомнили.']]; }
   else if (Math.random() < .25) L = [pick([['w', 0, 'Чем больше ты топишь моих лодок, флотский, тем дороже будет твоя голова.'], ['t', 0, 'Держите строй, Псы! Дредноут неповоротлив — заходите с кормы!'], ['w', 1, 'Твоим беженцам понравятся мои рудники. Там тепло — под землёй всегда тепло.'], ['t', 1, 'У тебя хорошая команда, командир. Будет жалко продавать её по частям.']])];
   if (L) setTimeout(() => clanSay(L), 900);
+}
+function clanChat(h) {
+  if (!clanServ(h) || HB.ccBusy) return; const C = clanData(h), d = $('#pdlg'); if (d && !d.hidden) return;
+  let L = null;
+  if (C.say) { L = TOOTH_SAY[C.say]; C.say = 0; }
+  else if (Date.now() > (C.chatAt || 0) && Math.random() < .5) { L = pick(CLAN_TALK); C.chatAt = Date.now() + (3 + Math.random() * 4) * 3600e3; }
+  if (!L) return; saveProfiles(); HB.ccBusy = 1; setTimeout(() => { HB.ccBusy = 0; const d2 = $('#pdlg'); if (d2 && !d2.hidden) return; clanSay(L); }, 1400);
 }
 function ambCheck(h) {
   const A = ambData(h); if (HB.ambBusy) return;
@@ -6244,7 +6266,7 @@ function fortStage(h, W) {
     s += `<div class="fraidfx"></div>` + (reduceMotion ? [[40, 84], [66, 91], [14, 89]] : []).map(([x, y]) => `<div class="fpir" style="left:${x}%;top:${y}%">${ship}</div>`).join(''); }
   return s + `</div>`;
 }
-function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); if (p.hunt && clanSt(hdata(p)) === 'offer' && !HB.clanAsk) { HB.clanAsk = 1; setTimeout(clanOpen, 600); } else if (p.hunt) { advCheck(hdata(p)); irCheck(hdata(p)); if (hdata(p).exp && hdata(p).exp.open >= 2) ambCheck(hdata(p)); setTimeout(() => { const q = curProfile(); if (q && q.hunt) eeCheck(hdata(q)); }, 3200); } }
+function showFort() { const p = curProfile(); if (!p) return; HB.ret = 'fort'; show('scr-fort'); document.body.classList.add('fort-on'); renderFort(true); if (p.hunt && clanSt(hdata(p)) === 'offer' && !HB.clanAsk) { HB.clanAsk = 1; setTimeout(clanOpen, 600); } else if (p.hunt) { advCheck(hdata(p)); irCheck(hdata(p)); clanChat(hdata(p)); if (hdata(p).exp && hdata(p).exp.open >= 2) ambCheck(hdata(p)); setTimeout(() => { const q = curProfile(); if (q && q.hunt) eeCheck(hdata(q)); }, 3200); } }
 function renderFort(center) {
   const p = curProfile(), h = hdata(p), f = fdata(h); fortTick(h);
   const v = $('#fview'), old = v.firstElementChild;
@@ -6550,7 +6572,7 @@ function seaStage(h, sea, W) {
 function showMap(sea) { $('#pdlg').hidden = true;
   const p = curProfile(); if (!p) return; const h = hdata(p), E = expData(h); Snd.ensure();
   if (sea != null) E.sea = sea; if (E.sea >= E.open) E.sea = E.open - 1;
-  show('scr-map'); HB.ret = 'map'; renderMap(true); $('#msheet').hidden = true; if (h.exp.open >= 2) ambCheck(h);
+  show('scr-map'); HB.ret = 'map'; renderMap(true); $('#msheet').hidden = true; if (h.exp.open >= 2) ambCheck(h); clanChat(h);
 }
 function renderMap(center) {
   const h = hdata(curProfile()), E = expData(h), v = $('#mview'), sea = E.sea || 0, S = SEAS[sea];
