@@ -338,7 +338,7 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .fstage,.bhero{--tf:brightness(1)}
 .tod-dawn{--tf:sepia(.22) saturate(1.1) brightness(.97) hue-rotate(-8deg)}
 .tod-dusk{--tf:sepia(.35) saturate(1.2) brightness(.82) hue-rotate(-14deg)}
-.tod-night{--tf:brightness(.42) saturate(.6) contrast(1.1)}
+.tod-night{--tf:brightness(1)}
 #scr-fort.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#07345f}
 body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.atlm-on #sea{display:none}
 #scr-map.active,#scr-atlmap.active,#scr-deep.active{position:fixed;inset:0;z-index:30;display:block;padding:0;animation:none;background:#0a3a66}
@@ -501,6 +501,24 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .dfimg img{width:100%;aspect-ratio:2/1;object-fit:cover;border-radius:10px;display:block;margin:4px 0 6px}
 .clp{display:flex;gap:10px;align-items:center}.clp img{width:72px;height:72px;border-radius:50%;object-fit:cover;object-position:50% 18%;flex:none;border:2px solid rgba(255,140,110,.7);background:rgba(0,0,0,.3)}.clp span{display:block;min-width:0}
 .clship img{width:100%;border-radius:8px;margin-bottom:6px;display:block}
+/* крупнее картинки */
+@media (max-width:640px){
+  .hub-panel{padding:12px 10px}
+  .isleinfo .isleimg,.dfimg img,.clship img,.echohero{width:calc(100% + 16px);margin-left:-8px;margin-right:-8px;border-radius:12px}
+  .isleinfo .isleimg{aspect-ratio:16/10}
+  .dfimg img{aspect-ratio:16/10}
+  .clp img{width:92px;height:92px}
+  .shipshow{height:190px}
+}
+.dpdlg img{width:140px!important;height:140px!important}
+.isleimg,.dfimg img,.clship img,.echohero,.roomhero img,.dpsplash img,.adjcard img,.clp img,.irq,#sc-img{cursor:zoom-in}
+/* просмотр картинки на весь экран */
+#imgview{position:fixed;inset:0;z-index:200;background:rgba(0,6,16,.94);display:flex;align-items:center;justify-content:center;overflow:auto;touch-action:pinch-zoom pan-x pan-y;animation:fadeIn .2s}
+#imgview[hidden]{display:none}
+#imgview img{max-width:100vw;max-height:100dvh;object-fit:contain;display:block}
+#imgview.zoom img{max-width:none;max-height:none;width:auto;height:auto}
+#imgview .ivx{position:fixed;top:max(10px,env(safe-area-inset-top));right:10px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:20px;border:0;z-index:2}
+#imgview .ivh{position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.6);pointer-events:none}
 .clanppl{display:grid;gap:6px;margin:6px 0}.clanppl div{background:rgba(0,0,0,.22);border-radius:10px;padding:7px 10px;line-height:1.3}.clanppl b{color:#ffe08a;font-size:13.5px}.clanppl small{display:block;font-size:11.5px;color:#cfe3f3}
 .cllist{margin:6px 0;padding-left:0;list-style:none}.cllist li{font-size:12.5px;padding:3px 0}
 .roombtn.dip{grid-column:1/-1;height:130px}.roombtn.dip img{object-position:50% 40%}
@@ -1229,6 +1247,7 @@ body.menu-on .logo{margin:0}
   </div>
 </div>
 
+<div id="imgview" hidden><button class="ivx" aria-label="Закрыть">✕</button><img alt=""><div class="ivh">Нажмите на картинку, чтобы увеличить · ✕ — закрыть</div></div>
 <div class="overlay" id="ov-scene"><div class="card glass dpcard"><div class="dpsplash"><img id="sc-img" src="" alt=""></div><h2 id="sc-title"></h2><p class="dpquote" id="sc-text" style="text-align:center;padding:0 14px"></p><div class="dpbtns"><button class="btn primary" id="sc-go"></button></div></div></div>
 <div class="overlay" id="ov-ir"><div class="card glass adjcard"><img src="irena_full.webp" alt=""><div class="adjcap"><b>Капитан-лейтенант Ирэна Вальд</b><small>старший помощник «Echo Primae Lucis»</small></div><button class="btn primary" id="ir-go">Приятно познакомиться</button></div></div>
 <div class="overlay" id="ov-adj"><div class="card glass adjcard"><img src="adj_full.webp" alt=""><div class="adjcap"><b>Лейтенант Марк Ардан</b><small>ваш личный адъютант</small></div><button class="btn primary" id="adj-go">Слушаю, лейтенант</button></div></div>
@@ -2443,7 +2462,8 @@ const HS = {
   fort:       { name: 'Форт',     len: 1, price: 0, hp: 18, armor: 2, speed: 0, dmg: 3, range: 4, sight: 4, mar: 0, slots: 0, npc: true, fort: true },
 };
 const HS_ORDER = ['boat', 'destroyer', 'sub', 'cruiser', 'battleship'];
-const BUY_ORDER = [...HS_ORDER, 'pir_boat', 'pir_ds', 'pir_sub', 'pir_dd', 'cargo', 'sub2', 'sub3', 'subx'];
+const BUY_ORDER = [...HS_ORDER, 'cargo', 'sub2', 'sub3', 'subx'];
+const BT_ORDER = ['pir_boat', 'pir_ds', 'pir_sub', 'pir_dd'];   // строятся только на верфи Чёрного Зуба
 const HUP = [
   { id: 'gun',    ic: '🎯', name: 'Орудия',         max: 4, eff: l => `урон +${l}` },
   { id: 'range',  ic: '📏', name: 'Дальнобойность', max: 2, eff: l => `дальность +${l}` },
@@ -2797,7 +2817,7 @@ const upkeep = h => evOn(h, 'feast') ? 0 : Object.values(h.ships).reduce((a, s) 
 function buyLock(h, t) {
   const b = HS[t];
   if (b.unique && Object.values(h.ships).some(s => s.type === t)) return { short: 'уже есть', long: 'Такая подлодка может быть только одна — и она уже в вашем флоте' };
-  if (b.pir && !clanServ(h)) return { short: 'нужно братство', long: `${b.name} строят только корабелы Чёрного Зуба — примите братство Корвина на службу. А пока такой корабль можно взять на абордаж` };
+  if (b.pir && !clanServ(h)) return { short: 'нужно братство', long: `${b.name} строят только корабелы Чёрного Зуба — примите братство Корвина на службу, и их верфь откроется на карте Лазурного моря. А пока такой корабль можно взять на абордаж` };
   if (b.hauler && !fL(h, 'market')) return { short: 'нужна гавань', long: 'Сначала постройте Торговую гавань' };
   if (b.need && fL(h, 'dock') < b.need) return { short: `Док ур. ${b.need}`, long: `Нужен Сухой док ${b.need}-го уровня` };
   return null;
@@ -3766,7 +3786,7 @@ function dipRoom(h) {
   if (st === 'war') s += `<div class="sec-t">🏳️ Путь к миру</div><small class="muted">Братство не сдастся, пока у него есть где укрыться. Отнимите у пиратов всё Лазурное море:</small>
     <ul class="cllist"><li>${own >= all ? '✅' : '⬜'} Острова Лазурного моря под вашим флагом: <b>${own} из ${all}</b></li><li>${bossOk ? '✅' : '⬜'} Крепость Чёрный Зуб разбита</li></ul>`;
   else if (st === 'offer') s += `<div class="dpbtns"><button class="btn primary" data-cl="1">⛓ Начать допрос</button></div>`;
-  else if (st === 'serv') s += `<div class="sec-t">🤝 Братство служит вам</div><ul class="cllist"><li>🛡 Пираты больше не нападают на острова Лазурного моря</li><li>💰 Чёрный Зуб приносит +${CLAN.inc} 💰/ч</li><li>⚓ «${CLAN.ship}» и корабли братства патрулируют море</li><li>🛠 На верфи можно строить эсминцы «Странник» — того же класса, что и флагман Корвина</li></ul><div class="dpbtns"><button class="btn primary" data-clt="1">💬 Поговорить с Корвинами</button></div>`;
+  else if (st === 'serv') s += `<div class="sec-t">🤝 Братство служит вам</div><ul class="cllist"><li>🛡 Пираты больше не нападают на острова Лазурного моря</li><li>💰 Чёрный Зуб приносит +${CLAN.inc} 💰/ч</li><li>⚓ «${CLAN.ship}» и корабли братства патрулируют море</li><li>🛠 На верфи Чёрного Зуба (на карте Лазурного моря) строятся пиратские катера, эсминцы, подлодки и «Странники»</li></ul><div class="dpbtns"><button class="btn primary" data-clt="1">💬 Поговорить с Корвинами</button></div>`;
   else if (st === 'jail') s += `<div class="sec-t">⛓ Братство за решёткой</div><ul class="cllist"><li>🏛 Корвин, Лючия и команда «Багрового странника» в крепостной тюрьме</li><li>🏴‍☠️ Мелкие шайки иногда нападают на острова Лазурного моря — но редко</li><li>🔒 Верфи Чёрного Зуба закрыты: пиратские корабли строить нельзя</li></ul>`;
   else if (h.clan && h.clan.how === 'hang') s += `<small class="muted">Братство Чёрного Зуба казнено на закате. В Лазурном море больше нет пиратов, но слухи о приговоре дошли до дальних морей — тамошние разбойники стали злее (+15% к силе нападений на острова).</small>`;
   else s += `<small class="muted">Братство распущено. Уцелевшие пираты ушли в дальние моря — тамошние разбойники стали злее (+15% к силе нападений на острова).</small>`;
@@ -4089,7 +4109,8 @@ const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'worksh
 const ammoGold = (h, a) => Math.round(a.gold * (1 - .08 * fL(h, 'workshop')));
 const SHIP_MIN = { echo: 600, boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, pir_boat: 15, dog_boat: 18, dog_ds: 38, dog_yacht: 90, pir_ds: 32, pir_sub: 48};
 const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock')) * (fortressOn(h) ? .8 : 1)));
-const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv)).length;
+const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv && !s.bt)).length;
+const btBusy = h => Object.values(h.ships).filter(s => s.buildEnd && !s.deliv && s.bt).length, BT_SLIPS = 2;
 function ammoData(h) {
   if (!h.ammo) h.ammo = { he: 40, ap: 0, inc: 0, heavy: 0, torp: 4, msl: 0 };
   if (h.ammo.msl == null) h.ammo.msl = 0;
@@ -6515,7 +6536,7 @@ function seaStage(h, sea, W) {
     s += lr ? `<button class="mpin now rep" data-sp="base" style="${spc(S.base)}"><span>🛟</span><em>${S.base.n}</em></button>` : sea === 1 && ambData(h).st === 0 ? '' : `<button class="mpin home" data-sp="base" style="${spc(S.base)}"><span>${sea === 0 ? '🏰' : isleOf(h, '1:8').lost ? '☠️' : (isleOf(h, '1:8').dev ? devTrack('1:8')[isleOf(h, '1:8').dev].ic : '⚓')}</span><em>${sea === 0 ? 'Ваша крепость' : S.base.n}</em></button>`;
     if (S.city && sea === 1 && ambData(h).st >= 1) s += `<button class="mpin ${ambData(h).st === 1 ? 'now rep' : 'done'}" data-sp="city" style="${spc(S.city)}"><span>🏙</span><em>${S.city.n}</em></button>`; }
   const br = reps.find(r => r.isle === -1);
-  s += `<button class="mpin ${br ? 'now boss rep' : cleared ? 'done' : 'lock boss'}" data-sp="-1" style="${spc(S.pir)}"><span>${cleared ? '🏳️' : '☠️'}</span>${br ? `<em>${BOSSES[S.boss].name}</em>` : ''}</button>`;
+  { const bt = sea === 0 && clanServ(h); s += `<button class="mpin ${br ? 'now boss rep' : bt ? 'done' : cleared ? 'done' : 'lock boss'}" data-sp="-1" style="${spc(S.pir)}"><span>${bt ? '🏴‍☠️' : cleared ? '🏳️' : '☠️'}</span>${br ? `<em>${BOSSES[S.boss].name}</em>` : bt ? '<em>Верфь Чёрного Зуба</em>' : ''}</button>`; }
   S.isles.forEach((p, i) => {
     if (p.home) return;
     const st = isleOf(h, iKey(sea, i)), r = reps.find(x => x.isle === i), garr = st.own && !st.lost && isleGarr(h, iKey(sea, i)).length;
@@ -6664,6 +6685,12 @@ function isleInfoHtml(h, nm, key) {
   if (key) { const st = isleOf(h, key), lv = st.own && !st.lost ? devLvl(h, key) : 0; if (lv) { const T = devTrack(key); stg = `<div class="istgs">${T.slice(0, lv + 1).map((L, i) => `<button class="istg${i === lv ? ' on' : ''}" data-istg="${i}" data-inm="${nm}">${L.ic} ${L.n}</button>`).join('')}</div>`; } }
   return `<div class="glass hub-panel isleinfo" style="width:min(560px,100%)">${img ? `<img class="isleimg" src="${img}" alt="${nm}">` : ''}${stg}<small class="isled">${desc}</small><div class="sec-t">🔎 Что есть на острове</div><div class="islef">${f.map(x => `<span>${x}</span>`).join('')}</div></div>`;
 }
+document.addEventListener('click', e => {
+  const im = e.target.closest && e.target.closest('.isleimg,.dfimg img,.clship img,.echohero,.roomhero img,.dpsplash img,.adjcard img,.clp img,.irq,#sc-img');
+  if (!im || !im.src || e.target.closest('#imgview')) return;
+  e.stopPropagation(); const v = $('#imgview'); v.querySelector('img').src = im.src.replace(/(irena|adj|corvin|lucia|tessa|vargo|stella|isabel|renar|atl_\w+|sci_\w+)\.webp$/, (m, n) => ['irena', 'adj'].includes(n) ? n + '_full.webp' : m); v.classList.remove('zoom'); v.hidden = false; Snd.play('click');
+}, true);
+document.addEventListener('DOMContentLoaded', () => { const v = $('#imgview'); if (!v) return; v.querySelector('.ivx').onclick = ev => { ev.stopPropagation(); v.hidden = true; }; v.querySelector('img').onclick = ev => { ev.stopPropagation(); v.classList.toggle('zoom'); }; v.onclick = () => { v.hidden = true; }; });
 function isleStage(nm, i) {
   const I = isleInfo(nm); if (!I) return null;
   const img = Array.isArray(I.img) ? I.img[Math.min(i, I.img.length - 1)] : I.img;
@@ -6686,6 +6713,7 @@ function mapTap(k) {
   if (k === 'base') { Snd.play('click'); if (sea === 0) return mapSheet('info', 'base', '🏰 Ваша крепость. Загляните в неё — там строятся здания и собирается флот.'); toast(`🏰 ${S.base.n} — ваша передовая база в этом море`); return; }
   const i = +k, r = E.reports.find(x => x.sea === sea && x.isle === i);
   if (r) { Snd.play('click'); return mapSheet('rep', r.id); }
+  if (i === -1 && sea === 0 && clanServ(h)) { Snd.play('click'); return mapSheet('bt', 'pir'); }
   if (i === -1) { const t = E.cleared.includes(sea) ? `🏳️ ${S.pir.n}: пиратская база разбита` : seaOwn(h, sea) >= SEA_NEED ? '☠️ Логово пиратов разведано — ждите донесения о времени атаки' : `☠️ ${S.pir.n}. Захватите ${SEA_NEED} островов, чтобы разведка нашла подходы`; if (isleInfo(S.pir.n)) { Snd.play('click'); return mapSheet('info', 'pir', t); } toast(t); return; }
   const st = isleOf(h, iKey(sea, i));
   if (st.own) { Snd.play('click'); return mapSheet('isle', iKey(sea, i)); }
@@ -6707,6 +6735,15 @@ function mapSheet(kind, n, note) {
     s += `<div class="glass hub-panel mfleet">${sqChips(h)}<div class="fleetline">${fleetLine(h)}</div>${h.ships[h.active].broken ? '<div class="warnline">Флагман в ремонте! Выберите другой флагман в Сухом доке.</div>' : ''}</div>`;
     s += repCard(h, r, 'map');
     s += isleInfoHtml(h, repPlace(r), r.isle < 0 ? null : iKey(r.sea, r.isle));
+  } else if (kind === 'bt') {
+    const busy = btBusy(h);
+    s += `<div class="mst"><b>🏴‍☠️ Верфь Чёрного Зуба</b><small>Корабелы братства Корвина строят здесь пиратские корабли для вашего флота. Стапелей занято: ${busy} из ${BT_SLIPS}.</small></div>`;
+    s += `<div class="glass hub-panel" style="width:min(560px,100%)"><div class="dfimg"><img src="pir_clan_serv.webp" alt="" style="object-position:50% 25%"></div><small class="muted">«Мои ребята сварят корабль из чего угодно, командир. Но из хорошей стали — быстрее», — Арне Корвин.</small></div>`;
+    BT_ORDER.forEach(t => { const b = HS[t], st = shipStats(t, {}, h.crew), pr = pShip(h, t);
+      s += `<div class="glass hub-panel btcard" style="width:min(560px,100%)"><div class="shipshow">${shipImg(t, 'big')}</div><div class="hp-title"><div><b>${b.name}</b><small>${b.desc}</small></div></div>${statGrid(st)}
+        <button class="btn primary" data-btb="${t}" ${h.gold < pr || busy >= BT_SLIPS ? 'disabled' : ''}>${busy >= BT_SLIPS ? 'Все стапели заняты' : `🏗 Заложить · ${pr} 💰 · ${fmtMin(shipMin(h, t))}`}</button></div>`; });
+    const bl = Object.values(h.ships).filter(x => x.bt && x.buildEnd && !x.deliv);
+    if (bl.length) s += `<div class="glass hub-panel" style="width:min(560px,100%)"><div class="sec-t" style="margin-top:0">🔨 На стапелях</div>${bl.map(x => `<div class="uprow"><span class="ic" style="width:56px">${shipImg(x.type, 'row')}</span><span class="nm">${sName(x)}<small>готов через <span data-until="${x.buildEnd}">${fmtLeft(x.buildEnd - Date.now())}</span></small></span></div>`).join('')}</div>`;
   } else if (kind === 'info') {
     const S = SEAS[E.sea || 0], nm = n === 'pir' ? S.pir.n : n === 'base' ? S.base.n : isleName(n);
     const oc = n.includes(':') && isleOcc(h, n), pt = oc && islePort(n);
@@ -6726,6 +6763,7 @@ function mapSheet(kind, n, note) {
   sh.innerHTML = s; sh.hidden = false; sh.scrollTop = 0;
   sh.querySelector('[data-mx]').onclick = () => { Snd.play('click'); sh.hidden = true; };
   sh.querySelectorAll('[data-sq]').forEach(b => b.onclick = () => { if (sqUse(h, +b.dataset.sq)) { saveProfiles(); Snd.play('horn'); mapSheet(kind, n, note); } });
+  sh.querySelectorAll('[data-btb]').forEach(b => b.onclick = () => { const t = b.dataset.btb, pr = pShip(h, t); if (!clanServ(h) || btBusy(h) >= BT_SLIPS || h.gold < pr) return; h.gold -= pr; const x = newShip(h, t); x.buildEnd = Date.now() + shipMin(h, t) * 60000; x.broken = true; x.bt = 1; saveProfiles(); Snd.play('build'); toast(`🏗 На Чёрном Зубе заложен ${sName(x)} — будет готов через ${fmtMin(shipMin(h, t))}`); renderMap(); mapSheet('bt', 'pir'); });
   sh.querySelectorAll('[data-fortgo]').forEach(b => b.onclick = () => { sh.hidden = true; showFort(); });
   sh.querySelectorAll('[data-rgo]').forEach(b => b.onclick = () => { sh.hidden = true; runReport(b.dataset.rgo); });
   sh.querySelectorAll('[data-rmap]').forEach(b => b.onclick = () => { const r = E.reports.find(x => x.id === b.dataset.rmap); if (!r) return; E.sea = r.sea; renderMap(); mapSheet('rep', r.id); });
