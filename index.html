@@ -651,6 +651,36 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .hunit.crit .spr.simg::after{opacity:1;background:radial-gradient(circle at 32% 45%,rgba(255,150,40,.95) 0 4%,rgba(15,10,8,.9) 8%,transparent 20%),radial-gradient(circle at 63% 58%,rgba(255,120,30,.9) 0 3%,rgba(15,10,8,.9) 7%,transparent 18%),radial-gradient(circle at 80% 40%,rgba(20,12,8,.8) 0 6%,transparent 14%),radial-gradient(circle at 48% 50%,rgba(20,12,8,.5) 0 10%,transparent 26%);animation:burnfl .5s steps(2) infinite}
 @keyframes burnfl{50%{filter:brightness(1.5)}}
 .hlegend{font-size:12px;color:var(--muted);text-align:center;max-width:470px;line-height:1.4}
+/* ===== Бой на весь экран ===== */
+#scr-hunt.active{position:fixed;inset:0;z-index:5;padding:max(6px,env(safe-area-inset-top)) 6px max(6px,env(safe-area-inset-bottom));gap:6px;justify-content:center;overflow:hidden;
+  --chrome:calc(196px + env(safe-area-inset-top) + env(safe-area-inset-bottom));--bw:min(calc(100vw - 12px),calc(100dvh - var(--chrome)),760px)}
+body:has(#scr-hunt.active){overflow:hidden}
+#scr-hunt .topbar{width:var(--bw);gap:6px;min-height:0}
+#scr-hunt .topbar .iconbtn{width:36px;height:36px;font-size:15px;flex:none}
+#scr-hunt #hstatus{font-size:13.5px;min-height:0;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scr-hunt #hmsg{font-size:12px;min-height:0;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#scr-hunt .hud{width:var(--bw);padding:3px 10px;gap:8px;font-size:11.5px;border-radius:12px}
+#scr-hunt .hud .hpbig{height:6px}
+#scr-hunt .hobj{width:var(--bw);font-size:11px;padding:2px 8px;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scr-hunt .hfleet{width:var(--bw);gap:4px}
+#scr-hunt .hfleet button{min-width:52px;max-width:104px;padding:3px 4px 4px;font-size:10.5px;border-radius:10px;gap:2px}
+#scr-hunt .hmap{--hw:var(--bw);border-radius:12px}
+#scr-hunt .hacts{width:var(--bw);display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-top:4px}
+#scr-hunt .hacts::-webkit-scrollbar{display:none}
+#scr-hunt .hact{flex:1 0 54px;max-width:84px;padding:7px 2px 6px;font-size:11px;border-radius:12px}
+#scr-hunt .hact span{font-size:18px}
+#scr-hunt .hlegend{display:none}
+/* телефон боком: карта слева, управление справа */
+@media (orientation:landscape) and (max-height:560px){
+  #scr-hunt.active{justify-content:start;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto auto 1fr auto;column-gap:10px;row-gap:4px;align-items:start;justify-items:stretch;
+    padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));
+    --bw:min(calc(100dvh - 12px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),calc(100vw - 300px))}
+  #scr-hunt #hunt-map{grid-column:1;grid-row:1 / 6}
+  #scr-hunt .topbar,#scr-hunt .hud,#scr-hunt .hobj,#scr-hunt .hfleet,#scr-hunt .hacts{grid-column:2;width:auto}
+  #scr-hunt .topbar{grid-row:1}#scr-hunt .hud{grid-row:2}#scr-hunt .hobj{grid-row:3;white-space:normal}#scr-hunt .hfleet{grid-row:4;flex-wrap:wrap;align-content:flex-start}
+  #scr-hunt .hacts{grid-row:5;display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));overflow:visible}
+  #scr-hunt .hact{max-width:none}
+}
 
 /* shipyard */
 .yard-head{display:flex;align-items:center;gap:12px;padding:12px 16px;width:min(560px,100%)}
