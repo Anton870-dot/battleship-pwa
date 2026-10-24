@@ -234,10 +234,9 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .hc.land{border-color:transparent}
 .hc.land.fog{background:transparent}
 .terrain{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}.terrain.surf{image-rendering:auto}
-.hc.reach{background:radial-gradient(circle at 50% 50%,rgba(120,255,190,.42) 0 18%,rgba(90,255,170,.16) 55%,rgba(90,255,170,.05) 100%);box-shadow:inset 0 0 0 1px rgba(150,255,210,.38);border-radius:7px;cursor:pointer;animation:hcPulse 2.2s ease-in-out infinite}.hc.reach:hover{background:radial-gradient(circle,rgba(150,255,210,.7) 0 25%,rgba(90,255,170,.3) 70%);box-shadow:inset 0 0 0 2px rgba(180,255,220,.9)}
-.hc.reach,.hc.inr{z-index:5}
+.hc.reach{background:radial-gradient(circle at 50% 50%,rgba(120,255,190,.3) 0 14%,rgba(90,255,170,.1) 50%,rgba(90,255,170,.03) 100%);box-shadow:inset 0 0 0 1px rgba(150,255,210,.3);border-radius:7px;cursor:pointer}.hc.reach:hover{background:radial-gradient(circle,rgba(150,255,210,.7) 0 25%,rgba(90,255,170,.3) 70%);box-shadow:inset 0 0 0 2px rgba(180,255,220,.9)}
 @keyframes hcPulse{50%{box-shadow:inset 0 0 0 1px rgba(150,255,210,.7),0 0 10px rgba(90,255,170,.25)}}
-.hc.inr{background:radial-gradient(circle at 50% 50%,rgba(255,220,120,.55) 0 7%,rgba(255,190,80,.12) 9% 32%,transparent 34%);cursor:crosshair}.hc.inr:hover{background:radial-gradient(circle,rgba(255,120,60,.6) 0 22%,rgba(255,180,60,.25) 60%,transparent 72%);box-shadow:inset 0 0 0 2px rgba(255,140,80,.95),0 0 12px rgba(255,120,60,.5)}
+.hc.inr{background:radial-gradient(circle at 50% 50%,rgba(255,220,120,.55) 0 7%,rgba(255,190,80,.12) 9% 32%,transparent 34%);cursor:crosshair}.hc.inr:hover{background:radial-gradient(circle,rgba(255,120,60,.35) 0 12%,transparent 60%);box-shadow:inset 0 0 0 2px rgba(255,140,80,.9)}
 .hc.noise{box-shadow:inset 0 0 0 2px rgba(255,130,130,.7);background-image:repeating-linear-gradient(45deg,rgba(255,90,90,.18) 0 4px,transparent 4px 8px)}
 .hc .mk{position:absolute;inset:36%;border-radius:50%;background:#fff;opacity:.75;z-index:2}.hc .mk.hit{background:#ff5a3c;opacity:.9}
 .hlayer{position:absolute;inset:0;pointer-events:none}
@@ -638,11 +637,10 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .bosstag{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:13px}
 .wxc{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:5}
 .hvig{position:absolute;inset:0;z-index:6;pointer-events:none;border-radius:inherit;background:radial-gradient(120% 120% at 50% 45%,transparent 55%,rgba(0,10,30,.38) 100%),linear-gradient(160deg,rgba(255,240,200,.07),transparent 40%)}
-.hmap.w-night .hvig{background:radial-gradient(110% 110% at 50% 50%,transparent 45%,rgba(0,4,16,.6) 100%)}
+.hmap.w-night .hvig{background:radial-gradient(120% 120% at 50% 50%,transparent 60%,rgba(0,4,16,.35) 100%)}
 .hmap.w-storm .hvig{background:radial-gradient(120% 120% at 50% 45%,transparent 50%,rgba(5,12,20,.5) 100%)}
 .hmap.tod-dusk .hvig{background:radial-gradient(120% 120% at 50% 45%,transparent 50%,rgba(40,10,30,.4) 100%),linear-gradient(160deg,rgba(255,150,70,.16),transparent 55%)}
 .hmap.tod-dawn .hvig{background:radial-gradient(120% 120% at 50% 45%,transparent 50%,rgba(30,20,50,.35) 100%),linear-gradient(200deg,rgba(255,190,150,.14),transparent 55%)}
-.hmap.w-night .hunit .spr img{filter:brightness(.62) saturate(.75) hue-rotate(8deg)}
 .hmap.w-storm .hunit .spr img{filter:brightness(.82) saturate(.8)}
 .hmap.w-fog .hunit .spr img{filter:brightness(.92) saturate(.75) contrast(.92)}
 .hmap.tod-dusk .hunit .spr img{filter:sepia(.25) saturate(1.15) brightness(.95)}
@@ -683,7 +681,13 @@ body:has(#scr-hunt.active){overflow:hidden}
 #scr-hunt .hobj{grid-area:obj;width:auto;max-width:100%;font-size:11px;padding:3px 12px;border-radius:20px;background:rgba(4,22,48,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #scr-hunt #hstatus{grid-area:obj;display:none}
 #scr-hunt #hstatus.theirs{display:block;font-size:12px;padding:3px 14px;border-radius:20px;background:rgba(60,30,0,.75);color:var(--gold);z-index:2;white-space:nowrap}
-#scr-hunt #hunt-map{grid-area:map;z-index:1}
+#scr-hunt #hunt-map{grid-area:1/1/-1/-1;align-self:stretch;justify-self:stretch;z-index:0;display:flex;overflow:auto;overscroll-behavior:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  margin:calc(-1 * max(6px,env(safe-area-inset-top))) calc(-1 * max(6px,env(safe-area-inset-right))) calc(-1 * max(8px,env(safe-area-inset-bottom))) calc(-1 * max(6px,env(safe-area-inset-left)));padding:var(--padT,96px) 0 var(--padB,130px)}
+#scr-hunt #hunt-map::-webkit-scrollbar{display:none}
+#scr-hunt #hunt-map>.hmap{margin:auto;flex:none}
+#scr-hunt .hfleet,#scr-hunt .hobj,#scr-hunt #hstatus,#scr-hunt #hmsg,#scr-hunt .hacts,#scr-hunt #hunt-exit,#scr-hunt #hunt-sound,#scr-hunt #hunt-zoom{z-index:2;position:relative}
+#scr-hunt #hunt-zoom{grid-area:obj;justify-self:end;width:34px;height:34px;font-size:14px;border-radius:50%}
+#scr-hunt.zfit #hunt-map{padding:0}
 #scr-hunt .hmap{--hw:var(--bw);border-radius:14px;box-shadow:0 20px 50px rgba(0,10,30,.55),0 0 0 1px rgba(255,255,255,.18)}
 #scr-hunt #hmsg{grid-area:msg;font-size:12px;line-height:1.25;max-width:min(560px,100%);text-align:center;padding:4px 12px;border-radius:14px;background:rgba(4,22,48,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #scr-hunt #hmsg:empty{visibility:hidden}
@@ -700,6 +704,7 @@ body:has(#scr-hunt.active){overflow:hidden}
   #scr-hunt .hfleet{flex-wrap:wrap}
   #scr-hunt .hacts{flex-wrap:wrap;width:auto}
   #scr-hunt #hmsg,#scr-hunt .hobj{justify-self:center}
+  #scr-hunt #hunt-map{grid-area:1/1/-1/2;padding:0}
 }
 
 /* shipyard */
@@ -1120,7 +1125,7 @@ body.menu-on .logo{margin:0}
   <div class="topbar">
     <button class="iconbtn glass" id="hunt-exit" aria-label="Отступить">✕</button>
     <div style="flex:1"><div class="status" id="hstatus"></div><div class="msg" id="hmsg"></div></div>
-    <button class="iconbtn glass" id="hunt-sound" aria-label="Звук">🔊</button>
+    <button class="iconbtn glass" id="hunt-sound" aria-label="Звук">🔊</button><button class="iconbtn glass" id="hunt-zoom" aria-label="Масштаб">🔍</button>
   </div>
   <div class="glass hud"><span id="hud-hptxt"></span><div class="hpbig"><i id="hud-hp"></i></div><span id="hud-info"></span></div>
   <div class="hobj" id="hobj"></div>
@@ -5235,6 +5240,7 @@ function buildHuntMap() {
   { const fc = document.createElement('canvas'); fc.className = 'fogc'; fc.width = fc.height = HN; m.appendChild(fc); H.fogc = fc; }
   { const td = todNow(); if (H.weather === 'clear' && (td === 'dawn' || td === 'dusk')) m.classList.add('tod-' + td); const vg = document.createElement('div'); vg.className = 'hvig'; m.appendChild(vg); }
   Weather.attach(m, H.weather);
+  hZoom(); setTimeout(() => hCenter(H.cur || H.me, false), 30);
 }
 function hMsg(t, cls) { const m = $('#hmsg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
 function boardTargets(u) { return H.foes.filter(f => f.hp > 0 && !f.gone && !f.boss && cheb(u, f) <= 1 && (foeVisible(f) || HS[f.type].fort)); }
@@ -5393,9 +5399,25 @@ function hReinf() {
     { t: 'Не сейчас', fn: () => overlay('#ov-ev', false) },
   ]);
 }
+// масштаб поля: 0 — всё поле, 1 — крупно, 2 — во весь экран (поле листается пальцем)
+function hZoom(center) {
+  const sc = $('#scr-hunt'), v = $('#hunt-map'); if (!sc || !v) return;
+  if (HB.hz == null) { try { const z = localStorage.getItem('bs-hz'); HB.hz = z == null ? 2 : +z; } catch (e) { HB.hz = 2; } }
+  const W = innerWidth, Hh = innerHeight, land = W > Hh && Hh < 600;
+  let bw;
+  if (land) bw = Math.min(Hh - 14, W - 320) * (HB.hz === 0 ? 1 : HB.hz === 1 ? 1.25 : 1.5);
+  else bw = HB.hz === 0 ? Math.min(W - 8, Hh - 190, 900) : HB.hz === 1 ? Math.min(W * 1.4, Hh - 150) : Math.max(W, Hh - 40);
+  sc.style.setProperty('--bw', Math.round(bw) + 'px'); sc.classList.toggle('zfit', HB.hz === 0 && !land);
+  if (center) requestAnimationFrame(() => hCenter(H.cur || H.me, false));
+}
+function hCenter(u, smooth = true) {
+  const v = $('#hunt-map'), m = v && v.querySelector('.hmap'); if (!m || !u) return;
+  const cs = m.clientWidth / HN, x = m.offsetLeft + (u.c + .5) * cs, y = m.offsetTop + (u.r + .5) * cs;
+  v.scrollTo({ left: x - v.clientWidth / 2, top: y - v.clientHeight / 2, behavior: smooth ? 'smooth' : 'auto' });
+}
 function hSelect(u) {
   if (H.busy || H.phase !== 'play' || u.hp <= 0 || u.auto || H.acted.has(u) || u === H.cur) return;
-  H.cur = u; H.mode = 'move'; Snd.play('click');
+  H.cur = u; H.mode = 'move'; Snd.play('click'); hCenter(u);
   hMsg(`Приказы получает: ${shipName(u)}`, 'info'); renderHunt();
 }
 function hPickup(u) {
@@ -5408,7 +5430,7 @@ function hUnitDone() {
   if (hCheck()) return;
   const next = myCmd().find(u => !H.acted.has(u));
   if (!next) return hEndPlayerTurn();
-  H.cur = next; H.mode = 'move'; H.busy = false; renderHunt();
+  H.cur = next; H.mode = 'move'; H.busy = false; renderHunt(); hCenter(next);
 }
 async function hClick(r, c) {
   if (H.busy || H.phase !== 'play') return;
@@ -5633,7 +5655,7 @@ function hStartPlayerTurn(first) {
     if (!u.auto) H.mines.forEach(m => { if (m.side === 'n' && cheb(u, m) <= 1) m.seen = true; });
   });
   if (fixed) hMsg(fixed > 1 ? `🔧 Ремонт на ходу: +❤ на ${fixed} кораблях` : '🔧 Пробоину залатали: +❤', 'info');
-  H.acted = new Set(); H.cur = me;
+  H.acted = new Set(); H.cur = me; setTimeout(() => hCenter(me), 200);
   const keep = H.weather === 'night' ? 2 : 1;
   H.flashes.forEach(f => f.age++); H.flashes = H.flashes.filter(f => f.age <= keep);
   H.marks.forEach(m => m.age++); H.marks = H.marks.filter(m => m.age <= 1);
@@ -5786,6 +5808,11 @@ function initHunt() {
   $('#btn-hunt').onclick = async () => { Snd.ensure(); await ensureCaptain(); HB.sel = null; showFort(); };
   $('#hov-ok').onclick = () => { overlay('#ov-hunt', false); backFromHunt(); };
   $('#hunt-sound').onclick = toggleSound;
+  $('#hunt-zoom').onclick = () => { Snd.play('click'); HB.hz = ((HB.hz ?? 2) + 1) % 3; try { localStorage.setItem('bs-hz', HB.hz); } catch (e) {} hZoom(true); toast(['🔍 Всё поле', '🔍 Крупно', '🔍 Во весь экран'][HB.hz]); };
+  addEventListener('resize', () => { if ($('#scr-hunt').classList.contains('active')) hZoom(); });
+  { const v = $('#hunt-map'); let dr = null; v.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; dr = { x: e.clientX, y: e.clientY, l: v.scrollLeft, t: v.scrollTop, m: 0 }; });
+    addEventListener('pointermove', e => { if (!dr) return; const dx = e.clientX - dr.x, dy = e.clientY - dr.y; if (Math.abs(dx) + Math.abs(dy) > 6) dr.m = 1; if (dr.m) { v.scrollLeft = dr.l - dx; v.scrollTop = dr.t - dy; } });
+    addEventListener('pointerup', () => { if (dr && dr.m) { const stop = ev => { ev.stopPropagation(); ev.preventDefault(); }; v.addEventListener('click', stop, { capture: true, once: true }); setTimeout(() => v.removeEventListener('click', stop, true), 50); } dr = null; }); }
   $('#hunt-exit').onclick = () => {
     if (H.phase !== 'play') { backFromHunt(); return; }
     if (!H.exitArm) { H.exitArm = true; hMsg('Нажмите ✕ ещё раз, чтобы отступить (без награды)', 'hit'); setTimeout(() => H.exitArm = false, 3000); return; }
@@ -7815,7 +7842,7 @@ void main(){
     const W = { clear: [.55, .32], storm: [1, .45], fog: [0, 0], night: [.35, .15] }[weather] || [.55, .32];
     map.appendChild(c);
     this.P = [];
-    const FC = { night: [[.01, .03, .08], [.08, .14, .26], .82], fog: [[.42, .5, .58], [.75, .8, .85], .78], storm: [[.06, .09, .13], [.25, .3, .36], .72] }[weather] || [[.02, .07, .16], [.22, .38, .55], .62];
+    const FC = { night: [[.03, .07, .16], [.16, .24, .4], .6], fog: [[.42, .5, .58], [.75, .8, .85], .78], storm: [[.06, .09, .13], [.25, .3, .36], .72] }[weather] || [[.02, .07, .16], [.22, .38, .55], .62];
     this.o = { c, gl, pp, pc, pf, ft, FC, fm: new Float32Array(HN * HN), fb: new Uint8Array(HN * HN), Uf: { uNz: loc(pf, 'uNz'), uM: loc(pf, 'uM'), uT: loc(pf, 'uT'), uN: loc(pf, 'uN'), uA: loc(pf, 'uA'), uC: loc(pf, 'uC'), uH: loc(pf, 'uH'), a: gl.getAttribLocation(pf, 'a') }, qb, pb, last: performance.now(), t0: performance.now(), max: gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] || 64,
       U: { uR: loc(pp, 'uR'), uMax: loc(pp, 'uMax'), uNz: loc(pp, 'uNz'), uT: loc(pp, 'uT'), cNz: loc(pc, 'uNz'), cT: loc(pc, 'uT'), cK: loc(pc, 'uK'), cN: loc(pc, 'uN'), cW: loc(pc, 'uW') },
       A: { aP: gl.getAttribLocation(pp, 'aP'), aD: gl.getAttribLocation(pp, 'aD'), a: gl.getAttribLocation(pc, 'a') },
