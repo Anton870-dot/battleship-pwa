@@ -663,35 +663,43 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .hunit.crit .spr.simg::after{opacity:1;background:radial-gradient(circle at 32% 45%,rgba(255,150,40,.95) 0 4%,rgba(15,10,8,.9) 8%,transparent 20%),radial-gradient(circle at 63% 58%,rgba(255,120,30,.9) 0 3%,rgba(15,10,8,.9) 7%,transparent 18%),radial-gradient(circle at 80% 40%,rgba(20,12,8,.8) 0 6%,transparent 14%),radial-gradient(circle at 48% 50%,rgba(20,12,8,.5) 0 10%,transparent 26%);animation:burnfl .5s steps(2) infinite}
 @keyframes burnfl{50%{filter:brightness(1.5)}}
 .hlegend{font-size:12px;color:var(--muted);text-align:center;max-width:470px;line-height:1.4}
-/* ===== Бой на весь экран ===== */
-#scr-hunt.active{position:fixed;inset:0;z-index:5;padding:max(6px,env(safe-area-inset-top)) 6px max(6px,env(safe-area-inset-bottom));gap:6px;justify-content:center;overflow:hidden;
-  --chrome:calc(196px + env(safe-area-inset-top) + env(safe-area-inset-bottom));--bw:min(calc(100vw - 12px),calc(100dvh - var(--chrome)),760px)}
+/* ===== Бой на весь экран: море за полем, панели поверх ===== */
+#scr-hunt.active{position:fixed;inset:0;z-index:5;display:grid;overflow:hidden;gap:6px;
+  padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+  grid-template-columns:40px minmax(0,1fr) 40px;grid-template-rows:auto auto minmax(0,1fr) auto auto;
+  grid-template-areas:"x fleet snd" "obj obj obj" "map map map" "msg msg msg" "acts acts acts";align-items:center;justify-items:center;
+  --bw:min(calc(100vw - 8px),calc(100dvh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),900px)}
 body:has(#scr-hunt.active){overflow:hidden}
-#scr-hunt .topbar{width:var(--bw);gap:6px;min-height:0}
-#scr-hunt .topbar .iconbtn{width:36px;height:36px;font-size:15px;flex:none}
-#scr-hunt #hstatus{font-size:13.5px;min-height:0;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#scr-hunt #hmsg{font-size:12px;min-height:0;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-#scr-hunt .hud{width:var(--bw);padding:3px 10px;gap:8px;font-size:11.5px;border-radius:12px}
-#scr-hunt .hud .hpbig{height:6px}
-#scr-hunt .hobj{width:var(--bw);font-size:11px;padding:2px 8px;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#scr-hunt .hfleet{width:var(--bw);gap:4px}
-#scr-hunt .hfleet button{min-width:52px;max-width:104px;padding:3px 4px 4px;font-size:10.5px;border-radius:10px;gap:2px}
-#scr-hunt .hmap{--hw:var(--bw);border-radius:12px}
-#scr-hunt .hacts{width:var(--bw);display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-top:4px}
+#scr-hunt .hbg{position:absolute;inset:-40px;z-index:-1;width:calc(100% + 80px);height:calc(100% + 80px);filter:blur(18px) brightness(.62) saturate(1.05);pointer-events:none;background:#0b3a5c}
+#scr-hunt .topbar,#scr-hunt .topbar>div{display:contents}
+#scr-hunt #hunt-exit{grid-area:x}#scr-hunt #hunt-sound{grid-area:snd}
+#scr-hunt #hunt-exit,#scr-hunt #hunt-sound{width:38px;height:38px;font-size:15px;align-self:center}
+#scr-hunt .hud{display:none}
+#scr-hunt .hfleet{grid-area:fleet;width:100%;justify-content:center;gap:5px;padding:0}
+#scr-hunt .hfleet:empty{display:flex}
+#scr-hunt .hfleet button{flex:0 1 auto;min-width:58px;max-width:118px;padding:4px 7px 5px;font-size:11px;border-radius:12px;gap:2px;background:rgba(4,22,48,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#scr-hunt .hfleet button.cur{background:rgba(255,207,74,.22)}
+#scr-hunt .hfleet .st{font-size:9.5px;font-weight:700;opacity:.85}
+#scr-hunt .hobj{grid-area:obj;width:auto;max-width:100%;font-size:11px;padding:3px 12px;border-radius:20px;background:rgba(4,22,48,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scr-hunt #hstatus{grid-area:obj;display:none}
+#scr-hunt #hstatus.theirs{display:block;font-size:12px;padding:3px 14px;border-radius:20px;background:rgba(60,30,0,.75);color:var(--gold);z-index:2;white-space:nowrap}
+#scr-hunt #hunt-map{grid-area:map;z-index:1}
+#scr-hunt .hmap{--hw:var(--bw);border-radius:14px;box-shadow:0 20px 50px rgba(0,10,30,.55),0 0 0 1px rgba(255,255,255,.18)}
+#scr-hunt #hmsg{grid-area:msg;font-size:12px;line-height:1.25;max-width:min(560px,100%);text-align:center;padding:4px 12px;border-radius:14px;background:rgba(4,22,48,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#scr-hunt #hmsg:empty{visibility:hidden}
+#scr-hunt .hacts{grid-area:acts;width:min(100%,640px);display:flex;justify-content:center;gap:6px;overflow-x:auto;scrollbar-width:none;padding:6px;border-radius:22px;background:rgba(4,22,48,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,10,30,.4)}
 #scr-hunt .hacts::-webkit-scrollbar{display:none}
-#scr-hunt .hact{flex:1 0 54px;max-width:84px;padding:7px 2px 6px;font-size:11px;border-radius:12px}
-#scr-hunt .hact span{font-size:18px}
+#scr-hunt .hact{flex:0 0 auto;width:58px;padding:6px 2px 5px;font-size:10.5px;border-radius:16px;background:rgba(255,255,255,.06);box-shadow:none}
+#scr-hunt .hact span{font-size:19px}
+#scr-hunt .hact.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#3b2300;text-shadow:none}
 #scr-hunt .hlegend{display:none}
-/* телефон боком: карта слева, управление справа */
-@media (orientation:landscape) and (max-height:560px){
-  #scr-hunt.active{justify-content:start;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto auto 1fr auto;column-gap:10px;row-gap:4px;align-items:start;justify-items:stretch;
-    padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));
-    --bw:min(calc(100dvh - 12px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),calc(100vw - 300px))}
-  #scr-hunt #hunt-map{grid-column:1;grid-row:1 / 6}
-  #scr-hunt .topbar,#scr-hunt .hud,#scr-hunt .hobj,#scr-hunt .hfleet,#scr-hunt .hacts{grid-column:2;width:auto}
-  #scr-hunt .topbar{grid-row:1}#scr-hunt .hud{grid-row:2}#scr-hunt .hobj{grid-row:3;white-space:normal}#scr-hunt .hfleet{grid-row:4;flex-wrap:wrap;align-content:flex-start}
-  #scr-hunt .hacts{grid-row:5;display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));overflow:visible}
-  #scr-hunt .hact{max-width:none}
+@media (orientation:landscape) and (max-height:600px){
+  #scr-hunt.active{grid-template-columns:auto 40px minmax(0,1fr) 40px;grid-template-rows:auto auto minmax(0,1fr) auto auto;
+    grid-template-areas:"map x fleet snd" "map obj obj obj" "map . . ." "map msg msg msg" "map acts acts acts";justify-items:stretch;column-gap:8px;
+    --bw:min(calc(100dvh - 14px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),calc(100vw - 320px))}
+  #scr-hunt .hfleet{flex-wrap:wrap}
+  #scr-hunt .hacts{flex-wrap:wrap;width:auto}
+  #scr-hunt #hmsg,#scr-hunt .hobj{justify-self:center}
 }
 
 /* shipyard */
@@ -5220,6 +5228,7 @@ function buildHuntMap() {
   H.els = {};
   hUnits().forEach(hMakeEl);
   wrap.appendChild(m);
+  { const old = $('#scr-hunt .hbg'); if (old) old.remove(); const bg = document.createElement('canvas'); bg.className = 'hbg'; bg.width = 96; bg.height = 96; $('#scr-hunt').prepend(bg); GLSea.bg = bg; }
   if (!GLSea.add(m, H.weather)) { Ocean.add(m, 160); Ocean.list[Ocean.list.length - 1].mood = H.weather; }
   Terrain.build(m, H.land, H.shoal, HN);
   BFX.attach(m); GLFx.attach(m, H.weather);
@@ -5305,10 +5314,10 @@ function renderHunt() {
   $('#hobj').textContent = objStatus() + (H.foeRes > 0 ? ` · 🏴 резерв врага: ${H.foeRes}` : '');
   const fb = $('#hunt-fleet'); fb.innerHTML = '';
   const shown = cmd.length > 6 ? cmd.filter(u => u.hp > 0) : cmd;
-  if (cmd.length > 1 || canReinf()) shown.forEach(u => {
+  if (cmd.length > 0) shown.forEach(u => {
     const b = document.createElement('button');
     b.className = 'glass' + (u.hp <= 0 ? ' dead' : u === H.cur && !H.busy ? ' cur' : '') + (u.hp > 0 && H.acted.has(u) ? ' done' : '');
-    b.innerHTML = `${u === H.me ? '⭐' : u.ally ? '🤝' : '⚓'} ${u.sid ? u.name.replace(/[«»]/g, '') : HS[u.type].name}${u.hp > 0 && H.acted.has(u) ? ' ✓' : ''}<span class="mini"><i style="width:${Math.max(0, u.hp) / u.st.hp * 100}%"></i></span>`;
+    b.innerHTML = `${u === H.me ? '⭐' : u.ally ? '🤝' : '⚓'} ${u.sid ? u.name.replace(/[«»]/g, '') : HS[u.type].name}${u.hp > 0 && H.acted.has(u) ? ' ✓' : ''}${u === H.cur || cmd.length === 1 ? `<span class="st">❤${Math.max(0, u.hp)}/${u.st.hp} · 🛡${u.st.armor}${u.marines ? ' · 🪖' + u.marines : ''}</span>` : ''}<span class="mini"><i style="width:${Math.max(0, u.hp) / u.st.hp * 100}%"></i></span>`;
     b.disabled = u.hp <= 0 || H.busy || H.phase !== 'play' || H.acted.has(u);
     b.onclick = () => hSelect(u);
     fb.appendChild(b);
@@ -7705,6 +7714,7 @@ void main(){
     gl.uniform2f(U.uR, px, px); gl.uniform1f(U.uT, ((now - o.t0) / 1000) % 3000);
     gl.uniform4fv(U.uS, o.S); gl.uniform4fv(U.uM, o.Mm); gl.uniform4fv(U.uI, o.I); gl.uniform4fv(U.uLt, o.Lt); gl.uniform3fv(U.uLc, o.Lc); gl.uniform4fv(U.uSk, o.Sk);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    if (this.bg && this.bg.isConnected && (o.bgN = (o.bgN || 0) + 1) % 3 === 1) { try { const g = this.bg.getContext('2d'); g.drawImage(c, 0, 0, 96, 96); } catch (e) {} }
   },
 };
 
