@@ -462,6 +462,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .dppin span{font-size:11px;font-weight:800;background:rgba(3,18,38,.82);padding:3px 8px;border-radius:9px;text-align:center;max-width:130px}.dppin small{display:block;color:#ffe08a;font-size:10.5px}
 .dppin.job b{border-color:#ffcf4a;background:radial-gradient(circle at 50% 35%,rgba(120,100,40,.95),rgba(50,40,10,.95));animation:none}
 .dppin.job.ready b{animation:pulse 1.2s infinite;border-color:#7dffb0}
+.dppin.rev b{background:radial-gradient(circle at 50% 35%,#ffb347,#7a3a06);border-color:#ffe2b0;box-shadow:0 0 20px rgba(255,160,60,.75);animation:pulse 1.4s infinite}.dppin.rev span{background:rgba(90,40,5,.9)}
 .dppin.threat b{background:radial-gradient(circle at 50% 35%,#ff6b57,#7a120c);border-color:#ffd0c8;box-shadow:0 0 22px rgba(255,80,60,.8);animation:pulse 1s infinite}.dppin.threat span{background:rgba(110,10,5,.9)}
 [hidden]{display:none!important}
 .dpdlg{position:absolute;left:8px;right:8px;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 4px);z-index:8;display:flex;align-items:flex-end;gap:0;cursor:pointer;max-width:620px;margin:0 auto;animation:dlgin .35s ease-out}
@@ -3351,13 +3352,21 @@ const atlDisc = h => 1 - .05 * atlRank(h);
 const SCI = { n: 'Ориан Вэл-Тессар', t: 'доктор океанологии · Атлантис', ship: 'Талассира' };
 const DEEP_TRAVEL = 25;
 const DEEP_RANKS = [{ n: 'Незнакомец', r: 0 }, { n: 'Помощник экспедиции', r: 3 }, { n: 'Надёжный капитан', r: 8 }, { n: 'Друг «Талассиры»', r: 15 }, { n: 'Почётный исследователь', r: 25 }];
-const DEEP_SLOTS = [[25, 22], [75, 25], [23, 50], [77, 53], [50, 68]];
+const DEEP_SLOTS = [[25, 22], [75, 25], [23, 50], [77, 53], [50, 68], [26, 76]];
 const DEEP_OFFERS = {
-  guard: { ic: '🛡', n: 'Охрана исследования', d: '«Талассира» ставит зонды в новом секторе. Рейдеры уже кружат рядом — проведите судно и прикройте его, пока идут замеры.', battle: true },
-  purge: { ic: '🦈', n: 'Разогнать рейдеров', d: 'Стая рейдеров засела у подводного хребта и мешает работе. Нужно выбить их оттуда.', battle: true },
-  dive:  { ic: '🤿', n: 'Подводная разведка', d: 'Нужна субмарина: спуститься к расщелине и снять дно на камеры. Только подлодка выдержит такое давление.' },
-  survey:{ ic: '📡', n: 'Замеры глубин', d: 'Пройти галсами по сектору с эхолотом. Скучно, зато безопасно — почти.' },
+  guard: { ic: '🛡', n: 'Охрана исследования', d: '«Талассира» ставит зонды в новом секторе. Рейдеры уже кружат рядом — проведите судно и прикройте его, пока идут замеры.', battle: true, obj: 'convoy', win: 'Зонды стоят, данные идут! Без вашей охраны мы бы не справились.' },
+  purge: { ic: '🦈', n: 'Разогнать рейдеров', d: 'Стая рейдеров засела у подводного хребта и мешает работе. Нужно выбить их оттуда.', battle: true, obj: 'hunt', extra: 1, win: 'Рейдеры бегут! Теперь хребет наш — можно начинать погружения.' },
+  wreck: { ic: '🛟', n: 'Спасти акванавтов', d: 'Батискаф «Талассиры» аварийно всплыл: трое акванавтов в спасательных капсулах, а рейдеры уже идут к ним — живые учёные для них ценнее любой находки. Подберите капсулы раньше них.', battle: true, obj: 'rescue', win: 'Все трое на борту! Обморожены, напуганы, но живы. Я не знаю, как вас благодарить, капитан.' },
+  trophy:{ ic: '🏺', n: 'Догнать трофейщика', d: 'Рейдеры подняли с руин тяжёлый груз — каменные плиты с резьбой — и уводят его на транспорте. Остановите транспорт, пока он не ушёл в шторм. Лучше взять его целым.', battle: true, obj: 'intercept', tname: 'Трофейщик рейдеров', win: 'Плиты у нас! Резьбе на них не меньше трёх тысяч лет. Мне понадобится неделя, чтобы просто их сфотографировать.' },
+  buoy:  { ic: '📶', n: 'Удержать буй связи', d: 'Глубоководный зонд передаёт данные через буй на поверхности. Передача идёт долго, а рейдеры глушат её и идут на перехват. Продержитесь, пока всё не загрузится.', battle: true, obj: 'survive', win: 'Загрузка завершена — сорок часов записей с самого дна. Спасибо, что выстояли.' },
+  nest:  { ic: '⛓', n: 'Плавучая база рейдеров', d: 'Сонар нашёл старую буровую платформу. Рейдеры чинят там корабли, держат пленных и прячут добычу. Пушки на ней серьёзные. Уничтожьте базу — или возьмите её штурмом.', battle: true, obj: 'fort', rk: 2, win: 'Платформы больше нет. Пленных — шестеро рыбаков из Атлантиса — мы забрали на борт. Совет об этом узнает.' },
+  dive:  { ic: '🤿', n: 'Подводная разведка', d: 'Нужна субмарина: спуститься к расщелине и снять дно на камеры. Только подлодка выдержит такое давление.', sub: true, ok: 'Снимки с глубины потрясающие! Ваша субмарина вернулась целой — я ваш должник, капитан.' },
+  ruins: { ic: '🏛', n: 'Руины на дне', d: 'На глубине двух километров эхолот рисует стены, ступени и колонны, которым нет названия. Туда пройдёт только субмарина. Рейдеры тоже ищут это место — и, кажется, уже близко.', sub: true, rk: 1, ok: 'Это не скалы. Это город, капитан. Улицы, лестницы, арки… Я смотрю на снимки и не могу уснуть.' },
+  survey:{ ic: '📡', n: 'Замеры глубин', d: 'Пройти галсами по сектору с эхолотом. Скучно, зато безопасно — почти.', ok: 'Карта глубин готова. Отличная работа — теперь мы знаем, где копать дальше.' },
+  sample:{ ic: '🧪', n: 'Пробы воды', d: 'Взять пробы воды на пяти глубинах в дальнем секторе. Работа на полдня, рейдеры туда заглядывают редко.', ok: 'Пробы чистые и аккуратно подписаны. Лаборатория будет довольна.' },
+  station:{ ic: '🛰', n: 'Донные станции', d: 'Доставить и опустить на дно тяжёлые измерительные станции — по полтонны каждая. Нужен трюм: грузовые суда справятся быстрее и надёжнее.', haul: true, ok: 'Станции стоят и уже передают данные. Теперь мы услышим, если на дне что-то сдвинется.' },
 };
+const DEEP_POOL = ['guard', 'purge', 'dive', 'survey', 'guard', 'dive', 'wreck', 'trophy', 'buoy', 'nest', 'ruins', 'sample', 'station'];
 const DEEP_HI = [
   'С возвращением, капитан. «Талассира» на месте, приборы гудят.',
   'Сонар снова поймал что-то большое на глубине. Расскажу, когда будем уверены.',
@@ -3382,8 +3391,15 @@ const deepRank = h => { const r = deepData(h).rep; let k = 0; DEEP_RANKS.forEach
 const deepLvl = h => Math.max(2, (h.mission || 1) + 1 + deepRank(h));
 function deepOffer(h, slot) {
   const D = deepData(h), lvl = deepLvl(h), k = 1 + .1 * deepRank(h), now = Date.now();
-  const kind = pick(['guard', 'purge', 'dive', 'survey', 'guard', 'dive']);
+  const kind = pick(DEEP_POOL.filter(x => !DEEP_OFFERS[x].rk || deepRank(h) >= DEEP_OFFERS[x].rk));
   const o = { id: 'd' + (++D.seq), kind, lvl, slot, exp: now + 8 * 3600e3 };
+  if (kind === 'wreck') Object.assign(o, { gold: Math.round((220 + 40 * lvl) * k), rep: 3, cred: 1 });
+  if (kind === 'trophy') Object.assign(o, { gold: Math.round((250 + 44 * lvl) * k), rep: 2, cred: 2 });
+  if (kind === 'buoy') Object.assign(o, { gold: Math.round((240 + 40 * lvl) * k), rep: 2, cred: 1 });
+  if (kind === 'nest') Object.assign(o, { gold: Math.round((380 + 55 * lvl) * k), rep: 4, cred: 2, lvl: lvl + 1 });
+  if (kind === 'ruins') Object.assign(o, { gold: Math.round((480 + 55 * lvl) * k), rep: 3, cred: 2, min: 120 + rnd(4) * 20, risk: .26 + Math.random() * .1 });
+  if (kind === 'sample') Object.assign(o, { gold: Math.round((170 + 24 * lvl) * k), rep: 1, cred: 0, min: 30 + rnd(3) * 10, risk: .07 + Math.random() * .07 });
+  if (kind === 'station') Object.assign(o, { gold: Math.round((300 + 40 * lvl) * k), rep: 2, cred: 1, min: 70 + rnd(4) * 15, risk: .18 + Math.random() * .1 });
   if (kind === 'guard') Object.assign(o, { gold: Math.round((200 + 38 * lvl) * k), rep: 2, cred: 1 });
   if (kind === 'purge') Object.assign(o, { gold: Math.round((230 + 42 * lvl) * k), rep: 2, lvl: lvl + 1, cred: 1 });
   if (kind === 'dive') Object.assign(o, { gold: Math.round((340 + 45 * lvl) * k), rep: 2, cred: 1, min: 60 + rnd(5) * 15, risk: .16 + Math.random() * .12 });
@@ -3392,7 +3408,7 @@ function deepOffer(h, slot) {
 }
 function deepTick(h) {
   const D = deepData(h), now = Date.now(); let ch = false;
-  if (!D.boardT || now - D.boardT > 4 * 3600e3) { const used = D.jobs.map(j => j.slot); D.board = [0, 1, 2, 3, 4].filter(i => !used.includes(i)).sort(() => Math.random() - .5).slice(0, 3).map(i => deepOffer(h, i)); D.boardT = now; ch = true; }
+  if (!D.boardT || now - D.boardT > 4 * 3600e3) { const used = D.jobs.map(j => j.slot); D.board = [0, 1, 2, 3, 4, 5].filter(i => !used.includes(i)).sort(() => Math.random() - .5).slice(0, 4).map(i => deepOffer(h, i)); D.boardT = now; ch = true; }
   const nb = D.board.length; D.board = D.board.filter(o => o.exp > now); if (D.board.length !== nb) ch = true;
   // нападения рейдеров на «Талассиру»
   if (D.intro) {
@@ -3400,16 +3416,17 @@ function deepTick(h) {
     if (!D.threatNext) { D.threatNext = now + (2 + Math.random() * 2) * 3600e3; ch = true; }
     if (!D.threat && now >= D.threatNext) { D.threat = { at: now, end: now + 2 * 3600e3, lvl: deepLvl(h), gold: Math.round((180 + 34 * deepLvl(h)) * (1 + .1 * deepRank(h))) }; news(h, `🦈 <b>Морские рейдеры атакуют «${SCI.ship}»!</b> Доктор ${SCI.n} просит помощи — у вас 2 часа`); Snd.play('bell'); ch = true; }
   }
+  if (deepEvTick(h)) ch = true;
   for (const j of [...D.jobs]) {
     if (DEEP_OFFERS[j.kind].battle && j.st === 'go' && now >= j.at) { j.st = 'ready'; ch = true; news(h, `🌊 Флот прибыл в Глубокие воды: «${DEEP_OFFERS[j.kind].n}» — можно начинать бой`); }
     if (!DEEP_OFFERS[j.kind].battle && now >= j.at) {
       const s = h.ships[j.ship]; D.jobs.splice(D.jobs.indexOf(j), 1); ch = true;
       if (!s) continue; s.trade = 0;
-      const risk = j.risk * (HS[s.type].sub ? .6 : 1);
+      const risk = j.risk * (HS[s.type].sub ? .6 : 1) * (DEEP_OFFERS[j.kind].haul && HS[s.type].hauler ? .6 : 1);
       if (Math.random() > risk) {
         h.gold += j.gold; D.rep += j.rep; D.done++; if (j.cred) h.cred = (h.cred || 0) + j.cred;
         news(h, `${DEEP_OFFERS[j.kind].ic} «${DEEP_OFFERS[j.kind].n}» выполнено: ${sName(s)} вернулся. +${j.gold} 💰${j.cred ? `, +${j.cred} 💠` : ''}, доверие доктора +${j.rep}`); Snd.play('coins');
-        D.say = j.kind === 'dive' ? 'Снимки с глубины потрясающие! Ваша субмарина вернулась целой — я ваш должник, капитан.' : 'Карта глубин готова. Отличная работа — теперь мы знаем, где копать дальше.';
+        D.say = DEEP_OFFERS[j.kind].ok;
       } else {
         const half = Math.round(j.gold * .4); h.gold += half; s.hpLost = Math.min(shipMaxHp(h, s) - 1, (s.hpLost || 0) + Math.round(shipMaxHp(h, s) * .5));
         news(h, `🦈 Рейдеры напали на ${sName(s)} в Глубоких водах! Корабль ушёл, но сильно побит. Часть данных спасена: +${half} 💰`); Snd.play('bad');
@@ -3418,6 +3435,62 @@ function deepTick(h) {
     }
   }
   return ch;
+}
+function deepCanFight(h) {
+  if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return false; }
+  if (!SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале'); return false; }
+  return true;
+}
+// случайные события с морскими рейдерами
+const deepEvFight = (h, obj, B, o = {}) => { const D = deepData(h); if (!deepCanFight(h)) return false; D.evB = B; D.ev = null; D.evNext = Date.now() + (2.5 + Math.random() * 2) * 3600e3; overlay('#ov-ev', false); saveProfiles(); HB.ret = 'deep'; startHunt({ kind: 'battle', obj, lvl: B.lvl, weather: pickW([['clear', 3], ['fog', 3], ['storm', 2], ['night', 3]]), bonus: true, deep: 'ev', fac: 'raid', ...o }); return true; };
+const DEEP_EV = {
+  deserter: { ic: '🚣', n: 'Шлюпка в тумане', t: () => 'Дозорный заметил в тумане шлюпку. В ней — молодой рейдер: обожжённые руки, ни оружия, ни воды. Он говорит, что бежал: капитан «Бездны» приказал затопить трюм вместе с пленными, а он отказался и ночью спустил шлюпку.',
+    o: [{ t: '🗣 Взять на борт и выслушать', run: (h, D, L) => { if (chance(.65)) { const g = 140 + 18 * L; h.gold += g; D.threatNext = Math.max(D.threatNext || 0, Date.now()) + 4 * 3600e3; return [`Он не врал. Назвал риф, где рейдеры прячут бочки с топливом и ящики с добычей. Морпехи вернулись к утру с грузом: +${g} 💰.`, 'Без топлива рейдеры какое-то время будут сидеть тихо — следующее нападение на «Талассиру» отодвинулось.']; } const w = decDamage(h, 1, .25); return ['Ночью «беглец» пробрался в машинное отделение и успел открыть кингстон, прежде чем его скрутили.', `Течь заделали, но ${w || 'корабль'} пострадал — нужен ремонт. Утром пленника не оказалось на борту. Шлюпки — тоже.`]; } },
+      { t: '🔬 Передать доктору', run: (h, D) => { D.rep += 2; return ['Доктор сам обработал ожоги и долго говорил с парнем в лазарете.', '«Ему нужен врач, а не допрос, капитан. А то, что он рассказал о „Бездне“, я передам Совету». Доверие доктора +2.']; } },
+      { t: '🌫 Оставить в шлюпке', run: () => ['Шлюпку отнесло в туман. Через час сонар поймал шум мотора с той стороны — кто-то её подобрал. Свои или чужие — уже не узнать.'] }] },
+  drift: { ic: '⚓', n: 'Дрейфующий рейдер', t: () => 'Ржавый рейдерский эсминец дрейфует без хода, с креном на левый борт. На палубе ни души, из трюма тянется дым. Похоже, его бросили после боя… или кто-то очень хочет, чтобы так думали.',
+    o: [{ t: '🪖 Отправить абордажную команду', run: (h, D, L) => { if (chance(.55)) { const g = 220 + 30 * L; h.gold += g; h.cred = (h.cred || 0) + 1; ammoData(h).he += 12; return ['Корабль действительно брошен: в кают-компании — недопитый чай, в трюме — пожар, который морпехи потушили за полчаса.', `Добыча: судовая касса и шифровальная книга (+${g} 💰, +1 💠) и 12 снарядов из погреба.`]; } return null; }, fight: (h, L) => deepEvFight(h, 'hunt', { lvl: L, gold: 260 + 32 * L, cr: 1, rep: 1, wt: `🦈 Засада у дрейфующего эсминца разбита: +${260 + 32 * L} 💰`, ws: 'Старый трюк — пустой корабль как приманка. Хорошо, что вы на него не купились до конца.' }, { ambush: true }), ft: 'Едва катер с морпехами отошёл от борта, из-за эсминца вышли ещё два рейдера. Это засада!' },
+      { t: '💥 Потопить издалека', run: (h) => { h.gold += 60; return ['Три залпа — и эсминец лёг на борт. Что бы ни было у него в трюме, теперь оно на дне.', 'Шлюпки подобрали обломки и пару ящиков с медью: +60 💰.']; } },
+      { t: '🧭 Пройти мимо', run: () => ['Эсминец остался дрейфовать позади. К вечеру он скрылся из виду — а ночью вахтенные слышали далёкий гул моторов.'] }] },
+  tribute: { ic: '📜', n: 'Ультиматум «Бездны»', t: (h, D, L) => `На частоте «Талассиры» — спокойный хриплый голос: «Учёным — неделя тишины за ${180 + 25 * L} золотых. Не заплатите — придём сегодня. Ответ жду до заката». Доктор бледен: у него нет таких денег.`,
+    o: [{ t: '💰 Заплатить', cost: L => 180 + 25 * L, run: (h, D, L) => { h.gold -= 180 + 25 * L; D.rep = Math.max(0, D.rep - 1); D.threatNext = Math.max(D.threatNext || 0, Date.now()) + 8 * 3600e3; return ['Золото оставили в бочке у буя. К утру бочка исчезла, и в эфире стало тихо.', '«Мы им заплатили, капитан. Это неправильно. Они придут снова — и попросят больше». Доверие доктора −1.']; } },
+      { t: '🔥 Ответить пушками', run: (h, D, L) => { const now = Date.now(); if (!D.threat) D.threat = { at: now, end: now + 2 * 3600e3, lvl: L + 1, gold: Math.round((260 + 40 * L) * (1 + .1 * deepRank(h))) }; return ['«Передайте вашему капитану, что „Талассира“ под охраной флота». Связь оборвалась.', 'Через полчаса сонар показал рейдеров — они идут к «Талассире» всей стаей. Метка атаки уже на карте.']; } },
+      { t: '🏙 Передать запись в Атлантис', run: (h, D) => { atlData(h).rep++; D.threatNext = Date.now() + 1.5 * 3600e3; return ['Совет получил запись и обещал выслать патрульный корабль. Доверие Совета Атлантиса +1.', 'Патруль придёт нескоро. Рейдеры, похоже, это тоже знают — ждите их в ближайшие часы.']; } }] },
+  cache: { ic: '📦', n: 'Тайник на рифе', t: () => 'Эхолот нашёл на мелком рифе ящики, обмотанные цепями и притопленные на тросах. Рейдеры прячут здесь добычу до прихода своих транспортов. Рядом дежурит их сторожевой катер.',
+    o: [{ t: '⚔️ Атаковать охрану', fight: (h, L) => deepEvFight(h, 'hunt', { lvl: Math.max(2, L - 1), gold: 280 + 40 * L, cr: 1, rep: 1, wt: `📦 Охрана тайника перебита, ящики подняты: +${280 + 40 * L} 💰, +1 💠`, ws: 'В ящиках были и наши приборы, украденные в прошлом месяце! Спасибо, капитан.' }), ft: 'Флот разворачивается к рифу. Сторожевой катер дал ракету — к нему идёт подмога.' },
+      { t: '🌙 Дождаться ночи и вскрыть тихо', run: (h, D, L) => { if (chance(.6)) { const g = 190 + 26 * L; h.gold += g; return ['Шлюпки подошли без огней. Водолазы резали тросы на ощупь, в полной темноте.', `К рассвету подняли четыре ящика: серебро, медь и пара судовых хронометров — +${g} 💰. Рейдеры так ничего и не заметили.`]; } const w = decDamage(h, 1, .2); return ['Один ящик сорвался с троса и грохнул о борт шлюпки. Катер рейдеров врубил прожектор и открыл огонь.', `Люди ушли, но ${w || 'корабль'} получил пробоины. Ящики остались на рифе.`]; } },
+      { t: '🔬 Сообщить доктору', run: (h, D) => { D.rep++; h.cred = (h.cred || 0) + 1; return ['Доктор попросил не трогать тайник: «Пусть Совет пришлёт патруль и поймает их транспорт с поличным».', 'Совет выплатил премию за наводку: +1 💠. Доверие доктора +1.']; } }] },
+  sos: { ic: '🆘', n: 'Сигнал бедствия', t: () => 'Рыболовецкая шхуна из Атлантиса передаёт SOS: рейдеры расстреляли её мотобот и забрали улов. Шхуна горит, люди прыгают в воду, а рейдеры не уходят — ждут, кого можно забрать в плен.',
+    o: [{ t: '🛟 Полный вперёд!', fight: (h, L) => deepEvFight(h, 'rescue', { lvl: L, gold: 160 + 30 * L, rep: 1, atl: 1, wt: `🆘 Рыбаки спасены: +${160 + 30 * L} 💰 от Гильдии, доверие доктора и Совета +1`, ws: 'Шкипер шхуны плакал, когда его поднимали на борт. Сказал, что назовёт сына в вашу честь, капитан.', lt: '🆘 Рейдеры увезли рыбаков в плен…', ls: 'Мы не успели. Совет попробует выкупить людей… если рейдеры станут торговаться.' }), ft: 'Флот на полном ходу идёт к горящей шхуне. В воде — головы людей и обломки.' },
+      { t: '📡 Передать координаты в Атлантис', run: (h, D) => { D.rep = Math.max(0, D.rep - 1); return ['Спасатели Атлантиса подошли через три часа. Из одиннадцати рыбаков нашли четверых.', 'Доктор долго молчал, а потом ушёл к себе. Доверие доктора −1.']; } }] },
+  radio: { ic: '📻', n: 'Перехват шифровки', t: () => 'Радист «Талассиры» поймал короткую шифровку на частоте рейдеров. Инженер Тейр Валдис уверен, что сможет её прочесть, если будет время и запчасти для дешифратора.',
+    o: [{ t: '🔐 Расшифровать (1 💠)', cr: 1, run: (h, D) => { h.cred = (h.cred || 0) - 1; const used = [...D.jobs, ...D.board].map(x => x.slot), fr = [0, 1, 2, 3, 4, 5].find(i => !used.includes(i)); let t2 = 'Это расписание: когда и откуда пойдут их транспорты. Жаль, ближайший уже ушёл.'; if (fr != null) { const o = deepOffer(h, fr); Object.assign(o, { kind: 'trophy', gold: Math.round((250 + 44 * o.lvl) * 1.3), rep: 2, cred: 2 }); D.board.push(o); t2 = 'Это маршрут трофейщика рейдеров — тяжёлого транспорта с добычей с руин! Новое задание «Догнать трофейщика» уже на карте, награда выше обычной.'; } D.threatNext = Math.max(D.threatNext || 0, Date.now()) + 3 * 3600e3; return ['Тейр не спал всю ночь. К утру на столе лежал листок с колонками цифр и координат.', t2]; } },
+      { t: '🏙 Передать Совету Атлантиса', run: (h) => { atlData(h).rep++; return ['Шифровальщики Совета взялись за работу. Через день пришла благодарность — и просьба присылать всё, что удастся поймать. Доверие Совета +1.']; } },
+      { t: '🗑 Не тратить время', run: () => ['Запись легла в архив. Тейр ворчал весь вечер.'] }] },
+  mines: { ic: '💣', n: 'Мины у хребта', t: () => 'Ночью рейдеры засеяли минами сектор, где работает «Талассира». Одну мину уже вынесло течением к её борту — повезло, что вахтенный заметил. Судно стоит, работа встала.',
+    o: [{ t: '⚓ Протралить своими силами', run: (h, D, L) => { if (chance(.7)) { D.rep += 2; h.gold += 100 + 10 * L; return ['Тральщики работали до темноты. Двенадцать мин подорвали, ещё три подняли целыми.', `Доктор вывел «Талассиру» в сектор уже на следующее утро. Доверие доктора +2, за трофейные мины Атлантис заплатил +${100 + 10 * L} 💰.`]; } const w = decDamage(h, 1, .35); D.rep++; return ['Последняя мина оказалась донной, с хитрым взрывателем. Она сработала под кормой.', `${w || 'Корабль'} — тяжёлые повреждения, но все живы. Сектор чист. Доверие доктора +1.`]; } },
+      { t: '🏙 Нанять сапёров Атлантиса', cost: () => 250, run: (h, D) => { h.gold -= 250; D.rep++; return ['Сапёры Атлантиса пришли на двух тральщиках и за день очистили сектор. Дорого, зато без риска. Доверие доктора +1.']; } },
+      { t: '⏳ Пусть подождут', run: (h, D) => { D.rep = Math.max(0, D.rep - 1); D.board = D.board.slice(0, Math.max(0, D.board.length - 1)); return ['«Талассира» простояла три дня. Часть заказов пришлось отменить. Доверие доктора −1.']; } }] },
+};
+function deepEvTick(h) {
+  const D = deepData(h), now = Date.now(); if (!D.intro || deepRank(h) < 0) return false;
+  if (D.ev && now > D.ev.end) { D.ev = null; D.evNext = now + (2 + Math.random() * 2) * 3600e3; return true; }
+  if (!D.evNext) { D.evNext = now + (1 + Math.random()) * 3600e3; return true; }
+  if (!D.ev && now >= D.evNext) { const k = pick(Object.keys(DEEP_EV).filter(x => x !== D.evLast)); D.ev = { k, at: now, end: now + 3 * 3600e3, lvl: deepLvl(h) }; D.evLast = k; news(h, `${DEEP_EV[k].ic} Глубокие воды: ${DEEP_EV[k].n}. Доктор ${SCI.n} ждёт вашего решения`); return true; }
+  return false;
+}
+function deepEvOpen() {
+  const h = hdata(curProfile()), D = deepData(h), E = D.ev; if (!E) return; const X = DEEP_EV[E.k], L = E.lvl;
+  const done = lines => { D.ev = null; D.evNext = Date.now() + (2.5 + Math.random() * 2) * 3600e3; overlay('#ov-ev', false); saveProfiles(); renderDeep(); deepSay(lines); };
+  showEv(X.ic, X.n, `<p>${X.t(h, D, L)}</p><small class="muted">Решение нужно принять за <b data-until="${E.end}">${fmtLeft(E.end - Date.now())}</b></small>`, X.o.map(op => {
+    const c = op.cost ? op.cost(L) : 0;
+    return { t: op.t + (c ? ` · ${c} 💰` : ''), dis: (c && h.gold < c) || (op.cr && (h.cred || 0) < op.cr), cls: 'primary', fn: () => {
+      Snd.play('click');
+      const r = op.run ? op.run(h, D, L) : null;
+      if (r) return done(r);
+      if (op.fight) { overlay('#ov-ev', false); deepSay([op.ft], () => op.fight(h, L)); }
+    } };
+  }).concat([{ t: 'Решу позже', fn: () => overlay('#ov-ev', false) }]));
 }
 function showDeep() { const p = curProfile(); if (!p) return; Snd.ensure(); HB.ret = 'deep'; show('scr-deep'); renderDeep(true); const D = deepData(hdata(p));
   if (!D.intro) { D.intro = true; saveProfiles(); deepSay(DEEP_INTRO); }
@@ -3429,13 +3502,14 @@ function renderDeep(center) {
   const v = $('#dpview'), now = Date.now(), W = 'fit';
   let s = `<div class="dpstage"><img class="dpimg" src="deep_sea.webp" alt=""><div class="amglint"></div>
     <div class="dpship" style="left:50%;top:38%"><img src="top_atl_cargo.webp" alt=""><span>🔬 «${SCI.ship}»</span></div>`;
+  if (D.ev) { const X = DEEP_EV[D.ev.k]; s += `<button class="dppin rev" data-dp="ev" style="left:74%;top:78%"><b>${X.ic}</b><span>${X.n}<small data-until="${D.ev.end}">${fmtLeft(D.ev.end - now)}</small></span></button>`; }
   if (D.threat) s += `<button class="dppin threat" data-dp="threat" style="left:72%;top:24%"><b>🦈</b><span>Атака рейдеров!<small data-until="${D.threat.end}">${fmtLeft(D.threat.end - now)}</small></span></button>`;
   D.board.forEach(o => { const O = DEEP_OFFERS[o.kind], [x, y] = DEEP_SLOTS[o.slot] || [50, 20]; s += `<button class="dppin" data-dp="${o.id}" style="left:${x}%;top:${y}%"><b>${O.ic}</b><span>${O.n}<small>${o.gold} 💰</small></span></button>`; });
   D.jobs.forEach(j => { const O = DEEP_OFFERS[j.kind], [x, y] = DEEP_SLOTS[j.slot] || [50, 20], rd = j.st === 'ready';
     s += `<button class="dppin job${rd ? ' ready' : ''}" data-dp="${j.id}" style="left:${x}%;top:${y}%"><b>${O.ic}</b><span>${rd ? 'Флот на месте — в бой!' : O.battle ? 'Флот в пути' : 'Идёт работа'}<small>${rd ? '⚔️' : `<i data-until="${j.at}">${fmtLeft(j.at - now)}</i>`}</small></span></button>`; });
   s += `</div>`;
   v.innerHTML = s;
-  v.querySelectorAll('[data-dp]').forEach(b => b.onclick = () => { if (HB.dragged) return; Snd.play('click'); deepBrief(b.dataset.dp); });
+  v.querySelectorAll('[data-dp]').forEach(b => b.onclick = () => { if (HB.dragged) return; Snd.play('click'); if (b.dataset.dp === 'ev') return deepEvOpen(); deepBrief(b.dataset.dp); });
   $('#dp-gold').textContent = h.gold;
   const rk = deepRank(h), nx = DEEP_RANKS[rk + 1];
   $('#dp-rank').textContent = `🔬 ${DEEP_RANKS[rk].n}${nx ? ` · ${D.rep}/${nx.r}` : ''}`;
@@ -3470,9 +3544,9 @@ function deepBrief(id) {
     if (o) {
       if (O.battle) btns.push(`<button class="btn primary" data-dpa="take" data-id="${o.id}">Принять · флот выйдет сейчас</button>`);
       else {
-        const ships = Object.values(h.ships).filter(x => trCanSail(h, x) && (X.kind !== 'dive' || HS[x.type].sub));
-        s += `<div class="sec-t">${X.kind === 'dive' ? '🤿 Какая субмарина пойдёт?' : '⚓ Какой корабль пойдёт?'}</div>`;
-        btns.push(ships.length ? ships.map(x => `<button class="btn small" data-dpa="ship" data-id="${o.id}" data-sh="${x.id}">${HS[x.type].sub ? '🤿 ' : ''}${sName(x)}</button>`).join('') : `<small class="muted">${X.kind === 'dive' ? 'Нет свободной подводной лодки (флагман остаётся дома). Купите подлодку в Сухом доке.' : 'Нет свободных кораблей — флагман остаётся дома.'}</small>`);
+        const ships = Object.values(h.ships).filter(x => trCanSail(h, x) && (!O.sub || HS[x.type].sub));
+        s += `<div class="sec-t">${O.sub ? '🤿 Какая субмарина пойдёт?' : O.haul ? '⚓ Какой корабль пойдёт? (грузовые — надёжнее)' : '⚓ Какой корабль пойдёт?'}</div>`;
+        btns.push(ships.length ? ships.map(x => `<button class="btn small" data-dpa="ship" data-id="${o.id}" data-sh="${x.id}">${HS[x.type].sub ? '🤿 ' : O.haul && HS[x.type].hauler ? '📦 ' : ''}${sName(x)}</button>`).join('') : `<small class="muted">${O.sub ? 'Нет свободной подводной лодки (флагман остаётся дома). Купите подлодку в Сухом доке.' : 'Нет свободных кораблей — флагман остаётся дома.'}</small>`);
       }
     } else if (j) {
       if (j.st === 'ready') btns.push(`<button class="btn primary" data-dpa="go" data-id="${j.id}">⚔️ В бой</button>`);
@@ -3489,29 +3563,35 @@ function deepAct(act, id, sh) {
   const h = hdata(curProfile()), D = deepData(h), now = Date.now();
   if (act === 'close') { overlay('#ov-deep', false); return; }
   if (act === 'take') { const o = D.board.find(x => x.id === id); if (!o) return; D.board = D.board.filter(x => x !== o); D.jobs.push({ ...o, st: 'go', at: now + DEEP_TRAVEL * 60000 }); Snd.play('horn'); deepSay(['Прекрасно! Флот уже вышел — жду вас в секторе.']); }
-  if (act === 'ship') { const o = D.board.find(x => x.id === id), s = h.ships[sh]; if (!o || !s || !trCanSail(h, s)) return; D.board = D.board.filter(x => x !== o); D.jobs.push({ ...o, ship: s.id, at: now + o.min * 60000 }); s.trade = o.id; h.squad = h.squad.filter(k => k !== s.id); Snd.play('horn'); deepSay([o.kind === 'dive' ? `${sName(s)} уходит на глубину. Держите связь, капитан — я буду следить по сонару.` : `${sName(s)} начинает замеры. Если появятся рейдеры — пусть уходит, данные не стоят жизней.`]); }
+  if (act === 'ship') { const o = D.board.find(x => x.id === id), s = h.ships[sh]; if (!o || !s || !trCanSail(h, s)) return; D.board = D.board.filter(x => x !== o); D.jobs.push({ ...o, ship: s.id, at: now + o.min * 60000 }); s.trade = o.id; h.squad = h.squad.filter(k => k !== s.id); Snd.play('horn'); deepSay([DEEP_OFFERS[o.kind].sub ? `${sName(s)} уходит на глубину. Держите связь, капитан — я буду следить по сонару.` : `${sName(s)} начинает замеры. Если появятся рейдеры — пусть уходит, данные не стоят жизней.`]); }
   if (act === 'spd') { const j = D.jobs.find(x => x.id === id); if (!j) return; const n = credCost(j.at - now); if (!payCred(h, n)) return; j.at = now; deepTick(h); }
   if (act === 'go' || act === 'threat') {
-    if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
-    if (!SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале'); return; }
+    if (!deepCanFight(h)) return;
     overlay('#ov-deep', false); saveProfiles(); HB.ret = 'deep';
     const W = pickW([['clear', 4], ['fog', 2], ['storm', 2], ['night', 2]]);
     if (act === 'threat') { const T = D.threat; if (!T) return; return startHunt({ kind: 'battle', obj: 'convoy', lvl: T.lvl, weather: W, bonus: true, deep: 'threat', fac: 'raid' }); }
     const j = D.jobs.find(x => x.id === id); if (!j || j.st !== 'ready') return;
-    return startHunt({ kind: 'battle', obj: j.kind === 'guard' ? 'convoy' : 'hunt', lvl: j.lvl, weather: W, bonus: true, deep: j.id, fac: 'raid', extra: j.kind === 'purge' ? 1 : 0 });
+    const O = DEEP_OFFERS[j.kind];
+    return startHunt({ kind: 'battle', obj: O.obj || 'hunt', lvl: j.lvl, weather: W, bonus: true, deep: j.id, fac: 'raid', extra: O.extra || 0, tname: O.tname });
   }
   overlay('#ov-deep', false); saveProfiles(); renderDeep();
 }
 // итог боя в Глубоких водах
 function deepAfter(h, node, won, lines) {
   const D = deepData(h); let gold = 0, cr = 0;
+  if (node.deep === 'ev') {
+    const B = D.evB; D.evB = null;
+    if (won && B) { gold = B.gold; cr = B.cr || 0; D.rep += B.rep || 0; if (B.atl) atlData(h).rep += B.atl; lines.push(B.wt); D.say = B.ws; }
+    else if (B) { lines.push(B.lt || '🦈 Рейдеры взяли верх в этой стычке'); D.say = B.ls || 'Не повезло, капитан. Рейдеры ушли с добычей… но и мы живы.'; }
+    return { gold, cr };
+  }
   if (node.deep === 'threat') {
     const T = D.threat; D.threat = null; D.threatNext = Date.now() + (3 + Math.random() * 2) * 3600e3;
     if (won && T) { gold = T.gold; cr = 1; D.rep += 2; D.done++; lines.push(`🔬 «${SCI.ship}» спасена! Доктор ${SCI.n}: +${T.gold} 💰, доверие +2`); D.say = 'Великолепно, капитан! «Талассира» цела, а данные спасены. Совет Атлантиса узнает о вашей помощи.'; }
     else { D.rep = Math.max(0, D.rep - 2); lines.push('🦈 Рейдеры разграбили «Талассиру» — доверие доктора −2'); D.say = 'Мы живы — это главное. Но часть оборудования потеряна… В следующий раз мы им покажем.'; }
   } else {
     const j = D.jobs.find(x => x.id === node.deep); D.jobs = D.jobs.filter(x => x !== j);
-    if (won && j) { gold = j.gold; cr = j.cred || 0; D.rep += j.rep; D.done++; lines.push(`🔬 Задание доктора выполнено: +${j.gold} 💰, доверие +${j.rep}`); D.say = j.kind === 'guard' ? 'Зонды стоят, данные идут! Без вашей охраны мы бы не справились.' : 'Рейдеры бегут! Теперь хребет наш — можно начинать погружения.'; }
+    if (won && j) { const cap = j.kind === 'trophy' && H.foes.some(x => x.type === 'transport' && x.captured); gold = Math.round(j.gold * (cap ? 1.5 : 1)); cr = (j.cred || 0) + (cap ? 1 : 0); if (cap) lines.push('🏺 Трофейщик взят целым — груз не пострадал: награда ×1.5, +1 💠'); D.rep += j.rep; D.done++; lines.push(`🔬 Задание доктора выполнено: +${j.gold} 💰, доверие +${j.rep}`); D.say = DEEP_OFFERS[j.kind].win || 'Отличная работа, капитан!'; if (j.kind === 'nest') { atlData(h).rep++; lines.push('🏙 Совет Атлантиса благодарит за спасённых рыбаков: доверие +1'); } }
     else if (j) { D.rep = Math.max(0, D.rep - 1); lines.push('🔬 Задание доктора провалено — доверие −1'); D.say = 'Не повезло, капитан. Ничего — море большое, попробуем снова.'; }
   }
   return { gold, cr };
@@ -3522,33 +3602,46 @@ function atlData(h) {
   return A;
 }
 const ATL_OFFERS = {
-  escort:  { ic: '🚢', n: 'Сопровождение', d: 'Проведите торговые суда Гильдии через опасные воды. Бой: конвой должен дойти до края карты.' },
-  bounty:  { ic: '🎯', n: 'Охота за головами', d: 'Совет платит за потопленных пиратов, что грабят его караваны. Бой: потопите всех.' },
-  smuggle: { ic: '🕶', n: 'Контрабанда', d: 'Тайный груз, о котором лучше не спрашивать. Отправьте один корабль. Платят щедро, но могут поймать патрули — подлодки и катера попадаются реже.' },
+  escort:  { ic: '🚢', n: 'Сопровождение', d: 'Проведите торговые суда Гильдии через опасные воды. Бой: конвой должен дойти до края карты.', obj: 'convoy' },
+  bounty:  { ic: '🎯', n: 'Охота за головами', d: 'Совет платит за потопленных пиратов, что грабят его караваны. Бой: потопите всех.', obj: 'hunt', extra: 1 },
+  reef:    { ic: '🛟', n: 'Спасение на рифах', d: 'Барк Гильдии сел на рифы Кораллового пояса. Команда в шлюпках, а к ним уже идут пираты-мародёры — за грузом и за людьми, которых можно продать. Бой: подберите шлюпки.', obj: 'rescue' },
+  seize:   { ic: '🏴', n: 'Перехват баржи', d: 'Пираты увели баржу с пряностями Гильдии и тащат её к своим островам. Бой: остановите транспорт, пока он не ушёл. Возьмёте его абордажем — Совет заплатит вдвойне за спасённый груз.', obj: 'intercept', tname: 'Угнанная баржа' },
+  outpost: { ic: '🏰', n: 'Пиратская застава', d: 'На мысу у торгового пути пираты поставили пушки и берут «пошлину» с каждого судна. Совет хочет, чтобы заставы не стало. Бой: разрушьте форт или возьмите его штурмом.', obj: 'fort', rk: 1 },
+  smuggle: { ic: '🕶', n: 'Контрабанда', d: 'Тайный груз, о котором лучше не спрашивать. Отправьте один корабль. Платят щедро, но могут поймать патрули — подлодки и катера попадаются реже.', ship: true, mod: s => HS[s.type].sub ? .4 : s.type === 'boat' ? .7 : HS[s.type].hauler ? 1.2 : 1, fine: true, ok: s => `🕶 Контрабанда доставлена, ${sName(s)} снова в гавани.`, bad: s => `🚨 Патруль перехватил контрабанду! ${sName(s)} ушёл из-под огня с тяжёлыми повреждениями` },
+  courier: { ic: '📨', n: 'Почта Совета', d: 'Запечатанные письма Совета нужно доставить в Златоград быстро и без лишних глаз. Отправьте один корабль — катера и эсминцы справятся лучше, тихоходы рискуют.', ship: true, mod: s => s.type === 'boat' ? .5 : /destroyer|_dd|_ds/.test(s.type) ? .7 : HS[s.type].hauler ? 1.3 : 1, ok: s => `📨 Почта Совета доставлена в срок, ${sName(s)} вернулся с ответными письмами.`, bad: s => `📨 ${sName(s)} нарвался на пиратский дозор и ушёл с повреждениями. Письма спасены, но опоздали` },
+  salvage: { ic: '⚓', n: 'Подъём серебра', d: 'На отмели лежит затонувший галеон с серебром Гильдии. Водолазам нужен корабль с крепкими лебёдками и трюмом — грузовые суда и подлодки работают надёжнее. Рядом бывают пираты.', ship: true, rk: 1, mod: s => HS[s.type].hauler || HS[s.type].sub ? .55 : 1, ok: s => `⚓ Серебро с галеона поднято! ${sName(s)} привёз слитки в Атлантис.`, bad: s => `⚓ Пираты накрыли водолазов у галеона. ${sName(s)} отбился, но получил тяжёлые повреждения, серебра подняли немного` },
+  pearl:   { ic: '🦪', n: 'Охрана ловцов жемчуга', d: 'Ловцы жемчуга Гильдии выходят на дальние банки на неделю. Им нужен корабль охраны — пираты и браконьеры там частые гости. Чем крепче корабль, тем спокойнее.', ship: true, mod: s => /cruiser|battleship|atl_bb|echo/.test(s.type) ? .5 : HS[s.type].sub ? 1.2 : 1, ok: s => `🦪 Ловцы вернулись с полными корзинами. ${sName(s)} простоял неделю на банке без единого выстрела — почти.`, bad: s => `🦪 Браконьеры напали на лагерь ловцов. ${sName(s)} отогнал их, но получил пробоины` },
   deliver: { ic: '📦', n: 'Поставка', d: 'Гильдия срочно закупает товар по высокой цене. Довезите его караваном в Атлантис до срока.' },
 };
 function atlOffer(h) {
   const A = atlData(h), lvl = atlLvl(h), k = 1 + .1 * atlRank(h), now = Date.now();
-  const kind = pick(['escort', 'bounty', 'smuggle', 'deliver', 'escort', 'smuggle']);
+  const kind = pick(['escort', 'bounty', 'smuggle', 'deliver', 'escort', 'smuggle', 'reef', 'seize', 'outpost', 'courier', 'salvage', 'pearl'].filter(x => !ATL_OFFERS[x].rk || atlRank(h) >= ATL_OFFERS[x].rk));
   const o = { id: 'a' + (++A.seq), kind, lvl, exp: now + 8 * 3600e3 };
   if (kind === 'escort') Object.assign(o, { gold: Math.round((160 + 32 * lvl) * k), rep: 2 });
   if (kind === 'bounty') Object.assign(o, { gold: Math.round((130 + 36 * lvl) * k), rep: 1, lvl: lvl + 1 });
   if (kind === 'smuggle') Object.assign(o, { gold: Math.round((380 + 45 * lvl) * k), rep: 1, min: 80 + rnd(5) * 15, risk: .22 + Math.random() * .16 });
+  if (kind === 'reef') Object.assign(o, { gold: Math.round((180 + 34 * lvl) * k), rep: 2 });
+  if (kind === 'seize') Object.assign(o, { gold: Math.round((170 + 36 * lvl) * k), rep: 2 });
+  if (kind === 'outpost') Object.assign(o, { gold: Math.round((280 + 46 * lvl) * k), rep: 3, lvl: lvl + 1 });
+  if (kind === 'courier') Object.assign(o, { gold: Math.round((230 + 28 * lvl) * k), rep: 2, min: 40 + rnd(4) * 10, risk: .14 + Math.random() * .1 });
+  if (kind === 'salvage') Object.assign(o, { gold: Math.round((420 + 45 * lvl) * k), rep: 2, min: 100 + rnd(4) * 15, risk: .22 + Math.random() * .1 });
+  if (kind === 'pearl') Object.assign(o, { gold: Math.round((260 + 32 * lvl) * k), rep: 2, min: 90 + rnd(4) * 15, risk: .16 + Math.random() * .1 });
   if (kind === 'deliver') { const g = pick(TGOODS); Object.assign(o, { g: g.id, n: 8 + rnd(15), pay: Math.round(g.base * 1.9 * k), rep: 2, hrs: 10 }); }
   return o;
 }
 function atlTick(h) {
   const A = atlData(h), now = Date.now(); let ch = false;
-  if (!A.boardT || now - A.boardT > 4 * 3600e3) { A.board = [atlOffer(h), atlOffer(h), atlOffer(h)]; A.boardT = now; ch = true; }
+  if (!A.boardT || now - A.boardT > 4 * 3600e3) { A.board = [atlOffer(h), atlOffer(h), atlOffer(h), atlOffer(h)]; A.boardT = now; ch = true; }
   A.board = A.board.filter(o => o.exp > now);
   for (const j of [...A.jobs]) {
-    if ((j.kind === 'escort' || j.kind === 'bounty') && j.st === 'go' && now >= j.at) { j.st = 'ready'; ch = true; toast(`🏙 Флот прибыл к Атлантису: «${ATL_OFFERS[j.kind].n}» — можно начинать бой`); news(h, `🏙 Флот прибыл к Атлантису для поручения «${ATL_OFFERS[j.kind].n}». Бой ждёт в городе.`, true); }
-    if (j.kind === 'smuggle' && now >= j.at) {
-      const s = h.ships[j.ship]; A.jobs.splice(A.jobs.indexOf(j), 1); ch = true;
+    if (ATL_OFFERS[j.kind].obj && j.st === 'go' && now >= j.at) { j.st = 'ready'; ch = true; toast(`🏙 Флот прибыл к Атлантису: «${ATL_OFFERS[j.kind].n}» — можно начинать бой`); news(h, `🏙 Флот прибыл к Атлантису для поручения «${ATL_OFFERS[j.kind].n}». Бой ждёт в городе.`, true); }
+    if (ATL_OFFERS[j.kind].ship && now >= j.at) {
+      const O = ATL_OFFERS[j.kind], s = h.ships[j.ship]; A.jobs.splice(A.jobs.indexOf(j), 1); ch = true;
       if (!s) continue; s.trade = 0;
-      const ch2 = (1 + occPen(h)) * j.risk * (HS[s.type].sub ? .4 : s.type === 'boat' ? .7 : HS[s.type].hauler ? 1.2 : 1) * (extraOn(h, 'Тайная Гавань') ? .5 : 1);
-      if (Math.random() > ch2) { h.gold += j.gold; A.rep += j.rep; A.done++; news(h, `🕶 Контрабанда доставлена, ${sName(s)} снова в гавани. +${j.gold} 💰`); Snd.play('coins'); }
-      else { const fine = Math.round(j.gold * .4); h.gold = Math.max(0, h.gold - fine); s.hpLost = Math.min(shipMaxHp(h, s) - 1, (s.hpLost || 0) + Math.round(shipMaxHp(h, s) * .5)); A.rep = Math.max(0, A.rep - 1); news(h, `🚨 Патруль перехватил контрабанду! ${sName(s)} ушёл из-под огня с тяжёлыми повреждениями, штраф −${fine} 💰, доверие Совета −1`); Snd.play('bad'); }
+      const ch2 = (O.fine ? 1 + occPen(h) : 1) * j.risk * O.mod(s) * (O.fine && extraOn(h, 'Тайная Гавань') ? .5 : 1);
+      if (Math.random() > ch2) { h.gold += j.gold; A.rep += j.rep; A.done++; news(h, `${O.ok(s)} +${j.gold} 💰`); Snd.play('coins'); }
+      else if (O.fine) { const fine = Math.round(j.gold * .4); h.gold = Math.max(0, h.gold - fine); s.hpLost = Math.min(shipMaxHp(h, s) - 1, (s.hpLost || 0) + Math.round(shipMaxHp(h, s) * .5)); A.rep = Math.max(0, A.rep - 1); news(h, `${O.bad(s)}, штраф −${fine} 💰, доверие Совета −1`); Snd.play('bad'); }
+      else { const part = Math.round(j.gold * .35); h.gold += part; s.hpLost = Math.min(shipMaxHp(h, s) - 1, (s.hpLost || 0) + Math.round(shipMaxHp(h, s) * .4)); news(h, `${O.bad(s)}. Совет заплатил лишь часть: +${part} 💰`); Snd.play('bad'); }
     }
     if (j.kind === 'deliver' && now > j.end) { A.jobs.splice(A.jobs.indexOf(j), 1); A.rep = Math.max(0, A.rep - 1); news(h, `📦 Срок поставки в Атлантис истёк — заказ сорван, доверие Совета −1`); ch = true; }
   }
@@ -3579,9 +3672,9 @@ function renderAtlMap(center) {
   $('#am-gold').textContent = h.gold;
   $('#am-rank').textContent = `🤝 ${ATL_RANKS[rk].n}`;
   const chips = A.jobs.map(j => { const O = ATL_OFFERS[j.kind];
-    if ((j.kind === 'escort' || j.kind === 'bounty') && j.st === 'go') return `${O.ic} флот в пути: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`;
-    if (j.kind === 'escort' || j.kind === 'bounty') return `${O.ic} флот на месте — ждёт приказа`;
-    if (j.kind === 'smuggle') return `${O.ic} рейс: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`;
+    if (O.obj && j.st === 'go') return `${O.ic} флот в пути: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`;
+    if (O.obj) return `${O.ic} флот на месте — ждёт приказа`;
+    if (O.ship) return `${O.ic} рейс: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`;
     return `${O.ic} довезти ещё ${j.left}`; });
   if (A.board.length) chips.push(`📜 на доске поручений: ${A.board.length}`);
   $('#am-jobs').innerHTML = chips.map(c => `<span class="fchip">${c}</span>`).join('');
@@ -3602,8 +3695,8 @@ function renderAtl() {
     s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📋 Ваши поручения</div>`;
     A.jobs.forEach(j => { const O = ATL_OFFERS[j.kind];
       let st = '', btn = '';
-      if (j.kind === 'escort' || j.kind === 'bounty') { if (j.st === 'go') { st = `флот идёт к Атлантису: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`; btn = spdBtn(h, 'atlspd', j.at, j.id); } else { st = 'флот на месте — можно в бой'; btn = `<button class="btn small primary" data-act="atlgo" data-id="${j.id}">⚔️ В бой</button>`; } }
-      if (j.kind === 'smuggle') { st = `${h.ships[j.ship] ? sName(h.ships[j.ship]) : 'корабль'} в пути: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b> · риск ~${Math.round(j.risk * 100)}%`; btn = spdBtn(h, 'atlspd', j.at, j.id); }
+      if (O.obj) { if (j.st === 'go') { st = `флот идёт к Атлантису: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b>`; btn = spdBtn(h, 'atlspd', j.at, j.id); } else { st = 'флот на месте — можно в бой'; btn = `<button class="btn small primary" data-act="atlgo" data-id="${j.id}">⚔️ В бой</button>`; } }
+      if (O.ship) { st = `${h.ships[j.ship] ? sName(h.ships[j.ship]) : 'корабль'} в пути: <b data-until="${j.at}">${fmtLeft(j.at - now)}</b> · риск ~${Math.round(j.risk * 100)}%`; btn = spdBtn(h, 'atlspd', j.at, j.id); }
       if (j.kind === 'deliver') { st = `осталось довезти ${j.left} × ${tGood(j.g).ic} ${tGood(j.g).n.toLowerCase()} по ${j.pay} 💰 · срок <b data-until="${j.end}">${fmtLeft(j.end - now)}</b>`; btn = `<button class="btn small primary" data-act="atlcar">⛵ Караван</button>`; }
       s += `<div class="uprow"><span class="ic">${O.ic}</span><span class="nm">${O.n}${j.gold ? ` · ${j.gold} 💰` : ''}<small>${st}</small></span>${btn}</div>`; });
     s += `</div>`;
@@ -3612,11 +3705,11 @@ function renderAtl() {
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📜 Доска поручений Гильдии</div><small class="muted">Новые поручения — каждые 4 часа: обновятся через <b data-until="${A.boardT + 4 * 3600e3}">${fmtLeft(A.boardT + 4 * 3600e3 - now)}</b>. Атлантис далеко: до боя флоту плыть ${ATL_TRAVEL} мин.</small>`;
   if (!A.board.length) s += `<small class="muted">Все поручения разобраны. Загляните позже.</small>`;
   A.board.forEach(o => { const O = ATL_OFFERS[o.kind];
-    let det = o.kind === 'escort' || o.kind === 'bounty' ? `бой, сила врага ${o.lvl} · награда ${o.gold} 💰 · доверие +${o.rep}` : o.kind === 'smuggle' ? `рейс ${fmtMin(o.min)} · риск ~${Math.round(o.risk * 100)}% · награда ${o.gold} 💰` : `${o.n} × ${tGood(o.g).ic} ${tGood(o.g).n.toLowerCase()} по ${o.pay} 💰 (на рынке ~${trPrice(ATL_PORT, o.g)}) · срок ${o.hrs} ч · доверие +${o.rep}`;
+    let det = O.obj ? `бой, сила врага ${o.lvl} · награда ${o.gold} 💰 · доверие +${o.rep}` : O.ship ? `рейс ${fmtMin(o.min)} · риск ~${Math.round(o.risk * 100)}% · награда ${o.gold} 💰` : `${o.n} × ${tGood(o.g).ic} ${tGood(o.g).n.toLowerCase()} по ${o.pay} 💰 (на рынке ~${trPrice(ATL_PORT, o.g)}) · срок ${o.hrs} ч · доверие +${o.rep}`;
     s += `<div class="uprow atloffer"><span class="ic">${O.ic}</span><span class="nm">${O.n}<small>${O.d}</small><small class="det">${det}</small></span><button class="btn small primary" data-act="atltake" data-id="${o.id}">Взять</button></div>`;
     if (HB.atlPick === o.id) {
       const ships = Object.values(h.ships).filter(x => trCanSail(h, x));
-      s += `<div class="atlpick"><small>Какой корабль повезёт груз?</small>${ships.length ? ships.map(x => `<button class="btn small" data-act="atlship" data-id="${x.id}">${HS[x.type].sub ? '🤫 ' : ''}${sName(x)}</button>`).join('') : '<small class="muted">Нет свободных кораблей (флагман остаётся дома).</small>'}</div>`;
+      s += `<div class="atlpick"><small>${o.kind === 'smuggle' ? 'Какой корабль повезёт груз?' : 'Какой корабль пойдёт?'}</small>${ships.length ? ships.map(x => `<button class="btn small" data-act="atlship" data-id="${x.id}">${HS[x.type].sub ? '🤫 ' : ''}${sName(x)}</button>`).join('') : '<small class="muted">Нет свободных кораблей (флагман остаётся дома).</small>'}</div>`;
     }
   });
   s += `</div>`;
@@ -3643,8 +3736,8 @@ function atlAct(act, id) {
   const pay = n => { if (h.gold < n) { toast('Не хватает золота'); return false; } h.gold -= n; return true; };
   if (act === 'atltake') {
     const o = A.board.find(x => x.id === id); if (!o) return;
-    if (o.kind === 'smuggle') { HB.atlPick = HB.atlPick === id ? null : id; Snd.play('click'); return renderAtl(); }
-    if ((o.kind === 'escort' || o.kind === 'bounty') && A.jobs.some(j => j.kind === 'escort' || j.kind === 'bounty')) { toast('Флот уже выполняет боевое поручение Совета'); return; }
+    if (ATL_OFFERS[o.kind].ship) { HB.atlPick = HB.atlPick === id ? null : id; Snd.play('click'); return renderAtl(); }
+    if (ATL_OFFERS[o.kind].obj && A.jobs.some(j => ATL_OFFERS[j.kind].obj)) { toast('Флот уже выполняет боевое поручение Совета'); return; }
     A.board = A.board.filter(x => x !== o);
     if (o.kind === 'deliver') A.jobs.push({ ...o, left: o.n, end: now + o.hrs * 3600e3 });
     else A.jobs.push({ ...o, st: 'go', at: now + ATL_TRAVEL * 60000 * (evOn(h, 'wind') ? .67 : 1) });
@@ -3653,7 +3746,7 @@ function atlAct(act, id) {
     const o = A.board.find(x => x.id === HB.atlPick), s = h.ships[id]; if (!o || !s || !trCanSail(h, s)) return;
     A.board = A.board.filter(x => x !== o); HB.atlPick = null;
     A.jobs.push({ ...o, ship: s.id, at: now + o.min * 60000 }); s.trade = o.id; h.squad = h.squad.filter(k => k !== s.id);
-    news(h, `🕶 ${sName(s)} отправлен с тайным грузом Атлантиса`, true); snd = 'horn';
+    news(h, o.kind === 'smuggle' ? `🕶 ${sName(s)} отправлен с тайным грузом Атлантиса` : `${ATL_OFFERS[o.kind].ic} ${sName(s)} вышел по поручению Совета: «${ATL_OFFERS[o.kind].n}»`, true); snd = 'horn';
   } else if (act === 'atlspd') {
     const j = A.jobs.find(x => x.id === id); if (!j || !j.at || j.st === 'ready') return;
     if (!payCred(h, credCost(j.at - now))) return; j.at = now; atlTick(h);
@@ -3662,7 +3755,8 @@ function atlAct(act, id) {
     if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
     if (!SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале'); return; }
     saveProfiles(); HB.ret = 'atl';
-    return startHunt({ kind: 'battle', obj: j.kind === 'escort' ? 'convoy' : 'hunt', lvl: j.lvl, weather: pickW([['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]]), bonus: true, atl: j.id, extra: j.kind === 'bounty' ? 1 : 0 });
+    const O = ATL_OFFERS[j.kind];
+    return startHunt({ kind: 'battle', obj: O.obj, lvl: j.lvl, weather: pickW([['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]]), bonus: true, atl: j.id, extra: O.extra || 0, tname: O.tname });
   } else if (act === 'atlinfo') {
     const ip = n => Math.round(n * atlDisc(h));
     if (id === 'fore') { if (!pay(ip(80))) return; A.fore = trPer(); toast('📈 Прогноз цен куплен — смотрите стрелки в таблице торговли'); }
@@ -5182,7 +5276,7 @@ function setupObjective(node) {
     for (let r = 3; r < 10 && H.boats.length < 3; r++) for (let c = 1; c < 10 && H.boats.length < 3; c++) { if (!H.land[hidx(r, c)] && !H.boats.some(x => cheb(x, { r, c }) < 3) && H.foes.every(f => cheb(f, { r, c }) >= 3)) H.boats.push({ r, c, done: false }); }
   } else if (o === 'intercept') {
     const t = Object.assign(mkUnit('transport', 'foe', 1, HN - 2, 180), { revealed: 99, name: 'Транспорт' }); if (isDogs()) { t.img = 'dog_slaver'; t.name = 'Невольничий транспорт'; t.slaver = 1; }
-    t.st.hp = t.hp = 10 + 2 * m; H.foes.push(t);
+    if (node.tname) t.name = node.tname; t.st.hp = t.hp = 10 + 2 * m; H.foes.push(t);
     genFoes(m, Math.max(1, n - 1), [0, HN - 5, 5, 5]);
   } else if (o === 'fort') {
     const f = Object.assign(mkUnit('fort', 'foe', kRC(H.fortCell).r, kRC(H.fortCell).c, 0), { revealed: 99, name: 'Форт' });
@@ -5818,7 +5912,7 @@ function hFinish(won, reason) {
     if (H.obj === 'fort') { const f = H.foes.find(x => x.type === 'fort'); h.forts++; if (f.captured) { gold += 250; lines.push('🏰 Форт взят штурмом: +250 💰 из его казны'); } else lines.push('🏰 Форт разрушен'); }
     h.w++; if (h.w % 3 === 0) cr++; if (evOn(h, 'armada') && H.obj !== 'raid') cr++; if (!node.bonus) h.mission = m + 1; p.st.huntW = (p.st.huntW || 0) + 1;
     if (node.deep) { const r = deepAfter(h, node, true, lines); gold += r.gold; cr += r.cr; }
-    if (node.atl) { const A = atlData(h), j = A.jobs.find(x => x.id === node.atl); if (j) { gold += j.gold; A.rep += j.rep; A.done++; A.jobs = A.jobs.filter(x => x !== j); lines.push(`🏙 Совет Атлантиса доволен: +${j.gold} 💰, доверие +${j.rep}`); } }
+    if (node.atl) { const A = atlData(h), j = A.jobs.find(x => x.id === node.atl); if (j) { const cap = j.kind === 'seize' && H.foes.some(x => x.type === 'transport' && x.captured); if (cap) lines.push('🏴 Баржа отбита целой — Совет платит вдвойне!'); gold += j.gold * (cap ? 2 : 1); A.rep += j.rep; A.done++; A.jobs = A.jobs.filter(x => x !== j); lines.push(`🏙 Совет Атлантиса доволен: +${j.gold} 💰, доверие +${j.rep}`); } }
     if (node.report) {
       const E = expData(h); E.reports = E.reports.filter(r => r.id !== node.report); h.mission++;
       if (node.amb === 'land') { const A = ambData(h); A.st = 1; A.say = 'land'; lines.push('⚓ Игла Отлива — ваша передовая база в Янтарном море! Беженцы спасены'); news(h, '⚓ Игла Отлива стала вашей передовой базой. На карте открыт Златоград.', true); }
