@@ -6941,14 +6941,26 @@ FxLayer.prototype = {
     if (!this.lo || !this.fit()) return Promise.resolve();
     const [x0, y0] = this.xy(u.r, u.c), [x1, y1] = this.xy(r, c), cs = this.cs;
     const d = Math.hypot(x1 - x0, y1 - y0), ang = Math.atan2(y1 - y0, x1 - x0);
-    if (kind === 'msl') {   // ракета: старт свечой, дымный след, пикирование
-      const dur = 700 + d / cs * 70;
-      this.later(delay, () => {
-        this.add({ k: 'flash', x: x0, y: y0, s: cs * .9, life: 260 });
-        for (let i = 0; i < 10; i++) this.add({ k: 'smoke', x: x0 + this.rnd(-.2, .2) * cs, y: y0 + this.rnd(-.2, .2) * cs, vx: this.rnd(-20, 20), vy: this.rnd(-20, 20), s: cs * this.rnd(.15, .25), g: cs * .7, life: this.rnd(900, 1500), c: 220 });
-        this.add({ k: 'missile', x0, y0, x1, y1, h: Math.min(cs * 3.2, d * .55 + cs), life: dur });
-        this.shake = Math.max(this.shake, 1.4);
+    if (kind === 'msl') {   // ракета: огненный старт свечой, дымный шлейф, пикирование и мощный взрыв
+      const dur = 1100 + d / cs * 75, ign = 260, gx = this === BFX && GLFx.on();
+      this.later(delay, () => {   // зажигание: вспышка, кольцо пара по воде
+        this.add({ k: 'flash', x: x0, y: y0, s: cs * 1.3, life: 320 });
+        this.add({ k: 'ring', x: x0, y: y0, s: cs * .2, s1: cs * 1.6, life: 800, c: '255,240,220', w: 3, lo: true });
+        if (this === BFX) GLSea.light(x0 / cs, y0 / cs, 1.4, 1.6, [1, .7, .35], 700);
+        if (gx) { GLFx.puff(x0, y0, cs, true); GLFx.puff(x0, y0, cs, true); }
+        else for (let i = 0; i < 16; i++) { const a = Math.random() * 6.283, v = this.rnd(20, 60); this.add({ k: 'smoke', x: x0, y: y0, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: cs * this.rnd(.18, .3), g: cs * .9, life: this.rnd(1200, 2000), c: 230 }); }
+        for (let i = 0; i < 14; i++) { const a = Math.random() * 6.283, v = this.rnd(60, 160); this.add({ k: 'spark', x: x0, y: y0, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: this.rnd(250, 500) }); }
+        this.shake = Math.max(this.shake, 2.2);
+        this.add({ k: 'missile', x0, y0, x1, y1, h: Math.min(cs * 4.2, d * .7 + cs * 1.6), life: dur, ign, pts: [], end: det });
       });
+      const det = () => {   // подрыв боевой части — когда ракета долетела
+        this.boomXY(x1, y1, 1.75);
+        this.add({ k: 'shock', x: x1, y: y1, s: cs * .2, s1: cs * 3.4, life: 700, lo: true });
+        this.add({ k: 'ring', x: x1, y: y1, s: cs * .3, s1: cs * 2.6, life: 1300, c: '255,220,160', w: 4, lo: true, dl: 60 });
+        this.add({ k: 'sflash', life: 220, a: .55 });
+        if (this === BFX) { GLSea.light(x1 / cs, y1 / cs, 2.2, 2.8, [1, .62, .25], 1300); GLSea.imp(x1 / cs, y1 / cs, 1.4); if (GLFx.on()) GLFx.boom(x1, y1, cs, 1.4); }
+        this.shake = Math.max(this.shake, 8);
+      };
       return new Promise(res => setTimeout(res, delay + dur));
     }
     const dur = 340 + d / cs * 62, len = HS[u.type] ? (HS[u.type].len || 1) : 1, nose = cs * (.3 + .12 * len);
@@ -7126,7 +7138,7 @@ FxLayer.prototype = {
     const night = this.opt.night && this.opt.night();
     this.P = this.P.filter(p => {
       if (p.dl > 0) { p.dl -= dt; return true; }
-      p.age += dt; if (p.age >= p.life) return false;
+      p.age += dt; if (p.age >= p.life) { if (p.end) { const f = p.end; p.end = null; f(); } return false; }
       const t = p.age / p.life, g = p.lo ? L : Hc;
       if (p.vx !== undefined) { p.x += p.vx * s; p.y += p.vy * s; p.vx *= .97; p.vy *= .97; }
       g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
@@ -7147,14 +7159,38 @@ FxLayer.prototype = {
           break;
         }
         case 'missile': {
-          const e = t < .5 ? t * t * 2 : 1 - Math.pow(-2 * t + 2, 2) / 2, x = p.x0 + (p.x1 - p.x0) * e, y0 = p.y0 + (p.y1 - p.y0) * e, z = Math.sin(e * Math.PI) * p.h, y = y0 - z;
-          const e2 = Math.min(1, e + .02), xn = p.x0 + (p.x1 - p.x0) * e2, yn = p.y0 + (p.y1 - p.y0) * e2 - Math.sin(e2 * Math.PI) * p.h, an = Math.atan2(yn - y, xn - x);
-          if (!p.tr || p.age - p.tr > 14) { p.tr = p.age; this.add({ k: 'smoke', x: x - Math.cos(an) * cs * .1, y: y - Math.sin(an) * cs * .1, vx: this.rnd(-4, 4), vy: this.rnd(-6, 2), s: cs * .06, g: cs * .32, life: this.rnd(1300, 2000), c: 236 }); }
-          const sg = g.createRadialGradient(x, y0, 0, x, y0, cs * .14); sg.addColorStop(0, 'rgba(0,10,25,.35)'); sg.addColorStop(1, 'rgba(0,10,25,0)'); g.fillStyle = sg; g.beginPath(); g.arc(x, y0, cs * .14, 0, 6.283); g.fill();
-          g.globalCompositeOperation = 'lighter'; const fl = cs * (.22 + .08 * Math.random()), fx2 = x - Math.cos(an) * cs * .1, fy2 = y - Math.sin(an) * cs * .1;
-          const fg = g.createRadialGradient(fx2, fy2, 0, fx2, fy2, fl); fg.addColorStop(0, 'rgba(255,255,230,.95)'); fg.addColorStop(.4, 'rgba(255,170,60,.7)'); fg.addColorStop(1, 'rgba(255,90,20,0)'); g.fillStyle = fg; g.beginPath(); g.arc(fx2, fy2, fl, 0, 6.283); g.fill();
+          // траектория: кубическая кривая — вертикальный старт, дуга, пикирование на цель
+          const pos = q => { const u = 1 - q, ax = p.x0, ay = p.y0, bx = p.x0 + (p.x1 - p.x0) * .08, by = p.y0 - p.h * 1.35, cx = p.x1 - (p.x1 - p.x0) * .15, cy = p.y1 - p.h * 1.05, dx = p.x1, dy = p.y1;
+            return [u * u * u * ax + 3 * u * u * q * bx + 3 * u * q * q * cx + q * q * q * dx, u * u * u * ay + 3 * u * u * q * by + 3 * u * q * q * cy + q * q * q * dy]; };
+          const lt = Math.max(0, (p.age - p.ign) / (p.life - p.ign)), e = lt < .3 ? 1.96 * lt * lt : .1764 + 1.176 * (lt - .3);   // разгон, потом крейсерский полёт
+          if (lt >= .985 && p.end) { const f = p.end; p.end = null; f(); }
+          const [x, y] = pos(Math.min(1, e)), [xn, yn] = pos(Math.min(1, e + .01)), an = Math.atan2(yn - y, xn - x);
+          const nz = [x - Math.cos(an) * cs * .14, y - Math.sin(an) * cs * .14];
+          if (p.age >= p.ign) { p.pts.push([nz[0], nz[1], p.age]); if (p.pts.length > 60) p.pts.shift(); }
+          // огненный шлейф сгорающего топлива
+          g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
+          for (let k = 1; k < p.pts.length; k++) { const A = p.pts[k - 1], B = p.pts[k], age = (p.age - B[2]) / 600; if (age > 1) continue;
+            const w = cs * (.2 * (1 - age) + .03), al = (1 - age);
+            g.strokeStyle = `rgba(255,${Math.round(150 + 90 * (1 - age))},${Math.round(60 + 120 * (1 - age) * (1 - age))},${al * .55})`; g.lineWidth = w; g.beginPath(); g.moveTo(A[0], A[1]); g.lineTo(B[0], B[1]); g.stroke(); }
+          // дымный шлейф: густой у ракеты, расплывается позади
+          if (p.age >= p.ign && (!p.tr || p.age - p.tr > 16)) { p.tr = p.age;
+            if (this === BFX && GLFx.on()) { GLFx.add({ t: 0, x: nz[0], y: nz[1], vx: this.rnd(-5, 5), vy: this.rnd(-6, 3), s: cs * .18, s1: cs * this.rnd(.7, 1), h: .6, h1: 0, a: .72, life: this.rnd(2000, 2800) }); GLFx.add({ t: 1, x: nz[0], y: nz[1], vx: -Math.cos(an) * 20, vy: -Math.sin(an) * 20, s: cs * .2, s1: cs * .08, h: 1, h1: .2, a: .9, life: 220 }); }
+            else this.add({ k: 'smoke', x: nz[0], y: nz[1], vx: this.rnd(-4, 4), vy: this.rnd(-6, 2), s: cs * .08, g: cs * .45, life: this.rnd(1500, 2200), c: 238 }); }
+          if (p.age >= p.ign && this === BFX && (!p.lt || p.age - p.lt > 90)) { p.lt = p.age; GLSea.light(x / cs, y / cs, .55, .9, [1, .66, .3], 260); }
+          // факел двигателя
+          const fl = cs * (p.age < p.ign ? .32 : .26) * (.85 + .3 * Math.random());
+          const fg = g.createRadialGradient(nz[0], nz[1], 0, nz[0], nz[1], fl); fg.addColorStop(0, 'rgba(255,255,240,1)'); fg.addColorStop(.25, 'rgba(255,220,120,.9)'); fg.addColorStop(.6, 'rgba(255,120,30,.45)'); fg.addColorStop(1, 'rgba(255,60,10,0)');
+          g.fillStyle = fg; g.beginPath(); g.arc(nz[0], nz[1], fl, 0, 6.283); g.fill();
+          g.save(); g.translate(nz[0], nz[1]); g.rotate(an + Math.PI); const fj = g.createLinearGradient(0, 0, cs * .55, 0); fj.addColorStop(0, 'rgba(255,240,200,.95)'); fj.addColorStop(.4, 'rgba(255,150,50,.6)'); fj.addColorStop(1, 'rgba(255,80,20,0)'); g.fillStyle = fj; g.beginPath(); g.moveTo(0, -cs * .045); g.lineTo(cs * (.4 + .15 * Math.random()), 0); g.lineTo(0, cs * .045); g.closePath(); g.fill(); g.restore();
           g.globalCompositeOperation = 'source-over';
-          g.save(); g.translate(x, y); g.rotate(an); g.fillStyle = '#dfe6ec'; g.beginPath(); g.ellipse(0, 0, cs * .13, cs * .035, 0, 0, 6.283); g.fill(); g.fillStyle = '#c8402e'; g.beginPath(); g.ellipse(cs * .1, 0, cs * .035, cs * .03, 0, 0, 6.283); g.fill(); g.restore();
+          // тень на воде
+          const sy = p.y0 + (p.y1 - p.y0) * Math.min(1, e), sx = p.x0 + (p.x1 - p.x0) * Math.min(1, e), sg = g.createRadialGradient(sx, sy, 0, sx, sy, cs * .16); sg.addColorStop(0, 'rgba(0,10,25,.3)'); sg.addColorStop(1, 'rgba(0,10,25,0)'); g.fillStyle = sg; g.beginPath(); g.arc(sx, sy, cs * .16, 0, 6.283); g.fill();
+          // корпус ракеты
+          g.save(); g.translate(x, y); g.rotate(an);
+          g.fillStyle = '#e8edf2'; g.beginPath(); g.moveTo(cs * .17, 0); g.quadraticCurveTo(cs * .12, -cs * .04, cs * .06, -cs * .04); g.lineTo(-cs * .13, -cs * .04); g.lineTo(-cs * .13, cs * .04); g.lineTo(cs * .06, cs * .04); g.quadraticCurveTo(cs * .12, cs * .04, cs * .17, 0); g.fill();
+          g.fillStyle = '#c8402e'; g.beginPath(); g.moveTo(cs * .17, 0); g.lineTo(cs * .1, -cs * .036); g.lineTo(cs * .1, cs * .036); g.fill();
+          g.fillStyle = '#6d7782'; [[-1], [1]].forEach(([sd]) => { g.beginPath(); g.moveTo(-cs * .06, sd * cs * .04); g.lineTo(-cs * .14, sd * cs * .1); g.lineTo(-cs * .14, sd * cs * .04); g.fill(); });
+          g.restore();
           break;
         }
         case 'crest': {   // гребешки волн бегут по ветру
