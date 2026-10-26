@@ -6454,6 +6454,23 @@ const SEAS = [
     isles: [{ x: 300, y: 230, n: 'Пепельный' }, { x: 1340, y: 320, n: 'Порт Искра' }, { x: 760, y: 460, n: 'Нефтяной' }, { x: 245, y: 660, n: 'Чёрный Карьер' }, { x: 805, y: 810, n: 'Зелёный Осколок' }, { x: 140, y: 420, n: 'Клык' }, { x: 1375, y: 545, n: 'Двойная Скала' }, { x: 650, y: 125, n: 'Чёрный Риф' }] },
 ];
 const iKey = (s, i) => `${s}:${i}`;
+// Лазурное море: острова открываются постепенно — по числу захваченных
+const LAZ_G = [2, 5, 0, 3, 4, 0, 1, 6, 99];
+function isleShut(h, sea, i) {
+  if (sea === 1) return !ambOpen(h, i) && !isleOf(h, iKey(1, i)).lost;
+  if (sea !== 0 || SEAS[0].isles[i].home) return false;
+  const st = isleOf(h, iKey(0, i)), E = h.exp;
+  if (st.own || st.lost || E.cleared.includes(0) || E.reports.some(r => r.sea === 0 && r.isle === i)) return false;
+  return seaOwn(h, 0) < LAZ_G[i];
+}
+function lazNews(h) {
+  const E = h.exp, now = SEAS[0].isles.map((p, i) => i).filter(i => !SEAS[0].isles[i].home && !isleShut(h, 0, i));
+  if (!E.lzSeen) { E.lzSeen = now; return; }
+  const nw = now.filter(i => !E.lzSeen.includes(i)); if (!nw.length) return;
+  E.lzSeen = now; saveProfiles();
+  const nm = nw.map(i => '«' + SEAS[0].isles[i].n + '»').join(', ');
+  setTimeout(() => { Snd.play('ach'); toast(`🧭 Лоцманы прошли новыми фарватерами: открыт путь к ${nw.length > 1 ? 'островам' : 'острову'} ${nm}`); }, 700);
+}
 const seaOwn = (h, s) => SEAS[s].isles.filter((p, i) => !p.home && isleOf(h, iKey(s, i)).own).length;
 const seaLvl = (h, s) => SEAS[s].lvl + seaOwn(h, s) + (h.exp.cleared.includes(s) ? 2 : 0);
 const glOn = h => extraOn(h, 'Великий маяк Лазурного');
@@ -6480,7 +6497,7 @@ function genReport(h) {
   const E = h.exp, R = E.reports, open = E.open;
   let sea = Math.random() < .65 ? open - 1 : rnd(open); if (sea === 1 && ambData(h).st < 2) sea = 0; const S = SEAS[sea];
   const taken = new Set(R.filter(r => r.sea === sea).map(r => r.isle));
-  const idx = S.isles.map((_, i) => i).filter(i => !taken.has(i) && (!S.isles[i].home || isleOf(h, iKey(sea, i)).lost) && (sea !== 1 || ambOpen(h, i) || isleOf(h, iKey(sea, i)).lost));
+  const idx = S.isles.map((_, i) => i).filter(i => !taken.has(i) && (!S.isles[i].home || isleOf(h, iKey(sea, i)).lost) && !isleShut(h, sea, i));
   const st = i => isleOf(h, iKey(sea, i));
   const lvl = seaLvl(h, sea), now = Date.now();
   const wx = () => pickW(S.wx);
@@ -6565,7 +6582,7 @@ function seaStage(h, sea, W) {
   S.isles.forEach((p, i) => {
     if (p.home) return;
     const st = isleOf(h, iKey(sea, i)), r = reps.find(x => x.isle === i), garr = st.own && !st.lost && isleGarr(h, iKey(sea, i)).length;
-    const shut = sea === 1 && !ambOpen(h, i), occ = isleOcc(h, iKey(sea, i)) && !st.lost, cls = shut ? 'lock fog shut' : r ? 'now rep' : st.lost ? 'done lost' : st.own ? 'done' + (garr ? ' garr' : '') : occ ? 'lock occ' : 'lock fog';
+    const shut = isleShut(h, sea, i), occ = isleOcc(h, iKey(sea, i)) && !st.lost, cls = shut ? 'lock fog shut' : r ? 'now rep' : st.lost ? 'done lost' : st.own ? 'done' + (garr ? ' garr' : '') : occ ? 'lock occ' : 'lock fog';
     const dv = st.own && !st.lost ? (st.dev || 0) : 0, ic = r ? (r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic) : st.lost ? '☠️' : dv ? devTrack(iKey(sea, i))[dv].ic : st.build ? '🏗' : garr ? '🚩' : st.own ? '✓' : shut ? '🔒' : occ ? (islePort(iKey(sea, i)) ? '⛓' : '☠️') : '?';
     s += `<button class="mpin ${cls}" data-sp="${i}" style="${spc(p)}"><span>${ic}</span>${r ? `<em>${p.n}</em>` : ''}</button>`;
   });
@@ -6587,7 +6604,7 @@ function renderMap(center) {
   if (keep) { v.scrollLeft = keep[0]; v.scrollTop = keep[1]; }
   else { const f = E.reports.find(r => r.sea === sea), tgt = f ? (f.isle === -2 ? S.base : f.isle < 0 ? S.pir : S.isles[f.isle]) : S.base; v.scrollLeft = Math.max(0, Math.min(W - vw, tgt.x / SEA_W * W - vw / 2)); v.scrollTop = Math.max(0, (Hh - vh) / 2); }
   v.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { if (HB.dragged) return; mapTap(b.dataset.sp); });
-  $('#mg-gold').textContent = h.gold;
+  $('#mg-gold').textContent = h.gold; if (sea === 0) lazNews(h);
   $('#mg-ch').textContent = `🧭 ${S.n}`;
   $('#mg-mis').textContent = `${E.reports.length} из ${repMax(h)}`;
   $('#mg-tabs').innerHTML = SEAS.map((x, i) => `<button class="seatab${i === sea ? ' on' : ''}${i >= E.open ? ' locked' : ''}" data-tab="${i}">${i >= E.open ? '🔒' : E.reports.some(r => r.sea === i) ? '📜' : E.cleared.includes(i) ? '🏳️' : '🧭'} ${['Лазурное', 'Янтарное', 'Туманное', 'Обсидиан'][i]}</button>`).join('') + `<button class="seatab atltab" data-atl>🏙 Атлантис</button><button class="seatab deeptab" data-deep>🌊 Глубокие воды${deepData(h).threat ? ' ⚠️' : ''}</button>`;
@@ -6746,7 +6763,8 @@ function mapTap(k) {
   if (k === 'city') { Snd.play('click'); return ambCity(h); }
   if (k === 'base' && sea === 1 && ambData(h).st >= 1) { Snd.play('click'); return mapSheet('isle', '1:8'); }
   if (k === 'base' && sea === 1 && ambData(h).st === 0) { const lr = E.reports.find(x => x.amb === 'land'); Snd.play('click'); if (lr) return mapSheet('rep', lr.id); return; }
-  if (k !== 'base' && sea === 1 && +k >= 0 && !ambOpen(h, +k)) { Snd.play('bad'); toast(ambData(h).st < 2 ? '🔒 Пути к этому острову знают только лоцманы Златограда' : '🔒 Эти воды пока не изучены — местные ещё не показали путь'); return; }
+  if (k !== 'base' && sea === 0 && +k >= 0 && isleShut(h, 0, +k)) { const n = LAZ_G[+k] - seaOwn(h, 0); Snd.play('bad'); toast(`🔒 ${S.isles[+k].n}: подходы не разведаны — мели, рифы и пиратские дозоры. Захватите ещё ${n} ${n === 1 ? 'остров' : n < 5 ? 'острова' : 'островов'} поближе, и лоцманы проложат путь`); return; }
+  if (k !== 'base' && sea === 1 && +k >= 0 && isleShut(h, 1, +k)) { Snd.play('bad'); toast(ambData(h).st < 2 ? '🔒 Пути к этому острову знают только лоцманы Златограда' : '🔒 Эти воды пока не изучены — местные ещё не показали путь'); return; }
   if (k === 'base') { Snd.play('click'); if (sea === 0) return mapSheet('info', 'base', '🏰 Ваша крепость. Загляните в неё — там строятся здания и собирается флот.'); toast(`🏰 ${S.base.n} — ваша передовая база в этом море`); return; }
   const i = +k, r = E.reports.find(x => x.sea === sea && x.isle === i);
   if (r) { Snd.play('click'); return mapSheet('rep', r.id); }
