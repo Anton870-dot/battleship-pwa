@@ -263,7 +263,15 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .flife{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .ocean{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;display:block}
 .board>.ocean{left:var(--cw);top:var(--cw);width:calc(var(--cw)*10);height:calc(var(--cw)*10);border-radius:0 0 12px 0}
-.hunit.sinking .hpbar,.hunit.retreat .hpbar{display:none}
+.hunit.sinking .hpbar,.hunit.retreat .hpbar,.hunit.doomed .hpbar{display:none}
+.hunit.doomed .spr{--tilt:5deg;--sc:.97;animation:hlist 2.8s ease-in-out infinite alternate!important;transition:filter 1.2s}
+.hunit.doomed .spr>*{filter:brightness(.78) saturate(.75) sepia(.15);transition:filter 1.2s}
+.hunit.dm-b .spr{--tilt:11deg;--sc:.92}.hunit.dm-b .spr>*{filter:brightness(.62) saturate(.6) sepia(.25)}
+.hunit.dm-c .spr{--tilt:18deg;--sc:.85;opacity:.88}.hunit.dm-c .spr>*{filter:brightness(.48) saturate(.5) sepia(.3)}
+@keyframes hlist{from{transform:rotate(calc(var(--tilt) - 2.5deg)) scale(var(--sc))}to{transform:rotate(calc(var(--tilt) + 2.5deg)) scale(calc(var(--sc) * .985)) translateY(2%)}}
+.hshout{position:absolute;z-index:6;transform:translate(-50%,-100%);pointer-events:none;white-space:nowrap;font-size:calc(var(--hc) * .24);font-weight:800;color:#fff;background:rgba(120,15,10,.82);border:1px solid rgba(255,190,170,.6);padding:2px 7px;border-radius:9px;animation:hshout 2.3s ease-out forwards;text-shadow:none}
+.hshout.ours{background:rgba(10,50,110,.85);border-color:rgba(170,220,255,.6)}
+@keyframes hshout{0%{opacity:0;margin-top:0}12%{opacity:1}75%{opacity:1}100%{opacity:0;margin-top:calc(var(--hc) * -.55)}}
 .hunit.retreat .spr{animation:hretreat 2.6s ease-in forwards}
 @keyframes hretreat{0%{opacity:1;filter:drop-shadow(0 0 0 #6cf)}25%{filter:drop-shadow(0 0 12px #8de4ff) brightness(1.4)}100%{opacity:0;transform:scale(.92) translate(-30%,0);filter:drop-shadow(0 0 4px #8de4ff)}}
 .echohero{width:100%;border-radius:14px;display:block;margin:8px 0 6px;aspect-ratio:16/9;object-fit:cover}.echolore{margin:0 0 8px;padding:8px 12px;border-radius:12px;background:rgba(0,10,30,.35);border:1px solid rgba(140,210,255,.25)}.echolore summary{cursor:pointer;font-weight:800;color:#bfe9ff}.echolore p{margin:8px 0 0;font-size:13.5px;line-height:1.45;font-style:italic;color:#e6f4ff}
@@ -1525,11 +1533,13 @@ const Snd = {
     o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + dur + .05);
   },
   mg(n, gap = 85) { if (!this.on) return; for (let i = 0; i < Math.min(n, 14); i++) setTimeout(() => { this.noise(.08, 2800 + Math.random() * 600, 500, .26, 'bandpass'); this.tone(130, 50, .07, 'sine', .28); }, i * gap); },
+  alarm() { if (!this.on) return; for (let i = 0; i < 3; i++) { this.tone(440, 430, .32, 'square', .025, i * .7); this.tone(330, 325, .32, 'square', .025, i * .7 + .35); } this.tone(70, 38, 1.6, 'sawtooth', .05, .2); },
   ping() { if (!this.on) return; const f = 1900 + Math.random() * 900; this.tone(f, f * .7, .09, 'triangle', .045); },
   whistle(d) { if (!this.on || d < .35) return; this.tone(2300, 900, d, 'sine', .022); this.tone(2330, 920, d, 'sine', .014); },
   play(name) {
     if (!this.on) return;
     switch (name) {
+      case 'alarm':  this.alarm(); break;
       case 'shot':   this.noise(.09, 3600, 1400, .3, 'bandpass'); this.noise(.55, 900, 50, .6); this.tone(90, 32, .45, 'sine', .45); break;
       case 'miss':   this.noise(.5, 1400, 200, .3); this.tone(520, 180, .25, 'sine', .07); break;
       case 'hit':    this.noise(.6, 900, 60, .7); this.tone(140, 40, .4, 'sine', .5); vibrate(60); break;
@@ -5152,6 +5162,43 @@ function hUnits() { return [...H.fleet, ...H.foes]; }
 const myAlive = () => H.fleet.filter(u => u.hp > 0 && !u.gone);
 const myCmd = () => myAlive().filter(u => !u.auto);
 const shipName = u => u.name || (HS[u.type].name + (u.ally ? '-наёмник' : ''));
+// тонущий корабль: держится на воде несколько ходов, горит, на нём рвутся погреба
+const doomAt = (r, c, list = hUnits()) => list.find(u => u.hp <= 0 && u.doom > 0 && !u.gone && u.r === r && u.c === c) || null;
+const SHOUT_FOE = ['Шлюпки на воду!', 'Тонем!', 'Помогите!', 'Прыгай за борт!', 'Пробоина в машинном!', 'Пожар в погребе!', 'Держись за обломки!', 'Капитан, она не выдержит!', 'Спасите!', 'Все наверх!'];
+const SHOUT_ME = ['Шлюпки на воду!', 'Покинуть корабль!', 'Держитесь, братцы!', 'Пожар в машинном!', 'Раненых — в шлюпки!', 'Воды по колено!', 'Помогите!', 'Командир, крен растёт!'];
+function hShout(u, txt) {
+  if (!H.layer || !u) return;
+  const d = document.createElement('div'); d.className = 'hshout' + (u.side === 'me' ? ' ours' : ''); d.textContent = txt || pick(u.side === 'me' ? SHOUT_ME : SHOUT_FOE);
+  d.style.left = `calc(var(--hc) * ${u.c + .5 + (Math.random() - .5) * .6})`; d.style.top = `calc(var(--hc) * ${u.r + .1})`;
+  H.layer.appendChild(d); setTimeout(() => d.remove(), 2400);
+}
+function hDoom(u) {
+  if (u.captured || u.gone || u.doom != null) return;
+  if (u.type === 'echo' || HS[u.type].fort || !HS[u.type].len) { if (BFX.lo) BFX.sink(u); return; }
+  const len = HS[u.type].len || 1; u.doom = u.doomMax = len >= 4 ? 3 : len >= 2 ? 2 : 1;
+  if (BFX.lo) BFX.drown(u);
+  setTimeout(() => hShout(u), 500); Snd.play('alarm');
+}
+function hDoomFinal(u) { u.doom = 0; if (BFX.lo) BFX.sink(u); else u.sinkAt = performance.now(); Snd.play('sunk'); }
+// удар по тонущему кораблю — новый взрыв, и он уходит под воду быстрее
+function hDoomHit(w) {
+  if (BFX.lo) { const [x, y] = BFX.xy(w.r, w.c); BFX.boomXY(x, y, 1.25); }
+  w.doom--; hShout(w);
+  if (w.doom <= 0) { setTimeout(() => hDoomFinal(w), 350); return 'sink'; }
+  Snd.play('hit'); return 'boom';
+}
+// начало хода: тонущие корабли оседают глубже
+function hDoomTick() {
+  const L = hUnits().filter(u => u.hp <= 0 && u.doom > 0 && !u.gone); if (!L.length) return '';
+  const fin = [], burn = [];
+  L.forEach(u => {
+    u.doom--;
+    if (u.doom <= 0) { fin.push(u); hDoomFinal(u); }
+    else { burn.push(u); if (BFX.lo && Math.random() < .7) { const [x, y] = BFX.xy(u.r, u.c), cs = BFX.cs; BFX.boomXY(x + (Math.random() - .5) * cs * .6, y + (Math.random() - .5) * cs * .6, .55, false); Snd.play('hit'); } setTimeout(() => hShout(u), 300); }
+  });
+  const nm = u => u.side === 'me' ? shipName(u) : (u.name || HS[u.type].name + ' врага');
+  return [fin.length ? `🌊 ${fin.map(nm).join(', ')} ${fin.length > 1 ? 'ушли' : 'ушёл'} под воду` : '', burn.length ? `🔥 ${burn.map(nm).join(', ')}: крен растёт, на борту рвутся снаряды` : ''].filter(Boolean).join(' · ');
+}
 function unitAt(r, c) { return hUnits().find(u => u.hp > 0 && !u.gone && u.r === r && u.c === c) || null; }
 function genMap(clear = []) {
   const zones = [[HN - 4, 0, 4, 4], [0, HN - 4, 4, 4], ...clear];
@@ -5209,7 +5256,7 @@ function hbfs(u) {
     const k = q.shift(), r = Math.floor(k / HN), c = k % HN;
     for (const [dr, dc] of DIR8) {
       const y = r + dr, x = c + dc; if (!hin(y, x)) continue; const kk = hidx(y, x);
-      if (dist[kk] >= 0 || H.land[kk] || (bigShip && H.shoal[kk]) || block.has(kk) || unitAt(y, x)) continue;
+      if (dist[kk] >= 0 || H.land[kk] || (bigShip && H.shoal[kk]) || block.has(kk) || unitAt(y, x) || doomAt(y, x)) continue;
       dist[kk] = dist[k] + 1; prev[kk] = k; q.push(kk);
     }
   }
@@ -5451,7 +5498,9 @@ function renderHunt() {
   hUnits().forEach(u => {
     const el = H.els[u.id]; if (!el) return;
     const sinking = u.hp <= 0 && u.sinkAt && performance.now() - u.sinkAt < 2700 + (HS[u.type].len || 1) * 200;
-    const vis = sinking || (u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u)));
+    const doomed = u.hp <= 0 && u.doom > 0 && !u.gone;
+    const vis = sinking || doomed || (u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u)));
+    el.classList.toggle('doomed', doomed); el.classList.toggle('dm-b', doomed && u.doom < u.doomMax && u.doom > 1 || doomed && u.doomMax === 1); el.classList.toggle('dm-c', doomed && u.doom === 1 && u.doomMax > 1);
     el.classList.toggle('hidden', !vis); el.classList.toggle('sinking', !!sinking && u.type !== 'echo'); el.classList.toggle('retreat', !!sinking && u.type === 'echo');
     el.classList.toggle('smoked', u.smoke > 0); { const f = u.hp / u.st.hp; el.classList.toggle('hurt', f < .6 && u.hp > 0); el.classList.toggle('crit', f < .3 && u.hp > 0); }
     el.style.left = `calc(var(--hc) * ${u.c})`; el.style.top = `calc(var(--hc) * ${u.r})`;
@@ -5638,7 +5687,7 @@ async function hMove(u, path) {
     const mi = H.mines.findIndex(m => m.r === r && m.c === c);
     if (mi >= 0) {
       H.mines.splice(mi, 1);
-      H.casNow = []; const d = hDamage(u, 5, false); hfx(r, c, 'boom'); if (u.hp <= 0 && BFX.lo) BFX.sink(u); Snd.play(u.hp <= 0 ? 'sunk' : 'hit');
+      H.casNow = []; const d = hDamage(u, 5, false); hfx(r, c, 'boom'); if (u.hp <= 0) hDoom(u); Snd.play(u.hp <= 0 ? 'sunk' : 'hit');
       hMsg(`💥 ${u.side === 'me' ? shipName(u) : HS[u.type].name + ' противника'} подорвался на мине! −${d} ❤${u.hp <= 0 ? ' — потоплен!' : ''}${H.casNow.length ? ' · ' + H.casNow.join(' · ') : ''}`, u.side === 'me' ? 'hit' : 'sunk');
       if (u.side === 'foe') u.revealed = Math.max(u.revealed, 1);
       renderHunt(); await sleep(450);
@@ -5673,17 +5722,17 @@ async function hFire(u, kind, r, c) {
   if (BFX.lo && (kind === 'gun' || kind === 'msl')) await BFX.shot(u, gy, gx, 0, kind, shFx);
   else if (BFX.lo && (kind === 'salvo' || kind === 'fire')) { const cl = kind === 'salvo' ? [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]] : [[0, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]]; await Promise.all(cl.filter(([a, b]) => hin(r + a, c + b)).map(([a, b], i) => BFX.shot(u, r + a, c + b, i * 70, 'gun', shFx))); }
   else if (!isMg) await sleep(260);
-  let hits = [], sunk = [], scattered = false; const hitUnits = new Set(); H.casNow = [];
+  let hits = [], sunk = [], scattered = false; const hitUnits = new Set(); H.casNow = []; H.finRes = [];
   const usesAmmo = isMe && !u.auto && !u.ally && !!u.sid && kind !== 'pulse', sh = usesAmmo && kind !== 'torp' && kind !== 'msl' && !isMg ? H.ammoSel : 'he';
   if (usesAmmo) { const k = kind === 'torp' || kind === 'msl' ? kind : isMg ? 'mg' : sh, n = isMg ? mgB * mgPer : AMMO_NEED[kind] || 1; H.ammo[k] = Math.max(0, (H.ammo[k] || 0) - n); H.used[k] = (H.used[k] || 0) + n; }
   const shAmt = a => sh === 'heavy' ? a * 2 : sh === 'ap' ? a + 1 : a, shIgn = sh === 'ap';
   const strike = (y, x, amt, ign, quiet) => {
     const t = enemies.find(e => e.hp > 0 && !e.gone && e.r === y && e.c === x);
     H.marks.push({ r: y, c: x, type: t ? 'hit' : 'miss', age: 0 });
-    if (!t) { if (quiet) return null; if (H.land[hidx(y, x)] && BFX.lo) BFX.dirt(y, x); else hfx(y, x, H.land[hidx(y, x)] ? 'boom' : 'splash'); return null; }
+    if (!t) { const w = doomAt(y, x, isMe ? H.foes : H.fleet); if (w) { H.marks[H.marks.length - 1].type = 'hit'; (H.finRes ||= []).push([w, hDoomHit(w)]); return null; } if (quiet) return null; if (H.land[hidx(y, x)] && BFX.lo) BFX.dirt(y, x); else hfx(y, x, H.land[hidx(y, x)] ? 'boom' : 'splash'); return null; }
     const d = hDamage(t, amt, ign); hits.push(d); hitUnits.add(t); if (!quiet) hfx(y, x, 'boom');
     if (isMe) t.revealed = Math.max(t.revealed, 2);
-    if (t.hp <= 0) { sunk.push(t); u.kills++; if (BFX.lo) BFX.sink(t); }
+    if (t.hp <= 0) { sunk.push(t); u.kills++; hDoom(t); }
     else if (sh === 'inc' && kind !== 'torp' && kind !== 'msl') t.burn = 3;
     return t;
   };
@@ -5731,8 +5780,9 @@ async function hFire(u, kind, r, c) {
   const who = isMe ? (u === H.me ? 'Вы' : shipName(u)) : (u.name || HS[u.type].name + ' противника');
   const total = hits.reduce((a, b) => a + b, 0);
   let text, cls;
-  if (sunk.length) { text = isMe ? `💥 ${sunk.map(s => s.name || HS[s.type].name).join(', ')} ${sunk.some(s => HS[s.type].fort) ? 'разрушен' : 'потоплен'}!` : sunk.includes(H.me) ? 'Ваш флагман потоплен!' : `${sunk.map(shipName).join(', ')} потоплен!`; cls = 'sunk'; }
+  if (sunk.length) { text = isMe ? `💥 ${sunk.map(s => s.name || HS[s.type].name).join(', ')} ${sunk.some(s => HS[s.type].fort) ? 'разрушен' : sunk.some(s => s.doom > 0) ? 'горит и идёт ко дну' : 'потоплен'}!` : sunk.includes(H.me) ? 'Ваш флагман потоплен!' : `${sunk.map(shipName).join(', ')} потоплен!`; cls = 'sunk'; }
   else if (hits.length) { text = isMg ? `${who}: ${kind === 'mgf' ? 'беглый огонь' : 'очередь'} — ${hits.length} из ${mgB} в цель, −${total} ❤` : `${who}: попадание! −${total} ❤`; cls = 'hit'; }
+  else if (H.finRes.length) { const [w, r2] = H.finRes[H.finRes.length - 1], nm = w.side === 'me' ? shipName(w) : (w.name || HS[w.type].name); text = r2 === 'sink' ? `💥 Добивающее попадание: ${nm} разламывается и уходит под воду!` : `💥 Новый взрыв на тонущем ${nm} — крен растёт!`; cls = 'sunk'; }
   else { text = `${who}: мимо${scattered ? (kind === 'msl' ? ' (ракету сбили помехи)' : ' (снаряд отклонился)') : ''}`; cls = 'miss'; }
   if (H.casNow && H.casNow.length) text += ' · ' + H.casNow.join(' · ');
   return { text, cls, hits: hits.length };
@@ -5790,7 +5840,7 @@ async function hEndPlayerTurn() {
   if (H.foeRes > 0) { const alive = H.foes.filter(f => f.hp > 0 && !f.gone && !HS[f.type].npc && !HS[f.type].fort && !f.boss).length; if (alive > 0 && alive < H.foeCap && Math.random() < .6) { H.foeRes--; spawnReinf(); renderHunt(); await sleep(500); } }
   const burning = H.foes.filter(f => f.hp > 0 && !f.gone && f.burn > 0);
   if (burning.length) {
-    burning.forEach(f => { f.burn--; f.hp = Math.max(0, f.hp - 2); if (BFX.lo) { const [x, y] = BFX.xy(f.r, f.c); BFX.add({ k: 'emit', x, y, life: 1200 }); } if (f.hp <= 0 && BFX.lo) BFX.sink(f); });
+    burning.forEach(f => { f.burn--; f.hp = Math.max(0, f.hp - 2); if (BFX.lo) { const [x, y] = BFX.xy(f.r, f.c); BFX.add({ k: 'emit', x, y, life: 1200 }); } if (f.hp <= 0) hDoom(f); });
     hMsg(`🔥 Пожар на ${burning.length > 1 ? burning.length + ' кораблях врага' : 'вражеском корабле'}: −2 ❤${burning.some(f => f.hp <= 0) ? ' — огонь добрался до погребов!' : ''}`, 'hit');
     renderHunt(); await sleep(500); if (gen !== H.gen) return; if (hCheck()) return;
   }
@@ -5808,6 +5858,7 @@ function hStartPlayerTurn(first) {
   const me = H.me;
   H.turn++;
   if (!first && hCheck()) return;
+  if (!first) { const dt = hDoomTick(); if (dt) setTimeout(() => { if (H.phase === 'play' && !H.busy) hMsg(dt, 'info'); }, 60); }
   let fixed = 0;
   myAlive().forEach(u => {
     u.fired = false; if (u.smoke > 0) u.smoke--;
@@ -7072,7 +7123,7 @@ FxLayer.prototype = {
     return true;
   },
   xy(r, c) { const o = this.opt.off || 0; return [(c + o + .5) * this.cs, (r + o + .5) * this.cs]; },
-  add(p) { if (this === BFX && p.k === 'flash' && this.cs) GLSea.light(p.x / this.cs, p.y / this.cs, .9, Math.max(.6, (p.s || this.cs) / this.cs * 1.1), [1, .72, .38], 320); if (this.P.length > 1400) { const i = this.P.findIndex(q => q.k !== 'hull' && q.k !== 'emit' && q.k !== 'oil'); this.P.splice(i < 0 ? 0 : i, 1); } p.age = 0; this.P.push(p); return p; },
+  add(p) { if (this === BFX && p.k === 'flash' && this.cs) GLSea.light(p.x / this.cs, p.y / this.cs, .9, Math.max(.6, (p.s || this.cs) / this.cs * 1.1), [1, .72, .38], 320); if (this.P.length > 1400) { const i = this.P.findIndex(q => q.k !== 'hull' && q.k !== 'emit' && q.k !== 'oil' && q.k !== 'drown'); this.P.splice(i < 0 ? 0 : i, 1); } p.age = 0; this.P.push(p); return p; },
   rnd(a, b) { return a + Math.random() * (b - a); },
   later(ms, fn) { setTimeout(() => { if (this.raf) fn(); }, ms); },
   // ---------- события ----------
@@ -7285,6 +7336,14 @@ FxLayer.prototype = {
     setTimeout(() => { if (H.cells) renderHunt(); }, T + 5700);
     return T;
   },
+  // корабль тонет медленно: пожар вдоль корпуса, пар, взрывы на борту, люди в воде
+  drown(u) {
+    if (!this.lo || !this.fit()) return;
+    const [x, y] = this.xy(u.r, u.c), cs = this.cs;
+    this.boomXY(x, y, .9, false);
+    if (this === BFX) { GLSea.light(x / cs, y / cs, 1.2, 1.8, [1, .5, .2], 2000); }
+    this.add({ k: 'drown', u, life: 9e9, nx: 0, ns: 1500, lo: true });
+  },
   wake(u, fr, fc) {
     if (!this.lo || !this.fit() || !BFX.visible(u)) return;
     const [x0, y0] = this.xy(fr, fc), [x1, y1] = this.xy(u.r, u.c), cs = this.cs, a = Math.atan2(y1 - y0, x1 - x0), sz = .6 + .15 * (HS[u.type].len || 1);
@@ -7426,6 +7485,29 @@ FxLayer.prototype = {
         case 'scorch': {
           const a = .24 * (t < .1 ? t / .1 : 1 - (t - .1) / .9), gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s);
           gr.addColorStop(0, `rgba(10,10,15,${a})`); gr.addColorStop(1, 'rgba(10,10,15,0)'); g.fillStyle = gr; g.beginPath(); g.arc(p.x, p.y, p.s, 0, 6.283); g.fill(); break;
+        }
+        case 'drown': {
+          const u = p.u; if (!(u.doom > 0) || u.gone || !H.cells) { p.age = p.life; break; }
+          const [ux, uy] = this.xy(u.r, u.c), len = HS[u.type].len || 1, a = (u.dir || 0) * Math.PI / 180, sev = 1 - (u.doom - 1) / Math.max(1, u.doomMax), L = cs * (.35 + .22 * len);
+          const along = f => [ux + Math.cos(a) * f * L, uy + Math.sin(a) * f * L];
+          if (Math.random() < dt / (45 - 18 * sev)) { const [fx, fy] = along(this.rnd(-.5, .5)); this.add({ k: 'fire', x: fx, y: fy, vx: this.rnd(-4, 4), vy: this.rnd(-18, -8), s: cs * this.rnd(.08, .16), life: this.rnd(300, 620) }); }
+          if (Math.random() < dt / 230) { const [fx, fy] = along(this.rnd(-.5, .5)); this.add({ k: 'smoke', x: fx, y: fy, vx: this.rnd(10, 22), vy: this.rnd(-30, -16), s: cs * .1, g: cs * .7, life: this.rnd(1300, 2000), c: 55 + (Math.random() * 40 | 0) }); }
+          if (Math.random() < dt / 160) { const [fx, fy] = along(this.rnd(-.5, .5)), sd = Math.random() < .5 ? 1 : -1; this.add({ k: Math.random() < .6 ? 'bubble' : 'foam', x: fx - Math.sin(a) * sd * cs * .3, y: fy + Math.cos(a) * sd * cs * .3, s: cs * this.rnd(.04, .08), life: this.rnd(700, 1300), lo: true }); }
+          if (p.age > p.nx) {   // вторичные взрывы и люди за бортом
+            p.nx = p.age + this.rnd(1300, 2600) * (1 - .35 * sev);
+            if (Math.random() < .55) { const [fx, fy] = along(this.rnd(-.45, .45)); this.boomXY(fx, fy, .35 + .2 * Math.random(), false); if (this === BFX) Snd.play(Math.random() < .5 ? 'hit' : 'shot'); }
+            for (let i = 0, n = 1 + (Math.random() * 2 | 0); i < n; i++) { const [fx, fy] = along(this.rnd(-.5, .5)), sd = Math.random() < .5 ? 1 : -1, d = cs * this.rnd(.32, .5); this.add({ k: 'swim', x: fx - Math.sin(a) * sd * d, y: fy + Math.cos(a) * sd * d, vx: -Math.sin(a) * sd * this.rnd(2, 6), vy: Math.cos(a) * sd * this.rnd(2, 6), s: cs * .055, life: this.rnd(7000, 11000), ph: Math.random() * 6, lo: true }); }
+            if (this === BFX && Math.random() < .5) hShout(u);
+          }
+          break;
+        }
+        case 'swim': {   // человек в воде: голова и оранжевый жилет, качается на волне
+          p.vx *= .995; p.vy *= .995; const a = t < .85 ? 1 : (1 - t) / .15, bob = Math.sin(p.age / 300 + p.ph);
+          g.fillStyle = `rgba(255,255,255,${.25 * a})`; g.beginPath(); g.arc(p.x, p.y, p.s * (1.9 + .3 * bob), 0, 6.283); g.fill();
+          g.fillStyle = `rgba(255,120,30,${.95 * a})`; g.beginPath(); g.arc(p.x, p.y + p.s * .35, p.s * 1.05, 0, 6.283); g.fill();
+          g.fillStyle = `rgba(230,190,150,${a})`; g.beginPath(); g.arc(p.x, p.y - p.s * .25 + bob * .4, p.s * .62, 0, 6.283); g.fill();
+          if (Math.sin(p.age / 170 + p.ph) > .93) { g.strokeStyle = `rgba(230,190,150,${a})`; g.lineWidth = p.s * .35; g.beginPath(); g.moveTo(p.x + p.s * .6, p.y); g.lineTo(p.x + p.s * 1.3, p.y - p.s * 1.4); g.stroke(); }   // машет рукой
+          break;
         }
         case 'emit': {
           if (Math.random() < dt / 60 * (1 - t)) this.add({ k: 'fire', x: p.x + this.rnd(-.2, .2) * cs, y: p.y + this.rnd(-.15, .15) * cs, vx: this.rnd(-3, 3), vy: this.rnd(-16, -6), s: cs * this.rnd(.08, .15), life: this.rnd(300, 600) });
