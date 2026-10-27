@@ -1524,11 +1524,13 @@ const Snd = {
     const g = ctx.createGain(); g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
     o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + dur + .05);
   },
-  mg(n) { if (!this.on) return; for (let i = 0; i < Math.min(n, 9); i++) setTimeout(() => { this.noise(.07, 3200, 900, .2, 'bandpass'); this.tone(160, 90, .05, 'square', .04); }, i * 85); },
+  mg(n, gap = 85) { if (!this.on) return; for (let i = 0; i < Math.min(n, 14); i++) setTimeout(() => { this.noise(.08, 2800 + Math.random() * 600, 500, .26, 'bandpass'); this.tone(130, 50, .07, 'sine', .28); }, i * gap); },
+  ping() { if (!this.on) return; const f = 1900 + Math.random() * 900; this.tone(f, f * .7, .09, 'triangle', .045); },
+  whistle(d) { if (!this.on || d < .35) return; this.tone(2300, 900, d, 'sine', .022); this.tone(2330, 920, d, 'sine', .014); },
   play(name) {
     if (!this.on) return;
     switch (name) {
-      case 'shot':   this.noise(.18, 3000, 400, .25, 'bandpass'); break;
+      case 'shot':   this.noise(.09, 3600, 1400, .3, 'bandpass'); this.noise(.55, 900, 50, .6); this.tone(90, 32, .45, 'sine', .45); break;
       case 'miss':   this.noise(.5, 1400, 200, .3); this.tone(520, 180, .25, 'sine', .07); break;
       case 'hit':    this.noise(.6, 900, 60, .7); this.tone(140, 40, .4, 'sine', .5); vibrate(60); break;
       case 'sunk':   this.noise(1.1, 700, 40, .8); this.tone(220, 55, .9, 'sawtooth', .12); this.tone(110, 30, 1, 'sine', .5); vibrate([80, 40, 120]); break;
@@ -5662,13 +5664,14 @@ async function hFire(u, kind, r, c) {
   if (isMe) H.foes.forEach(f => { if (f.hp > 0) f.known = { r: u.r, c: u.c, exact: !u.st.cloak, age: 0 }; });
   else { H.flashes.push({ r: u.r, c: u.c, age: 0 }); if (H.weather === 'night') u.revealed = Math.max(u.revealed, 1); }
   if (!u.st.fort) u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI;
-  if (isMg) Snd.mg(mgPer + mgB); else Snd.play(kind === 'torp' || kind === 'msl' ? 'plane' : kind === 'pulse' ? 'radar' : 'shot'); renderHunt();
+  if (isMg) Snd.mg(Math.min(14, mgPer * Math.min(mgB, 2) + 2), kind === 'mgf' ? 70 : 95); else Snd.play(kind === 'torp' || kind === 'msl' ? 'plane' : kind === 'pulse' ? 'radar' : 'shot'); renderHunt();
   if (kind === 'gun' || kind === 'salvo' || kind === 'fire') { const sp = H.els[u.id] && H.els[u.id].querySelector('.spr > *'); if (sp) { sp.classList.remove('recoil'); void sp.offsetWidth; sp.classList.add('recoil'); } }
   let gy = r, gx = c, scatterHit = false;
   if (kind === 'gun' && Math.random() < u.st.scatter + (1 - crewEff(u)) * .3) { const [dr, dc] = pick(DIR8); if (hin(r + dr, c + dc)) { gy = r + dr; gx = c + dc; scatterHit = true; } }
   if (kind === 'msl' && Math.random() < .1) { const [dr, dc] = pick(DIR8); if (hin(r + dr, c + dc)) { gy = r + dr; gx = c + dc; scatterHit = true; } }
-  if (BFX.lo && (kind === 'gun' || kind === 'msl')) await BFX.shot(u, gy, gx, 0, kind);
-  else if (BFX.lo && (kind === 'salvo' || kind === 'fire')) { const cl = kind === 'salvo' ? [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]] : [[0, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]]; await Promise.all(cl.filter(([a, b]) => hin(r + a, c + b)).map(([a, b], i) => BFX.shot(u, r + a, c + b, i * 70))); }
+  const shFx = isMe && !u.auto && !u.ally && u.sid ? H.ammoSel : null;
+  if (BFX.lo && (kind === 'gun' || kind === 'msl')) await BFX.shot(u, gy, gx, 0, kind, shFx);
+  else if (BFX.lo && (kind === 'salvo' || kind === 'fire')) { const cl = kind === 'salvo' ? [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]] : [[0, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]]; await Promise.all(cl.filter(([a, b]) => hin(r + a, c + b)).map(([a, b], i) => BFX.shot(u, r + a, c + b, i * 70, 'gun', shFx))); }
   else if (!isMg) await sleep(260);
   let hits = [], sunk = [], scattered = false; const hitUnits = new Set(); H.casNow = [];
   const usesAmmo = isMe && !u.auto && !u.ally && !!u.sid && kind !== 'pulse', sh = usesAmmo && kind !== 'torp' && kind !== 'msl' && !isMg ? H.ammoSel : 'he';
@@ -7073,7 +7076,7 @@ FxLayer.prototype = {
   rnd(a, b) { return a + Math.random() * (b - a); },
   later(ms, fn) { setTimeout(() => { if (this.raf) fn(); }, ms); },
   // ---------- события ----------
-  shot(u, r, c, delay = 0, kind = 'gun') {
+  shot(u, r, c, delay = 0, kind = 'gun', sh = null) {
     if (!this.lo || !this.fit()) return Promise.resolve();
     const [x0, y0] = this.xy(u.r, u.c), [x1, y1] = this.xy(r, c), cs = this.cs;
     const d = Math.hypot(x1 - x0, y1 - y0), ang = Math.atan2(y1 - y0, x1 - x0);
@@ -7105,17 +7108,28 @@ FxLayer.prototype = {
       const ox = this.rnd(-.35, .35) * cs, oy = this.rnd(-.35, .35) * cs, bx = x0 + Math.cos(ang) * nose * this.rnd(-.4, .6), by = y0 + Math.sin(ang) * nose * this.rnd(-.4, .6);
       this.add({ k: 'flash', x: bx, y: by, s: cs * .6, life: 140 });
       for (let j = 0; j < 3; j++) this.add({ k: 'smoke', x: bx, y: by, vx: Math.cos(ang) * this.rnd(8, 20), vy: Math.sin(ang) * this.rnd(8, 20), s: cs * this.rnd(.1, .18), g: cs * .45, life: this.rnd(500, 800), c: 205 });
-      this.add({ k: 'shell', x0: bx, y0: by, x1: x1 + ox, y1: y1 + oy, h: Math.min(cs * 2.4, d * .45), life: dur, mini: 1 });
+      this.P.push({ k: 'mflash', x: bx, y: by, a: ang, s: cs * .6, life: 120, age: 0 });
+      this.add({ k: 'shell', x0: bx, y0: by, x1: x1 + ox, y1: y1 + oy, h: Math.min(cs * 2.4, d * .45), life: dur, mini: 1, sh });
     });
     this.later(delay, () => {
-      const mx = x0 + Math.cos(ang) * nose, my = y0 + Math.sin(ang) * nose;
-      this.add({ k: 'flash', x: mx, y: my, s: cs * .85, life: 170 });
-      this.add({ k: 'ring', x: x0, y: y0, s: cs * .3, s1: cs * 1.25, life: 520, c: '255,255,255', w: 2.5, lo: true });
+      const mx = x0 + Math.cos(ang) * nose, my = y0 + Math.sin(ang) * nose, hv = sh === 'heavy' ? 1.3 : 1;
+      // дульное пламя: главный язык вперёд и боковые струи дульного тормоза
+      this.P.push({ k: 'mflash', x: mx, y: my, a: ang, s: cs * (.95 + .14 * len) * hv, life: 170, age: 0 });
+      this.P.push({ k: 'mflash', x: mx, y: my, a: ang + 1.4, s: cs * .42 * hv, life: 120, age: 0 });
+      this.P.push({ k: 'mflash', x: mx, y: my, a: ang - 1.4, s: cs * .42 * hv, life: 120, age: 0 });
+      this.add({ k: 'flash', x: mx, y: my, s: cs * .85 * hv, life: 170 });
+      // ударная волна выстрела гладит воду
+      if (this === BFX) GLSea.imp(mx / cs, my / cs, .5 + .1 * len);
+      this.add({ k: 'ring', x: mx, y: my, s: cs * .2, s1: cs * (1.15 + .18 * len), life: 520, c: '255,236,205', w: 3, lo: true });
+      this.add({ k: 'ring', x: x0, y: y0, s: cs * .3, s1: cs * 1.25, life: 620, c: '255,255,255', w: 2, lo: true, dl: 60 });
+      if (this === BFX && GLFx.on()) for (let i = 0; i < 4 + len; i++) { const f = this.rnd(.1, 1); GLFx.add({ t: 0, x: mx + Math.cos(ang) * cs * f * .9, y: my + Math.sin(ang) * cs * f * .9, vx: Math.cos(ang) * this.rnd(5, 16) + this.rnd(-4, 4), vy: Math.sin(ang) * this.rnd(5, 16) - this.rnd(2, 7), s: cs * this.rnd(.2, .34), s1: cs * this.rnd(.7, 1.15) * hv, h: 0, h1: 0, a: .42, life: this.rnd(1500, 2600), dl: this.rnd(0, 180) }); }
+      if (this === BFX) Snd.whistle(dur / 1000 * .8);
       for (let i = 0; i < 7; i++) { const a = ang + this.rnd(-.28, .28), v = this.rnd(60, 190); this.add({ k: 'fire', x: mx, y: my, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: cs * this.rnd(.08, .17), life: this.rnd(140, 300) }); }
       for (let i = 0; i < 6; i++) { const a = ang + this.rnd(-.5, .5), v = this.rnd(90, 240); this.add({ k: 'spark', x: mx, y: my, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: this.rnd(160, 340) }); }
       this.shake = Math.max(this.shake, 1.6);
       for (let i = 0; i < 6; i++) this.add({ k: 'smoke', x: mx, y: my, vx: Math.cos(ang) * this.rnd(8, 24) + this.rnd(-6, 6), vy: Math.sin(ang) * this.rnd(8, 24) + this.rnd(-6, 6), s: cs * this.rnd(.12, .22), g: cs * .5, life: this.rnd(500, 900), c: 205 });
-      this.add({ k: 'shell', x0: mx, y0: my, x1, y1, h: Math.min(cs * 2.4, d * .45), life: dur });
+      this.add({ k: 'shell', x0: mx, y0: my, x1, y1, h: Math.min(cs * 2.4, d * .45), life: dur, sh });
+      this.shake = Math.max(this.shake, 1.4 + .5 * len * hv);
     });
     return new Promise(res => setTimeout(res, delay + dur));
   },
@@ -7123,19 +7137,36 @@ FxLayer.prototype = {
   mg(u, r, c, n = 3, delay = 0, hit = false, off = 0) {
     if (!this.lo || !this.fit()) return Promise.resolve();
     const cs = this.cs, [sx, sy] = this.xy(u.r, u.c), [x1, y1] = this.xy(r, c), da = (u.dir || 0) * Math.PI / 180;
-    const x0 = sx + Math.cos(da) * off * cs, y0 = sy + Math.sin(da) * off * cs, ang = Math.atan2(y1 - y0, x1 - x0);
-    const mx = x0 + Math.cos(ang) * cs * .22, my = y0 + Math.sin(ang) * cs * .22, fly = 80 + Math.hypot(x1 - x0, y1 - y0) / cs * 26, gap = 80;
-    for (let i = 0; i < n; i++) this.later(delay + i * gap, () => {
-      this.P.push({ k: 'mflash', x: mx, y: my, a: ang, s: cs * this.rnd(.22, .32), life: 70, age: 0 });
-      if (Math.random() < .5) this.add({ k: 'smoke', x: mx, y: my, vx: Math.cos(ang) * 10 + this.rnd(-5, 5), vy: Math.sin(ang) * 10 - 6, s: cs * .05, g: cs * .22, life: this.rnd(400, 700), c: 215 });
-      this.add({ k: 'spark', x: x0, y: y0, vx: Math.cos(ang + 1.57) * this.rnd(30, 60), vy: Math.sin(ang + 1.57) * this.rnd(30, 60), life: 260 });   // гильза
-      const tx = x1 + this.rnd(-.3, .3) * cs * (hit ? .5 : 1), ty = y1 + this.rnd(-.3, .3) * cs * (hit ? .5 : 1);
+    const x0 = sx + Math.cos(da) * off * cs, y0 = sy + Math.sin(da) * off * cs, ang = Math.atan2(y1 - y0, x1 - x0), D = Math.hypot(x1 - x0, y1 - y0);
+    const mx = x0 + Math.cos(ang) * cs * .22, my = y0 + Math.sin(ang) * cs * .22, fly = 110 + D / cs * 38, fast = n >= 5, gap = fast ? 140 : 190, sp = fast ? .42 : .26;
+    const shots = n * 2;   // каждый патрон в бою — пара трассеров: глаз видит плотную струю
+    for (let i = 0; i < shots; i++) this.later(delay + i * gap / 2, () => {
+      const f = i / Math.max(1, shots - 1), hr = hit && f > .4;   // очередь «идёт» по воде к цели и накрывает её
+      if (i % 2 === 0) {
+        this.P.push({ k: 'mflash', x: mx, y: my, a: ang + this.rnd(-.08, .08), s: cs * this.rnd(.26, .4), life: 60, age: 0 });
+        this.add({ k: 'flash', x: mx, y: my, s: cs * .32, life: 60 });
+        this.add({ k: 'ember', x: x0, y: y0, vx: Math.cos(ang + 1.57) * this.rnd(25, 55), vy: Math.sin(ang + 1.57) * this.rnd(25, 55), z: cs * .1, vz: this.rnd(60, 110), life: this.rnd(380, 600), s: 1.3 });   // горячая гильза
+        if (Math.random() < .55) this.add({ k: 'smoke', x: mx, y: my, vx: Math.cos(ang) * 12 + this.rnd(-5, 5), vy: Math.sin(ang) * 12 - 7, s: cs * .06, g: cs * .3, life: this.rnd(600, 1000), c: 210 });
+        this.shake = Math.max(this.shake, fast ? .9 : .6);
+      }
+      const short = hr ? 0 : (1 - f) * .9 * cs + this.rnd(-.15, .25) * cs, j = cs * sp;
+      const tx = x1 - Math.cos(ang) * short + this.rnd(-1, 1) * j * (hr ? .5 : 1), ty = y1 - Math.sin(ang) * short + this.rnd(-1, 1) * j * (hr ? .5 : 1);
       this.add({ k: 'tracer', x0: mx, y0: my, x1: tx, y1: ty, life: fly, end: () => {
-        if (hit) { for (let j = 0; j < 5; j++) { const a = Math.random() * 6.283, v = this.rnd(50, 150); this.add({ k: 'spark', x: tx, y: ty, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: this.rnd(150, 320) }); } this.P.push({ k: 'mflash', x: tx, y: ty, a: ang + Math.PI, s: cs * .2, life: 80, age: 0 }); if (Math.random() < .4) this.add({ k: 'smoke', x: tx, y: ty, vx: this.rnd(-6, 6), vy: this.rnd(-14, -4), s: cs * .07, g: cs * .3, life: 800, c: 120 }); }
-        else { this.add({ k: 'ring', x: tx, y: ty, s: cs * .03, s1: cs * .2, life: 450, c: '255,255,255', w: 1.4, lo: true }); for (let j = 0; j < 3; j++) { const a = Math.random() * 6.283, v = this.rnd(5, 20); this.add({ k: 'drop', x: tx, y: ty, vx: Math.cos(a) * v, vy: Math.sin(a) * v, z: 0, vz: this.rnd(50, 90), life: this.rnd(300, 500), s: cs * .016 }); } }
+        if (hr) {
+          for (let q = 0; q < 6; q++) { const a = Math.random() * 6.283, v = this.rnd(60, 190); this.add({ k: 'spark', x: tx, y: ty, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: this.rnd(140, 320) }); }
+          this.P.push({ k: 'mflash', x: tx, y: ty, a: ang + Math.PI + this.rnd(-.6, .6), s: cs * .24, life: 80, age: 0 });
+          if (Math.random() < .4) { const a = ang + Math.PI + this.rnd(-1.3, 1.3), L = cs * this.rnd(.8, 1.6); this.add({ k: 'tracer', x0: tx, y0: ty, x1: tx + Math.cos(a) * L, y1: ty + Math.sin(a) * L, life: 110, w: .6 }); }   // рикошет
+          if (Math.random() < .35) this.add({ k: 'smoke', x: tx, y: ty, vx: this.rnd(-6, 6), vy: this.rnd(-16, -5), s: cs * .07, g: cs * .32, life: 900, c: 110 });
+          if (this === BFX && Math.random() < .5) Snd.ping();
+        } else {
+          if (this === BFX && Math.random() < .5) GLSea.imp(tx / cs, ty / cs, .18);
+          this.add({ k: 'column', x: tx, y: ty, s: cs * .035, h: cs * this.rnd(.22, .36), life: 330 });
+          this.add({ k: 'ring', x: tx, y: ty, s: cs * .03, s1: cs * .24, life: 480, c: '255,255,255', w: 1.3, lo: true });
+          for (let q = 0; q < 3; q++) { const a = Math.random() * 6.283, v = this.rnd(5, 22); this.add({ k: 'drop', x: tx, y: ty, vx: Math.cos(a) * v, vy: Math.sin(a) * v, z: 0, vz: this.rnd(55, 95), life: this.rnd(300, 500), s: cs * .016 }); }
+        }
       } });
     });
-    return new Promise(res => setTimeout(res, delay + n * gap + fly + 40));
+    return new Promise(res => setTimeout(res, delay + shots * gap / 2 + fly + 60));
   },
   // снаряд прилетает «сверху» (классика: стреляем из-за края поля)
   minisplash(x, y) {
@@ -7299,15 +7330,19 @@ FxLayer.prototype = {
       switch (p.k) {
         case 'shell': {
           if (p.mini && p.age + dt >= p.life && !p.done) { p.done = 1; this.minisplash(p.x1, p.y1); }
-          const x = p.x0 + (p.x1 - p.x0) * t, y = p.y0 + (p.y1 - p.y0) * t, z = Math.sin(t * Math.PI) * p.h, k = 1 + z / (cs * 2.2) * .9;
-          const sg = g.createRadialGradient(x, y, 0, x, y, cs * .16); sg.addColorStop(0, 'rgba(0,10,25,.4)'); sg.addColorStop(1, 'rgba(0,10,25,0)');
-          g.fillStyle = sg; g.beginPath(); g.arc(x, y, cs * .16, 0, 6.283); g.fill();
-          const t0 = Math.max(0, t - .1), xb = p.x0 + (p.x1 - p.x0) * t0, yb = p.y0 + (p.y1 - p.y0) * t0 - Math.sin(t0 * Math.PI) * p.h, sy = y - z, an = Math.atan2(sy - yb, x - xb);
-          if (!p.tr || p.age - p.tr > 22) { p.tr = p.age; this.add({ k: 'smoke', x, y: sy, vx: this.rnd(-3, 3), vy: this.rnd(-5, 1), s: cs * .035 * k, g: cs * .13, life: this.rnd(320, 520), c: 225 }); }
+          const hv = p.sh === 'heavy' ? 1.35 : 1, x = p.x0 + (p.x1 - p.x0) * t, y = p.y0 + (p.y1 - p.y0) * t, z = Math.sin(t * Math.PI) * p.h, k = (1 + z / (cs * 2.2) * .9) * hv;
+          const sg = g.createRadialGradient(x, y, 0, x, y, cs * .16 * hv); sg.addColorStop(0, 'rgba(0,10,25,.4)'); sg.addColorStop(1, 'rgba(0,10,25,0)');
+          g.fillStyle = sg; g.beginPath(); g.arc(x, y, cs * .16 * hv, 0, 6.283); g.fill();
+          const sy = y - z, P = (p.pts ||= []); P.push([x, sy, p.age]); while (P.length > 2 && p.age - P[0][2] > 420) P.shift();
+          const pv = P.length > 1 ? P[P.length - 2] : [p.x0, p.y0], an = Math.atan2(sy - pv[1], x - pv[0]);
+          const col = p.sh === 'inc' ? '255,95,30' : p.sh === 'ap' ? '175,220,255' : '255,195,95';
+          // дымный инверсионный след и раскалённый хвост
+          g.lineCap = 'round';
+          for (let i = 1; i < P.length; i++) { const a = 1 - (p.age - P[i][2]) / 420; g.strokeStyle = `rgba(${p.sh === 'heavy' ? '150,145,140' : '228,226,220'},${a * .3})`; g.lineWidth = cs * (.05 + .14 * (1 - a)) * k; g.beginPath(); g.moveTo(P[i - 1][0], P[i - 1][1]); g.lineTo(P[i][0], P[i][1]); g.stroke(); }
           g.globalCompositeOperation = 'lighter';
-          const gr = g.createLinearGradient(xb, yb, x, sy); gr.addColorStop(0, 'rgba(255,150,40,0)'); gr.addColorStop(1, 'rgba(255,225,150,.95)');
-          g.strokeStyle = gr; g.lineWidth = cs * .09 * k; g.lineCap = 'round'; g.beginPath(); g.moveTo(xb, yb); g.lineTo(x, sy); g.stroke();
-          const hg = g.createRadialGradient(x, sy, 0, x, sy, cs * .2 * k); hg.addColorStop(0, 'rgba(255,240,190,.9)'); hg.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = hg; g.beginPath(); g.arc(x, sy, cs * .2 * k, 0, 6.283); g.fill();
+          for (let i = 1; i < P.length; i++) { const a = 1 - (p.age - P[i][2]) / 420; if (a < .5) continue; g.strokeStyle = `rgba(${col},${(a - .5) * 1.8})`; g.lineWidth = cs * .1 * k * a; g.beginPath(); g.moveTo(P[i - 1][0], P[i - 1][1]); g.lineTo(P[i][0], P[i][1]); g.stroke(); }
+          if (!p.tr || p.age - p.tr > 22) { p.tr = p.age; this.add({ k: 'smoke', x, y: sy, vx: this.rnd(-3, 3), vy: this.rnd(-5, 1), s: cs * .035 * k, g: cs * .13, life: this.rnd(320, 520), c: p.sh === 'heavy' ? 170 : 225 }); if (p.sh === 'inc') this.add({ k: 'fire', x, y: sy, vx: this.rnd(-8, 8), vy: this.rnd(-8, 8), s: cs * .07, life: this.rnd(150, 260) }); }
+          const hg = g.createRadialGradient(x, sy, 0, x, sy, cs * .26 * k); hg.addColorStop(0, 'rgba(255,248,220,.95)'); hg.addColorStop(.35, `rgba(${col},.55)`); hg.addColorStop(1, `rgba(${col},0)`); g.fillStyle = hg; g.beginPath(); g.arc(x, sy, cs * .26 * k, 0, 6.283); g.fill();
           g.globalCompositeOperation = 'source-over';
           g.save(); g.translate(x, sy); g.rotate(an); g.fillStyle = '#2b2620'; g.beginPath(); g.ellipse(0, 0, cs * .085 * k, cs * .04 * k, 0, 0, 6.283); g.fill(); g.fillStyle = '#ffe9b0'; g.beginPath(); g.arc(cs * .05 * k, 0, cs * .028 * k, 0, 6.283); g.fill(); g.restore();
           break;
@@ -7434,11 +7469,11 @@ FxLayer.prototype = {
         }
         case 'zap': { g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(140,240,255,${1 - t})`; g.lineWidth = 1.4; g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(p.x - p.vx * .05, p.y - p.vy * .05); g.stroke(); break; }
         case 'tracer': {
-          const hx = p.x0 + (p.x1 - p.x0) * t, hy = p.y0 + (p.y1 - p.y0) * t, tl = Math.max(0, t - .32), bx = p.x0 + (p.x1 - p.x0) * tl, by = p.y0 + (p.y1 - p.y0) * tl;
+          const hx = p.x0 + (p.x1 - p.x0) * t, hy = p.y0 + (p.y1 - p.y0) * t, tl = Math.max(0, t - .45), bx = p.x0 + (p.x1 - p.x0) * tl, by = p.y0 + (p.y1 - p.y0) * tl;
           g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
           const tg = g.createLinearGradient(bx, by, hx, hy); tg.addColorStop(0, 'rgba(255,120,30,0)'); tg.addColorStop(1, 'rgba(255,230,140,.95)');
-          g.strokeStyle = tg; g.globalAlpha = .45; g.lineWidth = cs * .16; g.beginPath(); g.moveTo(bx, by); g.lineTo(hx, hy); g.stroke();
-          g.globalAlpha = 1; g.lineWidth = cs * .06; g.stroke();
+          const tw = p.w || 1; g.strokeStyle = tg; g.globalAlpha = .45; g.lineWidth = cs * .16 * tw; g.beginPath(); g.moveTo(bx, by); g.lineTo(hx, hy); g.stroke();
+          g.globalAlpha = 1; g.lineWidth = cs * .06 * tw; g.stroke();
           const hg = g.createRadialGradient(hx, hy, 0, hx, hy, cs * .12); hg.addColorStop(0, 'rgba(255,250,220,1)'); hg.addColorStop(1, 'rgba(255,160,50,0)'); g.fillStyle = hg; g.beginPath(); g.arc(hx, hy, cs * .12, 0, 6.283); g.fill(); break;
         }
         case 'mflash': {
