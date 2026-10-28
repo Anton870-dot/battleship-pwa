@@ -7735,6 +7735,17 @@ FxLayer.prototype = {
           }
           break;
         }
+        case 'gull': {   // чайка сверху: машет крыльями, тень скользит по воде
+          const an = Math.atan2(p.vy, p.vx), fl = Math.sin(p.age / 120 + p.ph), sp = .55 + .35 * fl, w = p.s;
+          p.vy += Math.sin(p.age / 900 + p.ph) * .02;
+          const wing = (ox, oy, col, lw) => { g.save(); g.translate(p.x + ox, p.y + oy); g.rotate(an); g.strokeStyle = col; g.lineWidth = lw; g.lineCap = 'round'; g.lineJoin = 'round';
+            g.beginPath(); g.moveTo(-w * .25, -w * sp); g.quadraticCurveTo(w * .15, -w * sp * .45, w * .05, 0); g.quadraticCurveTo(w * .15, w * sp * .45, -w * .25, w * sp); g.stroke(); g.restore(); };
+          wing(cs * .55, cs * .7, 'rgba(0,25,45,.2)', w * .2);
+          wing(0, 0, 'rgba(252,252,250,.97)', w * .17);
+          g.save(); g.translate(p.x, p.y); g.rotate(an); g.fillStyle = '#f4f4f0'; g.beginPath(); g.ellipse(0, 0, w * .32, w * .09, 0, 0, 6.283); g.fill(); g.fillStyle = '#e8a33a'; g.beginPath(); g.arc(w * .33, 0, w * .035, 0, 6.283); g.fill();
+          g.fillStyle = 'rgba(40,40,45,.85)'; g.beginPath(); g.arc(-w * .25, -w * sp, w * .05, 0, 6.283); g.arc(-w * .25, w * sp, w * .05, 0, 6.283); g.fill(); g.restore();
+          break;
+        }
         case 'swim': {   // человек в воде: голова и оранжевый жилет, качается на волне
           p.vx *= .995; p.vy *= .995; const a = t < .85 ? 1 : (1 - t) / .15, bob = Math.sin(p.age / 300 + p.ph);
           g.fillStyle = `rgba(255,255,255,${.25 * a})`; g.beginPath(); g.arc(p.x, p.y, p.s * (1.9 + .3 * bob), 0, 6.283); g.fill();
@@ -7887,6 +7898,10 @@ const BFX = new FxLayer({
       const r = Math.random() * HN, c = Math.random() * HN, k = hidx(r | 0, c | 0);
       if (!H.land[k] && !H.shoal[k]) fx.add({ k: 'crest', x: c * cs, y: r * cs, vx: cs * .25, vy: cs * .1, r: -1.2, s: cs * fx.rnd(.18, .34) * (wx === 'storm' ? 1.4 : 1), w: wx === 'storm' ? 1.6 : 1.1, a: wx === 'night' ? .25 : wx === 'storm' ? .7 : .45, life: fx.rnd(1400, 2400), lo: true });
     }
+    if ((wx === 'clear' || wx === 'fog') && todNow() !== 'night' && Math.random() < dt / 14000) {   // стайка чаек пролетает над полем боя
+      const W = HN * cs, l = Math.random() < .5, y0 = Math.random() * W, a = (l ? 0 : Math.PI) + fx.rnd(-.35, .35), v = cs * fx.rnd(.7, 1.1), n = 2 + (Math.random() * 3 | 0);
+      for (let i = 0; i < n; i++) { const ox = -Math.cos(a) * cs * (i * .7 + Math.random() * .3), oy = (Math.random() - .5) * cs * 1.4; fx.add({ k: 'gull', x: (l ? -cs : W + cs) + ox, y: y0 + oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: cs * fx.rnd(.22, .3), ph: Math.random() * 6, life: (W + cs * 4) / v * 1000 }); }
+    }
     hUnits().forEach(u => {
       if (!u.st || u.hp <= 0 || u.gone || (HS[u.type].npc && !HS[u.type].fort) || !BFX.visible(u)) return;
       if (u.burn > 0 && Math.random() < dt / 45) { const [bx, by] = fx.xy(u.r, u.c); fx.add({ k: 'fire', x: bx + fx.rnd(-.2, .2) * cs, y: by + fx.rnd(-.15, .15) * cs, vx: fx.rnd(-3, 3), vy: fx.rnd(-16, -6), s: cs * fx.rnd(.08, .16), life: fx.rnd(300, 600) }); }
@@ -7923,10 +7938,18 @@ const Terrain = {
     for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { const u = x / PX, v = y / PX; F[y * S + x] = samp(land, u, v) + (fbm(u * 1.9, v * 1.9) - .5) * .34 + (vn(u * 9, v * 9) - .5) * .05; }
     if (GLSea.o) {   // острова рисует шейдер моря: отдаём ему высоты, наклоны и мели
       const D = new Uint8Array(S * S * 4), cl = v => Math.max(0, Math.min(255, Math.round(v)));
+      // горы: чем дальше от берега, тем выше; гребни — из «хребтового» шума
+      const Dg = new Float32Array(n * n).fill(0), q = [];
+      for (let k = 0; k < n * n; k++) { if (!land[k]) { Dg[k] = 0; q.push(k); } else Dg[k] = 99; }
+      while (q.length) { const k = q.shift(), r = Math.floor(k / n), c = k % n; for (const [dr, dc] of DIR8) { const y = r + dr, x = c + dc; if (y < 0 || x < 0 || y >= n || x >= n) continue; const kk = y * n + x; if (Dg[kk] > Dg[k] + 1) { Dg[kk] = Dg[k] + 1; q.push(kk); } } }
+      for (let k = 0; k < n * n; k++) if (Dg[k] > 50) Dg[k] = 3;
+      const dAt = (r, c) => Dg[Math.max(0, Math.min(n - 1, r)) * n + Math.max(0, Math.min(n - 1, c))];
+      const dS = (u, v) => { const cx = u - .5, cy = v - .5, i = Math.floor(cx), j = Math.floor(cy), fx = cx - i, fy = cy - j; return dAt(j, i) * (1 - fx) * (1 - fy) + dAt(j, i + 1) * fx * (1 - fy) + dAt(j + 1, i) * (1 - fx) * fy + dAt(j + 1, i + 1) * fx * fy; };
+      for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { const k = y * S + x, u = x / PX, v = y / PX; if (F[k] < TH) continue; const ds = dS(u, v), rg = 1 - Math.abs(2 * fbm(u * 1.3 + 40, v * 1.3 + 17) - 1); F[k] += Math.max(0, ds - 1.05) * (.22 + .5 * rg * rg) * .5 * (.7 + .6 * vn(u * .7 + 5, v * .7 + 3)); }
       for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
         const k = y * S + x, u = x / PX, v = y / PX, gx = F[k + (x < S - 1 ? 1 : 0)] - F[k - (x > 0 ? 1 : 0)], gy = F[k + (y < S - 1 ? S : 0)] - F[k - (y > 0 ? S : 0)];
         const fs = samp(shoal, u, v) + (fbm(u * 2.3 + 20, v * 2.3 + 11) - .5) * .3;
-        D[k * 4] = cl((F[k] + .3) / 1.6 * 255); D[k * 4 + 1] = cl(128 + gx * 1400); D[k * 4 + 2] = cl(128 + gy * 1400); D[k * 4 + 3] = cl(fs * 255);
+        D[k * 4] = cl((F[k] + .3) / 2.4 * 255); D[k * 4 + 1] = cl(128 + gx * 1400); D[k * 4 + 2] = cl(128 + gy * 1400); D[k * 4 + 3] = cl(fs * 255);
       }
       GLSea.terrain(D, S); return;
     }
@@ -8182,7 +8205,8 @@ void main(){
   vec3 V = normalize(vec3(0., .38, 1.)), L = normalize(vec3(-.5, -.62, .6));
   float hn = clamp(h * .7 + .5, 0., 1.);
   float big = nzs(p * .021 + vec2(t * .0012)).r;
-  vec3 col = mix(uDeep, uShal, hn * .55 + big * .3);
+  float dv = nzs(p * .045 + 3.7).r;
+  vec3 col = mix(uDeep * (.88 + .3 * dv), uShal, hn * .55 + big * .3);
   float dif = max(dot(n, L), 0.);
   col *= .72 + .42 * dif;
   float fr = .06 + .55 * pow(1. - max(dot(n, V), 0.), 3.);
@@ -8206,25 +8230,53 @@ void main(){
   // ---------- острова и мелководье ----------
   if (uHasT > .5) {
     vec4 T = texture2D(uTr, vU);
-    float f = T.r * 1.6 - .3, e = f - .4;
+    float f = T.r * 2.4 - .3, e = f - .4;
     vec3 nzA = nzs(p * .31), nzB = nzs(p * 1.27 + .5);
     if (e >= 0.) {
       vec2 tg = (T.gb - .5) * 255. / 1400.;
       vec3 nl = normalize(vec3(-tg * 14., 1.));
-      vec3 WET = vec3(.66, .57, .4), SAND = vec3(.95, .88, .66), SAND2 = vec3(.9, .81, .58), G1 = vec3(.6, .77, .37), G2 = vec3(.38, .64, .29), G3 = vec3(.22, .48, .23), ROCK = vec3(.6, .57, .52);
+      vec3 WET = vec3(.62, .54, .39), SAND = vec3(.96, .89, .68), SAND2 = vec3(.9, .81, .58), G1 = vec3(.6, .76, .36), G2 = vec3(.36, .6, .26), G3 = vec3(.23, .48, .23), MEAD = vec3(.5, .66, .32), ROCK = vec3(.66, .58, .46), ROCK2 = vec3(.47, .41, .33);
       vec3 c;
-      float run = .012 * sin(t * 1.3 + nzA.r * 12.);
+      float run = .012 * sin(t * 1.3 + nzA.r * 12.), slope = length(tg) * 24.;
       if (e < .035 + run) c = mix(WET, SAND, clamp(e / (.035 + run), 0., 1.));
       else if (e < .1 + nzA.r * .04) c = mix(SAND, SAND2, nzB.r);
       else if (e < .16 + nzA.r * .05) c = mix(SAND2, G1, clamp((e - .1) / .06, 0., 1.));
-      else { float kk = clamp((e - .16) / .3, 0., 1.); c = mix(mix(G1, G2, clamp(kk * 2., 0., 1.)), G3, clamp(kk * 2. - 1., 0., 1.) * (.5 + nzA.r * .5)); c *= .88 + .24 * nzB.r; }
-      float slope = length(tg) * 24.;
-      float rock = clamp(smoothstep(.9, 1.6, slope) * smoothstep(.08, .16, e) * .6 + smoothstep(.45, .6, e) * smoothstep(.66, .8, nzB.r) * .55, 0., 1.);
-      c = mix(c, ROCK * (.75 + .4 * nzs(p * 1.3).r), rock);
+      else if (e < .6) { float kk = clamp((e - .16) / .36, 0., 1.); c = mix(mix(G1, G2, clamp(kk * 2., 0., 1.)), G3, clamp(kk * 2. - 1., 0., 1.) * (.5 + nzA.r * .5)); c *= .88 + .24 * nzB.r; }
+      else { float kk = clamp((e - .6) / .35, 0., 1.); c = mix(G3, MEAD, smoothstep(0., .6, kk + (nzA.r - .5) * .4)); c = mix(c, ROCK, smoothstep(.75, 1.2, kk + (nzB.r - .5) * .3) * .7); }
+      // скалы: на крутых склонах и вершинах, со слоями пород
+      float rock = clamp(smoothstep(1.3, 2.4, slope) * smoothstep(.08, .16, e) * .7 + smoothstep(1.02, 1.25, e + (nzB.r - .5) * .25) * .8 + smoothstep(.45, .6, e) * smoothstep(.7, .82, nzB.r) * .45, 0., 1.);
+      vec3 RK = mix(ROCK2, ROCK, .5 + .5 * nzs(p * 1.3).r) * (.94 + .06 * sin(e * 26. + nzA.r * 9. + nzB.r * 4.));
+      c = mix(c, RK, rock);
+      // камни у кромки воды
+      float stone = smoothstep(.8, .86, nzs(p * .9 + 13.).r) * sdn(.07, .0, e) * smoothstep(.0, .015, e);
+      c = mix(c, ROCK2 * (.8 + .4 * nzB.r), stone * .85);
       float dif = max(dot(nl, L), 0.);
-      vec3 lc = c * (.55 + .75 * dif);
-      // деревья: круглые кроны с объёмом и тенью, слегка качаются
-      float fd = smoothstep(.13, .22, e + (nzA.r - .5) * .16) * (1. - rock) * (.55 + .6 * nzs(p * .17 + 3.).r);
+      vec3 lc = c * (.6 + .7 * dif);
+      // дома прибрежных посёлков: черепичные крыши с тенью
+      float vm = smoothstep(.4, .52, nzs(p * .11 + 11.).r) * smoothstep(.08, .12, e) * sdn(.74, .62, e) * (1. - rock) * sdn(1.1, .6, slope);
+      float house = 0.;
+      if (vm > .01) {
+        vec2 q2 = p * 3.1, ci2 = floor(q2);
+        vec3 hh2 = fract(sin(vec3(dot(ci2, vec2(91.7, 37.3)), dot(ci2, vec2(17.1, 63.9)), dot(ci2, vec2(53.3, 11.7)))) * 43758.5453);
+        if (hh2.z < vm * .5) {
+          vec2 o2 = fract(q2) - .5 - (hh2.xy - .5) * .22; if (hh2.x > .5) o2 = o2.yx;
+          vec2 hs = vec2(.24 + .1 * hh2.y, .16);
+          vec2 so = o2 + normalize(L.xy) * .09;
+          if (abs(so.x) < hs.x && abs(so.y) < hs.y) lc *= .6;
+          if (abs(o2.x) < hs.x && abs(o2.y) < hs.y) {
+            vec3 roof = hh2.y < .55 ? vec3(.74, .34, .22) : hh2.y < .8 ? vec3(.62, .3, .2) : vec3(.86, .85, .8);
+            vec3 rn = normalize(vec3(0., (o2.y > 0. ? 1. : -1.) * .7, .75)); if (hh2.x > .5) rn.xy = rn.yx;
+            lc = roof * (.45 + .85 * max(dot(rn, L), 0.)) * (.92 + .08 * sin(o2.x * 90.));
+            house = 1.;
+            float nite = smoothstep(.12, .3, uLand.b - uLand.r);   // ночью в окнах тёплый свет
+            if (hh2.z < vm * .35) lc += vec3(1., .72, .38) * nite * 3. * smoothstep(.11, .03, length(o2 - vec2(hs.x * .45 * (hh2.y > .5 ? 1. : -1.), 0.)));
+          }
+        }
+      }
+      // деревья: пальмы у берега, круглые кроны в глубине острова, поляны и редколесье в горах
+      float clr = smoothstep(.28, .45, nzs(p * .11 + 7.).r);
+      float fd = smoothstep(.13, .22, e + (nzA.r - .5) * .16) * (1. - rock) * (1. - smoothstep(.88, 1.1, e)) * (.6 + .6 * nzs(p * .17 + 3.).r) * (.78 + .22 * clr) * (1. - vm * .6);
+      float palmZ = 1. - smoothstep(.2, .3, e);
       vec2 q = p * 5.2;
       vec2 Ls = normalize(L.xy) * .32;
       float best = 9., sh = 9., rr = 0.; vec2 bo = vec2(0.);
@@ -8233,18 +8285,22 @@ void main(){
         vec3 hh = fract(sin(vec3(dot(ci, vec2(127.1, 311.7)), dot(ci, vec2(269.5, 183.3)), dot(ci, vec2(419.2, 371.9)))) * 43758.5453);
         if (hh.z > fd * 1.15) continue;
         vec2 cp = ci + .18 + .64 * hh.xy + vec2(sin(t * 1.1 + hh.x * 6.), cos(t * .9 + hh.y * 6.)) * .025;
-        float r = .36 + .2 * hh.z / max(fd, .1) * .5;
+        float r = (.36 + .2 * hh.z / max(fd, .1) * .5) * (1. - .25 * smoothstep(.5, .8, e));
         vec2 o = fract(q) - (cp - floor(q)); float d = length(o) / r;
+        if (palmZ > .5) { float an = atan(o.y, o.x); d /= .55 + .45 * pow(abs(cos(an * 3. + hh.x * 6.)), .6); }
         if (d < best) { best = d; bo = o / r; rr = hh.x; }
         float ds = length(o + Ls) / r; sh = min(sh, ds);
       }
-      if (sh < 1.) lc *= .62 + .38 * smoothstep(.6, 1., sh);
-      if (best < 1.) {
-        vec3 tN = normalize(vec3(bo, sqrt(max(0., 1. - best * best)) * .9));
-        float leaf = nzs(p * 2.3 + rr).r;
-        vec3 TC = mix(vec3(.14, .4, .15), vec3(.4, .64, .22), rr) * (.85 + .3 * leaf);
-        vec3 tree = TC * (.35 + .95 * max(dot(tN, L), 0.)) + vec3(.9, 1., .7) * pow(max(dot(reflect(-V, tN), L), 0.), 16.) * .1;
-        lc = mix(lc, tree, smoothstep(1., .82, best) * 0. + 1. - smoothstep(.85, 1., best));
+      if (house < .5) {
+        if (sh < 1.) lc *= .58 + .42 * smoothstep(.6, 1., sh);
+        if (best < 1.) {
+          vec3 tN = normalize(vec3(bo, sqrt(max(0., 1. - best * best)) * .9));
+          float leaf = nzs(p * 2.3 + rr).r;
+          vec3 TC = palmZ > .5 ? mix(vec3(.34, .6, .2), vec3(.56, .74, .26), rr) : mix(vec3(.14, .42, .16), vec3(.42, .64, .22), rr);
+          TC *= .85 + .3 * leaf;
+          vec3 tree = TC * (.32 + 1. * max(dot(tN, L), 0.)) + vec3(.9, 1., .7) * pow(max(dot(reflect(-V, tN), L), 0.), 16.) * .12;
+          lc = mix(lc, tree, 1. - smoothstep(.85, 1., best));
+        }
       }
       col = lc * uLand;
     } else {
@@ -8253,12 +8309,16 @@ void main(){
       vec3 bottom = mix(vec3(.3, .88, .8), vec3(.88, .86, .68), smoothstep(.78, 1., near) * .6);
       // песчаные мели
       float bar = clamp((T.a - .38) / .3, 0., 1.), rip = .93 + .07 * sin((p.x + p.y * .6 + nzA.r * 1.5) * 9.);
-      bottom = mix(bottom, vec3(.9, .83, .62) * rip, bar);
-      float wet = max(sh, bar * .62);
+      float bn = bar + (nzB.r - .5) * .35;
+      bottom = mix(bottom, mix(vec3(.32, .9, .84), vec3(.86, .97, .88) * rip, smoothstep(.45, 1.1, bn)), smoothstep(0., .4, bn));
+      float cor = smoothstep(.6, .74, nzs(p * .55 + 5.).r) * smoothstep(.15, .5, near) * (1. - bar);
+      bottom = mix(bottom, mix(vec3(.24, .46, .4), vec3(.55, .42, .4), nzB.r) * (.8 + .4 * nzs(p * 2.1).r), cor * .55);
+      col *= 1. - .18 * sdn(.2, .0, abs(near - .1));
+      float wet = max(sh, smoothstep(.05, .6, bn) * .86);
       col = mix(col, bottom * (.75 + .35 * max(dot(n, L), 0.)) * uLand, wet);
       // солнечные «сеточки» на дне
       float ca = 1. - abs(nzs(p * .8 + vec2(t * .03, t * .02)).r - nzs(p * 1.05 - vec2(t * .025, -t * .018)).r) * 4.;
-      col += vec3(.6, .95, .9) * pow(clamp(ca, 0., 1.), 6.) * wet * .35 * uSpec;
+      col += vec3(.6, .95, .9) * pow(clamp(ca, 0., 1.), 6.) * wet * (.35 - .2 * smoothstep(.3, .8, bn)) * uSpec;
       col += uSun * sp * uSpec * wet * .6;
       // прибой: пенные валы бегут к берегу
       float ph = nzA.r;
@@ -8432,7 +8492,7 @@ varying vec2 vU;
 void main(){
   vec2 p = vU * uN;
   float n = texture2D(uNz, p * .028 + uW * uT).r * .65 + texture2D(uNz, p * .06 + uW * uT * 1.4 + .37).r * .35;
-  float s = smoothstep(.4, .62, n) * uK;
+  float s = smoothstep(.42, .66, n) * uK * .7;
   gl_FragColor = vec4(0., 0., 0., s);
 }`,
   FOG: `precision mediump float;
