@@ -3681,7 +3681,7 @@ function deepCanFight(h) {
   return true;
 }
 // случайные события с морскими рейдерами
-const deepEvFight = (h, obj, B, o = {}) => { const D = deepData(h); if (!deepCanFight(h)) return false; D.evB = B; D.ev = null; D.evNext = Date.now() + (2.5 + Math.random() * 2) * 3600e3; overlay('#ov-ev', false); saveProfiles(); HB.ret = 'deep'; startHunt({ kind: 'battle', obj, lvl: B.lvl, weather: pickW([['clear', 3], ['fog', 3], ['storm', 2], ['night', 3]]), bonus: true, deep: 'ev', fac: 'raid', ...o }); return true; };
+const deepEvFight = (h, obj, B, o = {}) => { const D = deepData(h); if (!deepCanFight(h)) return false; D.evB = B; D.ev = null; D.evNext = Date.now() + (2.5 + Math.random() * 2) * 3600e3; overlay('#ov-ev', false); saveProfiles(); HB.ret = 'deep'; startHunt({ kind: 'battle', obj, lvl: B.lvl, weather: pickW([['clear', 3], ['fog', 3], ['storm', 2], ['night', 3]]), bonus: true, deep: 'ev', fac: 'raid', open: Math.random() < .5, ...o }); return true; };
 const DEEP_EV = {
   deserter: { ic: '🚣', n: 'Шлюпка в тумане', t: () => 'Дозорный заметил в тумане шлюпку. В ней — молодой рейдер: обожжённые руки, ни оружия, ни воды. Он говорит, что бежал: капитан «Бездны» приказал затопить трюм вместе с пленными, а он отказался и ночью спустил шлюпку.',
     o: [{ t: '🗣 Взять на борт и выслушать', run: (h, D, L) => { if (chance(.65)) { const g = 140 + 18 * L; h.gold += g; D.threatNext = Math.max(D.threatNext || 0, Date.now()) + 4 * 3600e3; return [`Он не врал. Назвал риф, где рейдеры прячут бочки с топливом и ящики с добычей. Морпехи вернулись к утру с грузом: +${g} 💰.`, 'Без топлива рейдеры какое-то время будут сидеть тихо — следующее нападение на «Талассиру» отодвинулось.']; } const w = decDamage(h, 1, .25); return ['Ночью «беглец» пробрался в машинное отделение и успел открыть кингстон, прежде чем его скрутили.', `Течь заделали, но ${w || 'корабль'} пострадал — нужен ремонт. Утром пленника не оказалось на борту. Шлюпки — тоже.`]; } },
@@ -3808,10 +3808,10 @@ function deepAct(act, id, sh) {
     if (!deepCanFight(h)) return;
     overlay('#ov-deep', false); saveProfiles(); HB.ret = 'deep';
     const W = pickW([['clear', 4], ['fog', 2], ['storm', 2], ['night', 2]]);
-    if (act === 'threat') { const T = D.threat; if (!T) return; return startHunt({ kind: 'battle', obj: 'convoy', lvl: T.lvl, weather: W, bonus: true, deep: 'threat', fac: 'raid' }); }
+    if (act === 'threat') { const T = D.threat; if (!T) return; return startHunt({ kind: 'battle', obj: 'convoy', lvl: T.lvl, weather: W, bonus: true, deep: 'threat', fac: 'raid', open: Math.random() < .6 }); }
     const j = D.jobs.find(x => x.id === id); if (!j || j.st !== 'ready') return;
     const O = DEEP_OFFERS[j.kind];
-    return startHunt({ kind: 'battle', obj: O.obj || 'hunt', lvl: j.lvl, weather: W, bonus: true, deep: j.id, fac: 'raid', extra: O.extra || 0, tname: O.tname });
+    return startHunt({ kind: 'battle', obj: O.obj || 'hunt', lvl: j.lvl, weather: W, bonus: true, deep: j.id, fac: 'raid', extra: O.extra || 0, tname: O.tname, open: O.obj !== 'fort' && Math.random() < .55 });
   }
   overlay('#ov-deep', false); saveProfiles(); renderDeep();
 }
@@ -3995,7 +3995,7 @@ function atlAct(act, id) {
     if (!SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале'); return; }
     saveProfiles(); HB.ret = 'atl';
     const O = ATL_OFFERS[j.kind];
-    return startHunt({ kind: 'battle', obj: O.obj, lvl: j.lvl, weather: pickW([['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]]), bonus: true, atl: j.id, extra: O.extra || 0, tname: O.tname });
+    return startHunt({ kind: 'battle', obj: O.obj, lvl: j.lvl, weather: pickW([['clear', 6], ['fog', 1], ['storm', 1], ['night', 2]]), bonus: true, atl: j.id, extra: O.extra || 0, tname: O.tname, open: O.obj !== 'fort' && Math.random() < .25 });
   } else if (act === 'atlinfo') {
     const ip = n => Math.round(n * atlDisc(h));
     if (id === 'fore') { if (!pay(ip(80))) return; A.fore = trPer(); toast('📈 Прогноз цен куплен — смотрите стрелки в таблице торговли'); }
@@ -5734,7 +5734,8 @@ function startHunt(node) {
   const clear = [];
   if (H.obj === 'convoy') { clear.push([HN - 3, HN - 3, 3, 3]); for (let r = HN - 3; r < HN; r++) for (let c = HN - 3; c < HN; c++) H.exitCells.add(hidx(r, c)); }
   if (H.obj === 'intercept') { clear.push([0, 0, 4, 3]); for (let r = 0; r < 4; r++) H.exitCells.add(hidx(r, 0)); }
-  H.land = genMap(clear);
+  H.open = !!node.open && node.obj !== 'fort' && node.obj !== 'raid';
+  H.land = H.open ? new Array(HN * HN).fill(false) : genMap(clear);
   if (H.obj === 'fort') {
     const cand = []; for (let k = 0; k < HN * HN; k++) { const { r, c } = kRC(k); if (H.land[k] && r <= 6 && c >= 5 && DIR8.filter(([dr, dc]) => hin(r + dr, c + dc) && !H.land[hidx(r + dr, c + dc)]).length >= 2) cand.push(k); }
     H.fortCell = cand.length ? pick(cand) : hidx(4, 7); H.land[H.fortCell] = true;
@@ -5764,6 +5765,7 @@ function startHunt(node) {
   buildHuntMap(); show('scr-hunt');
   const o = OBJ[H.obj], w = WEATHER[H.weather];
   hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.foes.some(f => f.vargo) ? '⛓ «Кандальник» Варго Кнута защищает Чёрный Шпиль!' : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
+  if (H.open) setTimeout(() => toast('🌊 Открытое море: ни одного острова — укрыться негде'), 700);
   hStartPlayerTurn(true);
   clanBattleTalk(node); irBattleTalk(); ambBattleTalk(node);
 }
@@ -7073,6 +7075,7 @@ function genReport(h) {
   else if (idx.length) r = { kind: 'battle', isle: pick(idx), obj: pick(pool), patrol: true };
   if (!r) return null;
   const B = BOSSES[S.boss];
+  if (r.kind === 'battle' && r.obj !== 'fort' && !r.reclaim && !r.amb && Math.random() < .22) r.open = 1;   // бой в открытом море, вдали от берегов
   if (r.kind === 'battle' && sea === 0 && r.isle >= 0 && !r.reclaim && isleOcc(h, iKey(0, r.isle))) { const p = S.isles[r.isle], d = Math.hypot(p.x - S.base.x, p.y - S.base.y); r.occ = 1; r.occB = d < 450 ? 0 : d < 800 ? 1 : 2; }
   Object.assign(r, { id: 'r' + (++E.seq), sea, lvl: (r.kind === 'boss' ? lvl + 4 : r.patrol ? lvl + 1 : lvl) + (r.occB || 0), weather: r.kind === 'boss' ? (B.weather || wx()) : wx(), t: now, exp: now + (r.kind === 'boss' ? 16 : 7 + Math.random() * 5) * 3600e3 });
   if (r.kind === 'boss') r.bossIdx = S.boss;
@@ -7096,7 +7099,7 @@ function repDesc(h, r) {
   if (r.kind === 'boss') { const b = BOSSES[r.bossIdx], eq = b.reward && HEQ.find(e => e.id === b.reward); return `Логово: ${b.ic} <b>${b.name}</b>. ${b.desc}${eq ? ` Трофей: ${eq.ic} ${eq.name}.` : ' Трофей: казна пиратов.'} Победа откроет путь дальше.`; }
   if (r.amb === 'land') return 'Гражданский флот с Семи Огней бежит от Солёных Псов к Игле Отлива. Проведите суда беженцев в безопасный угол карты и разгоните работорговцев. Победа даст вам первую опору в Янтарном море.';
   if (r.kind !== 'battle') return EVENTS[r.kind].desc;
-  let d = OBJ[r.obj].desc;
+  let d = (r.open ? (r.occ ? '🌊 Корабли гарнизона вышли навстречу в открытое море: ни одного острова вокруг, укрыться негде. ' : '🌊 Бой в открытом море, в стороне от берегов: ни одного острова на горизонте, укрыться негде — только волны и чужие паруса. ') : '') + OBJ[r.obj].desc;
   if (r.sea === 1 && !r.reclaim && !r.patrol) d = ({ hunt: 'Стая Солёных Псов рыщет у берегов. ', rescue: 'Беглые рабы с рудников Псов дрейфуют на плотах. ', intercept: 'Невольничий транспорт Псов идёт на юг — в трюмах люди. Возьмите его абордажем, чтобы освободить пленных: если потопить — погибнут все. ', convoy: 'Гражданские суда просят сопровождения: Псы идут по пятам. ', fort: 'Сторожевой форт Псов держит остров в страхе. ', survive: 'Псы окружили лагерь беженцев. ' }[r.obj] || '') + d;
   if (r.reclaim) d = (r.dogs ? 'Солёные Псы захватили ваш остров. ' : 'Пираты захватили ваш остров. ') + d;
   else if (r.dogs) d = '⛓ Солёные Псы зашли в Лазурное море — охотятся за людьми у ваших островов. ' + d;
@@ -7111,7 +7114,7 @@ function repCard(h, r, i) {
   const gold = battle ? nodeGold({ obj: r.obj, sos: r.kind === 'sos' }, r.lvl) + (r.kind === 'boss' ? 200 : 0) : 0;
   return `<div class="rnode glass ${r.kind === 'boss' ? 'bossnode' : ''}"><div class="ni">${r.kind === 'boss' ? BOSSES[r.bossIdx].ic : r.kind === 'battle' ? OBJ[r.obj].ic : EVENTS[r.kind].ic}</div>
     <div class="nb"><b>${repPlace(r)}</b><small>${repTitle(r).replace(/^\S+ /, '')} · ${SEAS[r.sea].n}</small><small>${repDesc(h, r)}</small>
-    <div class="chips">${battle ? `<span>${W.ic} ${W.name}</span><span>⚔️ сила ${r.lvl}</span><span>≈ ${gold} 💰</span>` : '<span>без боя… наверное</span>'}${r.amb ? '<span>🆘 ждут помощи</span>' : `<span>⏳ <i data-until="${r.exp}">${fmtLeft(r.exp - Date.now())}</i></span>`}</div></div>
+    <div class="chips">${battle ? `${r.open ? '<span>🌊 открытое море</span>' : ''}<span>${W.ic} ${W.name}</span><span>⚔️ сила ${r.lvl}</span><span>≈ ${gold} 💰</span>` : '<span>без боя… наверное</span>'}${r.amb ? '<span>🆘 ждут помощи</span>' : `<span>⏳ <i data-until="${r.exp}">${fmtLeft(r.exp - Date.now())}</i></span>`}</div></div>
     <div class="col2"><button class="btn primary small" data-rgo="${r.id}" ${h.ships[h.active].broken ? 'disabled' : ''}>${battle ? 'Отплыть' : 'Зайти'}</button>${i !== 'map' ? `<button class="btn small" data-rmap="${r.id}">На карте</button>` : ''}</div></div>`;
 }
 function intelHead(h) {
@@ -7400,7 +7403,7 @@ function urgentIntel(h) {
 function runReport(id) {
   const p = curProfile(), h = hdata(p), r = h.exp.reports.find(x => x.id === id); if (!r) return;
   if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return; }
-  const base = { report: r.id, amb: r.amb, dogs: r.dogs, sea: r.sea, isle: r.isle, lvl: r.lvl, weather: evOn(h, 'storm') && evOn(h, 'storm').sea === r.sea ? 'storm' : r.weather, bonus: true };
+  const base = { report: r.id, open: r.open, amb: r.amb, dogs: r.dogs, sea: r.sea, isle: r.isle, lvl: r.lvl, weather: evOn(h, 'storm') && evOn(h, 'storm').sea === r.sea ? 'storm' : r.weather, bonus: true };
   if (evOn(h, 'bounty')) { base.extra = 1; base.mult = 1.5; }
   if (r.mult) base.mult = (base.mult || 1) * r.mult;
   if ((r.kind === 'battle' || r.kind === 'boss') && !SHELLS.some(k => (ammoData(h)[k] || 0) > 0)) { toast('⚙️ В погребах ни одного снаряда! Закажите их в Арсенале Мастерской'); return; }
