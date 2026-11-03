@@ -418,6 +418,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
   background:linear-gradient(180deg,rgba(3,18,40,.75),transparent);pointer-events:none}
 .fhud-top>*{pointer-events:auto}
 .fhbtn{background:rgba(5,30,60,.75);border:1.5px solid rgba(255,207,74,.6);border-radius:50%;color:#ffe08a;flex:none}
+#ev-text .uprow{text-align:left}#ev-text .uprow .nm{flex:1}
 .spark{vertical-align:middle;margin-left:6px;display:inline-block}.mkrow .trb{flex-wrap:wrap;justify-content:flex-end;max-width:150px}
 .fchip{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:17px;background:linear-gradient(180deg,rgba(16,58,100,.88),rgba(4,26,54,.88));border:1px solid rgba(190,230,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 3px 10px rgba(0,15,40,.3);font-size:13px;font-weight:800;white-space:nowrap;line-height:1}
 .fchip.gold{color:#ffe08a;border-color:rgba(255,207,74,.7)}.fchip.gold b{font-size:15px}
@@ -3219,6 +3220,31 @@ function prodHtml(h, n) {
     <div class="uprow"><span class="ic">${P.ic}</span><span class="nm">Производство: ${P.n}<small>${PROD_WHY[g] || ''} · ${rate ? (rate >= 1 ? `${rate.toFixed(1)} в час` : `${(rate * 24).toFixed(1)} в сутки`) : 'начнётся, когда на острове поселятся люди'} · склад острова ${q}/${prodCap(h, n)}</small></span>
     <span class="trb"><button class="btn small primary" data-pr="get" ${q ? '' : 'disabled'}>${prodAmmo(g) ? '🔨 В арсенал' : '📦 На склад'}</button><button class="btn small" data-pr="sell" ${q ? '' : 'disabled'}>Продать</button></span></div>`;
 }
+/* ---------- Оружейный рынок: продажа боеприпасов в Атлантис и Златоград ---------- */
+const AM_WHERE = { atl: { n: 'Атлантис', ic: '🏙', lo: 1, hi: 1.35, hot: [], d: 'Гильдия Атлантиса скупает боеприпасы для охраны своих караванов. Платит ровно, без сюрпризов.' },
+  zl: { n: 'Златоград', ic: '🏛', lo: .9, hi: 1.3, hot: ['heavy', 'msl', 'met', 'torp'], d: 'Дом Корран вооружает свою гвардию и щедро платит за тяжёлое: сверхтяжёлые снаряды, торпеды и ракеты. Зачем ей столько — герцогиня не объясняет.' } };
+function amPrice(w, id) {
+  const a = ammoOf(id), W = AM_WHERE[w], gi = AMMO.findIndex(x => x.id === id), r = trRand(trPer(), w === 'zl' ? 41 : 43, gi + 5);
+  return Math.max(1, Math.round(a.gold / a.batch * (W.lo + (W.hi - W.lo) * r) * (W.hot.includes(id) ? 1.3 : 1)));
+}
+function ammoMarketHtml(h, w) {
+  const W = AM_WHERE[w], A = ammoData(h), next = (trPer() + 1) * TR_PER;
+  let s = `<small class="muted">${W.d} Цены меняются каждые 3 часа (через <b data-until="${next}">${fmtLeft(next - Date.now())}</b>). Не продавайте всё — без снарядов флот не стреляет.</small>`;
+  AMMO.forEach(a => { const n = A[a.id] || 0, p = amPrice(w, a.id), hot = W.hot.includes(a.id), step = a.batch >= 10 ? 10 : 1;
+    s += `<div class="uprow"><span class="ic">${a.img ? `<img src="${a.img}" alt="" style="width:34px">` : a.ic}</span><span class="nm">${a.n}${hot ? ' 🔥' : ''}<small>у вас ${n} · ${p} 💰 за штуку</small></span><span class="trb"><button class="btn small" data-am="${w}:${a.id}:${step}" ${n >= step ? '' : 'disabled'}>−${step} · ${p * step}</button><button class="btn small primary" data-am="${w}:${a.id}:half" ${n >= 2 ? '' : 'disabled'}>½ · ${p * Math.floor(n / 2)}</button></span></div>`; });
+  return s;
+}
+function ammoSell(h, key) {
+  const [w, id, q] = key.split(':'), A = ammoData(h), n = q === 'half' ? Math.floor((A[id] || 0) / 2) : Math.min(+q, A[id] || 0); if (n <= 0) return 0;
+  const g = n * amPrice(w, id); A[id] -= n; h.gold += g; news(h, `🧨 ${AM_WHERE[w].n}: продано ${n} × ${ammoOf(id).n.toLowerCase()} за ${g} 💰`, true); return g;
+}
+function ammoMarketOpen(h, w) {
+  const W = AM_WHERE[w], render = () => {
+    showEv(W.ic, `Оружейный рынок · ${W.n}`, ammoMarketHtml(h, w), [{ t: 'Закрыть', fn: () => overlay('#ov-ev', false) }]);
+    $('#ev-text').querySelectorAll('[data-am]').forEach(b => b.onclick = () => { const g = ammoSell(h, b.dataset.am); if (!g) return; Snd.play('coins'); toast(`💰 +${g} 💰`); saveProfiles(); render(); });
+  };
+  Snd.play('click'); render();
+}
 /* ---------- Банк и биржа Атлантиса ---------- */
 const DEP_T = [{ h: 12, r: .05 }, { h: 24, r: .12 }, { h: 72, r: .45 }];
 const MK = [
@@ -4185,6 +4211,7 @@ function renderAtl() {
     <div class="uprow"><span class="ic">📈</span><span class="nm">Прогноз цен<small>Какими будут цены во всех портах в следующие 3 часа — в таблице торговли.${A.fore === per ? ' <b>Куплено на этот срок ✓</b>' : ''}</small></span><button class="btn small primary" data-act="atlinfo" data-id="fore" ${A.fore === per || h.gold < ip(80) ? 'disabled' : ''}>${ip(80)} 💰</button></div>
     <div class="uprow"><span class="ic">🗺</span><span class="nm">Тихие маршруты<small>Следующие 3 каравана пойдут в обход пиратских засад: нападают втрое реже.${A.safe ? ` Осталось: ${A.safe}.` : ''}</small></span><button class="btn small primary" data-act="atlinfo" data-id="safe" ${h.gold < ip(160) ? 'disabled' : ''}>${ip(160)} 💰</button></div>
     <div class="uprow"><span class="ic">💰</span><span class="nm">Наводка на богатую цель<small>Разведка получит донесение о бое с добычей в полтора раза больше обычной.</small></span><button class="btn small primary" data-act="atlinfo" data-id="tip" ${h.gold < ip(220) || expData(h).reports.length >= repMax(h) + 1 ? 'disabled' : ''}>${ip(220)} 💰</button></div></div>`;
+  s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🧨 Оружейный рынок</div>${ammoMarketHtml(h, 'atl')}</div>`;
   s += bankHtml(h);
   // верфь торгового флота
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Верфь торгового флота</div><small class="muted">Корабли Атлантиса не занимают ваши стапели: их пригоняют в вашу гавань за ${fmtMin(ATL_SHIP_MIN)}. Каждый получает имя по обычаю Атлантиса.</small>`;
@@ -4197,6 +4224,7 @@ function renderAtl() {
     <button class="btn primary" data-act="atlcar">⛵ Снарядить караван в Атлантис</button></div>`;
   $('#atl-body').innerHTML = s;
   $('#atl-body').querySelectorAll('[data-act]').forEach(b => b.onclick = () => atlAct(b.dataset.act, b.dataset.id));
+  $('#atl-body').querySelectorAll('[data-am]').forEach(b => b.onclick = () => { const g = ammoSell(h, b.dataset.am); if (!g) return; Snd.play('coins'); toast(`💰 +${g} 💰`); saveProfiles(); renderAtl(); });
 }
 function atlAct(act, id) {
   const h = hdata(curProfile()), A = atlData(h), now = Date.now(); let snd = 'click';
@@ -5388,7 +5416,7 @@ function ambCity(h) {
       { t: '✋ Отказаться', fn: () => { overlay('#ov-ev', false); clanSay([['k', 0, 'Отказаться? Как пожелаете. Тогда ни лоцманов, ни карт. Возвращайтесь, когда передумаете, командир.'], ['g', 0, 'Выход — там. Оружие вам вернут на пристани.']]); } },
     ])));
   }
-  showEv('🏙', 'Златоград', `Столица дома Корран: небоскрёбы, верфи, аэродром и самый богатый порт Янтарного моря.<br><br>💰 Налог дома Корран с ваших островов Янтарного моря: <b>${Math.round(ambTax(h) * 100)}%</b>.<br><small class="muted">Скоро: торговля, поручения дома Корран и наёмники.</small>`, [{ t: 'Закрыть', fn: () => overlay('#ov-ev', false) }]);
+  showEv('🏙', 'Златоград', `Столица дома Корран: небоскрёбы, верфи, аэродром и самый богатый порт Янтарного моря.<br><br>💰 Налог дома Корран с ваших островов Янтарного моря: <b>${Math.round(ambTax(h) * 100)}%</b>.<br><small class="muted">Скоро: поручения дома Корран и наёмники.</small>`, [{ t: '🧨 Оружейный рынок Златограда', cls: 'primary', fn: () => ammoMarketOpen(h, 'zl') }, { t: 'Закрыть', fn: () => overlay('#ov-ev', false) }]);
 }
 function ambDeal(h, tax) {
   const A = ambData(h); A.tax = tax; A.st = 2; if (tax < .15) A.grudge = 1;
