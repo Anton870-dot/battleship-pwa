@@ -45,19 +45,22 @@ jobs:
           npx cap sync android
 
       - name: Иконка приложения
-        working-directory: app
-        continue-on-error: true
+        working-directory: app/android/app/src/main/res
         run: |
-          mkdir -p assets
-          cp www/icon-512.png assets/icon-only.png
-          cp www/icon-512.png assets/icon-foreground.png
-          npx --yes @capacitor/assets@3 generate --android --iconBackgroundColor '#0b3d6b'
+          if command -v convert >/dev/null; then
+            for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+              n=${d%%:*}; px=${d##*:}
+              convert ../../../../../www/icon-512.png -resize ${px}x${px} mipmap-$n/ic_launcher.png
+              cp mipmap-$n/ic_launcher.png mipmap-$n/ic_launcher_round.png
+            done
+            rm -rf mipmap-anydpi-v26
+          fi
 
       - name: Сборка APK
         working-directory: app/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --console=plain
           cp app/build/outputs/apk/debug/app-debug.apk ../../morskoy-boy.apk
 
       - uses: actions/upload-artifact@v4
