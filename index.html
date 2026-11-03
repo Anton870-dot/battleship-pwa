@@ -25,6 +25,8 @@ html,body{margin:0;min-height:100%;overscroll-behavior:none;overscroll-behavior-
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);background:#0b6fb3;
   overflow-x:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;text-shadow:0 1px 3px rgba(0,30,60,.55)}
 #sea{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+#sea{transition:filter .5s}
+body:has(#scr-hub.active,#scr-room.active,#scr-atl.active,#scr-ach.active,#scr-help.active,#scr-yard.active,#scr-adm.active,#scr-setup.active) #sea{filter:brightness(.6) saturate(.85) contrast(1.05)}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 #app{position:relative;z-index:1;min-height:100vh;max-width:1100px;margin:0 auto;
@@ -32,14 +34,20 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .screen{display:none;flex-direction:column;align-items:center;gap:12px;animation:fadeIn .35s ease}
 .screen.active{display:flex}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.glass{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-  backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);box-shadow:0 10px 30px rgba(0,30,70,.25)}
+.glass{background:linear-gradient(180deg,rgba(18,78,136,.6),rgba(4,38,78,.64));border:1px solid rgba(170,225,255,.22);border-radius:var(--radius);
+  backdrop-filter:blur(14px) saturate(1.35);-webkit-backdrop-filter:blur(14px) saturate(1.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(0,0,0,.16),0 12px 32px rgba(0,22,52,.32)}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:14px;
-  background:var(--panel2);border:1px solid var(--line);font-weight:650;transition:transform .1s,background .2s,opacity .2s}
-.btn:active{transform:scale(.96)}
-.btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:rgba(255,255,255,.4);color:#3b2300;text-shadow:none;box-shadow:0 6px 20px rgba(255,159,28,.4)}
+  background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.06));border:1px solid rgba(190,230,255,.26);font-weight:650;transition:transform .12s,background .2s,opacity .2s,box-shadow .2s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 8px rgba(0,20,50,.22)}
+.btn:active{transform:translateY(1px) scale(.97);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 1px 3px rgba(0,20,50,.2)}
+.btn.primary{position:relative;overflow:hidden;background:linear-gradient(180deg,#ffe58a 0%,#ffc53f 46%,#ff9b1c 100%);border-color:rgba(255,245,200,.65);color:#3b2300;text-shadow:0 1px 0 rgba(255,240,190,.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -2px 0 rgba(150,60,0,.32),0 6px 18px rgba(255,150,30,.38)}
+.btn.primary::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:btnsheen 6.5s ease-in-out infinite;pointer-events:none}
+@keyframes btnsheen{0%,72%{left:-60%}88%,100%{left:130%}}
+.btn.primary:active{box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(150,60,0,.3),0 2px 8px rgba(255,150,30,.3)}
+@media (prefers-reduced-motion:reduce){.btn.primary::after{animation:none;display:none}}
 .btn.warn{background:linear-gradient(135deg,#ff8a3c,#ff4f5e);border-color:transparent;color:#fff}
 .btn:disabled{opacity:.4;pointer-events:none}
 .btn.small{padding:8px 12px;font-size:14px;border-radius:11px}
@@ -216,9 +224,10 @@ button{cursor:pointer;border:0;background:none;text-shadow:inherit}
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .stat{background:var(--panel2);border-radius:10px;padding:6px 8px;font-size:12px;color:var(--muted)}
 .stat b{display:block;font-size:17px;color:#fff}
-.sec-t{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-top:6px}
-.uprow{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
-.uprow .ic{font-size:22px;width:30px;text-align:center;flex:none}
+.sec-t{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);margin-top:6px;display:flex;align-items:center;gap:8px;text-shadow:0 0 10px rgba(255,190,60,.35),0 1px 2px rgba(0,0,0,.4)}
+.sec-t::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(255,207,74,.55),rgba(255,207,74,0))}
+.uprow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid rgba(170,225,255,.13)}
+.uprow .ic{font-size:20px;width:36px;height:36px;display:grid;place-items:center;text-align:center;flex:none;border-radius:11px;background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.16),rgba(255,255,255,.03) 70%);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 6px rgba(0,15,40,.25)}
 .uprow .nm{flex:1;font-weight:700;font-size:14px}
 .uprow .nm small{display:block;color:var(--muted);font-weight:500;font-size:12px;line-height:1.3}
 .lv{display:flex;gap:3px;margin-top:4px}.lv i{width:16px;height:6px;border-radius:3px;background:rgba(0,30,70,.45)}.lv i.on{background:var(--gold)}
@@ -409,7 +418,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
   background:linear-gradient(180deg,rgba(3,18,40,.75),transparent);pointer-events:none}
 .fhud-top>*{pointer-events:auto}
 .fhbtn{background:rgba(5,30,60,.75);border:1.5px solid rgba(255,207,74,.6);border-radius:50%;color:#ffe08a;flex:none}
-.fchip{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:17px;background:rgba(5,30,60,.78);border:1px solid rgba(255,255,255,.28);font-size:13px;font-weight:800;white-space:nowrap;line-height:1}
+.fchip{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:17px;background:linear-gradient(180deg,rgba(16,58,100,.88),rgba(4,26,54,.88));border:1px solid rgba(190,230,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 3px 10px rgba(0,15,40,.3);font-size:13px;font-weight:800;white-space:nowrap;line-height:1}
 .fchip.gold{color:#ffe08a;border-color:rgba(255,207,74,.7)}.fchip.gold b{font-size:15px}
 #fg-build{min-width:0;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto}
 .fraidchip{position:absolute;left:50%;transform:translateX(-50%);top:calc(max(10px,env(safe-area-inset-top)) + 46px);z-index:5;padding:9px 16px;border-radius:18px;font-weight:900;font-size:14px;
@@ -743,6 +752,17 @@ body:has(#scr-hunt.active){overflow:hidden}
 #scr-hunt #hunt-zoom{grid-area:zm;width:34px;height:34px;font-size:14px;border-radius:50%;align-self:center}
 #scr-hunt.zfit #hunt-map{padding:0}
 #scr-hunt .hmap{--hw:var(--bw);border-radius:14px;box-shadow:0 20px 50px rgba(0,10,30,.55),0 0 0 1px rgba(255,255,255,.18)}
+/* псевдо-3D: поле лежит под углом, дальний край уходит в дымку, камера наезжает на взрывы */
+#scr-hunt .hmap{--tilt:19deg;--cz:1;transform:perspective(1500px) rotateX(var(--tilt)) scale(var(--cz));transform-origin:50% 62%;transition:transform .55s cubic-bezier(.2,.8,.2,1);box-shadow:0 34px 60px rgba(0,8,25,.6),0 0 0 1px rgba(255,255,255,.18)}
+#scr-hunt .hmap.camk{transition:transform .22s cubic-bezier(.2,.8,.3,1)}
+.hfar{position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:6;background:linear-gradient(180deg,rgba(205,228,248,.42),rgba(205,228,248,.12) 22%,transparent 45%)}
+.hmap.tod-dusk .hfar{background:linear-gradient(180deg,rgba(255,175,130,.5),rgba(255,170,120,.15) 24%,transparent 48%)}
+.hmap.tod-dawn .hfar{background:linear-gradient(180deg,rgba(255,200,190,.45),rgba(255,195,185,.12) 24%,transparent 46%)}
+.hmap.w-night .hfar{background:linear-gradient(180deg,rgba(14,24,58,.6),rgba(14,24,58,.18) 25%,transparent 48%)}
+.hmap.w-storm .hfar{background:linear-gradient(180deg,rgba(80,90,100,.6),rgba(80,90,100,.2) 26%,transparent 50%)}
+.hmap.w-fog .hfar{background:linear-gradient(180deg,rgba(225,232,238,.65),rgba(225,232,238,.25) 30%,transparent 55%)}
+#scr-hunt #hunt-map{perspective:none;background:linear-gradient(180deg,rgba(150,195,235,.0),rgba(0,0,0,0))}
+@media (prefers-reduced-motion:reduce){#scr-hunt .hmap{transition:none}}
 #scr-hunt #hmsg{grid-area:msg;font-size:12px;line-height:1.25;max-width:min(560px,100%);text-align:center;padding:4px 12px;border-radius:14px;background:rgba(4,22,48,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #scr-hunt #hmsg:empty{visibility:hidden}
 #scr-hunt .hacts{grid-area:acts;width:auto;max-width:min(100%,640px);display:flex;flex-wrap:wrap;justify-content:center;gap:4px;overflow:visible;padding:5px;border-radius:20px;background:rgba(4,22,48,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,10,30,.4),inset 0 0 0 1px rgba(255,255,255,.08)}
@@ -833,11 +853,15 @@ body:has(#scr-hunt.active){overflow:hidden}
 
 /* overlays */
 .overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;
-  background:rgba(2,30,62,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.overlay.show{display:flex;animation:fadeIn .3s}
+  background:radial-gradient(120% 90% at 50% 40%,rgba(4,36,74,.45),rgba(1,12,30,.78));backdrop-filter:blur(9px) saturate(1.1);-webkit-backdrop-filter:blur(9px) saturate(1.1)}
+.overlay.show{display:flex;animation:ovIn .3s ease}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+.overlay.show:not(.sheet) .card{animation:cardIn .38s cubic-bezier(.2,.9,.25,1.12)}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
+.overlay .card.glass{background:linear-gradient(180deg,rgba(20,82,142,.82),rgba(5,36,74,.9));border-color:rgba(190,235,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 0 1px rgba(255,207,74,.08),0 24px 60px rgba(0,10,30,.55)}
 .overlay.solid{background:linear-gradient(180deg,rgba(6,80,140,.97),rgba(2,34,70,.98))}
 .overlay .card{width:min(420px,100%);text-align:center;display:flex;flex-direction:column;gap:14px;padding:20px;max-height:92vh;overflow:auto}
-.overlay h2{margin:0;font-size:26px}
+.overlay h2{margin:0;font-size:26px;background:linear-gradient(180deg,#ffffff 20%,#ffe3a0);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 2px 3px rgba(0,20,50,.55))}
 .overlay p{margin:0;color:var(--muted)}
 .big-ico{font-size:56px;line-height:1}
 .result-grid{display:grid;grid-template-columns:1fr auto auto;gap:6px 14px;text-align:left;font-size:15px}
@@ -5557,6 +5581,12 @@ const shipName = u => u.name || (HS[u.type].name + (u.ally ? '-наёмник' :
 const doomAt = (r, c, list = hUnits()) => list.find(u => u.hp <= 0 && u.doom > 0 && !u.gone && u.r === r && u.c === c) || null;
 const SHOUT_FOE = ['Шлюпки на воду!', 'Тонем!', 'Помогите!', 'Прыгай за борт!', 'Пробоина в машинном!', 'Пожар в погребе!', 'Держись за обломки!', 'Капитан, она не выдержит!', 'Спасите!', 'Все наверх!'];
 const SHOUT_ME = ['Шлюпки на воду!', 'Покинуть корабль!', 'Держитесь, братцы!', 'Пожар в машинном!', 'Раненых — в шлюпки!', 'Воды по колено!', 'Помогите!', 'Командир, крен растёт!'];
+// камера на миг наезжает на место взрыва: x, y — в клетках
+function camKick(x, y, k = 1.06, hold = 650) {
+  const m = H && H.cells && $('#hunt-map .hmap'); if (!m || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  m.style.transformOrigin = `${x / HN * 100}% ${y / HN * 100}%`; m.classList.add('camk');
+  requestAnimationFrame(() => { m.style.setProperty('--cz', k); clearTimeout(m._ck); m._ck = setTimeout(() => { m.classList.remove('camk'); m.style.setProperty('--cz', 1); setTimeout(() => { if (m.style.getPropertyValue('--cz') == 1) m.style.transformOrigin = ''; }, 600); }, hold); });
+}
 function hShout(u, txt) {
   if (!H.layer || !u) return;
   const d = document.createElement('div'); d.className = 'hshout' + (u.side === 'me' ? ' ours' : ''); d.textContent = txt || pick(u.side === 'me' ? SHOUT_ME : SHOUT_FOE);
@@ -5570,7 +5600,7 @@ function hDoom(u) {
   if (BFX.lo) BFX.drown(u);
   setTimeout(() => hShout(u), 500); Snd.play('alarm'); dogQuip(u);
 }
-function hDoomFinal(u) { u.doom = 0; if (BFX.lo) BFX.sink(u); else u.sinkAt = performance.now(); Snd.play('sunk'); }
+function hDoomFinal(u) { u.doom = 0; if (BFX.lo) BFX.sink(u); else u.sinkAt = performance.now(); Snd.play('sunk'); camKick(u.c + .5, u.r + .5, 1.06, 900); }
 // удар по тонущему кораблю — новый взрыв, и он уходит под воду быстрее
 function hDoomHit(w) {
   if (BFX.lo) { const [x, y] = BFX.xy(w.r, w.c); BFX.boomXY(x, y, 1.25); }
@@ -5828,7 +5858,7 @@ function buildHuntMap() {
   BFX.attach(m); GLFx.attach(m, H.weather);
   { const fc = document.createElement('canvas'); fc.className = 'fogc'; fc.width = fc.height = HN; m.appendChild(fc); H.fogc = fc; }
   { const td = todNow(); if (H.weather === 'clear' && (td === 'dawn' || td === 'dusk')) m.classList.add('tod-' + td); else if (H.weather === 'clear') m.classList.add('tod-day');
-    ['hcl', 'hatm', 'hrays'].forEach(k => { const d = document.createElement('div'); d.className = k; m.appendChild(d); });   // атмосфера: высокие облака, цветокоррекция, лучи солнца
+    ['hcl', 'hatm', 'hrays', 'hfar'].forEach(k => { const d = document.createElement('div'); d.className = k; m.appendChild(d); });   // атмосфера: высокие облака, цветокоррекция, лучи солнца
     const vg = document.createElement('div'); vg.className = 'hvig'; m.appendChild(vg); }
   Weather.attach(m, H.weather);
   hZoom(); setTimeout(() => hCenter(H.cur || H.me, false), 30);
@@ -7586,6 +7616,7 @@ FxLayer.prototype = {
         this.add({ k: 'sflash', life: 220, a: .55 });
         if (this === BFX) { GLSea.light(x1 / cs, y1 / cs, 2.2, 2.8, [1, .62, .25], 1300); GLSea.imp(x1 / cs, y1 / cs, 1.4); if (GLFx.on()) GLFx.boom(x1, y1, cs, 1.4); }
         this.shake = Math.max(this.shake, met ? 12 : 8); if (met) vibrate([60, 30, 120]);
+        if (this === BFX) camKick(x1 / cs, y1 / cs, met ? 1.1 : 1.07, met ? 800 : 600);
       };
       return new Promise(res => setTimeout(res, delay + dur));
     }
@@ -7815,8 +7846,9 @@ FxLayer.prototype = {
     if (document.hidden || !this.opt.active() || !this.fit()) return;
     if (Math.random() < dt / 110) this.glint();
     if (this.opt.tick) this.opt.tick(this, dt);
-    if (this.shake > .2) { this.map.style.transform = `translate(${this.rnd(-1, 1) * this.shake}px,${this.rnd(-1, 1) * this.shake}px)`; this.shake *= .87; }
-    else if (this.shake) { this.shake = 0; this.map.style.transform = ''; }
+    const shk = this.map.parentElement && this.map.parentElement.id === 'hunt-map' ? this.map.parentElement : this.map;
+    if (this.shake > .2) { shk.style.transform = `translate(${this.rnd(-1, 1) * this.shake}px,${this.rnd(-1, 1) * this.shake}px)`; this.shake *= .87; }
+    else if (this.shake) { this.shake = 0; shk.style.transform = ''; }
     if (!this.P.length && !this.dirty) return;
     this.dirty = this.P.length > 0;
     const cs = this.cs, L = this.cl, Hc = this.ch, dpr = this.dpr, s = dt / 1000;
