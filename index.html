@@ -1528,7 +1528,7 @@ const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" 
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
 const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
-const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, pir_boat: 2.39, dog_boat: 3.12, dog_ds: 3.93, dog_yacht: 3.98, pir_ds: 5.3, pir_sub: 3.45, dog_slaver: 3.31};
+const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, pir_boat: 2.39, dog_boat: 3.12, dog_ds: 3.93, dog_rose: 6.34, dog_yacht: 3.98, pir_ds: 5.3, pir_sub: 3.45, dog_slaver: 3.31};
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -2517,6 +2517,7 @@ const HS = {
   atl_cargo:  { name: 'Грузовоз Атлантиса', len: 3, price: 4500, hp: 20, armor: 2, speed: 2, dmg: 3, range: 4, sight: 3, mar: 3, slots: 2, hauler: true, atl: 1, desc: 'Гордость торгового флота Атлантиса: трюм на 60 мест, крепкий корпус и собственные пушки. Может постоять за себя в караване.' },
   atl_dd:     { name: 'Эсминец Атлантиса', len: 2, price: 900, hp: 14, armor: 2, speed: 3, dmg: 4, range: 5, sight: 3, mar: 5, slots: 2, atl: 1, eqBase: { radar: true }, desc: 'Быстрый страж караванов Гильдии: крепче и быстрее обычного эсминца, бьёт дальше. Радар — с верфи. Трюм на 10 мест.' },
   dog_yacht:  { name: 'Боевая яхта Псов', len: 3, price: 1350, hp: 17, armor: 2, speed: 2, dmg: 5, range: 5, sight: 3, mar: 10, slots: 2, pir: 1, eqBase: { torp: true }, desc: 'Роскошная яхта, обшитая бронёй: панорамные салоны для вожаков Псов, башня главного калибра, торпедные аппараты по бортам и штурмовой катер на корме. Быстрая, злая и богатая.' },
+  dog_rose:   { name: 'Яхта Стеллы', len: 3, price: 1700, hp: 16, armor: 2, speed: 3, dmg: 5, range: 5, sight: 4, mar: 8, slots: 2, pir: 1, eqBase: { torp: true, smoke: true }, desc: 'Личная яхта Стеллы «Стальной». Чёрный корпус, алая полоса вдоль борта и стальная роза с шипами на форштевне. Самая быстрая яхта Янтарного моря: уходит от погони и прячется за дымовой завесой.' },
   dog_ds:     { name: 'Эсминец Псов', len: 2, price: 820, hp: 13, armor: 2, speed: 2, dmg: 4, range: 4, sight: 2, mar: 8, slots: 2, pir: 1, desc: 'Бронированный таран Солёных Псов: шипы на носу, башня главного калибра и восемь клеток на корме. Догоняет, протаранивает и забирает всех, кто выжил.' },
   dog_boat:   { name: 'Катер Псов', len: 1, price: 300, hp: 9, armor: 1, speed: 3, dmg: 3, range: 3, sight: 2, mar: 5, slots: 1, pir: 1, desc: 'Ловчий катер Солёных Псов: ржавая броня, пушка на носу и две клетки для живого товара на корме. Быстро догоняет беглецов и не тонет от первого попадания.' },
   pir_boat:   { name: 'Пиратский катер', len: 1, price: 260, hp: 8, armor: 1, speed: 3, dmg: 3, range: 3, sight: 2, mar: 3, slots: 1, pir: 1, desc: 'Бронированный катамаран Вольного братства: два корпуса, спаренная пушка и ракетные трубы по бортам. Крепче и злее обычного катера, но такой же быстрый. Добыть его можно абордажем, а строить — только когда братство Корвина у вас на службе.' },
@@ -2555,7 +2556,7 @@ const HCREW = [
   { id: 'acou',    ic: '🎧', name: 'Акустики',   max: 2, eff: l => `слух ${4 + l * 2} клеток` },
 ];
 const CREW_COST = [100, 200, 350];
-const UP_BASE = { echo: 200, boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90, atl_dd: 100, pir_dd: 90, pir_boat: 55, dog_boat: 60, dog_ds: 80, dog_yacht: 120, pir_ds: 75, pir_sub: 95};
+const UP_BASE = { echo: 200, boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90, atl_dd: 100, pir_dd: 90, pir_boat: 55, dog_boat: 60, dog_ds: 80, dog_yacht: 120, dog_rose: 130, pir_ds: 75, pir_sub: 95};
 const HIRE = { boat: 50, destroyer: 110, sub: 160, cruiser: 230, battleship: 380 }, HIRE_MAX = 2, SQUAD_MAX = 5;
 const hireLvl = m => Math.floor((m - 1) / 3);
 const hirePrice = (h, id) => Math.round((HIRE[id] + 25 * hireLvl(h.mission)) * (1 - .1 * (h.hireVet[id] || 0)));
@@ -2819,7 +2820,7 @@ function fortSVG(mine, tower) {
     <rect x="41" y="60" width="18" height="28" rx="9" fill="#3b2f22"/><rect x="24" y="48" width="9" height="9" fill="#3b2f22"/><rect x="67" y="48" width="9" height="9" fill="#3b2f22"/>
     <line x1="50" y1="22" x2="50" y2="3" stroke="#3b2f22" stroke-width="4"/><path d="M50 3h24l-7 6 7 6H50z" fill="${flag}"/></svg>`;
 }
-const SHIP_SC = { echo: 1.15, boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95, atl_dd: .85, pir_dd: .85, pir_boat: .65, dog_boat: .7, dog_ds: .88, dog_yacht: .95, pir_ds: .82, pir_sub: .8};
+const SHIP_SC = { echo: 1.15, boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95, atl_dd: .85, pir_dd: .85, pir_boat: .65, dog_boat: .7, dog_ds: .88, dog_yacht: .95, dog_rose: .95, pir_ds: .82, pir_sub: .8};
 const shipImg = (id, cls = '', own) => `<img class="shimg ${cls}" src="ship_${id}.webp" alt="" draggable="false" style="--sc:${SHIP_SC[id] || 1};${skinF(own)}" onerror="this.style.visibility='hidden'">`;
 const shipPic = (id, foam) => HS[id].fort ? fortSVG(HS[id].mine, HS[id].tower) : HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
 const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5', 'board1', 'boss1', 'legend'];
@@ -2831,12 +2832,13 @@ function checkAch(p, ids) {
 }
 
 /* ---------- Флот без ограничений: корабли-экземпляры, офицеры, острова ---------- */
-const UPK = { echo: 8, boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3, pir_dd: 3, pir_boat: 1, dog_boat: 1, dog_ds: 2, dog_yacht: 4, pir_ds: 2, pir_sub: 3}, OFF_UPK = 1, GARR_MAX = 999;
+const UPK = { echo: 8, boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3, pir_dd: 3, pir_boat: 1, dog_boat: 1, dog_ds: 2, dog_yacht: 4, dog_rose: 4, pir_ds: 2, pir_sub: 3}, OFF_UPK = 1, GARR_MAX = 999;
 const SHIP_POOL = {
   echo: ['Echo Primae Lucis'],
   boat: ['Стриж', 'Чайка', 'Вьюн', 'Ласточка', 'Кречет', 'Сокол', 'Ястреб', 'Баклан', 'Бриз', 'Шквал', 'Пчела', 'Вихрь'],
   destroyer: ['Стремительный', 'Грозный', 'Бесстрашный', 'Быстрый', 'Резвый', 'Смелый', 'Верный', 'Лихой', 'Дерзкий', 'Громкий'],
   atl_dd: ['Мистраль', 'Кетцаль', 'Иштар', 'Леван-Тэ'],
+  dog_rose: ['Стальная Роза'],
   dog_yacht: ['Стальная Леди', 'Золотой Ошейник', 'Хозяйка', 'Ржавая Корона', 'Пиранья'],
   dog_ds: ['Клык', 'Ржавый Таран', 'Острог', 'Невольник', 'Цепной Пёс', 'Мясник'],
   dog_boat: ['Цепная Сука', 'Кандальщик', 'Ржавый Ошейник', 'Клетка', 'Вонючка', 'Загонщик'],
@@ -2956,7 +2958,7 @@ const isleOcc = (h, n) => occOn(h) && String(n).startsWith('0:') && n !== '0:8' 
 const occN = h => occOn(h) ? SEAS[0].isles.filter((p, i) => !p.home && isleOcc(h, iKey(0, i))).length : 0;
 const occPen = h => clanCalm(h) || clanJail(h) ? 0 : Math.min(.3, .035 * occN(h));
 // шанс гибели корабля гарнизона при захвате острова: зависит от модели, звания и улучшений
-const SINK_BASE = { echo: 0, boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, pir_boat: .52, dog_boat: .5, dog_ds: .38, dog_yacht: .3, pir_ds: .4, pir_sub: .4, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
+const SINK_BASE = { echo: 0, boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, pir_boat: .52, dog_boat: .5, dog_ds: .38, dog_yacht: .3, dog_rose: .32, pir_ds: .4, pir_sub: .4, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
 const sinkCh = s => Math.max(.04, (SINK_BASE[s.type] ?? .4) - .04 * rankOf(s.xp) - .015 * Object.values(s.up || {}).reduce((a, v) => a + (+v || 0), 0));
 const isleSafe = (h, n) => (isleOf(h, n).safe || 0) > Date.now();
 const netRate = h => fRate(h) + isleIncome(h) - upkeep(h);
@@ -3044,7 +3046,7 @@ const TPORTS = [
   { n: 'Обсидиановый Рынок', sea: 3, min: 120, risk: .36, threat: 60, mul: { food: 1.38, fuel: 1.35, shells: 1.42, gold: 1.4, gems: 1.45, fish: 1.45, pearl: 1.5 } },
   { n: 'Атлантис', sea: -1, min: 150, risk: .22, threat: 40, mul: { food: 1.32, fuel: 1.36, shells: 1.36, gold: 1.38, gems: 1.4, fish: 1.35, pearl: 1.55 } },
 ];
-const CARGO = { echo: 18, boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 100, atl_bb: 14, atl_cargo: 160, atl_dd: 10, pir_dd: 8, pir_boat: 5, dog_boat: 6, dog_ds: 12, dog_yacht: 14, pir_ds: 9, pir_sub: 3};
+const CARGO = { echo: 18, boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 100, atl_bb: 14, atl_cargo: 160, atl_dd: 10, pir_dd: 8, pir_boat: 5, dog_boat: 6, dog_ds: 12, dog_yacht: 14, dog_rose: 12, pir_ds: 9, pir_sub: 3};
 const SHELL_BOX = 8, TR_PER = 3 * 3600e3;
 const tGood = id => TGOODS.find(g => g.id === id);
 function trRand(a, b, c) { let x = (Math.imul(a, 73856093) ^ Math.imul(b, 19349663) ^ Math.imul(c, 83492791)) >>> 0; x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return (x % 10007) / 10007; }
@@ -4288,7 +4290,7 @@ function atlAct(act, id) {
 }
 
 /* ---------- Команда кораблей и Мемориал ---------- */
-const CREW = { echo: 1000, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, pir_boat: 14, dog_boat: 16, dog_ds: 40, dog_yacht: 60, pir_ds: 34, pir_sub: 26};
+const CREW = { echo: 1000, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, pir_boat: 14, dog_boat: 16, dog_ds: 40, dog_yacht: 60, dog_rose: 50, pir_ds: 34, pir_sub: 26};
 const crewWord = (t, n) => HS[t].sub ? plural(n, 'подводник', 'подводника', 'подводников') : plural(n, 'матрос', 'матроса', 'матросов');
 const crewEff = u => u && u.crewMax ? Math.max(0, Math.min(1, u.crew / u.crewMax)) : 1;
 const effDmg = u => Math.max(1, Math.round(u.st.dmg * (.5 + .5 * crewEff(u))));
@@ -4425,6 +4427,7 @@ function dipOther(h, fk) {
     <div class="clship"><img src="dog_boat_hero.webp" alt=""><b>⛓ Катер Псов</b><small style="display:block">Ловчий катер работорговцев. Ржавая броня, пушка на носу и две железные клетки на корме — для тех, кого поймают. Псы охотятся на них стаями: загоняют рыбацкие лодки к рифам и забирают всех, кто выжил.</small></div>
     <div class="clship"><img src="dog_ds_hero.webp" alt=""><b>⚔️ Эсминец Псов</b><small style="display:block">Основа флота Псов. Нос усеян стальными шипами — эсминец таранит лодки беглецов и вспарывает борта тем, кто не сдался. За дымящими трубами — восемь клеток на корме: в каждую набивают по двадцать человек. Из труб валит чёрный дым, и рыбаки Янтарного моря узнают его за милю.</small></div>
     <div class="clship"><img src="dog_yacht_hero.webp" alt=""><b>🛥 Боевая яхта Псов</b><small style="display:block">Корабль для тех, кто разбогател на чужих цепях. Когда-то — прогулочная яхта богача из Златограда; Псы взяли её на абордаж и обшили бронёй. Внутри — панорамные салоны с коврами и хрусталём, снаружи — башня главного калибра, торпедные аппараты по бортам и штурмовой катер на корме. На такой ходит Стелла «Стальная». Говорят, бывший хозяин яхты до сих пор работает у неё в трюме.</small></div>
+    <div class="clship"><img src="dog_rose_hero.webp" alt=""><b>🌹 «Стальная Роза»</b><small style="display:block">Личная яхта Стеллы «Стальной». Чёрный корпус, алая полоса вдоль борта и стальная роза с шипами на форштевне — её Стелла заказала у кузнеца Чёрного Шпиля. Самая быстрая яхта Янтарного моря. Иногда выходит в бой вместе с Псами; раненая, ставит дым и уходит. Её можно потопить — или взять на абордаж.${h.amb && h.amb.rose ? `<br><b>${h.amb.rose === 'taken' ? '🏴 Захвачена вами' : '⚓ Потоплена вами — Псы чинят новую'}</b>` : ''}</small></div>
     <div class="clship"><img src="dog_slaver_hero.webp" alt=""><b>⛓ Невольничий транспорт</b><small style="display:block">Плавучая тюрьма Солёных Псов. Бывший сухогруз, вместо трюмов — пятнадцать стальных клеток под брезентом, краны для погрузки «товара» и две пушки на носу. За один рейс увозит на южные рудники до трёхсот человек. Его не топят — его берут на абордаж: в клетках живые люди.</small></div>
     <div class="sec-t">🗺 Ваша война с Псами</div>
     ${h.freed ? `<small class="muted">⛓ Освобождено вами пленников: <b>${h.freed}</b></small>` : ''}<ul class="cllist"><li>🏝 Островов Янтарного моря под вашим флагом: <b>${seaOwn(h, 1)} из ${SEAS[1].isles.filter(p => !p.home).length}</b></li><li>${h.exp.cleared.includes(1) ? '✅' : '⬜'} Чёрный Шпиль взят</li></ul></div>`;
@@ -4643,7 +4646,7 @@ function memorialPanel(h) {
 }
 
 /* ---------- Гибель и ремонт кораблей ---------- */
-const REP_MIN = { echo: 180, boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70, atl_dd: 50, pir_dd: 45, pir_boat: 25, dog_boat: 28, dog_ds: 48, dog_yacht: 80, pir_ds: 42, pir_sub: 55};
+const REP_MIN = { echo: 180, boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70, atl_dd: 50, pir_dd: 45, pir_boat: 25, dog_boat: 28, dog_ds: 48, dog_yacht: 80, dog_rose: 85, pir_ds: 42, pir_sub: 55};
 const shipMaxHp = (h, s) => ownStats(h, s.id).hp;
 const shipHp = (h, s) => Math.max(1, shipMaxHp(h, s) - (s.hpLost || 0));
 function repairInfo(h, s) {
@@ -4740,7 +4743,7 @@ const ammoOf = id => AMMO.find(a => a.id === id);
 const arsLines = h => 1 + Math.floor(fL(h, 'workshop') / 2);
 const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'workshop'))));
 const ammoGold = (h, a) => Math.round(a.gold * (1 - .08 * fL(h, 'workshop')));
-const SHIP_MIN = { echo: 600, boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, pir_boat: 15, dog_boat: 18, dog_ds: 38, dog_yacht: 90, pir_ds: 32, pir_sub: 48};
+const SHIP_MIN = { echo: 600, boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, pir_boat: 15, dog_boat: 18, dog_ds: 38, dog_yacht: 90, dog_rose: 100, pir_ds: 32, pir_sub: 48};
 const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock')) * (fortressOn(h) ? .8 : 1)));
 const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv && !s.bt)).length;
 const btBusy = h => Object.values(h.ships).filter(s => s.buildEnd && !s.deliv && s.bt).length, BT_SLIPS = 2;
@@ -5283,6 +5286,17 @@ const DOG_BARK = {
   turn: [['t', 'Тянешь время, командир? Тяни. Мои лодки уже заходят тебе в тыл.'], ['w', 'Чую страх на твоей палубе, флотский. Он пахнет, как свежая рыба.'], ['t', 'Твоим матросам не говорят, что бывает с теми, кого берут Псы? Скажи им. Пусть знают заранее.'], ['w', 'Ни шагу назад, Псы! Кто побежит — того сам утоплю!'], ['t', 'Ты знаешь, сколько твоих беглецов мы уже вернули в шахты? Хочешь, назову по именам?'], ['w', 'Я вырос в кандалах, флотский. Я знаю, как ломать людей. Тебя сломать будет интересно.']],
   low: [['w', 'Он тонет! Он тонет, Псы! Цепляйте крюками, не дайте ему уйти на дно с моими деньгами!'], ['t', 'Сдавайся, командир. Обещаю: тебя продам дорого. Это почти уважение.'], ['w', 'Вот теперь ты понял, кто хозяин этих вод!']],
   hurtW: [['t', 'Варго, ты ранен! — Молчи, Стелла! Добей его!'], ['t', 'Он целит в «Кандальник»! Прикройте вожака, псы!']],
+};
+function dogShow(who, txt) {
+  const W = CLAN_WHO[who]; let b = $('#dogb'); if (!b) { b = document.createElement('div'); b.id = 'dogb'; b.innerHTML = '<img alt=""><div><b></b><span></span></div>'; document.body.appendChild(b); }
+  b.querySelector('img').src = W[2] + '.webp'; b.querySelector('b').textContent = '📻 ' + W[0]; b.querySelector('span').textContent = txt;
+  b.classList.add('on'); clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('on'), 5200);
+}
+const ROSE_SAY = {
+  start: ['Узнаёшь мою розу, флотский? Красивая, правда? Шипы у неё настоящие.', 'Сегодня я сама посмотрю, чего ты стоишь. Псы, не мешайте мне.', 'Не стреляй по моей яхте, милый. Я её очень люблю. Больше, чем людей.'],
+  hit: ['Ты поцарапал мне борт. Варго за такое вешает на рее. Я — придумаю что-нибудь поинтереснее.', 'Осторожнее с краской, флотский! Её везли из Златограда.'],
+  run: ['Хватит на сегодня. Розы не тонут — они уходят красиво.', 'Ставлю дым. Не скучай, флотский, я ещё вернусь.', 'Отходим! Варго подождёт — моя яхта мне дороже его приказов.'],
+  gone: ['Ушла. Как всегда — в дыму и с улыбкой.']
 };
 function dogBark(kind, u) {
   if (typeof H === 'undefined' || !H.node || H.phase !== 'play' || !H.foes.some(f => /^dog_/.test(f.type))) return;
@@ -5991,6 +6005,7 @@ function setupObjective(node) {
     H.foes.push(u);
     genFoes(m, Math.max(1, n - 1) + (b.type === 'pir_dd' || b.type === 'dog_yacht' ? 1 : 0));
   }
+  if (o !== 'boss' && o !== 'raid' && isDogs() && !node.trade) { const A = ambData(hdata(curProfile())); if (A.metW && A.rose !== 'taken' && !(A.roseBack > H.mission) && m >= 4 && Math.random() < .15) { const pos = freeCell([0, HN - 5, 5, 5]); if (pos) { const u = addFoe('dog_rose', pos, m); u.name = 'Стальная Роза'; u.fac = 'dogs'; u.rose = 1; u.st.hp = u.hp = u.st.hp + 4; u.st.dmg += 1; u.eq.smoke = true; } } }
   if (lastAzure(node)) { const pos = freeCell([0, HN - 5, 5, 5]); if (pos) { const u = addFoe('pir_ds', pos, Math.max(m, 3)); u.name = 'Ласточка'; u.fac = 'pir'; u.st.hp = u.hp = u.st.hp + 5; u.st.dmg += 1; u.lucia = 1; } }
 }
 // бой за последний свободный остров Лазурного моря: на защиту выходит флагман Корвина
@@ -6064,6 +6079,7 @@ function startHunt(node) {
   H.acted = new Set(); H.cur = H.me;
   buildHuntMap(); show('scr-hunt');
   const o = OBJ[H.obj], w = WEATHER[H.weather];
+  if (H.foes.some(f => f.rose)) { const g = H.gen; setTimeout(() => { if (g === H.gen && H.phase === 'play') { toast('🌹 В бой вышла «Стальная Роза» — яхта Стеллы!'); dogShow('t', pick(ROSE_SAY.start)); } }, 2200); }
   hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.foes.some(f => f.vargo) ? '⛓ «Кандальник» Варго Кнута защищает Чёрный Шпиль!' : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   if (H.open) setTimeout(() => toast('🌊 Открытое море: ни одного острова — укрыться негде'), 700);
   hStartPlayerTurn(true);
@@ -6467,7 +6483,7 @@ async function hFire(u, kind, r, c) {
   else if (H.finRes.length) { const [w, r2] = H.finRes[H.finRes.length - 1], nm = w.side === 'me' ? shipName(w) : (w.name || HS[w.type].name); text = r2 === 'sink' ? `💥 Добивающее попадание: ${nm} разламывается и уходит под воду!` : `💥 Новый взрыв на тонущем ${nm} — крен растёт!`; cls = 'sunk'; }
   else { text = `${who}: мимо${scattered ? (kind === 'msl' || kind === 'met' ? ' (ракету сбили помехи)' : ' (снаряд отклонился)') : ''}`; cls = 'miss'; }
   if (H.casNow && H.casNow.length) text += ' · ' + H.casNow.join(' · ');
-  if (isMe && hits.length && hitUnits.size && [...hitUnits].some(t => /^dog_/.test(t.type) && t.hp > 0)) dogBark([...hitUnits].some(t => t.vargo) ? 'hurtW' : 'hurt');
+  if (isMe && hits.length && hitUnits.size && [...hitUnits].some(t => /^dog_/.test(t.type) && t.hp > 0)) { const rz = [...hitUnits].find(t => t.rose && t.hp > 0 && !t.roseHit); if (rz) { rz.roseHit = 1; dogShow('t', pick(ROSE_SAY.hit)); } else dogBark([...hitUnits].some(t => t.vargo) ? 'hurtW' : 'hurt'); }
   else if (isMe && !hits.length && kind !== 'radar') dogBark('miss');
   else if (!isMe && /^dog_/.test(u.type)) { if (H.me.hp > 0 && H.me.hp / H.me.st.hp < .35) dogBark('low'); else dogBark(hits.length ? 'hit' : 'fmiss'); }
   return { text, cls, hits: hits.length };
@@ -6579,6 +6595,10 @@ async function foeAct(f) {
   if (f.smoke > 0) f.smoke--;
   for (const k in f.cd) if (f.cd[k] > 0) f.cd[k]--;
   if (f.st.mech && H.turn % f.st.mech === 0 && f.hp < f.st.hp) f.hp++;
+  if (f.rose) {
+    if (f.roseRun) { f.gone = true; H.roseGone = 1; hMsg('🌹 «Стальная Роза» ушла за дымовой завесой. Стелла снова ускользнула', 'hit'); dogShow('t', pick(ROSE_SAY.gone)); renderHunt(); await sleep(600); return; }
+    if (f.hp < f.st.hp * .35) { f.roseRun = 1; f.smoke = 3; hfx(f.r, f.c, 'ping'); Snd.play('plane'); hMsg('🌫️ «Стальная Роза» ставит дым и уходит! У вас один ход, чтобы её достать', 'hit'); dogShow('t', pick(ROSE_SAY.run)); renderHunt(); await sleep(600); return; }
+  }
   if (f.boss) {
     if (f.boss.ab.includes('repair') && H.turn % 3 === 0 && f.hp < f.st.hp) f.hp = Math.min(f.st.hp, f.hp + 2);
     if (f.eq.smoke && !f.cd.smoke && f.hp < f.st.hp * .6 && f.smoke <= 0 && foeVisible(f)) {
@@ -6667,6 +6687,10 @@ function hFinish(won, reason) {
     else { const loss = raidLoss(h); h.gold = Math.max(0, h.gold - loss); gold = 0; lines.push(`☠️ Пираты разграбили казну: −${loss} 💰${PROTECT[fL(h, 'treasury')] ? ` (Казна сберегла ${PROTECT[fL(h, 'treasury')]}%)` : ''}`); }
     fRaidResolve(h, won);
   }
+  { const rz = H.foes.find(f => f.rose); if (rz) { const A = ambData(h);
+    if (rz.captured) { A.rose = 'taken'; lines.push('🌹 «Стальная Роза» взята на абордаж! Стелла успела уйти на шлюпке, но её яхта теперь ваша'); news(h, '🌹 Яхта Стеллы «Стальная Роза» захвачена флотом'); }
+    else if (rz.hp <= 0) { A.rose = 'sunk'; A.roseBack = h.mission + 6; gold += 700; cr += 1; lines.push('🌹 «Стальная Роза» пущена ко дну! Стеллу выловили Псы. В её каюте нашли шкатулку с драгоценностями: +700 💰'); news(h, '🌹 Яхта Стеллы «Стальная Роза» потоплена. Говорят, Варго уже заказал ей новую'); }
+    else if (rz.gone) lines.push('🌹 «Стальная Роза» ушла в дыму. Стелла ещё вернётся'); } }
   trophRecord(h, won);
   // трофеи
   H.captured.forEach(t => {
