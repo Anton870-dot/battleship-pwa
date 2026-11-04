@@ -507,6 +507,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .sqtabs.mini .sqtab{min-width:96px;padding:6px 9px}.sqfrom{font-size:10px;color:#ffcf9a;text-align:right}
 .ftabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(560px,100%);position:sticky;top:0;z-index:5;padding:4px 0}
 .ftab{padding:9px 4px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(4,25,50,.85);color:#e8f4ff;font-weight:800;font-size:12px;cursor:pointer;backdrop-filter:blur(6px)}
+.mtabs{grid-template-columns:repeat(3,1fr);margin:2px 0}.mtabs .ftab{font-size:12.5px;padding:10px 4px}
 .ftab.on{border-color:#ffcf4a;background:linear-gradient(180deg,#ffd76a,#f0a92a);color:#3a2300}.ftab i{font-style:normal;background:#ff6b57;color:#fff;border-radius:8px;padding:0 5px;font-size:10.5px;margin-left:2px}
 .stabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:8px 0 4px}.stab{padding:7px 2px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.22);color:#dbeaf6;font-size:11px;font-weight:800;cursor:pointer}.stab.on{background:rgba(255,190,60,.25);border-color:#ffcf4a;color:#ffe08a}
 .repr{flex-wrap:wrap}.repr .acts{flex-basis:100%;display:flex;justify-content:flex-end;align-items:center;gap:6px;flex-wrap:wrap}.repr .acts .col2{flex-direction:row;align-items:center;flex-wrap:wrap;justify-content:flex-end}
@@ -3145,6 +3146,7 @@ function tradeAct(act, id) {
   } else if (act === 'trsell') {
     const [g, n0] = id.split(':'), n = Math.min(n0 === 'all' ? T.stock[g] : +n0, T.stock[g]); if (n <= 0) return;
     T.stock[g] -= n; h.gold += n * trSellHome(g); snd = 'coins';
+  } else if (act === 'trtab') { HB.mtab = id; snd = 'click';
   } else if (act === 'trext') { const c = trExtCost(h); if (h.gold < c) { toast('Не хватает золота'); return; } h.gold -= c; T.ext = (T.ext || 0) + 1; toast(`📦 Склад расширен: теперь ${trCap(h)} мест`); snd = 'build';
   } else if (act === 'trhport') { HB.th = { port: +id }; snd = 'click';
   } else if (act === 'trhadd') { const x = h.ships[id], pi = (HB.th || {}).port ?? trPortsOpen(h)[0]; if (!x || !HS[x.type].hauler || !trCanSail(h, x)) return; T.house ||= []; x.trade = 'house'; h.squad = h.squad.filter(k => k !== id); T.house.push({ ship: id, port: pi, at: Date.now() + houseTrip(h, pi), trips: 0, earned: 0 }); news(h, `🏢 ${sName(x)} поставлен на торговую линию «${TPORTS[pi].n}»`, true); snd = 'horn';
@@ -3294,7 +3296,7 @@ function bankTick(h) {
   return ch;
 }
 const spark = arr => { const mn = Math.min(...arr), mx = Math.max(...arr), W = 64, Hh = 18; const pts = arr.map((v, i) => `${(i / Math.max(1, arr.length - 1) * W).toFixed(1)},${(Hh - (v - mn) / Math.max(1e-6, mx - mn) * Hh).toFixed(1)}`).join(' '); const up = arr[arr.length - 1] >= arr[0]; return `<svg class="spark" viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}"><polyline points="${pts}" fill="none" stroke="${up ? '#5dff9a' : '#ff7a6b'}" stroke-width="1.6" stroke-linejoin="round"/></svg>`; };
-function bankHtml(h) {
+function bankHtml(h, part) {
   const B = bankData(h), now = Date.now();
   let s = `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏦 Банк Атлантиса</div><small class="muted">Свободное золото работает на вас. Чем дольше срок, тем выше процент. Досрочно забрать можно, но без процентов и с комиссией 5%.</small>`;
   B.dep.forEach((d, i) => { s += `<div class="uprow"><span class="ic">${d.risk ? '🎲' : '💰'}</span><span class="nm">${d.risk ? 'Фонд «Дальние воды»' : `Вклад +${Math.round(d.r * 100)}%`}: ${d.sum} 💰<small>${d.risk ? 'итог неизвестен до закрытия' : `вернётся ${Math.round(d.sum * (1 + d.r))} 💰`} · через <b data-until="${d.end}">${fmtLeft(d.end - now)}</b></small></span><button class="btn small" data-act="bkout" data-id="${i}">Забрать</button></div>`; });
@@ -3304,6 +3306,7 @@ function bankHtml(h) {
     s += `<div class="uprow"><span class="ic">🎲</span><span class="nm">Фонд «Дальние воды» · 24 ч<small>деньги идут в экспедиции и торговлю на краю карты: можно потерять до трети, а можно почти удвоить</small></span><span class="trb">${[.1, .25].map(f => `<button class="btn small" data-act="bkrisk" data-id="${f}" ${amt(f) < 500 ? 'disabled' : ''}>${amt(f) >= 500 ? amt(f) : Math.round(f * 100) + '%'}</button>`).join('')}</span></div>`;
   } else s += `<small class="muted">Открыто 4 вклада — больше банк не принимает.</small>`;
   s += `</div>`;
+  if (part === 'dep') return s; s = '';
   // биржа
   let val = 0, cost = 0; MK.forEach(a => { const x = B.sh[a.id]; if (x && x.n) { val += x.n * mkSell(h, a); cost += x.cost; } });
   const next = (B.mk.per + 1) * MK_PER;
@@ -3359,12 +3362,13 @@ function houseHtml(h) {
 }
 function tradePanel(h) {
   const T = tradeData(h), now = Date.now(), per = trPer(), next = (per + 1) * TR_PER, used = trUsed(T), cap = trCap(h), open = trPortsOpen(h), seer = fL(h, 'lighthouse') >= 3 || atlData(h).fore === trPer();
-  let s = '';
+  let s = '', SEC = {};
   T.runs.filter(r => r.st === 'amb').forEach(r => {
     const P = TPORTS[r.port], pow = trPower(h, r.ships), pw = Math.round(pow / (pow + P.threat) * 100);
     s += `<div class="glass hub-panel raidbar"><b>☠️ Пираты атакуют караван в «${P.n}»!</b><small>Груз: ${cargoTxt(r.cargo)} · корабли: ${r.ships.map(k => sName(h.ships[k])).join(', ')}</small>
       <div class="row" style="flex-wrap:wrap"><button class="btn small primary" data-act="trfight" data-id="${r.id}">⚔️ Принять бой самому</button><button class="btn small" data-act="trguard" data-id="${r.id}">🛡 Положиться на охрану · ${pw}%</button><button class="btn small" data-act="trpay" data-id="${r.id}">🏳 Отдать 40% груза</button></div></div>`;
   });
+  const TOP = s; s = '';
   // склад и биржа
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📦 Склад ${used}/${cap} · биржа гавани</div>
     <small class="muted">Покупайте товар здесь, а выгоднее продавайте в портах других морей — караваном. Цены меняются каждые 3 часа: обновятся через <b data-until="${next}">${fmtLeft(next - now)}</b>.</small>`;
@@ -3375,17 +3379,20 @@ function tradePanel(h) {
   });
   s += `<div class="uprow"><span class="ic">🏗</span><span class="nm">Расширить склад: +60 мест<small>навсегда · расширений ${T.ext || 0}</small></span><button class="btn small primary" data-act="trext" ${h.gold < trExtCost(h) ? 'disabled' : ''}>${trExtCost(h)} 💰</button></div>`;
   s += `</div>`;
+  SEC.stock = s; s = '';
   { const own = islesOwned(h).filter(n => !isleOf(h, n).lost);
     if (own.length) { s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🏝 Производство островов · 👥 ${popNum(popTotal(h))} жителей</div><small class="muted">Каждый остров что-то производит: товары идут на этот склад, снаряды и торпеды — прямо в Арсенал. Склад острова вмещает примерно 12 часов работы — не забывайте забирать.</small>`;
       own.forEach(n => { const g = isleProd(n), P = prodInfo(g), q = Math.floor(isleOf(h, n).pq || 0); s += `<div class="uprow"><span class="ic">${P.ic}</span><span class="nm">${isleName(n)} · ${P.n}<small>👥 ${popNum(isleOf(h, n).pop)} · ${prodRate(h, n) ? `${prodRate(h, n).toFixed(1)}/ч` : 'не производит'} · готово ${q}/${prodCap(h, n)}</small></span></div>`; });
       s += `<button class="btn primary" data-act="trprall">📦 Забрать всё</button></div>`; } }
-  s += houseHtml(h);
+  SEC.isles = s; s = '';
+  SEC.house = houseHtml(h);
   // цены
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">📈 Цены продажи в портах</div><div class="trtabw"><table class="trtab"><tr><th></th><th>Гавань</th>${open.map(pi => `<th>${TPORTS[pi].n.replace('Порт ', '').replace(' Гавань', '').replace(' Рынок', '')}</th>`).join('')}</tr>`;
   TGOODS.forEach((g, gi) => {
     s += `<tr><td>${g.ic}</td><td>${trSellHome(g.id)}</td>${open.map(pi => { const p = trPrice(pi, g.id), pv = trPrice(pi, g.id, per - 1), nx = trPrice(pi, g.id, per + 1); return `<td class="${trSpike(pi, gi, per) ? 'hot' : p > trBuy(h, g.id) ? 'up' : ''}">${p}${trSpike(pi, gi, per) ? '🔥' : p > pv ? '<i>▲</i>' : p < pv ? '<em>▼</em>' : ''}${seer ? `<small>${nx > p ? '↗' : nx < p ? '↘' : '→'}</small>` : ''}</td>`; }).join('')}</tr>`;
   });
   s += `</table></div><small class="muted">Зелёным — дороже, чем купить в гавани сейчас. 🔥 — ажиотаж (×1.5). ▲▼ — по сравнению с прошлыми ценами.${seer ? ' ↗↘ — прогноз Маяка на следующие 3 часа.' : ' С Маяком 3-го уровня появится прогноз цен.'} Порты новых морей откроются, когда пройдёте туда в экспедициях.</small></div>`;
+  SEC.prices = s; s = '';
   // караваны
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⛵ Караваны ${T.runs.length}/${trRunsMax(h)}</div>`;
   T.runs.forEach(r => {
@@ -3410,7 +3417,8 @@ function tradePanel(h) {
     s += `<div class="trsum">Выручка по нынешним ценам ≈ <b>${est} 💰</b> (вложено ~${cost}, ${est - cost >= 0 ? 'прибыль' : 'убыток'} <b>${est - cost >= 0 ? '+' : ''}${est - cost}</b>). Цена может измениться, пока караван в пути.<br>⏱ В одну сторону ${fmtMin(dur / 60000)}, обратно столько же · ☠️ шанс нападения <b>${S.ships.length ? ch : '—'}%</b> — чем сильнее охрана, тем меньше</div>
       <div class="row"><button class="btn primary" data-act="trgo" ${S.ships.length && load && load <= capS ? '' : 'disabled'}>⛵ Отправить</button><button class="btn small" data-act="trcancel">Отмена</button></div>`;
   }
-  return s + `</div>`;
+  SEC.runs = s + `</div>`;
+  return [TOP, SEC];
 }
 
 /* ---------- События в море ---------- */
@@ -4177,6 +4185,7 @@ function renderAtl() {
   const now = Date.now(), rk = atlRank(h), nx = ATL_RANKS[rk + 1];
   $('#atl-gold').textContent = `${h.gold} · 💠 ${h.cred || 0}`;
   let s = `<div class="atlhero"><img src="atl_council.webp" alt=""><div class="atlcap"><b>🏛 Совет торговцев</b><small>Атлантис · свободный торговый город</small></div></div>`;
+  const HERO = s, AS = {}; s = '';
   // Совет
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🤝 Ваше положение в Совете</div>
     <div class="rankline"><span>🤝 ${ATL_RANKS[rk].n}</span><span class="bar"><i style="width:${nx ? (A.rep - ATL_RANKS[rk].r) / (nx.r - ATL_RANKS[rk].r) * 100 : 100}%"></i></span><small>${nx ? `доверие ${A.rep}/${nx.r}` : 'высший ранг'}</small></div>
@@ -4205,24 +4214,31 @@ function renderAtl() {
     }
   });
   s += `</div>`;
+  AS.council = s; s = '';
   // разведданные
   const ip = n => Math.round(n * atlDisc(h)), per = trPer();
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🗞 Свежая информация</div><small class="muted">Шпионы и маклеры Атлантиса знают всё — за деньги.</small>
     <div class="uprow"><span class="ic">📈</span><span class="nm">Прогноз цен<small>Какими будут цены во всех портах в следующие 3 часа — в таблице торговли.${A.fore === per ? ' <b>Куплено на этот срок ✓</b>' : ''}</small></span><button class="btn small primary" data-act="atlinfo" data-id="fore" ${A.fore === per || h.gold < ip(80) ? 'disabled' : ''}>${ip(80)} 💰</button></div>
     <div class="uprow"><span class="ic">🗺</span><span class="nm">Тихие маршруты<small>Следующие 3 каравана пойдут в обход пиратских засад: нападают втрое реже.${A.safe ? ` Осталось: ${A.safe}.` : ''}</small></span><button class="btn small primary" data-act="atlinfo" data-id="safe" ${h.gold < ip(160) ? 'disabled' : ''}>${ip(160)} 💰</button></div>
     <div class="uprow"><span class="ic">💰</span><span class="nm">Наводка на богатую цель<small>Разведка получит донесение о бое с добычей в полтора раза больше обычной.</small></span><button class="btn small primary" data-act="atlinfo" data-id="tip" ${h.gold < ip(220) || expData(h).reports.length >= repMax(h) + 1 ? 'disabled' : ''}>${ip(220)} 💰</button></div></div>`;
+  AS.info = s; s = '';
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">🧨 Оружейный рынок</div>${ammoMarketHtml(h, 'atl')}</div>`;
-  s += bankHtml(h);
+  AS.arms = s; s = '';
+  AS.bank = bankHtml(h, 'dep'); AS.mk = bankHtml(h, 'mk');
   // верфь торгового флота
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚓ Верфь торгового флота</div><small class="muted">Корабли Атлантиса не занимают ваши стапели: их пригоняют в вашу гавань за ${fmtMin(ATL_SHIP_MIN)}. Каждый получает имя по обычаю Атлантиса.</small>`;
   ATL_YARD.forEach(y => { const b = HS[y.t], cp = Math.round(b.price * atlDisc(h)), lk = rk < y.rk;
     s += `<div class="atlship"><div class="shipshow">${shipImg(y.t, 'big')}</div><div class="hp-title"><div><b>${b.name}</b><small>${b.desc}${y.t === 'cargo' ? ' Здесь его можно купить и без Торговой гавани.' : ''}</small></div></div>${statGrid(shipStats(y.t, {}, h.crew, { eq: b.eqBase }))}<small class="muted">📦 трюм ${CARGO[y.t]} · 👥 команда ${CREW[y.t]} · содержание ${UPK[y.t]} 💰/ч</small>
       ${lk ? `<div class="warnline">🔒 Совет продаёт его только с ранга «${ATL_RANKS[y.rk].n}»</div>` : `<button class="btn primary" data-act="atlbuy" data-id="${y.t}" ${h.gold < cp ? 'disabled' : ''}>Купить · ${cp} 💰 · пригонят за ${fmtMin(ATL_SHIP_MIN)}</button>`}</div>`; });
   s += `</div>`;
+  AS.yard = s; s = '';
   // рынок
   s += `<div class="glass hub-panel"><div class="sec-t" style="margin-top:0">⚖️ Рынок Атлантиса</div><small class="muted">Здесь дорого покупают всё. Путь караваном — ${fmtMin(trDur(h, ATL_PORT) / 60000)} в одну сторону.</small><div class="trchips">${TGOODS.map(g => `<span class="atlpr">${g.ic} <b>${trPrice(ATL_PORT, g.id)}</b></span>`).join('')}</div>
     <button class="btn primary" data-act="atlcar">⛵ Снарядить караван в Атлантис</button></div>`;
-  $('#atl-body').innerHTML = s;
+  AS.market = s; AS.council += AS.info;
+  const AT = [['council', '🏛 Совет', A.jobs.length ? A.jobs.length : ''], ['bank', '🏦 Банк', bankData(h).dep.length || ''], ['mk', '📈 Биржа', ''], ['arms', '🧨 Оружие', ''], ['yard', '⚓ Верфь', ''], ['market', '⚖️ Рынок', '']];
+  if (!AS[HB.atab]) HB.atab = 'council';
+  $('#atl-body').innerHTML = HERO + `<div class="ftabs mtabs">${AT.map(([k, n, b]) => `<button class="ftab${HB.atab === k ? ' on' : ''}" data-act="atltab" data-id="${k}">${n}${b ? `<i>${b}</i>` : ''}</button>`).join('')}</div>` + AS[HB.atab];
   $('#atl-body').querySelectorAll('[data-act]').forEach(b => b.onclick = () => atlAct(b.dataset.act, b.dataset.id));
   $('#atl-body').querySelectorAll('[data-am]').forEach(b => b.onclick = () => { const g = ammoSell(h, b.dataset.am); if (!g) return; Snd.play('coins'); toast(`💰 +${g} 💰`); saveProfiles(); renderAtl(); });
 }
@@ -4258,6 +4274,7 @@ function atlAct(act, id) {
     if (id === 'safe') { if (!pay(ip(160))) return; A.safe += 3; toast('🗺 Тихие маршруты: следующие 3 каравана пойдут в обход засад'); }
     if (id === 'tip') { let r = null; for (let i = 0; i < 20 && !r; i++) { const x = genReport(h); if (!x) break; if (x.kind === 'battle') r = x; else h.exp.reports = h.exp.reports.filter(z => z !== x); } if (!r) { toast('Шпионы ничего не нашли — попробуйте позже'); return; } if (!pay(ip(220))) { h.exp.reports = h.exp.reports.filter(z => z !== r); return; } r.mult = 1.5; r.tip = true; toast(`💰 Наводка: богатая цель у острова «${repPlace(r)}» — донесение уже в штабе разведки`); }
     snd = 'buy';
+  } else if (act === 'atltab') { HB.atab = id; snd = 'click'; $('#atl-body').scrollTop = 0;
   } else if (act.startsWith('bk')) { if (!bankAct(h, act, id)) { Snd.play('bad'); return; } snd = 'coins';
   } else if (act === 'atlbuy') {
     const y = ATL_YARD.find(z => z.t === id); if (!y || atlRank(h) < y.rk) return;
@@ -7218,7 +7235,11 @@ function bldContent(h, id) {
     case 'workshop': return arsenalPanel(h) + toFleet('Улучшения и оборудование кораблей — в карточке корабля, вкладка «🔧 Улучшения».', [['ships', '🚢 Улучшать корабли', 'workshop']]);
     case 'barracks': return drillPanel(h) + toFleet('Матросов и морпехов набирают в карточке корабля, вкладка «👥 Экипаж».', [['ships', '👥 Экипаж кораблей', 'barracks']]);
     case 'academy': return officersPanel(h) + crewPanel(h) + toFleet('Офицеров назначают на корабли в карточке корабля, вкладка «🧑‍✈️ Офицеры».', [['ships', '🧑‍✈️ Офицеры на кораблях', 'academy']]);
-    case 'market': return evLine(h) + `<button class="btn atlbtn" data-act="oatl">🏙 Атлантис: поручения Совета, информация, верфь</button>` + tradePanel(h) + cshopPanel(h) + hiredPanel(h);
+    case 'market': { const [TOP, SEC] = tradePanel(h), T = tradeData(h); SEC.hire = cshopPanel(h) + hiredPanel(h);
+      const ready = islesOwned(h).some(n => !isleOf(h, n).lost && (isleOf(h, n).pq || 0) >= 1), amb = T.runs.some(r => r.st === 'amb');
+      const MT = [['stock', '📦 Склад', ''], ['prices', '📈 Цены', ''], ['runs', '⛵ Караваны', amb ? '!' : T.runs.length || ''], ['isles', '🏝 Острова', ready ? '●' : ''], ['house', '🏢 Торг. дом', (T.house || []).length || ''], ['hire', '🤝 Наём', '']];
+      if (!SEC[HB.mtab]) HB.mtab = 'stock';
+      return evLine(h) + TOP + `<button class="btn atlbtn" data-act="oatl">🏙 Атлантис: Совет, банк, биржа, верфь</button><div class="ftabs mtabs">${MT.map(([k, n, b]) => `<button class="ftab${HB.mtab === k ? ' on' : ''}" data-act="trtab" data-id="${k}">${n}${b ? `<i>${b}</i>` : ''}</button>`).join('')}</div>` + SEC[HB.mtab]; }
     case 'treasury': return incomePanel(h) + econPanel(h);
     case 'lighthouse': return intelPanel(h) + islesPanel(h);
     default: return raidPanel(h);
