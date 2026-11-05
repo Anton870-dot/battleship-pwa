@@ -1528,7 +1528,7 @@ const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" 
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
 const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
-const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, raid_cruiser: 4.65, raid_butcher: 4.45, raid_ds: 4.31, raid_boat: 3.6, pir_boat: 2.39, dog_boat: 3.12, dog_ds: 3.93, dog_rose: 6.34, dog_prison: 4.35, dog_yacht: 3.98, pir_ds: 5.3, pir_sub: 3.45, dog_slaver: 3.31};
+const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, raid_abyss: 4.03, raid_cruiser: 4.65, raid_butcher: 4.45, raid_ds: 4.31, raid_boat: 3.6, pir_boat: 2.39, dog_boat: 3.12, dog_ds: 3.93, dog_rose: 6.34, dog_prison: 4.35, dog_yacht: 3.98, pir_ds: 5.3, pir_sub: 3.45, dog_slaver: 3.31};
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -2521,6 +2521,7 @@ const HS = {
   dog_prison: { name: 'Тюремный сухогруз', len: 4, price: 2200, hp: 24, armor: 3, speed: 1, dmg: 6, range: 6, sight: 3, mar: 14, slots: 3, pir: 1, eqBase: { torp: true }, desc: 'Бывший сухогруз «Северная звезда», переделанный Псами в плавучую тюрьму: клетки в трюмах, краны для погрузки людей, броневые листы поверх ржавого корпуса и кормовая надстройка-крепость. Из трюма спускает на воду катера.' },
   dog_ds:     { name: 'Эсминец Псов', len: 2, price: 820, hp: 13, armor: 2, speed: 2, dmg: 4, range: 4, sight: 2, mar: 8, slots: 2, pir: 1, desc: 'Бронированный таран Солёных Псов: шипы на носу, башня главного калибра и восемь клеток на корме. Догоняет, протаранивает и забирает всех, кто выжил.' },
   dog_boat:   { name: 'Катер Псов', len: 1, price: 300, hp: 9, armor: 1, speed: 3, dmg: 3, range: 3, sight: 2, mar: 5, slots: 1, pir: 1, desc: 'Ловчий катер Солёных Псов: ржавая броня, пушка на носу и две клетки для живого товара на корме. Быстро догоняет беглецов и не тонет от первого попадания.' },
+  raid_abyss: { name: 'Флагман рейдеров', len: 5, price: 0, hp: 40, armor: 4, speed: 1, dmg: 7, range: 7, sight: 4, mar: 20, slots: 4, pir: 1, desc: '«Бездна» — флагман морских рейдеров.' },
   raid_cruiser: { name: 'Ракетный крейсер рейдеров', len: 3, price: 1300, hp: 17, armor: 2, speed: 2, dmg: 4, range: 5, sight: 3, mar: 8, slots: 2, pir: 1, desc: 'Ракетный крейсер морских рейдеров. Наклонные пусковые установки вдоль бортов, ракеты в цепях и кандалах. Бьёт ракетами издалека. Ни одна верфь такие не строит — его можно только взять на абордаж.' },
   raid_butcher: { name: 'Тяжёлый эсминец рейдеров', len: 3, price: 1100, hp: 20, armor: 2, speed: 2, dmg: 5, range: 5, sight: 3, mar: 10, slots: 2, pir: 1, eqBase: { torp: true }, desc: '«Расчленитель» — самый страшный корабль рейдеров. Корпус в бурых потёках, крючья на цепях, черепа на обшивке и таран в форме тесака. Захватить его можно только абордажем — если команда не дрогнет.' },
   raid_ds:    { name: 'Эсминец рейдеров', len: 2, price: 560, hp: 13, armor: 2, speed: 2, dmg: 4, range: 4, sight: 2, mar: 7, slots: 1, pir: 1, eqBase: { torp: true }, desc: 'Эсминец морских рейдеров. Корпус из обшивки потопленных кораблей, длинный таранный шип, гарпунные пушки и абордажные мостки по бортам. Ни одна верфь такие не строит — их можно только взять на абордаж.' },
@@ -2561,7 +2562,7 @@ const HCREW = [
   { id: 'acou',    ic: '🎧', name: 'Акустики',   max: 2, eff: l => `слух ${4 + l * 2} клеток` },
 ];
 const CREW_COST = [100, 200, 350];
-const UP_BASE = { echo: 200, boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90, atl_dd: 100, pir_dd: 90, raid_cruiser: 130, raid_butcher: 110, raid_ds: 90, raid_boat: 60, pir_boat: 55, dog_boat: 60, dog_ds: 80, dog_yacht: 120, dog_rose: 130, dog_prison: 200, pir_ds: 75, pir_sub: 95};
+const UP_BASE = { echo: 200, boat: 40, destroyer: 70, sub: 90, cruiser: 120, battleship: 180, sub2: 130, sub3: 200, subx: 260 , cargo: 60, atl_bb: 220, atl_cargo: 90, atl_dd: 100, pir_dd: 90, raid_abyss: 300, raid_cruiser: 130, raid_butcher: 110, raid_ds: 90, raid_boat: 60, pir_boat: 55, dog_boat: 60, dog_ds: 80, dog_yacht: 120, dog_rose: 130, dog_prison: 200, pir_ds: 75, pir_sub: 95};
 const HIRE = { boat: 50, destroyer: 110, sub: 160, cruiser: 230, battleship: 380 }, HIRE_MAX = 2, SQUAD_MAX = 5;
 const hireLvl = m => Math.floor((m - 1) / 3);
 const hirePrice = (h, id) => Math.round((HIRE[id] + 25 * hireLvl(h.mission)) * (1 - .1 * (h.hireVet[id] || 0)));
@@ -2825,7 +2826,7 @@ function fortSVG(mine, tower) {
     <rect x="41" y="60" width="18" height="28" rx="9" fill="#3b2f22"/><rect x="24" y="48" width="9" height="9" fill="#3b2f22"/><rect x="67" y="48" width="9" height="9" fill="#3b2f22"/>
     <line x1="50" y1="22" x2="50" y2="3" stroke="#3b2f22" stroke-width="4"/><path d="M50 3h24l-7 6 7 6H50z" fill="${flag}"/></svg>`;
 }
-const SHIP_SC = { echo: 1.15, boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95, atl_dd: .85, pir_dd: .85, raid_cruiser: .98, raid_butcher: .94, raid_ds: .86, raid_boat: .68, pir_boat: .65, dog_boat: .7, dog_ds: .88, dog_yacht: .95, dog_rose: .95, dog_prison: 1.05, pir_ds: .82, pir_sub: .8};
+const SHIP_SC = { echo: 1.15, boat: .6, destroyer: .8, sub: .8, cruiser: .9, battleship: 1, sub2: .85, sub3: .95, subx: 1 , cargo: 0.95, atl_bb: 1, atl_cargo: .95, atl_dd: .85, pir_dd: .85, raid_abyss: 1.15, raid_cruiser: .98, raid_butcher: .94, raid_ds: .86, raid_boat: .68, pir_boat: .65, dog_boat: .7, dog_ds: .88, dog_yacht: .95, dog_rose: .95, dog_prison: 1.05, pir_ds: .82, pir_sub: .8};
 const shipImg = (id, cls = '', own) => `<img class="shimg ${cls}" src="ship_${id}.webp" alt="" draggable="false" style="--sc:${SHIP_SC[id] || 1};${skinF(own)}" onerror="this.style.visibility='hidden'">`;
 const shipPic = (id, foam) => HS[id].fort ? fortSVG(HS[id].mine, HS[id].tower) : HS[id].sub ? subSVG() : shipSVG(HS[id].len, foam);
 const HUNT_ACH = ['hunt1', 'hunt10', 'fleet5', 'board1', 'boss1', 'legend'];
@@ -2837,7 +2838,7 @@ function checkAch(p, ids) {
 }
 
 /* ---------- Флот без ограничений: корабли-экземпляры, офицеры, острова ---------- */
-const UPK = { echo: 8, boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3, pir_dd: 3, raid_cruiser: 4, raid_butcher: 3, raid_ds: 2, raid_boat: 1, pir_boat: 1, dog_boat: 1, dog_ds: 2, dog_yacht: 4, dog_rose: 4, dog_prison: 6, pir_ds: 2, pir_sub: 3}, OFF_UPK = 1, GARR_MAX = 999;
+const UPK = { echo: 8, boat: 1, destroyer: 2, sub: 3, cruiser: 4, battleship: 6, sub2: 4, sub3: 7, subx: 10 , cargo: 3, atl_bb: 8, atl_cargo: 4, atl_dd: 3, pir_dd: 3, raid_abyss: 8, raid_cruiser: 4, raid_butcher: 3, raid_ds: 2, raid_boat: 1, pir_boat: 1, dog_boat: 1, dog_ds: 2, dog_yacht: 4, dog_rose: 4, dog_prison: 6, pir_ds: 2, pir_sub: 3}, OFF_UPK = 1, GARR_MAX = 999;
 const SHIP_POOL = {
   echo: ['Echo Primae Lucis'],
   boat: ['Стриж', 'Чайка', 'Вьюн', 'Ласточка', 'Кречет', 'Сокол', 'Ястреб', 'Баклан', 'Бриз', 'Шквал', 'Пчела', 'Вихрь'],
@@ -2849,6 +2850,7 @@ const SHIP_POOL = {
   dog_ds: ['Клык', 'Ржавый Таран', 'Острог', 'Невольник', 'Цепной Пёс', 'Мясник'],
   dog_boat: ['Цепная Сука', 'Кандальщик', 'Ржавый Ошейник', 'Клетка', 'Вонючка', 'Загонщик'],
   raid_butcher: ['Расчленитель'],
+  raid_abyss: ['Бездна'],
   raid_cruiser: ['Вдовий залп', 'Последнее письмо', 'Колокол', 'Небесный крюк', 'Пепел'],
   raid_ds: ['Безымянный', 'Немой', 'Гарпун', 'Утопленник', 'Шторм', 'Последний свет'],
   raid_boat: ['Без имени', 'Тихий', 'Крюк', 'Шип', 'Глубина', 'Чёрная вода'],
@@ -2968,7 +2970,7 @@ const isleOcc = (h, n) => occOn(h) && String(n).startsWith('0:') && n !== '0:8' 
 const occN = h => occOn(h) ? SEAS[0].isles.filter((p, i) => !p.home && isleOcc(h, iKey(0, i))).length : 0;
 const occPen = h => clanCalm(h) || clanJail(h) ? 0 : Math.min(.3, .035 * occN(h));
 // шанс гибели корабля гарнизона при захвате острова: зависит от модели, звания и улучшений
-const SINK_BASE = { echo: 0, boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, raid_cruiser: .3, raid_butcher: .32, raid_ds: .38, raid_boat: .48, pir_boat: .52, dog_boat: .5, dog_ds: .38, dog_yacht: .3, dog_rose: .32, dog_prison: .2, pir_ds: .4, pir_sub: .4, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
+const SINK_BASE = { echo: 0, boat: .6, cargo: .5, destroyer: .42, sub: .42, atl_dd: .38, pir_dd: .34, raid_abyss: .15, raid_cruiser: .3, raid_butcher: .32, raid_ds: .38, raid_boat: .48, pir_boat: .52, dog_boat: .5, dog_ds: .38, dog_yacht: .3, dog_rose: .32, dog_prison: .2, pir_ds: .4, pir_sub: .4, sub2: .36, cruiser: .3, subx: .28, sub3: .26, atl_cargo: .3, battleship: .16, atl_bb: .14 };
 const sinkCh = s => Math.max(.04, (SINK_BASE[s.type] ?? .4) - .04 * rankOf(s.xp) - .015 * Object.values(s.up || {}).reduce((a, v) => a + (+v || 0), 0));
 const isleSafe = (h, n) => (isleOf(h, n).safe || 0) > Date.now();
 const netRate = h => fRate(h) + isleIncome(h) - upkeep(h);
@@ -3056,7 +3058,7 @@ const TPORTS = [
   { n: 'Обсидиановый Рынок', sea: 3, min: 120, risk: .36, threat: 60, mul: { food: 1.38, fuel: 1.35, shells: 1.42, gold: 1.4, gems: 1.45, fish: 1.45, pearl: 1.5 } },
   { n: 'Атлантис', sea: -1, min: 150, risk: .22, threat: 40, mul: { food: 1.32, fuel: 1.36, shells: 1.36, gold: 1.38, gems: 1.4, fish: 1.35, pearl: 1.55 } },
 ];
-const CARGO = { echo: 18, boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 100, atl_bb: 14, atl_cargo: 160, atl_dd: 10, pir_dd: 8, raid_cruiser: 16, raid_butcher: 12, raid_ds: 9, raid_boat: 5, pir_boat: 5, dog_boat: 6, dog_ds: 12, dog_yacht: 14, dog_rose: 12, dog_prison: 120, pir_ds: 9, pir_sub: 3};
+const CARGO = { echo: 18, boat: 4, destroyer: 8, sub: 3, cruiser: 16, battleship: 12, sub2: 4, sub3: 8, subx: 6 , cargo: 100, atl_bb: 14, atl_cargo: 160, atl_dd: 10, pir_dd: 8, raid_abyss: 30, raid_cruiser: 16, raid_butcher: 12, raid_ds: 9, raid_boat: 5, pir_boat: 5, dog_boat: 6, dog_ds: 12, dog_yacht: 14, dog_rose: 12, dog_prison: 120, pir_ds: 9, pir_sub: 3};
 const SHELL_BOX = 8, TR_PER = 3 * 3600e3;
 const tGood = id => TGOODS.find(g => g.id === id);
 function trRand(a, b, c) { let x = (Math.imul(a, 73856093) ^ Math.imul(b, 19349663) ^ Math.imul(c, 83492791)) >>> 0; x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return (x % 10007) / 10007; }
@@ -4300,7 +4302,7 @@ function atlAct(act, id) {
 }
 
 /* ---------- Команда кораблей и Мемориал ---------- */
-const CREW = { echo: 1000, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, raid_cruiser: 64, raid_butcher: 50, raid_ds: 36, raid_boat: 16, pir_boat: 14, dog_boat: 16, dog_ds: 40, dog_yacht: 60, dog_rose: 50, dog_prison: 110, pir_ds: 34, pir_sub: 26};
+const CREW = { echo: 1000, boat: 10, destroyer: 30, sub: 24, cruiser: 60, battleship: 100, sub2: 40, sub3: 120, subx: 60 , cargo: 20, atl_bb: 110, atl_cargo: 30, atl_dd: 36, pir_dd: 40, raid_abyss: 160, raid_cruiser: 64, raid_butcher: 50, raid_ds: 36, raid_boat: 16, pir_boat: 14, dog_boat: 16, dog_ds: 40, dog_yacht: 60, dog_rose: 50, dog_prison: 110, pir_ds: 34, pir_sub: 26};
 const crewWord = (t, n) => HS[t].sub ? plural(n, 'подводник', 'подводника', 'подводников') : plural(n, 'матрос', 'матроса', 'матросов');
 const crewEff = u => u && u.crewMax ? Math.max(0, Math.min(1, u.crew / u.crewMax)) : 1;
 const effDmg = u => Math.max(1, Math.round(u.st.dmg * (.5 + .5 * crewEff(u))));
@@ -4485,9 +4487,10 @@ function dipOther(h, fk) {
     <div class="clship"><img src="raid_ds_hero.webp" alt=""><b>🦈 Эсминец рейдеров</b><small style="display:block">Рыбаки Глубоких вод говорят: если ночью в шторм ты увидел бирюзовый луч прожектора — не греби к нему и не зажигай фонарь. Так эсминец рейдеров ищет добычу. Он идёт без ходовых огней, на длинном корпусе, сшитом из чужих бортов, и почти не виден за стеной дождя. Сначала из темноты бьют гарпунные пушки: стальные гарпуны на тросах впиваются в борт, лебёдки тянут жертву к себе, и уйти уже нельзя. Потом с грохотом падают абордажные мостки. Рейдеры не кричат и не стреляют наугад — они переходят на чужую палубу молча, по одному, как будто делали это сотни раз. Через час захваченный корабль идёт на дно, а с его бортов срезают лучшие листы обшивки. Так на борту следующего эсминца рейдеров появится ещё одно чужое имя. Такие корабли не строит ни одна верфь. Взять его можно только абордажем — если хватит смелости подойти к таранному шипу.</small></div>
     <div class="clship"><img src="raid_cruiser_hero.webp" alt=""><b>🚀 Ракетный крейсер рейдеров</b><small style="display:block">Самый большой корабль рейдеров после «Бездны». Вдоль его бортов в несколько рядов стоят наклонные пусковые установки, и между ними днём и ночью горят красные огни. Ракеты рейдеры не покупают — собирают сами из того, что сняли с захваченных кораблей, и каждую обматывают цепями. Зачем — становится понятно, когда видишь пуск. К ракетам рейдеры приковывают пленных моряков. Живыми. Говорят, капитан крейсера называет это «отправить письмо»: каждый пленник уходит в небо с жетоном на шее, чтобы тот, в кого попадёт ракета, знал, чьё имя прилетело к нему на борт. На пусковых до сих пор висят обрывки тельняшек и жетоны на проволоке — их не снимают специально. Моряки, пережившие встречу с крейсером, рассказывают одно и то же: в шторм над морем вспыхивает огненный след, и сквозь рёв двигателя слышен крик. Потом — взрыв, и тишина. Крейсер бьёт ракетами издалека, раз в несколько ходов. Взять его можно только абордажем — и тогда на нём часто находят тех, кого ещё не успели «отправить».</small></div>
     <div class="clship"><img src="raid_butcher_hero.webp" alt=""><b>🩸 «Расчленитель»</b><small style="display:block">О нём не говорят вслух на палубе — только шёпотом в кубрике, и то не после заката. Говорят, на «Расчленителе» не держат ни одного нормального человека: капитан сам отбирает команду из тех, кого не взяли даже рейдеры, — из тех, кто смеётся, когда другие кричат. Пленных они не продают и не держат в трюме. Тех, кто попал к ним живым, больше никто не видит целиком. Обшивку «Расчленителя» не красят: она и так бурая от того, что стекает с палубы, а между листами брони прибиты черепа и кости — по одному на каждый взятый корабль. На крючьях вдоль бортов болтаются клочья чужих мундиров. Рыбаки Глубоких вод клянутся, что за ним тянется кровавый след из погибших моряков, а за следом — акулы, которые идут за кораблём годами и никогда не остаются голодными. Если в шторм вы услышите в эфире смех без слов — разворачивайтесь. Потопить или отбить его можно. Избавиться — нет: рейдеры всегда строят новый «Расчленитель», и кровавый след снова появляется на воде. Встречается очень редко. В бою бьёт гарпунами на цепях, а пока он на плаву, ваши морпехи идут на абордаж неохотно.${h.butch && h.butch.st ? `<br><b>${h.butch.st === 'taken' ? '🏴 Один уже взят вами на абордаж — рейдеры строят новый' : '⚓ Потоплен вами — рейдеры собирают новый'}</b>` : ''}</small></div>
-    <div class="sec-t">☠️ «Бездна»</div><div class="dfimg"><img src="raid_abyss.webp" alt="" style="object-position:55% 50%"></div>
+    <div class="sec-t">☠️ «Бездна»</div><div class="dfimg"><img src="raid_abyss_hero.webp" alt="" style="object-position:55% 50%"></div>
     <small class="muted">Флагман рейдеров. О нём говорят шёпотом и только на берегу. «Бездна» выходит из шторма беззвучно, без огней — пока не становится слишком поздно. Её ржавый корпус сшит из обшивки потопленных кораблей, борта увешаны цепями, а на носу, под таранным шипом, качаются те, кто посмел ей перечить.<br><br>Встретить «Бездну» — редкость. Выжить после встречи — почти чудо. Немногие уцелевшие рассказывают одно и то же: сначала смолкает ветер, потом из тумана медленно выплывают огни её мостика — и море вокруг становится чёрным. Никто не знает, кто стоит у её штурвала. Те, кто видел его лицо, уже никому ничего не расскажут.</small>
-    <span class="clanst war">⚠️ Встречается крайне редко</span>
+    <small class="muted" style="display:block;margin-top:6px">⚔️ В бою: линкор-крепость с главным калибром в три ствола, бортовым залпом сразу по трём кораблям и командой, которая чинит пробоины прямо под огнём. Взять «Бездну» на абордаж невозможно — на её палубу никто не ступал живым. Тяжело раненая, она уходит в туман.</small>
+    <span class="clanst war">⚠️ Встречается крайне редко</span>${h.abyss && h.abyss.sunk ? `<small class="muted" style="display:block">☠️ Потоплена вами: <b>${h.abyss.sunk}</b> раз. Но она возвращается</small>` : ''}
     <div class="dpbtns"><button class="btn" data-dgo="deep">🌊 В Глубокие воды</button></div></div>`;
 }
 // ---------- Допрос пленных: Корвин и Лючия ----------
@@ -4662,7 +4665,7 @@ function memorialPanel(h) {
 }
 
 /* ---------- Гибель и ремонт кораблей ---------- */
-const REP_MIN = { echo: 180, boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70, atl_dd: 50, pir_dd: 45, raid_cruiser: 85, raid_butcher: 70, raid_ds: 45, raid_boat: 28, pir_boat: 25, dog_boat: 28, dog_ds: 48, dog_yacht: 80, dog_rose: 85, dog_prison: 130, pir_ds: 42, pir_sub: 55};
+const REP_MIN = { echo: 180, boat: 20, destroyer: 40, sub: 50, cruiser: 80, battleship: 120, sub2: 70, sub3: 110, subx: 90 , cargo: 60, atl_bb: 130, atl_cargo: 70, atl_dd: 50, pir_dd: 45, raid_abyss: 200, raid_cruiser: 85, raid_butcher: 70, raid_ds: 45, raid_boat: 28, pir_boat: 25, dog_boat: 28, dog_ds: 48, dog_yacht: 80, dog_rose: 85, dog_prison: 130, pir_ds: 42, pir_sub: 55};
 const shipMaxHp = (h, s) => ownStats(h, s.id).hp;
 const shipHp = (h, s) => Math.max(1, shipMaxHp(h, s) - (s.hpLost || 0));
 function repairInfo(h, s) {
@@ -4759,7 +4762,7 @@ const ammoOf = id => AMMO.find(a => a.id === id);
 const arsLines = h => 1 + Math.floor(fL(h, 'workshop') / 2);
 const ammoMin = (h, a) => Math.max(1, Math.round(a.min * (1 - .1 * fL(h, 'workshop'))));
 const ammoGold = (h, a) => Math.round(a.gold * (1 - .08 * fL(h, 'workshop')));
-const SHIP_MIN = { echo: 600, boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, raid_cruiser: 95, raid_butcher: 70, raid_ds: 36, raid_boat: 18, pir_boat: 15, dog_boat: 18, dog_ds: 38, dog_yacht: 90, dog_rose: 100, dog_prison: 200, pir_ds: 32, pir_sub: 48};
+const SHIP_MIN = { echo: 600, boat: 10, destroyer: 30, sub: 45, cruiser: 90, battleship: 180, sub2: 90, sub3: 200, subx: 300 , cargo: 60, atl_bb: 200, atl_cargo: 80, atl_dd: 40, pir_dd: 40, raid_abyss: 400, raid_cruiser: 95, raid_butcher: 70, raid_ds: 36, raid_boat: 18, pir_boat: 15, dog_boat: 18, dog_ds: 38, dog_yacht: 90, dog_rose: 100, dog_prison: 200, pir_ds: 32, pir_sub: 48};
 const shipMin = (h, t) => Math.max(2, Math.round(SHIP_MIN[t] * (1 - .1 * fL(h, 'dock')) * (fortressOn(h) ? .8 : 1)));
 const slipBusy = h => Object.values(h.ships).filter(s => s.repEnd || (s.buildEnd && !s.deliv && !s.bt)).length;
 const btBusy = h => Object.values(h.ships).filter(s => s.buildEnd && !s.deliv && s.bt).length, BT_SLIPS = 2;
@@ -5308,6 +5311,7 @@ function dogShow(who, txt) {
   b.querySelector('img').src = W[2] + '.webp'; b.querySelector('b').textContent = '📻 ' + W[0]; b.querySelector('span').textContent = txt;
   b.classList.add('on'); clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('on'), 5200);
 }
+const ABYSS_SAY = ['📻 Спокойный хриплый голос: «Сдавайтесь. Я обещаю, что утону вас быстро»', '📻 В эфире — только колокол. Он бьёт ровно столько раз, сколько у вас кораблей', '📻 «Я помню каждый корабль, который потопил. Твой будет следующим в списке»', '📻 Тишина. Потом — тихий смех и снова тишина'];
 const RMSL_SAY = ['🚀 Пуск! На ракете что-то бьётся о корпус — обрывки тельняшки…', '🚀 «Лови почту, капитан! Он просил передать привет»', '🚀 В небе — огненный след. Матросы отводят глаза: на ракете был человек', '🚀 Сквозь шторм слышен крик — и он обрывается вместе со взрывом'];
 const BUTCH_SAY = ['📻 Смех в эфире. Долгий, без слов.', '📻 «Мы оставим тебе место на борту, капитан. Рядом с остальными».', '📻 «Слышишь? Это крючья. Они уже скучают».', '📻 «Не тони сразу. Нам нужны целые»', '📻 Чей-то голос медленно считает ваших матросов по именам.'];
 const KAND_SAY = ['Открыть трюм! Спустить свору!', 'Катера на воду. Привести его ко мне — живым, если получится.', 'У меня в трюме много зубов, флотский. На всех твоих хватит.', 'Шевелитесь, псы! Кто вернётся без добычи — сядет в клетку.'];
@@ -6024,6 +6028,7 @@ function setupObjective(node) {
     H.foes.push(u);
     genFoes(m, Math.max(1, n - 1) + (b.type === 'pir_dd' || b.type === 'dog_prison' ? 1 : 0));
   }
+  if (o !== 'raid' && (node.fac === 'raid' || node.deep) && m >= 8) { const h = hdata(curProfile()), A = h.abyss || {}; if (!(A.back > H.mission) && Math.random() < .03) { const pos = freeCell([0, HN - 5, 4, 5]); if (pos) { const u = mkUnit('raid_abyss', 'foe', pos.r, pos.c, 135, foeCfg(m)); u.name = 'Бездна'; u.fac = 'raid'; u.abyss = 1; u.st.hp = u.hp = 40 + 4 * m; H.foes.push(u); } } }
   if (o !== 'raid' && (node.fac === 'raid' || node.deep) && m >= 5) { const h = hdata(curProfile()), B = h.butch || {}; if (!(B.back > H.mission) && Math.random() < .06) { const pos = freeCell([0, HN - 5, 5, 5]); if (pos) { const u = addFoe('raid_butcher', pos, m); u.name = 'Расчленитель'; u.fac = 'raid'; u.butcher = 1; u.st.hp = u.hp = u.st.hp + 6; u.st.armor += 1; } } }
   if (o !== 'boss' && o !== 'raid' && isDogs() && !node.trade) { const A = ambData(hdata(curProfile())); if (A.metW && A.rose !== 'taken' && !(A.roseBack > H.mission) && m >= 4 && Math.random() < .15) { const pos = freeCell([0, HN - 5, 5, 5]); if (pos) { const u = addFoe('dog_rose', pos, m); u.name = 'Стальная Роза'; u.fac = 'dogs'; u.rose = 1; u.st.hp = u.hp = u.st.hp + 4; u.st.dmg += 1; u.eq.smoke = true; } } }
   if (lastAzure(node)) { const pos = freeCell([0, HN - 5, 5, 5]); if (pos) { const u = addFoe('pir_ds', pos, Math.max(m, 3)); u.name = 'Ласточка'; u.fac = 'pir'; u.st.hp = u.hp = u.st.hp + 5; u.st.dmg += 1; u.lucia = 1; } }
@@ -6107,6 +6112,7 @@ function startHunt(node) {
   H.acted = new Set(); H.cur = H.me;
   buildHuntMap(); show('scr-hunt');
   const o = OBJ[H.obj], w = WEATHER[H.weather];
+  if (H.foes.some(f => f.abyss)) { const g = H.gen; setTimeout(() => { if (g === H.gen && H.phase === 'play') { Snd.play('horn'); toast('☠️ Ветер смолк. Из тумана медленно выплывают огни мостика. Это «Бездна»'); hMsg('☠️ «Бездна» — флагман рейдеров! Абордаж невозможен. Выжить — уже победа', 'hit'); } }, 2000); }
   if (H.foes.some(f => f.butcher)) { const g = H.gen; setTimeout(() => { if (g === H.gen && H.phase === 'play') { toast('🩸 На горизонте — «Расчленитель». Команда притихла'); hMsg('🩸 За кормой врага тянется бурый след. Это «Расчленитель». Матросы крестятся: абордаж против него будет труднее', 'hit'); } }, 2400); }
   if (H.foes.some(f => f.rose)) { const g = H.gen; setTimeout(() => { if (g === H.gen && H.phase === 'play') { toast('🌹 В бой вышла «Стальная Роза» — яхта Стеллы!'); dogShow('t', pick(ROSE_SAY.start)); } }, 2200); }
   hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.foes.some(f => f.vargo) ? '⛓ «Кандальник» Варго Кнута защищает Чёрный Шпиль!' : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
@@ -6158,7 +6164,7 @@ function buildHuntMap() {
   hZoom(); setTimeout(() => hCenter(H.cur || H.me, false), 30);
 }
 function hMsg(t, cls) { const m = $('#hmsg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
-function boardTargets(u) { return H.foes.filter(f => f.hp > 0 && !f.gone && !f.boss && cheb(u, f) <= 1 && (foeVisible(f) || HS[f.type].fort)); }
+function boardTargets(u) { return H.foes.filter(f => f.hp > 0 && !f.gone && !f.boss && !f.abyss && cheb(u, f) <= 1 && (foeVisible(f) || HS[f.type].fort)); }
 const BOARD_PARTY = 60;   // в одну атаку идёт не больше 60 морпехов, остальные — резерв
 function boardChance(u, t) {
   const str = Math.min(u.marines, BOARD_PARTY) * (1 + .3 * H.drill) * (1 + u.st.board);
@@ -6626,6 +6632,16 @@ async function foeAct(f) {
   if (f.smoke > 0) f.smoke--;
   for (const k in f.cd) if (f.cd[k] > 0) f.cd[k]--;
   if (f.st.mech && H.turn % f.st.mech === 0 && f.hp < f.st.hp) f.hp++;
+  if (f.abyss) {
+    if (f.abRun) { f.gone = true; hMsg('☠️ «Бездна» ушла в шторм. Огни её мостика гаснут один за другим…', 'hit'); toast('☠️ «Бездна» отступила. Вы выжили — это уже немало'); renderHunt(); await sleep(700); return; }
+    if (f.hp < f.st.hp * .25) { f.abRun = 1; f.smoke = 3; hfx(f.r, f.c, 'ping'); Snd.play('plane'); hMsg('🌫️ «Бездна» тяжело ранена и уходит в туман! Один ход, чтобы её добить', 'hit'); renderHunt(); await sleep(600); return; }
+    if (H.turn % 3 === 0 && f.hp < f.st.hp) f.hp = Math.min(f.st.hp, f.hp + 3);
+    if (!f.cd.bside) { const T = myAlive().filter(u => cheb(f, u) <= 6 && sees(f, u)).slice(0, 3);
+      if (T.length) { f.cd.bside = 3; Snd.play('shot'); camKick(f.c + .5, f.r + .5, 1.06, 700); let txt = [];
+        for (const t of T) { if (BFX.lo) { const [x, y] = BFX.xy(t.r, t.c); BFX.boomXY(x, y, 1.3); } hfx(t.r, t.c, 'hit'); const d = hDamage(t, 4); txt.push(`«${shipName(t)}» −${d}`); if (t.hp <= 0) hDoom(t); await sleep(220); }
+        hMsg('☠️ Бортовой залп «Бездны»: ' + txt.join(', '), 'hit'); renderHunt(); await sleep(500); } }
+    if (Math.random() < .25) toast(pick(ABYSS_SAY));
+  }
   if (f.butcher) {
     if (!f.cd.harp) { const t = myAlive().filter(u => cheb(f, u) <= 3 && sees(f, u)).sort((a, b) => cheb(f, a) - cheb(f, b))[0];
       if (t) { f.cd.harp = 3; const d = hDamage(t, 3, true); Snd.play('hit'); hfx(t.r, t.c, 'hit'); hMsg(`🪝 «Расчленитель» всадил гарпун в борт «${shipName(t)}»: −${d} ❤. Лебёдки скрипят, цепь натянута`, 'hit'); if (t.hp <= 0) hDoom(t); renderHunt(); await sleep(600); } }
@@ -6732,6 +6748,10 @@ function hFinish(won, reason) {
     else { const loss = raidLoss(h); h.gold = Math.max(0, h.gold - loss); gold = 0; lines.push(`☠️ Пираты разграбили казну: −${loss} 💰${PROTECT[fL(h, 'treasury')] ? ` (Казна сберегла ${PROTECT[fL(h, 'treasury')]}%)` : ''}`); }
     fRaidResolve(h, won);
   }
+  { const ab = H.foes.find(f => f.abyss); if (ab) {
+    if (ab.hp <= 0) { h.abyss = { sunk: ((h.abyss && h.abyss.sunk) || 0) + 1, back: h.mission + 20 }; gold += 3000; cr += 6; lines.push('☠️ «БЕЗДНА» ПОТОПЛЕНА! Флагман рейдеров уходит под воду, и над морем впервые за много лет поднимается ветер. Награда Атлантиса и всех портов: +3000 💰, +6 💠'); news(h, '☠️ <b>«Бездна» потоплена!</b> Флагман морских рейдеров лежит на дне. Но старые моряки качают головами: «Бездна» уже возвращалась со дна'); }
+    else if (ab.gone) { lines.push('☠️ «Бездна» ушла в шторм. Вы встретили её и выжили — об этом будут рассказывать в портах'); news(h, '☠️ Флот выдержал бой с «Бездной» и остался на плаву'); }
+    else lines.push('☠️ «Бездна» осталась хозяйкой этих вод'); } }
   { const bu = H.foes.find(f => f.butcher); if (bu) {
     if (bu.captured) { h.butch = { st: 'taken', back: h.mission + 10 }; lines.push('🩸 «Расчленитель» взят на абордаж! Его команда дралась до последнего — живых не осталось. Корабль ваш, но матросы отказываются спать в его кубриках'); news(h, '🩸 «Расчленитель» взят на абордаж. Но в портах шепчут: рейдеры уже спускают на воду новый — с тем же именем'); }
     else if (bu.hp <= 0) { h.butch = { st: 'sunk', back: h.mission + 8 }; gold += 900; cr += 2; lines.push('🩸 «Расчленитель» ушёл на дно. Акулы, что шли за ним годами, остались кружить над местом гибели. Награда учёных и купцов: +900 💰'); news(h, '🩸 «Расчленитель» потоплен. Говорят, рейдеры уже собирают для него новый корпус'); }
@@ -9875,7 +9895,7 @@ setInterval(() => {
 }, 1000);
 /* ==================== BOOT ==================== */
 Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
-const APP_VER = 206;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
+const APP_VER = 207;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=' + APP_VER).then(r => { document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {}));
   let swReload = !!navigator.serviceWorker.controller;
