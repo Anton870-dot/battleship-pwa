@@ -9927,7 +9927,7 @@ setInterval(() => {
 }, 1000);
 /* ==================== BOOT ==================== */
 Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
-const APP_VER = 211;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
+const APP_VER = 212;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=' + APP_VER).then(r => { document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {}));
   let swReload = !!navigator.serviceWorker.controller;
@@ -9939,7 +9939,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   // музыка по экранам: меню/крепость, карта экспедиций, бой (2 трека по очереди)
   var A=[document.getElementById('bgm'),document.getElementById('bgm2')], b=document.getElementById('bgmBtn');
   var cur=0, track=null, battleN=Math.floor(Math.random()*3), fadeT=null, mapN=Math.floor(Math.random()*2);
-  var TR={menu:{src:'music_menu.mp3',v:.5}, map1:{src:'music_map.mp3',v:.5}, map2:{src:'music_map2.mp3',v:.5}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}, battle3:{src:'music_battle3.mp3',v:.24}};
+  var TR={menu:{src:'music_menu.mp3',v:.5}, map1:{src:'music_map.mp3',v:.5}, map2:{src:'music_map2.mp3',v:.5}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}, battle3:{src:'music_battle3.mp3',v:.24}, battle4:{src:'music_battle4.mp3',v:.24}, battle5:{src:'music_battle5.mp3',v:.3}, battle6:{src:'music_battle6.mp3',v:.33}};
+  var BN=6, bLast=[];   // боевые треки: каждый раз случайный, без повторов последних трёх
   var a={pause:function(){A.forEach(function(x){x.pause();});}};
   var on=localStorage.getItem('bgm')!=='off';
   function want(){
@@ -9955,7 +9956,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     b.classList.toggle('off',!on);
     if(!on||document.hidden||(want()==='battle'&&typeof Snd!=='undefined'&&!Snd.on)){ track=null; A.forEach(function(x){x.pause();}); return; }
     var w=want(), id=w;
-    if(w==='battle'){ if(track&&track.indexOf('battle')===0) id=track; else { battleN++; id='battle'+(battleN%3+1); } }
+    if(w==='battle'){ if(track&&track.indexOf('battle')===0) id=track; else { var c=[]; for(var i=1;i<=BN;i++) if(bLast.indexOf(i)<0) c.push(i); var k=c[Math.floor(Math.random()*c.length)]; bLast.push(k); if(bLast.length>3) bLast.shift(); id='battle'+k; } }
     if(w==='map'){ if(track==='map1'||track==='map2') id=track; else { mapN++; id='map'+(mapN%2+1); } }
     if(id===track){ if(A[cur].paused) A[cur].play().catch(function(){}); return; }
     var old=A[cur]; cur^=1; var nx=A[cur], T=TR[id]; track=id;
