@@ -10143,7 +10143,7 @@ setInterval(() => {
 }, 1000);
 /* ==================== BOOT ==================== */
 Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
-const APP_VER = 218;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
+const APP_VER = 219;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=' + APP_VER).then(r => { document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {}));
   let swReload = !!navigator.serviceWorker.controller;
@@ -10154,8 +10154,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 (function(){
   // музыка по экранам: меню/крепость, карта экспедиций, бой (2 трека по очереди)
   var A=[document.getElementById('bgm'),document.getElementById('bgm2')], b=document.getElementById('bgmBtn');
-  var cur=0, track=null, battleN=Math.floor(Math.random()*3), fadeT=null, mapN=Math.floor(Math.random()*2);
-  var TR={menu:{src:'music_menu.mp3',v:.5}, map1:{src:'music_map.mp3',v:.5}, map2:{src:'music_map2.mp3',v:.5}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}, battle3:{src:'music_battle3.mp3',v:.24}, battle4:{src:'music_battle4.mp3',v:.24}, battle5:{src:'music_battle5.mp3',v:.3}, battle6:{src:'music_battle6.mp3',v:.33}};
+  var cur=0, track=null, battleN=Math.floor(Math.random()*3), fadeT=null, mapN=Math.floor(Math.random()*2), deepN=Math.floor(Math.random()*2);
+  var TR={menu:{src:'music_menu.mp3',v:.5}, map1:{src:'music_map.mp3',v:.5}, map2:{src:'music_map2.mp3',v:.5}, deep1:{src:'music_deep1.mp3',v:.52}, deep2:{src:'music_deep2.mp3',v:.54}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}, battle3:{src:'music_battle3.mp3',v:.24}, battle4:{src:'music_battle4.mp3',v:.24}, battle5:{src:'music_battle5.mp3',v:.3}, battle6:{src:'music_battle6.mp3',v:.33}};
   var BN=6, bLast=[];   // боевые треки: каждый раз случайный, без повторов последних трёх
   var a={pause:function(){A.forEach(function(x){x.pause();});}};
   var on=localStorage.getItem('bgm')!=='off';
@@ -10163,7 +10163,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     var s=document.querySelector('.screen.active'), id=s&&s.id;
     if(id==='scr-battle'||id==='scr-hunt') return 'battle';
     if(id==='scr-atl'||id==='scr-atlmap') return 'atl';
-    if(id==='scr-deep') return 'map';
+    if(id==='scr-deep') return 'deep';
     if(id==='scr-map') return 'map';
     return 'menu';
   }
@@ -10174,18 +10174,19 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     var w=want(), id=w;
     if(w==='battle'){ if(track&&track.indexOf('battle')===0) id=track; else { var c=[]; for(var i=1;i<=BN;i++) if(bLast.indexOf(i)<0) c.push(i); var k=c[Math.floor(Math.random()*c.length)]; bLast.push(k); if(bLast.length>3) bLast.shift(); id='battle'+k; } }
     if(w==='map'){ if(track==='map1'||track==='map2') id=track; else { mapN++; id='map'+(mapN%2+1); } }
+    if(w==='deep'){ if(track==='deep1'||track==='deep2') id=track; else { deepN++; id='deep'+(deepN%2+1); } }
     if(id===track){ if(A[cur].paused) A[cur].play().catch(function(){}); return; }
     var old=A[cur]; cur^=1; var nx=A[cur], T=TR[id]; track=id;
     cancelAnimationFrame(old._f); cancelAnimationFrame(nx._f);
     if(!old.paused) fade(old,0,700,function(){ old.pause(); });
-    if(nx.getAttribute('src')!==T.src){ nx.src=T.src; } nx.loop=id.indexOf('map')!==0; nx.currentTime=0; nx.volume=0;
+    if(nx.getAttribute('src')!==T.src){ nx.src=T.src; } nx.loop=id.indexOf('map')!==0&&id.indexOf('deep')!==0; nx.currentTime=0; nx.volume=0;
     nx.play().then(function(){ fade(nx,T.v,900); }).catch(function(){ track=null; });
   }
-  // карта морей: треки идут по очереди — закончился один, начинается другой
-  A.forEach(function(el){ el.addEventListener('ended',function(){ if(el!==A[cur]||!track||track.indexOf('map')!==0) return; track=null; mapN++; var id='map'+(mapN%2+1); track=id; var T=TR[id]; el.loop=false; el.src=T.src; el.currentTime=0; el.volume=0; el.play().then(function(){ fade(el,T.v,900); }).catch(function(){ track=null; }); }); });
+  // карта морей и Глубокие воды: треки идут по очереди — закончился один, начинается другой
+  A.forEach(function(el){ el.addEventListener('ended',function(){ if(el!==A[cur]||!track) return; var dp=track.indexOf('deep')===0; if(!dp&&track.indexOf('map')!==0) return; track=null; var id; if(dp){ deepN++; id='deep'+(deepN%2+1); } else { mapN++; id='map'+(mapN%2+1); } track=id; var T=TR[id]; el.loop=false; el.src=T.src; el.currentTime=0; el.volume=0; el.play().then(function(){ fade(el,T.v,900); }).catch(function(){ track=null; }); }); });
   window.bgmSync=sync;
   b.onclick=function(e){ e.stopPropagation(); on=!on; localStorage.setItem('bgm',on?'on':'off'); sync(); };
-  var mo=new MutationObserver(function(){ if(want()!==(track&&track.indexOf('battle')===0?'battle':track&&track.indexOf('map')===0?'map':track)) sync(); }); document.querySelectorAll('.screen').forEach(function(s){ mo.observe(s,{attributes:true,attributeFilter:['class']}); });
+  var mo=new MutationObserver(function(){ if(want()!==(track&&track.indexOf('battle')===0?'battle':track&&track.indexOf('map')===0?'map':track&&track.indexOf('deep')===0?'deep':track)) sync(); }); document.querySelectorAll('.screen').forEach(function(s){ mo.observe(s,{attributes:true,attributeFilter:['class']}); });
   document.addEventListener('pointerdown',function(){ if(on&&!document.hidden&&(track===null||A[cur].paused)) sync(); });
   function away(){ a.pause(); try{ if(typeof Snd!=='undefined'&&Snd.ctx) Snd.ctx.suspend(); }catch(e){} }
   document.addEventListener('visibilitychange',function(){ if(document.hidden) away(); else { try{ if(typeof Snd!=='undefined'&&Snd.ctx&&Snd.on) Snd.ctx.resume(); }catch(e){} sync(); } });
