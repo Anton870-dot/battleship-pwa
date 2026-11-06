@@ -504,7 +504,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .sqtab{flex:none;min-width:118px;max-width:170px;text-align:left;padding:8px 10px;border-radius:13px;border:1.5px solid rgba(255,255,255,.25);background:rgba(0,0,0,.22);color:#fff;display:flex;flex-direction:column;gap:1px;line-height:1.2;cursor:pointer}
 .sqtab b{font-size:13px;color:#ffe08a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sqtab small{font-size:10.5px;color:#cfe3f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sqtab em{font-style:normal;font-size:10px;font-weight:800;color:#7dffb0}
 .sqtab.on{border-color:#ffcf4a;background:rgba(255,190,60,.18);box-shadow:0 0 10px rgba(255,207,74,.35)}.sqtab.add{min-width:86px;align-items:center;justify-content:center;border-style:dashed}.sqtab.add b{font-size:20px}
-.sqtabs.mini .sqtab{min-width:96px;padding:6px 9px}.sqfrom{font-size:10px;color:#ffcf9a;text-align:right}
+.sqtabs.mini .sqtab{min-width:96px;padding:6px 9px}.sqtabs.flt{flex-wrap:wrap;overflow:visible}.sqtabs.flt .sqtab{min-width:0;max-width:none;flex:1 1 calc(50% - 8px)}.sqfrom{font-size:10px;color:#ffcf9a;text-align:right}
 .ftabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(560px,100%);position:sticky;top:0;z-index:5;padding:4px 0}
 .ftab{padding:9px 4px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(4,25,50,.85);color:#e8f4ff;font-weight:800;font-size:12px;cursor:pointer;backdrop-filter:blur(6px)}
 .mtabs{grid-template-columns:repeat(3,1fr);margin:2px 0}.mtabs .ftab{font-size:12.5px;padding:10px 4px}
@@ -4853,11 +4853,11 @@ function fleetRow(h) {
   const f = HB.fflt && (cnt[HB.fflt] || HB.fflt === 'all') ? HB.fflt : 'free';
   const srt = a => a.sort((a, b) => ord[shipPost(h, a.id)] - ord[shipPost(h, b.id)] || HS_ORDER.indexOf(b.type) - HS_ORDER.indexOf(a.type) || (b.xp || 0) - (a.xp || 0));
   const chips = [['free', '⚓ Свободные'], ['sq', '🚩 В эскадрах'], ['isle', '🏝 На островах'], ['trade', '⛵ В караванах']].filter(([k]) => k === 'free' || cnt[k])
-    .map(([k, n]) => `<button class="sqtab${f === k ? ' on' : ''}" data-act="fflt" data-id="${k}"><b>${n}</b><small>${cnt[k]}</small></button>`).join('');
+    .map(([k, n]) => `<button class="sqtab${f === k ? ' on' : ''}" data-act="shflt" data-id="${k}"><b>${n}</b><small>${cnt[k]}</small></button>`).join('');
   let body;
   if (f === 'sq') body = sqData(h).map(q => { const ids = q.id === h.sqCur ? [h.active, ...h.squad] : [q.fl, ...(q.ss || [])]; const L = ids.map(id => h.ships[id]).filter(Boolean); return L.length ? `<div class="sec-t fleet-t" style="margin-top:6px">🚩 ${q.n}${q.id === h.sqCur ? ' · идёт в бой' : ''}</div><div class="ships-row">${L.map(s => shipCard(h, s)).join('')}</div>` : ''; }).join('');
   else { const L = srt(all.filter(s => grp(s) === f)); body = L.length ? `<div class="ships-row">${L.map(s => shipCard(h, s)).join('')}</div>` : `<small class="muted">${f === 'free' ? 'Свободных кораблей нет — все в эскадрах, на островах или в караванах.' : 'Пусто'}</small>`; }
-  return `<div class="sec-t fleet-t">⚓ Ваш флот · ${all.length} ${plural(all.length, 'корабль', 'корабля', 'кораблей')}</div><div class="sqtabs mini">${chips}</div>${body}`;
+  return `<div class="sec-t fleet-t">⚓ Ваш флот · ${all.length} ${plural(all.length, 'корабль', 'корабля', 'кораблей')}</div><div class="sqtabs mini flt">${chips}</div>${body}`;
 }
 function statGrid(st, cur) {
   return `<div class="statgrid">
@@ -5177,7 +5177,7 @@ function hubAct(act, id) {
   else if (act === 'aorder') { if (!orderAmmo(h, id)) return; snd = 'build'; }
   else if (act === 'aqdel') { const q = h.ammoQ[+id]; if (!q || q.end) return; h.gold += q.paid || 0; h.ammoQ.splice(+id, 1); snd = 'click'; }
   else if (act === 'arsbuy') { const x = h.arsX || 0, c = ARS_X[x]; if (!c || !pay(c)) return; h.arsX = x + 1; toast(`🏭 В Арсенале запущена новая линия — теперь их ${arsLines(h)}`); snd = 'build'; }
-  else if (act === 'fflt') { HB.fflt = id; snd = 'click'; }
+  else if (act === 'shflt') { HB.fflt = id; snd = 'click'; }
   else if (act === 'ohire') { if (!pay(pSpec(h))) return; const o = newOfficer(h, id, 1, null); toast(`🎓 Нанят мичман ${o.name}`); }
   else if (act === 'oassign' && own) { const o = h.officers.find(x => x.id === id); if (o && !o.ship && offSlots(h, sid) > 0 && !offOf(h, sid).some(x => x.t === o.t)) { o.ship = sid; HB.pick = false; snd = 'click'; } else return; }
   else if (act === 'ounassign') { const o = h.officers.find(x => x.id === id); if (!o) return; o.ship = null; snd = 'click'; }
@@ -9927,7 +9927,7 @@ setInterval(() => {
 }, 1000);
 /* ==================== BOOT ==================== */
 Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
-const APP_VER = 212;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
+const APP_VER = 213;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=' + APP_VER).then(r => { document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {}));
   let swReload = !!navigator.serviceWorker.controller;
