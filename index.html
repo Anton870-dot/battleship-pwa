@@ -484,6 +484,10 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 .dpship span{font-size:11px;font-weight:800;color:#bff0ff;background:rgba(3,20,40,.75);padding:3px 8px;border-radius:9px;border:1px solid rgba(120,220,255,.5)}
 .dppin{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:0;color:#fff;cursor:pointer;line-height:1.15;z-index:2}
 .dppin b{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:24px;background:radial-gradient(circle at 50% 35%,rgba(40,140,200,.95),rgba(6,40,80,.95));border:2px solid rgba(140,230,255,.85);box-shadow:0 0 18px rgba(80,200,255,.55);animation:mpulse 2s infinite}
+.dppin.uwpin b{background:radial-gradient(circle at 50% 35%,rgba(24,104,130,.96),rgba(2,20,38,.96));border-color:rgba(120,255,220,.85);box-shadow:0 0 18px rgba(80,255,210,.45)}
+.dppin.cd b{animation:none;filter:grayscale(.6) brightness(.75)}
+.hmap.uw .hcl,.hmap.uw .hrays,.hmap.uw .hfar{display:none}
+.hmap.uw .uwbed{opacity:.88}
 .dppin span{font-size:11px;font-weight:800;background:rgba(3,18,38,.82);padding:3px 8px;border-radius:9px;text-align:center;max-width:130px}.dppin small{display:block;color:#ffe08a;font-size:10.5px}
 .dppin.job b{border-color:#ffcf4a;background:radial-gradient(circle at 50% 35%,rgba(120,100,40,.95),rgba(50,40,10,.95));animation:none}
 .dppin.job.ready b{animation:pulse 1.2s infinite;border-color:#7dffb0}
@@ -2609,6 +2613,7 @@ const WEATHER = {
   storm: { ic: '⛈️', name: 'Шторм', desc: 'обзор −1, снаряды сильнее разбрасывает' },
   fog:   { ic: '🌫️', name: 'Туман', desc: 'обзор −1, но звук слышно дальше' },
   night: { ic: '🌙', name: 'Ночь',  desc: 'видно только соседние клетки, выстрел выдаёт стрелка' },
+  uw:    { ic: '🌊', name: 'Глубина', desc: 'под водой глаза почти бесполезны: вас выдаёт шум винтов и сонар' },
 };
 const EVENTS = {
   trade: { ic: '🛒', name: 'Торговец',    desc: 'Купец продаёт товары со скидкой.' },
@@ -3894,9 +3899,11 @@ const DEEP_OFFERS = {
   ruins: { ic: '🏛', n: 'Руины на дне', d: 'На глубине двух километров эхолот рисует стены, ступени и колонны, которым нет названия. Туда пройдёт только субмарина. Рейдеры тоже ищут это место — и, кажется, уже близко.', sub: true, rk: 1, ok: 'Это не скалы. Это город, капитан. Улицы, лестницы, арки… Я смотрю на снимки и не могу уснуть.' },
   survey:{ ic: '📡', n: 'Замеры глубин', d: 'Пройти галсами по сектору с эхолотом. Скучно, зато безопасно — почти.', ok: 'Карта глубин готова. Отличная работа — теперь мы знаем, где копать дальше.' },
   sample:{ ic: '🧪', n: 'Пробы воды', d: 'Взять пробы воды на пяти глубинах в дальнем секторе. Работа на полдня, рейдеры туда заглядывают редко.', ok: 'Пробы чистые и аккуратно подписаны. Лаборатория будет довольна.' },
+  uhunt: { ic: '🎧', n: 'Охота в глубине', d: 'Гидрофоны «Талассиры» слышат у хребта винты рейдерских подлодок. Они ходят под нашими батискафами и ждут, когда те всплывут. Надводным кораблям их не достать — нужны ваши субмарины.', battle: true, uw: true, obj: 'hunt', win: 'Гидрофоны молчат — у хребта больше никого. Батискафы снова уходят на глубину.' },
+  uguard:{ ic: '🛰', n: 'Тишина у станции', d: 'Мы опускаем на дно сейсмическую станцию. Пока её ставят, рядом нельзя шуметь, а рейдерские подлодки уже идут на звук лебёдок. Держите их на расстоянии, пока станция не встанет.', battle: true, uw: true, obj: 'survive', win: 'Станция стоит и пишет. Первые сутки записей уже у меня — спасибо, что удержали глубину.' },
   station:{ ic: '🛰', n: 'Донные станции', d: 'Доставить и опустить на дно тяжёлые измерительные станции — по полтонны каждая. Нужен трюм: грузовые суда справятся быстрее и надёжнее.', haul: true, ok: 'Станции стоят и уже передают данные. Теперь мы услышим, если на дне что-то сдвинется.' },
 };
-const DEEP_POOL = ['guard', 'purge', 'dive', 'survey', 'guard', 'dive', 'wreck', 'trophy', 'buoy', 'nest', 'ruins', 'sample', 'station'];
+const DEEP_POOL = ['guard', 'purge', 'dive', 'survey', 'guard', 'dive', 'wreck', 'trophy', 'buoy', 'nest', 'ruins', 'sample', 'station', 'uhunt', 'uguard'];
 const DEEP_HI = [
   'С возвращением, капитан. «Талассира» на месте, приборы гудят.',
   'Сонар снова поймал что-то большое на глубине. Расскажу, когда будем уверены.',
@@ -3931,6 +3938,8 @@ function deepOffer(h, slot) {
   if (kind === 'sample') Object.assign(o, { gold: Math.round((170 + 24 * lvl) * k), rep: 1, cred: 0, min: 30 + rnd(3) * 10, risk: .07 + Math.random() * .07 });
   if (kind === 'station') Object.assign(o, { gold: Math.round((300 + 40 * lvl) * k), rep: 2, cred: 1, min: 70 + rnd(4) * 15, risk: .18 + Math.random() * .1 });
   if (kind === 'guard') Object.assign(o, { gold: Math.round((200 + 38 * lvl) * k), rep: 2, cred: 1 });
+  if (kind === 'uhunt') Object.assign(o, { gold: Math.round((300 + 46 * lvl) * k), rep: 3, cred: 1 });
+  if (kind === 'uguard') Object.assign(o, { gold: Math.round((280 + 42 * lvl) * k), rep: 3, cred: 1 });
   if (kind === 'purge') Object.assign(o, { gold: Math.round((230 + 42 * lvl) * k), rep: 2, lvl: lvl + 1, cred: 1 });
   if (kind === 'dive') Object.assign(o, { gold: Math.round((340 + 45 * lvl) * k), rep: 2, cred: 1, min: 60 + rnd(5) * 15, risk: .16 + Math.random() * .12 });
   if (kind === 'survey') Object.assign(o, { gold: Math.round((210 + 30 * lvl) * k), rep: 1, cred: 0, min: 40 + rnd(4) * 10, risk: .12 + Math.random() * .1 });
@@ -3965,6 +3974,17 @@ function deepTick(h) {
     }
   }
   return ch;
+}
+// подводный бой: в него идут только подлодки — флагман, эскадра, потом остальные свободные
+const UW_CD = 20 * 60000;
+function uwSubs(h) {
+  const ok = s => s && HS[s.type] && HS[s.type].sub && !HS[s.type].npc && !s.broken && !s.isle && !s.trade;
+  return [...new Set([h.active, ...h.squad, ...Object.keys(h.ships)])].map(id => h.ships[id]).filter(ok);
+}
+function uwCanFight(h) {
+  if (!uwSubs(h).length) { toast('🤿 Нет свободной подлодки — купите её в Сухом доке или дождитесь ремонта'); return false; }
+  if (!((ammoData(h).torp || 0) > 0)) { toast('🚀 Торпед нет — закажите их в Арсенале'); return false; }
+  return true;
 }
 function deepCanFight(h) {
   if (h.ships[h.active].broken) { toast('Флагман в ремонте — выберите другой в Сухом доке'); return false; }
@@ -4034,6 +4054,7 @@ function renderDeep(center) {
     <div class="dpship" style="left:50%;top:38%"><img src="top_atl_cargo.webp" alt=""><span>🔬 «${SCI.ship}»</span></div>`;
   if (D.ev) { const X = DEEP_EV[D.ev.k]; s += `<button class="dppin rev" data-dp="ev" style="left:74%;top:78%"><b>${X.ic}</b><span>${X.n}<small data-until="${D.ev.end}">${fmtLeft(D.ev.end - now)}</small></span></button>`; }
   if (D.threat) s += `<button class="dppin threat" data-dp="threat" style="left:72%;top:24%"><b>🦈</b><span>Атака рейдеров!<small data-until="${D.threat.end}">${fmtLeft(D.threat.end - now)}</small></span></button>`;
+  { const cd = (D.uwNext || 0) > now; s += `<button class="dppin uwpin${cd ? ' cd' : ''}" data-dp="uw" style="left:50%;top:89%"><b>🎧</b><span>Подводная охота<small>${cd ? `<i data-until="${D.uwNext}">${fmtLeft(D.uwNext - now)}</i>` : 'только подлодки'}</small></span></button>`; }
   D.board.forEach(o => { const O = DEEP_OFFERS[o.kind], [x, y] = DEEP_SLOTS[o.slot] || [50, 20]; s += `<button class="dppin" data-dp="${o.id}" style="left:${x}%;top:${y}%"><b>${O.ic}</b><span>${O.n}<small>${o.gold} 💰</small></span></button>`; });
   D.jobs.forEach(j => { const O = DEEP_OFFERS[j.kind], [x, y] = DEEP_SLOTS[j.slot] || [50, 20], rd = j.st === 'ready';
     s += `<button class="dppin job${rd ? ' ready' : ''}" data-dp="${j.id}" style="left:${x}%;top:${y}%"><b>${O.ic}</b><span>${rd ? 'Флот на месте — в бой!' : O.battle ? 'Флот в пути' : 'Идёт работа'}<small>${rd ? '⚔️' : `<i data-until="${j.at}">${fmtLeft(j.at - now)}</i>`}</small></span></button>`; });
@@ -4065,14 +4086,21 @@ function deepBrief(id) {
     title = '🦈 Рейдеры атакуют «' + SCI.ship + '»';
     s = `<p class="dpquote">«Капитан, они уже близко! Если не отгоните их, мы потеряем всё оборудование».</p><div class="dpdet"><span>⚔️ сила врага ${T.lvl}</span><span>💰 ${T.gold}</span><span>💠 +1</span><span>🔬 доверие +2</span><span>⏱ осталось <b data-until="${T.end}">${fmtLeft(T.end - now)}</b></span></div><small class="muted">Ваш дозор рядом — бой начнётся сразу. Фракция противника: 🦈 Морские рейдеры.</small>`;
     btns.push(`<button class="btn primary" data-dpa="threat">⚔️ Перехватить</button>`);
+  } else if (id === 'uw') {
+    const subs = uwSubs(h), L = deepLvl(h), cd = (D.uwNext || 0) > now;
+    title = '🎧 Подводная охота';
+    s = `<p class="dpquote">«Рейдерские подлодки ходят под нами почти каждую ночь. Гидрофоны их слышат, а достать могут только ваши субмарины. Выходите, когда будете готовы: Совет Атлантиса платит за каждую чистую глубину».</p><div class="dpdet"><span>⚔️ сила врага ${L}</span><span>💰 ${150 + 30 * L}</span><span>🤿 свободных подлодок: ${subs.length}</span></div><small class="muted">В бой идут только подлодки (до ${1 + SQUAD_MAX}). Под водой: ⬇️ глубина и 🔭 перископ, 🔇 тихий ход, 📡 сонар, 🫧 ловушки от торпед.</small>`;
+    if (cd) s += `<p>Следующий выход через <b data-until="${D.uwNext}">${fmtLeft(D.uwNext - now)}</b></p>`;
+    else btns.push(subs.length ? `<button class="btn primary" data-dpa="uw">🤿 Погружение</button>` : `<small class="muted">Нет свободной подлодки — купите её в Сухом доке.</small>`);
   } else {
     const o = D.board.find(x => x.id === id), j = D.jobs.find(x => x.id === id), X = o || j; if (!X) return;
     const O = DEEP_OFFERS[X.kind]; title = `${O.ic} ${O.n}`;
     const det = O.battle ? `<span>⚔️ сила врага ${X.lvl}</span><span>🧭 путь ${DEEP_TRAVEL} мин</span>` : `<span>⏱ ${fmtMin(X.min)}</span><span>⚠️ риск ~${Math.round(X.risk * 100)}%</span>`;
     s = `<p class="dpquote">«${O.d}»</p><div class="dpdet">${det}<span>💰 ${X.gold}</span>${X.cred ? `<span>💠 +${X.cred}</span>` : ''}<span>🔬 доверие +${X.rep}</span></div>`;
-    if (O.battle) s += `<small class="muted">Противник: 🦈 Морские рейдеры. В бой идёт ваша эскадра.</small>`;
+    if (O.battle) s += O.uw ? `<small class="muted">Противник: 🦈 подлодки рейдеров. Бой под водой: идут только ваши подлодки (свободно: ${uwSubs(h).length}).</small>` : `<small class="muted">Противник: 🦈 Морские рейдеры. В бой идёт ваша эскадра.</small>`;
     if (o) {
-      if (O.battle) btns.push(`<button class="btn primary" data-dpa="take" data-id="${o.id}">Принять · флот выйдет сейчас</button>`);
+      if (O.battle && O.uw && !uwSubs(h).length) btns.push(`<small class="muted">Нет свободной подлодки — купите её в Сухом доке.</small>`);
+      else if (O.battle) btns.push(`<button class="btn primary" data-dpa="take" data-id="${o.id}">Принять · ${O.uw ? 'подлодки выйдут' : 'флот выйдет'} сейчас</button>`);
       else {
         const ships = Object.values(h.ships).filter(x => trCanSail(h, x) && (!O.sub || HS[x.type].sub));
         s += `<div class="sec-t">${O.sub ? '🤿 Какая субмарина пойдёт?' : O.haul ? '⚓ Какой корабль пойдёт? (грузовые — надёжнее)' : '⚓ Какой корабль пойдёт?'}</div>`;
@@ -4095,13 +4123,17 @@ function deepAct(act, id, sh) {
   if (act === 'take') { const o = D.board.find(x => x.id === id); if (!o) return; D.board = D.board.filter(x => x !== o); D.jobs.push({ ...o, st: 'go', at: now + DEEP_TRAVEL * 60000 }); Snd.play('horn'); deepSay(['Прекрасно! Флот уже вышел — жду вас в секторе.']); }
   if (act === 'ship') { const o = D.board.find(x => x.id === id), s = h.ships[sh]; if (!o || !s || !trCanSail(h, s)) return; D.board = D.board.filter(x => x !== o); D.jobs.push({ ...o, ship: s.id, at: now + o.min * 60000 }); s.trade = o.id; h.squad = h.squad.filter(k => k !== s.id); Snd.play('horn'); deepSay([DEEP_OFFERS[o.kind].sub ? `${sName(s)} уходит на глубину. Держите связь, капитан — я буду следить по сонару.` : `${sName(s)} начинает замеры. Если появятся рейдеры — пусть уходит, данные не стоят жизней.`]); }
   if (act === 'spd') { const j = D.jobs.find(x => x.id === id); if (!j) return; const n = credCost(j.at - now); if (!payCred(h, n)) return; j.at = now; deepTick(h); }
-  if (act === 'go' || act === 'threat') {
-    if (!deepCanFight(h)) return;
+  if (act === 'go' || act === 'threat' || act === 'uw') {
+    const j0 = act === 'go' && D.jobs.find(x => x.id === id), uw = act === 'uw' || !!(j0 && DEEP_OFFERS[j0.kind].uw);
+    if (uw ? !uwCanFight(h) : !deepCanFight(h)) return;
+    if (act === 'uw' && (D.uwNext || 0) > now) return;
     overlay('#ov-deep', false); saveProfiles(); HB.ret = 'deep';
     const W = pickW([['clear', 4], ['fog', 2], ['storm', 2], ['night', 2]]);
+    if (act === 'uw') { const L = deepLvl(h); D.uwNext = now + UW_CD; saveProfiles(); return startHunt({ kind: 'battle', obj: 'hunt', lvl: L, weather: 'uw', uw: true, bonus: true, deep: 'uw', fac: 'raid', gold: 150 + 30 * L }); }
     if (act === 'threat') { const T = D.threat; if (!T) return; return startHunt({ kind: 'battle', obj: 'convoy', lvl: T.lvl, weather: W, bonus: true, deep: 'threat', fac: 'raid', open: Math.random() < .6 }); }
     const j = D.jobs.find(x => x.id === id); if (!j || j.st !== 'ready') return;
     const O = DEEP_OFFERS[j.kind];
+    if (O.uw) return startHunt({ kind: 'battle', obj: O.obj || 'hunt', lvl: j.lvl, weather: 'uw', uw: true, bonus: true, deep: j.id, fac: 'raid', extra: O.extra || 0 });
     return startHunt({ kind: 'battle', obj: O.obj || 'hunt', lvl: j.lvl, weather: W, bonus: true, deep: j.id, fac: 'raid', extra: O.extra || 0, tname: O.tname, open: O.obj !== 'fort' && Math.random() < .55 });
   }
   overlay('#ov-deep', false); saveProfiles(); renderDeep();
@@ -4109,6 +4141,11 @@ function deepAct(act, id, sh) {
 // итог боя в Глубоких водах
 function deepAfter(h, node, won, lines) {
   const D = deepData(h); let gold = 0, cr = 0;
+  if (node.deep === 'uw') {
+    if (won) { gold = node.gold || 0; D.uwW = (D.uwW || 0) + 1; if (D.uwW % 3 === 0) cr = 1; D.rep += 1; lines.push(`🎧 Глубина чиста. Совет Атлантиса платит +${gold} 💰, доверие доктора +1`); D.say = pick(['Гидрофоны молчат. Впервые за неделю я слышу только китов, капитан.', 'Мои акустики аплодировали, когда затих последний винт. Отличная охота.', 'Тихо. Так тихо, что слышно, как потрескивает корпус «Талассиры». Спасибо, капитан.']); }
+    else { lines.push('🎧 Подлодки рейдеров удержали глубину'); D.say = 'Глубина не прощает ошибок, капитан. Главное — ваши люди вернулись. Попробуем снова.'; }
+    return { gold, cr };
+  }
   if (node.deep === 'ev') {
     const B = D.evB; D.evB = null;
     if (won && B) { gold = B.gold; cr = B.cr || 0; D.rep += B.rep || 0; if (B.atl) atlData(h).rep += B.atl; lines.push(B.wt); D.say = B.ws; }
@@ -5958,10 +5995,12 @@ function genTerrain() {
   }
 }
 function lightNear(u) { return H.lights.some(k => cheb(u, kRC(k)) <= 1); }
-function sightOf(u) { return u.st.sight + (lightNear(u) ? 2 : 0); }
+function sightOf(u) { if (H.uw) return u.deep ? 1 : u.st.sight + 1; return u.st.sight + (lightNear(u) ? 2 : 0); }
 function sees(obs, tgt) {
   if (tgt.hp <= 0 || tgt.gone) return false;
   const d = cheb(obs, tgt);
+  // под водой: вплотную слышно всех; на перископной глубине видно дальше, но и вас выдаёт бурун перископа
+  if (H.uw) return d <= 1 || (!tgt.deep && (d <= 2 || (!obs.deep && d <= sightOf(obs))));
   if (tgt.smoke > 0 || (tgt.st.sub && (!tgt.fired || tgt.st.cloak))) return d <= 1;
   return d <= sightOf(obs);
 }
@@ -6031,6 +6070,7 @@ function setupObjective(node) {
   let n = Math.min(3, 1 + Math.floor((m - 1) / 3)) + Math.floor(esc / 2) + (node.extra || 0);
   const o = H.obj;
   if (o === 'raid') { raidSetup(hdata(curProfile())); return; }
+  if (H.uw) { uwSetup(n); return; }
   if (o === 'convoy') {
     [[HN - 1, 0], [HN - 2, 3]].forEach(([r, c]) => H.fleet.push(Object.assign(mkUnit('merchant', 'me', r, c, 0), { name: 'Торговец' })));
   }
@@ -6068,8 +6108,96 @@ function setupObjective(node) {
 }
 // бой за последний свободный остров Лазурного моря: на защиту выходит флагман Корвина
 const lastAzure = node => { if (!node || node.sea !== 0 || !(node.isle >= 0) || node.reclaim) return false; const h = hdata(curProfile()); return !isleOf(h, iKey(0, node.isle)).own && SEAS[0].isles.every((p, i) => p.home || i === node.isle || isleOf(h, iKey(0, i)).own); };
+/* ---------- подводный бой: только подлодки ---------- */
+// редкие скальные пики на дне: по одной-две клетки, далеко друг от друга
+function uwRocks() {
+  const land = new Array(HN * HN).fill(false), n = 3 + rnd(3), near = (r, c) => DIR8.some(([a, b]) => hin(r + a, c + b) && land[hidx(r + a, c + b)]);
+  for (let i = 0, g = 0; i < n && g < 300; g++) {
+    const r = 1 + rnd(HN - 2), c = 1 + rnd(HN - 2); if (inStart(r, c) || land[hidx(r, c)] || near(r, c)) continue;
+    land[hidx(r, c)] = true; i++;
+    if (Math.random() < .4) { const [a, b] = pick([[0, 1], [1, 0], [1, 1]]); if (hin(r + a, c + b) && !inStart(r + a, c + b)) land[hidx(r + a, c + b)] = true; }
+  }
+  return land;
+}
+// подводный пейзаж: тёмное дно с голубыми пятнами света, песчаная рябь, галька, водоросли и скалы
+const UwBed = {
+  build(map, land) {
+    const PX = 48, S = HN * PX, cv = document.createElement('canvas'); cv.className = 'terrain uwbed'; cv.width = cv.height = S;
+    const g = cv.getContext('2d'), R = (a, b) => a + Math.random() * (b - a);
+    const bg = g.createLinearGradient(0, 0, S * .4, S); bg.addColorStop(0, '#1a6b8c'); bg.addColorStop(.55, '#0e4766'); bg.addColorStop(1, '#072a44'); g.fillStyle = bg; g.fillRect(0, 0, S, S);
+    for (let i = 0; i < 16; i++) { const x = R(0, S), y = R(0, S * .8), r = R(S * .07, S * .2), gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(70,170,205,${R(.07, .16)})`); gr.addColorStop(1, 'rgba(70,170,205,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, 2 * r, 2 * r); }
+    { const y0 = R(.3, .7) * S; g.strokeStyle = 'rgba(0,6,16,.35)'; g.lineCap = 'round'; for (let k = 0; k < 3; k++) { g.lineWidth = S * (.09 - k * .025); g.beginPath(); g.moveTo(-20, y0 + R(-20, 20)); g.bezierCurveTo(S * .3, y0 + R(-90, 90), S * .7, y0 + R(-90, 90), S + 20, y0 + R(-60, 60)); g.stroke(); } }   // донная впадина
+    g.lineWidth = 1.4; for (let i = 0; i < 90; i++) { const x = R(-20, S), y = R(0, S), L = R(18, 55), a = R(-.15, .15); g.strokeStyle = `rgba(150,210,225,${R(.04, .09)})`; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + L / 2, y + L * a - 4, x + L, y + L * a); g.stroke(); }   // песчаная рябь
+    for (let i = 0; i < 140; i++) { const x = R(0, S), y = R(0, S), r = R(1.2, 4); g.fillStyle = `rgba(4,22,34,${R(.4, .7)})`; g.beginPath(); g.ellipse(x + 1, y + 1, r, r * .7, 0, 0, 6.29); g.fill(); g.fillStyle = `rgba(110,170,185,${R(.12, .25)})`; g.beginPath(); g.ellipse(x - r * .25, y - r * .25, r * .55, r * .38, 0, 0, 6.29); g.fill(); }   // галька
+    for (let i = 0; i < 12; i++) { const x = R(0, S), y = R(0, S); for (let j = 0; j < 7; j++) { const a = R(-1, 1), L = R(10, 26); g.strokeStyle = `rgba(${R(30, 60) | 0},${R(110, 150) | 0},${R(105, 130) | 0},${R(.35, .6)})`; g.lineWidth = R(1.2, 2.4); g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a) * L * .6 + R(-6, 6), y + Math.sin(a) * L * .6 + R(-6, 6), x + Math.cos(a) * L, y + Math.sin(a) * L); g.stroke(); } }   // водоросли
+    const rock = (cx, cy, rad) => {
+      const n = 9, pts = Array.from({ length: n }, (_, i) => { const a = i / n * 6.283 + R(-.2, .2), rr = rad * R(.72, 1.05); return [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * .9]; });
+      const path = (dx, dy) => { g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x + dx, y + dy) : g.moveTo(x + dx, y + dy)); g.closePath(); };
+      g.fillStyle = 'rgba(0,6,14,.55)'; path(rad * .18, rad * .22); g.fill();   // тень на дне
+      const gr = g.createLinearGradient(cx - rad, cy - rad, cx + rad, cy + rad); gr.addColorStop(0, '#3d6878'); gr.addColorStop(.5, '#1d3c4a'); gr.addColorStop(1, '#0a1c26'); g.fillStyle = gr; path(0, 0); g.fill();
+      g.strokeStyle = 'rgba(150,215,235,.28)'; g.lineWidth = 1.5; path(0, 0); g.stroke();
+      for (let k = 0; k < 4; k++) { const x = cx + R(-rad * .5, rad * .4), y = cy + R(-rad * .5, rad * .4); g.strokeStyle = 'rgba(5,18,26,.5)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + R(-rad * .4, rad * .4), y + R(rad * .1, rad * .4)); g.stroke(); }   // трещины
+    };
+    land.forEach((v, k) => { if (!v) return; const r = Math.floor(k / HN), c = k % HN, cx = (c + .5) * PX, cy = (r + .5) * PX; rock(cx, cy, PX * .56); for (let j = 0; j < 3; j++) rock(cx + R(-.5, .5) * PX, cy + R(-.5, .5) * PX, PX * R(.14, .26)); });
+    const sea = map.querySelector('.ocean'); if (sea) sea.after(cv); else map.prepend(cv);   // дно — под кораблями, сразу над водой
+  },
+};
+function uwPrep(u) { u.deep = 1; u.dvT = 0; u.decoys = 2 + (HS[u.type].len >= 3 ? 1 : 0); }
+function uwFoe(pos, m) { const u = addFoe('sub', pos, m); u.fac = 'raid'; u.eq.torp = true; uwPrep(u); u.decoys = m >= 8 ? 2 : 1; return u; }
+function uwSetup(n) {
+  const m = H.mission; n = Math.min(5, n + 1);
+  if (H.obj === 'survive') { H.surviveN = Math.min(10, 7 + Math.floor(m / 4)); n = Math.max(2, n - 1); }
+  for (let i = 0; i < n; i++) { const pos = freeCell([0, HN - 6, 6, 6], H.foes) || freeCell([0, HN - 6, 6, 6]); if (!pos) break; uwFoe(pos, m); }
+  const el = H.foes[0];   // на сильных глубинах стаю ведёт опытный командир
+  if (el && m >= 6) { el.name = pick(SHIP_POOL.raid_sub); el.st.hp = el.hp = el.st.hp + 4; el.st.armor += 1; el.decoys++; el.elite = 1; }
+  if (H.obj === 'survive') H.foes.forEach(f => f.known = { r: H.me.r, c: H.me.c, exact: false, age: 0 });
+}
+// линия торпеды: по прямой или диагонали, без скал на пути
+function uwLine(a, b) {
+  const dr = b.r - a.r, dc = b.c - a.c; if (!(dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc))) return false;
+  const sr = Math.sign(dr), sc = Math.sign(dc), n = Math.max(Math.abs(dr), Math.abs(dc));
+  for (let i = 1; i < n; i++) if (H.land[hidx(a.r + sr * i, a.c + sc * i)]) return false;
+  return true;
+}
+// активный сонар: показывает всех вокруг, но импульс слышен всему морю
+async function uwPing(u) {
+  const isMe = u.side === 'me', R = 6, en = (isMe ? H.foes : myAlive()).filter(e => e.hp > 0 && !e.gone && cheb(u, e) <= R);
+  u.cd.ping = 3; u.movedLast = false; Snd.play('radar'); hfx(u.r, u.c, 'ping');
+  if (BFX.lo) { const [x, y] = BFX.xy(u.r, u.c); [0, 260, 520].forEach(t => setTimeout(() => BFX.add({ k: 'ring', x, y, s: 1, s1: BFX.cs * (R + .5), life: 1500, c: '120,230,255', w: 2.2 }), t)); }
+  if (isMe) { en.forEach(e => e.revealed = Math.max(e.revealed, 2)); H.foes.forEach(f => { if (f.hp > 0 && !f.gone) f.known = { r: u.r, c: u.c, exact: true, age: 0 }; }); }
+  else { const t = en.sort((a, b) => cheb(u, a) - cheb(u, b))[0]; if (t) u.known = { r: t.r, c: t.c, exact: true, age: 0 }; u.revealed = Math.max(u.revealed, 2); H.flashes.push({ r: u.r, c: u.c, age: 0 }); hCenter(u); }   // импульс выдаёт и самого врага: он виден до конца нашего хода
+  renderHunt(); await sleep(650);
+  return en.length;
+}
+async function uwFoeAct(f) {
+  const mine = myAlive(), near = a => a.sort((x, y) => cheb(f, x) - cheb(f, y) || (y === H.me) - (x === H.me))[0];
+  const seen = near(mine.filter(u => sees(f, u))), heard = near(mine.filter(u => u.movedLast && cheb(f, u) <= f.st.hear));
+  const cl = v => Math.max(0, Math.min(HN - 1, v));
+  let tgt = null, exact = false;
+  if (seen) { tgt = { r: seen.r, c: seen.c }; exact = true; f.known = { ...tgt, exact: true, age: 0 }; }
+  else if (f.known && f.known.exact && f.known.age === 0) { tgt = f.known; exact = true; }
+  else if (heard) { tgt = { r: cl(heard.r + rnd(3) - 1), c: cl(heard.c + rnd(3) - 1) }; f.known = { ...tgt, exact: false, age: 0 }; }
+  else if (f.known && f.known.age < 4) tgt = f.known;
+  if (f.known) f.known.age++;
+  const R = f.st.range + 2;
+  if (tgt && !f.cd.torp) {   // торпеда: по точной цели — всегда, по шуму — иногда наугад
+    const d = cheb(f, tgt);
+    if (d >= 1 && d <= R && uwLine(f, tgt) && (exact || Math.random() < .45)) { const res = await hFire(f, 'torp', tgt.r, tgt.c); hMsg(`🚀 Торпеда в воде! ${res.text}`, res.cls); return; }
+  }
+  if (!f.cd.ping && (!tgt ? Math.random() < .5 : !exact && Math.random() < .4)) { const n = await uwPing(f), nm = f.name ? `«${f.name}»` : 'подлодка рейдеров'; toast('🔊 Вражеский сонар!'); hMsg(n ? `🔊 Вражеский сонар! ${nm} засекла нас — но и сама себя выдала` : `🔊 Импульс вражеского сонара: ${nm} ищет нас и выдала своё место`, n ? 'hit' : 'info'); return; }
+  if (f.dvT !== H.turn) { const want = tgt ? 1 : Math.random() < .35 ? 0 : 1; if (want !== f.deep) { f.deep = want; f.dvT = H.turn; } }
+  let dest = tgt;
+  if (!dest) { if (!f.wp || cheb(f, f.wp) <= 1) { let w, g = 0; do { w = { r: rnd(HN), c: rnd(HN) }; } while (H.land[hidx(w.r, w.c)] && g++ < 50); f.wp = w; } dest = f.wp; }
+  const quiet = tgt && !exact && Math.random() < .5, spd = quiet ? 1 : f.st.speed, { dist, prev } = hbfs(f);
+  let best = -1, bs = 1e9;
+  dist.forEach((dd, k) => { if (dd < 0 || dd > spd) return; const p = kRC(k), d = cheb(p, dest);
+    const s = tgt ? (d >= 2 && d <= R && uwLine(p, dest) ? d * 2 + dd : 100 + d * 10 + dd) : d * 10 + dd; if (s < bs) { bs = s; best = k; } });
+  if (best < 0 || best === hidx(f.r, f.c)) { f.movedLast = false; return; }
+  await hMove(f, pathTo(prev, best)); if (quiet) f.movedLast = false;
+}
 function spawnReinf() {
   const pos = freeCell([0, HN - 3, 3, 3]); if (!pos) return;
+  if (H.uw) { const u = uwFoe(pos, H.mission); u.known = { r: H.me.r, c: H.me.c, exact: false, age: 0 }; hMakeEl(u); hMsg('⚠️ Гидрофоны: ещё одна подлодка рейдеров идёт с севера!', 'hit'); return; }
   const top = pirBattle() ? Math.min(pirCap(), foeTop(H.mission)) : foeTop(H.mission);
   const u = addFoe(HS_ORDER[rnd(top + 1)], pos, H.mission);
   u.known = { r: H.me.r, c: H.me.c, exact: false, age: 0 };
@@ -6108,35 +6236,39 @@ function startHunt(node) {
   if (node.obj !== 'raid') Snd.play('horn');
   const trR = node.trade ? tradeData(h).runs.find(r => r.id === node.trade) : null;
   const trS = trR ? trR.ships.map(k => h.ships[k]).filter(Boolean).sort((a, b) => trShipPow(h, b) - trShipPow(h, a)) : null;
-  const own = trS ? trS[0] : h.ships[h.active];
+  const uwS = !trS && node.uw ? uwSubs(h) : null;
+  const own = trS ? trS[0] : uwS ? uwS[0] : h.ships[h.active];
   H.gen++;
-  Object.assign(H, { phase: 'play', node, obj: node.obj, weather: node.weather || 'clear', mission: m, drill: h.drill, turn: 0, busy: false, mode: 'move',
+  Object.assign(H, { phase: 'play', node, uw: !!uwS, obj: node.obj, weather: uwS ? 'uw' : node.weather || 'clear', mission: m, drill: h.drill, turn: 0, busy: false, mode: 'move',
     flashes: [], marks: [], noise: [], exitArm: false, mines: [], boats: [], captured: [], dogQ: 0, barkN: 0, barkT: 0, barkLow: 0, rescued: 0, lostBoats: 0, saved: 0, fortCell: -1, exitCells: new Set(), foes: [] });
   const clear = [];
   if (H.obj === 'convoy') { clear.push([HN - 3, HN - 3, 3, 3]); for (let r = HN - 3; r < HN; r++) for (let c = HN - 3; c < HN; c++) H.exitCells.add(hidx(r, c)); }
   if (H.obj === 'intercept') { clear.push([0, 0, 4, 3]); for (let r = 0; r < 4; r++) H.exitCells.add(hidx(r, 0)); }
-  H.open = !!node.open && node.obj !== 'fort' && node.obj !== 'raid';
-  H.land = H.open ? new Array(HN * HN).fill(false) : genMap(clear);
+  H.open = !!node.open && node.obj !== 'fort' && node.obj !== 'raid' && !H.uw;
+  H.land = H.open ? new Array(HN * HN).fill(false) : H.uw ? uwRocks() : genMap(clear);   // под водой вместо островов — редкие скальные пики на дне
   if (H.obj === 'fort') {
     const cand = []; for (let k = 0; k < HN * HN; k++) { const { r, c } = kRC(k); if (H.land[k] && r <= 6 && c >= 5 && DIR8.filter(([dr, dc]) => hin(r + dr, c + dc) && !H.land[hidx(r + dr, c + dc)]).length >= 2) cand.push(k); }
     H.fortCell = cand.length ? pick(cand) : hidx(4, 7); H.land[H.fortCell] = true;
   }
   genTerrain();
+  if (H.uw) { H.shoal.fill(false); H.lights = []; H.mines.forEach(x => x.deep = 1); }   // на глубине нет мелей и маяков, мины — донные
   const ro = { crew: h.crew, regular: true };
   const ownUnit = (s, r, c) => Object.assign(mkUnit(s.type, 'me', r, c, -45, { ...ro, up: s.up, eq: s.eq, spec: offSpec(h, s.id), rank: rankOf(s.xp), marines: s.marines }), { sid: s.id, skin: s.skin, name: `«${s.name}»`, crew: s.crew ?? CREW[s.type], crewMax: CREW[s.type] }, { hp: Math.max(1, (() => { const st = shipStats(s.type, s.up, h.crew, { spec: offSpec(h, s.id), rank: rankOf(s.xp), eq: s.eq }); return st.hp; })() - (s.hpLost || 0)) });
   H.me = ownUnit(own, HN - 2, 1);
   const esc = [];
   if (trS) trS.slice(1).forEach(s => esc.push(ownUnit(s, 0, 0)));
+  else if (uwS) uwS.slice(1, 1 + SQUAD_MAX).forEach(s => esc.push(ownUnit(s, 0, 0)));
   else h.squad.forEach(id => { const s = h.ships[id]; if (s && !s.broken && !s.isle && !s.trade) esc.push(ownUnit(s, 0, 0)); });
-  if (!trS) h.hired.forEach(x => esc.push(mkUnit(x.type, 'me', 0, 0, -45, { crew: h.crew, up: hireUp(hireLvl(m)), eq: hireEq(x.type), rank: h.hireVet[x.type] || 0, marines: Math.floor(HS[x.type].mar / 2), ally: true })));
+  if (!trS) h.hired.filter(x => !uwS || HS[x.type].sub).forEach(x => esc.push(mkUnit(x.type, 'me', 0, 0, -45, { crew: h.crew, up: hireUp(hireLvl(m)), eq: hireEq(x.type), rank: h.hireVet[x.type] || 0, marines: Math.floor(HS[x.type].mar / 2), ally: true })));
   const spots = [[HN - 3, 0], [HN - 1, 2], [HN - 3, 2], [HN - 1, 0], [HN - 4, 1]];
   esc.slice(0, SQUAD_MAX).forEach((u, i) => { let [r, c] = spots[i]; if (H.land[hidx(r, c)]) { const f = freeCell([HN - 5, 0, 5, 5]); if (f) { r = f.r; c = f.c; } } u.r = r; u.c = c; });
   H.fleet = [H.me, ...esc.slice(0, SQUAD_MAX)];
-  if (fL(h, 'lighthouse') >= 3 && H.weather !== 'night') H.fleet.forEach(u => u.st.sight += 1);
+  if (fL(h, 'lighthouse') >= 3 && H.weather !== 'night' && !H.uw) H.fleet.forEach(u => u.st.sight += 1);
   if (fL(h, 'lighthouse') >= 5) H.mines.forEach(x => x.seen = true);
   if (H.obj === 'raid') H.mines = [];
-  if (!trS) h.hired = []; saveProfiles();
-  H.reserve = trS ? [] : reserveOf(h).map(s => s.id); H.reinfUsed = 0; H.ownUnit = ownUnit;
+  if (uwS) H.fleet.forEach(uwPrep);
+  if (!trS) h.hired = uwS ? h.hired.filter(x => !HS[x.type].sub) : []; saveProfiles();
+  H.reserve = trS ? [] : uwS ? uwS.slice(1 + SQUAD_MAX).map(s => s.id) : reserveOf(h).map(s => s.id); H.reinfUsed = 0; H.ownUnit = ownUnit;
   H.ammo = { ...ammoData(h) }; H.used = {}; H.ammoSel = SHELLS.find(k => H.ammo[k] > 0) || 'he';
   setupObjective(node);
   H.foeCap = H.foes.filter(f => !HS[f.type].npc && !HS[f.type].fort && !f.boss).length;
@@ -6148,7 +6280,9 @@ function startHunt(node) {
   if (H.foes.some(f => f.abyss)) { const g = H.gen; setTimeout(() => { if (g === H.gen && H.phase === 'play') { Snd.play('horn'); toast('☠️ Ветер смолк. Из тумана медленно выплывают огни мостика. Это «Бездна»'); hMsg('☠️ «Бездна» — флагман рейдеров! Абордаж невозможен. Выжить — уже победа', 'hit'); } }, 2000); }
   if (H.foes.some(f => f.butcher)) { const g = H.gen; setTimeout(() => { if (g === H.gen && H.phase === 'play') { toast('🩸 На горизонте — «Расчленитель». Команда притихла'); hMsg('🩸 За кормой врага тянется бурый след. Это «Расчленитель». Матросы крестятся: абордаж против него будет труднее', 'hit'); } }, 2400); }
   if (H.foes.some(f => f.rose)) { const g = H.gen; setTimeout(() => { if (g === H.gen && H.phase === 'play') { toast('🌹 В бой вышла «Стальная Роза» — яхта Стеллы!'); dogShow('t', pick(ROSE_SAY.start)); } }, 2200); }
-  hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.foes.some(f => f.vargo) ? '⛓ «Кандальник» Варго Кнута защищает Чёрный Шпиль!' : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
+  if (H.uw) { hMsg(`🌊 Погружение! ${o.ic} ${o.name} на глубине: врагов не видно — слушайте шум винтов и держите тишину`, 'info');
+    if (!h.uwTip) { h.uwTip = 1; saveProfiles(); setTimeout(() => clanSay([['a', 0, 'Командир, мы под водой. На глубине ⬇️ нас не видят, но и мы слепы — только соседние клетки. На перископной 🔭 обзор шире, зато нас тоже могут заметить.'], ['a', 0, 'Каждый ход на полном ходу слышен врагу. 🔇 Тихий ход — одна клетка, без шума. 📡 Сонар покажет всех вокруг, но выдаст нас.'], ['a', 0, 'Торпеды идут по прямой. Если враг стреляет в нас, команда сама пустит 🫧 ловушку-имитатор — запас небольшой.']]), 900); } }
+  else hMsg(H.foes.some(f => f.lucia) ? '⚓ «Ласточка» Лючии Корвин вышла защищать последний остров братства!' : H.foes.some(f => f.corvin) ? `⚓ «${CLAN.ship}» капитана Корвина защищает Чёрный Зуб!` : H.foes.some(f => f.vargo) ? '⛓ «Кандальник» Варго Кнута защищает Чёрный Шпиль!' : H.fac === 'raid' ? `🦈 Морские рейдеры! ${OBJ[H.obj].ic} ${OBJ[H.obj].name}` : H.obj === 'boss' ? `☠️ ${bossFor(node).name} ждёт вас!` : node.ambush ? '💥 Засада! Враги совсем рядом' : `${o.ic} ${o.name}. ${w.ic} ${w.name}: ${w.desc}`, 'info');
   if (H.open) setTimeout(() => toast('🌊 Открытое море: ни одного острова — укрыться негде'), 700);
   hStartPlayerTurn(true);
   { const g = H.gen; setTimeout(() => westGun(node, g), 2600); }
@@ -6176,7 +6310,7 @@ function hMakeEl(u) {
 }
 function buildHuntMap() {
   const wrap = $('#hunt-map'); wrap.innerHTML = '';
-  const m = document.createElement('div'); m.className = 'hmap';
+  const m = document.createElement('div'); m.className = 'hmap' + (H.uw ? ' uw' : '');
   H.cells = [];
   for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) {
     const d = document.createElement('div'); d.className = 'hc'; d.onclick = () => hClick(r, c); m.appendChild(d); H.cells.push(d);
@@ -6187,7 +6321,8 @@ function buildHuntMap() {
   wrap.appendChild(m);
   { const old = $('#scr-hunt .hbg'); if (old) old.remove(); const bg = document.createElement('canvas'); bg.className = 'hbg'; bg.width = 96; bg.height = 96; $('#scr-hunt').prepend(bg); GLSea.bg = bg; }
   if (!GLSea.add(m, H.weather)) { Ocean.add(m, 160); Ocean.list[Ocean.list.length - 1].mood = H.weather; }
-  Terrain.build(m, H.land, H.shoal, HN);
+  Terrain.build(m, H.uw ? new Array(HN * HN).fill(false) : H.land, H.shoal, HN);
+  if (H.uw) UwBed.build(m, H.land);
   BFX.attach(m); GLFx.attach(m, H.weather);
   { const fc = document.createElement('canvas'); fc.className = 'fogc'; fc.width = fc.height = HN; m.appendChild(fc); H.fogc = fc; }
   { const td = todNow(); if (H.weather === 'clear' && (td === 'dawn' || td === 'dusk')) m.classList.add('tod-' + td); else if (H.weather === 'clear') m.classList.add('tod-day');
@@ -6209,6 +6344,7 @@ function hHighlights() {
   const me = H.cur, s = new Set();
   if (H.phase !== 'play' || H.busy || !me) return s;
   if (H.mode === 'move') { const { dist } = hbfs(me); dist.forEach((d, k) => { if (d >= 1 && d <= effSpeed(me)) s.add(k); }); }
+  else if (H.mode === 'quiet') { const { dist } = hbfs(me); dist.forEach((d, k) => { if (d === 1) s.add(k); }); }
   else if (H.mode === 'gun' || H.mode === 'salvo' || H.mode === 'fire') {
     for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) { const d = cheb(me, { r, c }), k = hidx(r, c); if (d >= 1 && d <= me.st.range && (!H.land[k] || H.foes.some(f => f.hp > 0 && f.r === r && f.c === c && foeVisible(f)))) s.add(k); }
   }
@@ -6240,7 +6376,7 @@ function renderHunt() {
   for (let r = 0; r < HN; r++) for (let c = 0; c < HN; c++) {
     const k = hidx(r, c), el = H.cells[k];
     let cls = 'hc' + (H.land[k] ? ' land' : H.shoal[k] ? ' shoal' : '') + (H.exitCells.has(k) ? ' exit ' + H.obj : '') + (mine.some(u => cheb(u, { r, c }) <= sightOf(u)) ? '' : ' fog');
-    if (hl.has(k)) cls += H.mode === 'move' ? ' reach' : H.mode === 'mine' ? ' reach' : ' inr';
+    if (hl.has(k)) cls += H.mode === 'move' || H.mode === 'quiet' || H.mode === 'mine' ? ' reach' : ' inr';
     if (noise.has(k)) cls += ' noise';
     el.className = cls;
     el.querySelectorAll('.mk,.ico').forEach(x => x.remove());
@@ -6262,6 +6398,7 @@ function renderHunt() {
     const vis = sinking || doomed || (u.hp > 0 && !u.gone && (u.side === 'me' || foeVisible(u)));
     el.classList.toggle('doomed', doomed); el.classList.toggle('dm-b', doomed && u.doom < u.doomMax && u.doom > 1 || doomed && u.doomMax === 1); el.classList.toggle('dm-c', doomed && u.doom === 1 && u.doomMax > 1);
     el.classList.toggle('hidden', !vis); el.classList.toggle('sinking', !!sinking && u.type !== 'echo'); el.classList.toggle('retreat', !!sinking && u.type === 'echo');
+    el.classList.toggle('uwdeep', !!(H.uw && u.deep)); el.classList.toggle('uwperi', !!(H.uw && !u.deep));
     el.classList.toggle('smoked', u.smoke > 0); { const f = u.hp / u.st.hp; el.classList.toggle('hurt', f < .6 && u.hp > 0); el.classList.toggle('crit', f < .3 && u.hp > 0); }
     el.style.left = `calc(var(--hc) * ${u.c})`; el.style.top = `calc(var(--hc) * ${u.r})`;
     el.querySelector('.rot').style.transform = `translate(-50%,-50%) rotate(${u.dir}deg)`;
@@ -6275,7 +6412,7 @@ function renderHunt() {
   const cmd = H.fleet.filter(u => !u.auto);
   $('#hud-hp').style.width = (Math.max(0, me.hp) / me.st.hp * 100) + '%';
   $('#hud-hptxt').textContent = (cmd.length > 1 ? (me.sid ? me.name : HS[me.type].name) + ' ' : '') + `❤ ${Math.max(0, me.hp)}/${me.st.hp}`;
-  $('#hud-info').textContent = `🛡${me.st.armor}${me.crewMax ? ` · ${HS[me.type].sub ? '🤿' : '👥'}${me.crew}/${me.crewMax}` : ''}${me.marines ? ' · 🪖' + me.marines : ''} · ${WEATHER[H.weather].ic} ход ${H.turn}`;
+  $('#hud-info').textContent = `🛡${me.st.armor}${me.crewMax ? ` · ${HS[me.type].sub ? '🤿' : '👥'}${me.crew}/${me.crewMax}` : ''}${H.uw ? ` · ${me.deep ? '⬇️ глубина' : '🔭 перископ'} · 🫧${me.decoys || 0}` : me.marines ? ' · 🪖' + me.marines : ''} · ${WEATHER[H.weather].ic} ход ${H.turn}`;
   $('#hobj').textContent = objStatus() + (H.foeRes > 0 ? ` · 🏴 резерв врага: ${H.foeRes}` : '');
   const fb = $('#hunt-fleet'); fb.innerHTML = '';
   const shown = cmd.length > 6 ? cmd.filter(u => u.hp > 0) : cmd;
@@ -6291,7 +6428,16 @@ function renderHunt() {
   $('#hstatus').textContent = H.phase !== 'play' ? 'Бой окончен' : H.busy ? 'Ход противника…' : cmd.length > 1 ? `Ваш ход · приказ: ${HS[me.type].name}` : (H.node && H.node.report ? `Ваш ход · ${H.node.isle === -2 ? SEAS[H.node.sea].base.n : H.node.isle < 0 ? SEAS[H.node.sea].pir.n : SEAS[H.node.sea].isles[H.node.isle].n}` : `Ваш ход · сила врага ${H.mission}`);
   $('#hstatus').className = 'status ' + (H.busy ? 'theirs' : 'mine');
   // actions
-  const acts = [
+  const acts = H.uw ? [
+    { id: 'move', ic: '🧭', nm: 'Полный ход' },
+    { id: 'quiet', ic: '🔇', nm: 'Тихий ход' },
+    { id: 'depth', ic: me.deep ? '🔭' : '⬇️', nm: me.deep ? 'Перископ' : 'Глубина' },
+    hasTorp(me) && { id: 'torp', ic: '🚀', nm: me.sid && !me.ally ? `Торпеда ×${H.ammo.torp || 0}` : 'Торпеда' },
+    { id: 'ping', ic: '📡', nm: 'Сонар' },
+    me.minesLeft > 0 && { id: 'mine', ic: '💣', nm: `Мина ×${me.minesLeft}` },
+    { id: 'hold', ic: '🤫', nm: 'Затаиться' },
+    myCmd().filter(u => !H.acted.has(u)).length > 1 && { id: 'end', ic: '⏭', nm: 'Все стоп' },
+  ].filter(Boolean) : [
     { id: 'move', ic: '🧭', nm: 'Плыть' },
     !isSubMe(me) && { id: 'gun', ic: '🎯', nm: 'Огонь' },
     hasMg(me) && !isSubMe(me) && { id: 'mgb', ic: '🔫', nm: me.sid && !me.ally ? `Очередь ×${H.ammo.mg || 0}` : 'Очередь' },
@@ -6315,7 +6461,7 @@ function renderHunt() {
     const cd = me.cd[a.id] || 0;
     const b = document.createElement('button'); b.className = 'hact glass' + (H.mode === a.id ? ' on' : '');
     const noAmmo = me.sid && !me.ally && AMMO_NEED[a.id] && (H.ammo[ammoKey(a.id)] || 0) < AMMO_NEED[a.id];
-    b.disabled = H.busy || H.phase !== 'play' || cd > 0 || (a.id === 'board' && !boardTargets(me).length) || (a.id === 'ammo' && !SHELLS.some(k => H.ammo[k] > 0));
+    b.disabled = H.busy || H.phase !== 'play' || cd > 0 || (a.id === 'board' && !boardTargets(me).length) || (a.id === 'ammo' && !SHELLS.some(k => H.ammo[k] > 0)) || (a.id === 'depth' && me.dvT === H.turn);
     if (noAmmo) b.classList.add('noammo');
     b.innerHTML = `<span>${a.ic}</span>${a.nm}${cd ? `<em class="cd">${cd}</em>` : ''}`;
     b.onclick = () => hAction(a.id);
@@ -6332,12 +6478,15 @@ function hAction(id) {
   if (id === 'ammo') { const list = SHELLS.filter(k => (H.ammo[k] || 0) > 0); if (!list.length) { hMsg('Снарядов нет! Закажите их в Арсенале Мастерской', 'hit'); return; } H.ammoSel = list[(list.indexOf(H.ammoSel) + 1) % list.length]; const a = ammoOf(H.ammoSel); hMsg(`${a.ic} Заряжены ${a.n.toLowerCase()}: ${a.d}`, 'info'); return renderHunt(); }
   if (AMMO_NEED[id] && u.sid && !u.ally) { const k = ammoKey(id), have = H.ammo[k] || 0; if (have < AMMO_NEED[id]) { hMsg(id === 'met' ? '🌠 «Метеоритов» нет — закажите их в Арсенале Мастерской' : isMgK(id) ? '🔫 Пулемётных патронов не хватает — закажите их в Арсенале Мастерской' : id === 'torp' ? '🚀 Торпед нет — закажите их в Арсенале' : id === 'msl' ? '☄️ Ракет нет — закажите их в Арсенале Мастерской' : `Не хватает снарядов: нужно ${AMMO_NEED[id]}, есть ${have}. Смените тип снарядов или закажите в Арсенале`, 'hit'); return; } }
   if (id === 'radar') return (async () => { H.busy = true; const res = await hFire(u, 'radar'); hMsg(res.found ? `📡 Радар засёк врагов: ${res.found}` : '📡 В радиусе 4 клеток пусто', 'info'); hUnitDone(); })();
+  if (id === 'depth') { if (u.dvT === H.turn) return; u.deep = u.deep ? 0 : 1; u.dvT = H.turn; const w = u === H.me ? 'Мы' : shipName(u);
+    hMsg(u.deep ? `⬇️ ${w}: погружение на глубину. Нас не видно, но обзор — только соседние клетки` : `🔭 ${w}: всплытие на перископную глубину. Обзор ${sightOf(u)} клетки, но бурун перископа видно`, 'info'); return renderHunt(); }
+  if (id === 'ping') return (async () => { H.busy = true; const n = await uwPing(u); hMsg(n ? `📡 Сонар: контакт — ${n} ${plural(n, 'цель', 'цели', 'целей')}! Но враг тоже слышал наш импульс` : '📡 Сонар: в радиусе 6 клеток чисто. Импульс выдал нас всем вокруг', n ? 'hit' : 'info'); hUnitDone(); })();
   if (id === 'smoke') { u.smoke = 2; u.cd.smoke = 5; u.movedLast = false; hfx(u.r, u.c, 'ping'); Snd.play('plane'); hMsg(`🌫️ ${u === H.me ? 'Вы скрылись' : shipName(u) + ' скрылся'} в дымовой завесе на 2 хода`, 'info'); return hUnitDone(); }
   H.mode = id;
   if (id === 'board') { const ts = boardTargets(u); hMsg(`⚔️ Абордаж (🪖${Math.min(u.marines, BOARD_PARTY)}${u.marines > BOARD_PARTY ? ` из ${u.marines}` : ''}): ` + ts.map(t => `${shipName(t)} — ${Math.round(boardChance(u, t) * 100)}%`).join(', '), 'info'); }
   else if (id === 'met') hMsg(`🌠 «Метеорит»: цель в радиусе ${metRange(u)} клеток · урон ${metDmg(u)} сквозь броню, по крупным кораблям и фортам ×1.4, осколки по соседям`, 'info');
   else if (isMgK(id)) hMsg(id === 'mgb' ? `🔫 Очередь: ${mgN(u)} ${plural(mgN(u), 'пулемёт', 'пулемёта', 'пулемётов')} × 3 патрона, до ${mgRange(u)} клеток. Каждая очередь — 2 урона` : `🔫 Беглый огонь: ${mgN(u)} ${plural(mgN(u), 'пулемёт', 'пулемёта', 'пулемётов')} × 5 патронов. Каждая очередь — 3 урона, но меткость ниже. Перезарядка 2 хода`, 'info');
-  else hMsg({ move: 'Выберите клетку, куда плыть', gun: 'Выберите клетку для выстрела', salvo: 'Выберите центр залпа', fire: 'Выберите центр огненного залпа 3×3', torp: 'Выберите направление торпеды', msl: `☄️ Ракета: выберите цель в радиусе ${mslRange(u)} клеток (урон ${mslDmg(u)}, сквозь броню)`, pulse: '⚡ Выберите направление: импульс пробьёт всех врагов на линии, броня не спасёт', mine: 'Выберите соседнюю клетку для мины' }[id], 'info');
+  else hMsg({ quiet: '🔇 Тихий ход: одна клетка, без шума винтов', move: H.uw ? '🧭 Полный ход: быстро, но враг услышит винты' : 'Выберите клетку, куда плыть', gun: 'Выберите клетку для выстрела', salvo: 'Выберите центр залпа', fire: 'Выберите центр огненного залпа 3×3', torp: 'Выберите направление торпеды', msl: `☄️ Ракета: выберите цель в радиусе ${mslRange(u)} клеток (урон ${mslDmg(u)}, сквозь броню)`, pulse: '⚡ Выберите направление: импульс пробьёт всех врагов на линии, броня не спасёт', mine: 'Выберите соседнюю клетку для мины' }[id], 'info');
   renderHunt();
 }
 function canReinf() {
@@ -6353,8 +6502,8 @@ function hReinf() {
     ...list.slice(0, 8).map(s => ({ t: `${sName(s)} ${RANKS[rankOf(s.xp)].ic} · ❤${ownStats(h, s.id).hp}`, cls: 'primary', fn: () => {
       overlay('#ov-ev', false);
       const pos = freeCell([HN - 4, 0, 4, 4]) || freeCell([HN - 6, 0, 6, 6]) || freeCell([0, 0, HN, HN]); if (!pos) { toast('Нет места для подхода'); return; }
-      const u = H.ownUnit(s, pos.r, pos.c);
-      if (fL(h, 'lighthouse') >= 3 && H.weather !== 'night') u.st.sight += 1;
+      const u = H.ownUnit(s, pos.r, pos.c); if (H.uw) uwPrep(u);
+      if (fL(h, 'lighthouse') >= 3 && H.weather !== 'night' && !H.uw) u.st.sight += 1;
       H.fleet.push(u); hMakeEl(u); H.acted.add(u);
       H.reserve = H.reserve.filter(x => x !== s.id); H.reinfUsed++;
       Snd.play('horn'); if (BFX.lo) BFX.splash(pos.r, pos.c);
@@ -6403,10 +6552,11 @@ async function hClick(r, c) {
   if (own) return hSelect(own);
   if (!H.hl || !H.hl.has(hidx(r, c))) return;
   H.busy = true; const me = H.cur, gen = H.gen;
-  if (H.mode === 'move') {
-    const { prev } = hbfs(me);
+  if (H.mode === 'move' || H.mode === 'quiet') {
+    const { prev } = hbfs(me), q = H.mode === 'quiet';
     await hMove(me, pathTo(prev, hidx(r, c)));
-    if (me.hp > 0) hMsg('', '');
+    if (q) me.movedLast = false;
+    if (me.hp > 0) hMsg(q ? '🔇 Тихий ход: винты на малых оборотах, враг нас не слышит' : H.uw ? '🧭 Полный ход — шум винтов слышен далеко' : '', q || H.uw ? 'info' : '');
   } else if (H.mode === 'board') {
     const t = unitAt(r, c); if (t && t.side === 'foe') await hBoard(me, t);
   } else if (H.mode === 'mine') {
@@ -6443,7 +6593,7 @@ async function hMove(u, path) {
     if (gen !== H.gen) return;
     const r = Math.floor(k / HN), c = k % HN;
     const fr = u.r, fc = u.c;
-    u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI; u.r = r; u.c = c; BFX.wake(u, fr, fc);
+    u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI; u.r = r; u.c = c; if (!(H.uw && u.deep)) BFX.wake(u, fr, fc);
     if (u.side === 'me') H.mines.forEach(m => { if (m.side === 'n' && cheb(u, m) <= 1) m.seen = true; });
     renderHunt(); await sleep(250);
     const mi = H.mines.findIndex(m => m.r === r && m.c === c);
@@ -6495,7 +6645,7 @@ async function hFire(u, kind, r, c) {
     H.proFail = `⚠️ ${pro.sam ? 'Перехватчик промахнулся' : ''}${pro.sam && pro.ciws ? ', ' : ''}${pro.ciws ? (pro.sam ? 'пулемёты не успели' : 'Пулемёты не успели') : ''} — ракета прорвалась! `; hMsg(H.proFail, 'hit'); }
   else if (BFX.lo && (kind === 'salvo' || kind === 'fire')) { const cl = kind === 'salvo' ? [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]] : [[0, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]]; await Promise.all(cl.filter(([a, b]) => hin(r + a, c + b)).map(([a, b], i) => BFX.shot(u, r + a, c + b, i * 70, 'gun', shFx))); }
   else if (!isMg) await sleep(260);
-  let hits = [], sunk = [], scattered = false; const hitUnits = new Set(); H.casNow = []; H.finRes = [];
+  let hits = [], sunk = [], scattered = false, decoy = null, decoyFail = null; const hitUnits = new Set(); H.casNow = []; H.finRes = [];
   const usesAmmo = isMe && !u.auto && !u.ally && !!u.sid && kind !== 'pulse', sh = usesAmmo && kind !== 'torp' && kind !== 'msl' && kind !== 'met' && !isMg ? H.ammoSel : 'he';
   if (usesAmmo) { const k = kind === 'torp' || kind === 'msl' || kind === 'met' ? kind : isMg ? 'mg' : sh, n = isMg ? mgB * mgPer : AMMO_NEED[kind] || 1; H.ammo[k] = Math.max(0, (H.ammo[k] || 0) - n); H.used[k] = (H.used[k] || 0) + n; }
   const shAmt = a => sh === 'heavy' ? a * 2 : sh === 'ap' ? a + 1 : a, shIgn = sh === 'ap';
@@ -6548,7 +6698,15 @@ async function hFire(u, kind, r, c) {
     for (let i = 0; i < u.st.range + 2; i++) {
       y += dr; x += dc;
       if (!hin(y, x) || H.land[hidx(y, x)]) { if (hin(y, x)) hfx(y, x, 'boom'); break; }
-      if (enemies.some(e => e.hp > 0 && !e.gone && e.r === y && e.c === x)) { strike(y, x, Math.ceil(effDmg(u) * 1.5), true); break; }
+      const tE = enemies.find(e => e.hp > 0 && !e.gone && e.r === y && e.c === x);
+      if (tE) {
+        if (H.uw && tE.decoys > 0) {   // экипаж цели слышит торпеду и выпускает имитатор шума
+          tE.decoys--; const ok = Math.random() < .5;
+          if (ok) { decoy = tE; const py = y - dr, px = x - dc; H.marks.push({ r: y, c: x, type: 'miss', age: 0 }); if (hin(py, px) && !H.land[hidx(py, px)]) hfx(py, px, 'boom'); else hfx(y, x, 'splash'); break; }
+          decoyFail = tE;
+        }
+        strike(y, x, Math.ceil(effDmg(u) * (H.uw ? 2.5 : 1.5)), true); break;   // под водой взрыв бьёт по корпусу всей массой воды
+      }
       if (BFX.lo) BFX.torp(y, x); else hfx(y, x, 'splash'); await sleep(70);
     }
   }
@@ -6562,6 +6720,9 @@ async function hFire(u, kind, r, c) {
   else if (hits.length) { text = isMg ? `${who}: ${kind === 'mgf' ? 'беглый огонь' : 'очередь'} — ${hits.length} из ${mgB} в цель, −${total} ❤` : `${who}: попадание! −${total} ❤`; cls = 'hit'; }
   else if (H.finRes.length) { const [w, r2] = H.finRes[H.finRes.length - 1], nm = w.side === 'me' ? shipName(w) : (w.name || HS[w.type].name); text = r2 === 'sink' ? `💥 Добивающее попадание: ${nm} разламывается и уходит под воду!` : `💥 Новый взрыв на тонущем ${nm} — крен растёт!`; cls = 'sunk'; }
   else { text = `${who}: мимо${scattered ? (kind === 'msl' || kind === 'met' ? ' (ракету сбили помехи)' : ' (снаряд отклонился)') : ''}`; cls = 'miss'; }
+  { const dn = t => t.side === 'me' ? shipName(t) : (t.name || HS[t.type].name);
+    if (decoy) { text = `🫧 ${dn(decoy)}: имитатор шума за борт! Торпеда ушла на ловушку и взорвалась вхолостую (ловушек осталось: ${decoy.decoys})`; cls = decoy.side === 'me' ? 'info' : 'miss'; }
+    else if (decoyFail) text = `🫧 Имитатор ${dn(decoyFail)} не обманул торпеду! ` + text; }
   if (H.casNow && H.casNow.length) text += ' · ' + H.casNow.join(' · ');
   if (isMe && hits.length && hitUnits.size && [...hitUnits].some(t => /^dog_/.test(t.type) && t.hp > 0)) { const rz = [...hitUnits].find(t => t.rose && t.hp > 0 && !t.roseHit); if (rz) { rz.roseHit = 1; dogShow('t', pick(ROSE_SAY.hit)); } else dogBark([...hitUnits].some(t => t.vargo) ? 'hurtW' : 'hurt'); }
   else if (isMe && !hits.length && kind !== 'radar') dogBark('miss');
@@ -6675,6 +6836,7 @@ async function foeAct(f) {
   if (f.smoke > 0) f.smoke--;
   for (const k in f.cd) if (f.cd[k] > 0) f.cd[k]--;
   if (f.st.mech && H.turn % f.st.mech === 0 && f.hp < f.st.hp) f.hp++;
+  if (H.uw) return uwFoeAct(f);
   if (f.abyss) {
     if (f.abRun) { f.gone = true; hMsg('☠️ «Бездна» ушла в шторм. Огни её мостика гаснут один за другим…', 'hit'); toast('☠️ «Бездна» отступила. Вы выжили — это уже немало'); renderHunt(); await sleep(700); return; }
     if (f.hp < f.st.hp * .25) { f.abRun = 1; f.smoke = 3; hfx(f.r, f.c, 'ping'); Snd.play('plane'); hMsg('🌫️ «Бездна» тяжело ранена и уходит в туман! Один ход, чтобы её добить', 'hit'); renderHunt(); await sleep(600); return; }
@@ -8787,6 +8949,13 @@ const Weather = {
         if (st.nextBolt <= 0) { st.nextBolt = R(5, 13); st.flash = 1; let x = R(.15, .85) * w, y = 0; const pts = [[x, y]]; while (y < w * R(.35, .7)) { y += R(.03, .07) * w; x += R(-.05, .05) * w; pts.push([x, y]); } st.bolt = { pts, t: .22 }; if (typeof Snd !== 'undefined' && Snd.on && $('#scr-hunt').classList.contains('active')) setTimeout(() => { Snd.noise(1.6, 260, 40, .55); Snd.tone(70, 32, 1.4, 'sine', .35); }, 350); }
         if (st.flash > .02) { g.fillStyle = `rgba(225,235,255,${st.flash * .42})`; g.fillRect(0, 0, w, w); st.flash *= Math.pow(.02, dt); }
         if (st.bolt && (st.bolt.t -= dt) > 0) { g.shadowColor = '#bcd6ff'; g.shadowBlur = 14; g.strokeStyle = `rgba(255,255,255,${Math.min(1, st.bolt.t / .1)})`; g.lineWidth = 2.2; g.beginPath(); st.bolt.pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); g.shadowBlur = 0; }
+      } else if (kind === 'uw') {   // толща воды: сумрак и косые лучи света сверху
+        const vg = g.createLinearGradient(0, 0, 0, w); vg.addColorStop(0, 'rgba(20,90,130,.12)'); vg.addColorStop(1, 'rgba(0,12,30,.32)'); g.fillStyle = vg; g.fillRect(0, 0, w, w);
+        g.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < 4; i++) { const x0 = (.12 + i * .26 + Math.sin(st.t * .13 + i * 1.7) * .05) * w, ww = w * (.07 + .03 * Math.sin(st.t * .21 + i)), a = .05 + .03 * Math.sin(st.t * .3 + i * 2.1);
+          const lg = g.createLinearGradient(0, 0, 0, w * .95); lg.addColorStop(0, `rgba(150,225,255,${a})`); lg.addColorStop(1, 'rgba(150,225,255,0)'); g.fillStyle = lg;
+          g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0 + ww, 0); g.lineTo(x0 + ww * 2.2 + w * .12, w * .95); g.lineTo(x0 + w * .12, w * .95); g.closePath(); g.fill(); }
+        g.globalCompositeOperation = 'source-over';
       } else if (kind === 'night') {
         const vg = g.createRadialGradient(w * .5, w * .5, w * .15, w * .5, w * .5, w * .8); vg.addColorStop(0, 'rgba(2,8,30,.18)'); vg.addColorStop(1, 'rgba(1,4,20,.5)'); g.fillStyle = vg; g.fillRect(0, 0, w, w);
         g.globalCompositeOperation = 'lighter';
@@ -9092,6 +9261,7 @@ void main(){
     night: { deep: [.015, .06, .14], shal: [.04, .16, .28], sky: [.14, .2, .34], sun: [.8, .9, 1.1], spec: .75, storm: 0, fog: 0, land: [.36, .43, .62] },
     storm: { deep: [.04, .12, .16], shal: [.13, .26, .29], sky: [.45, .5, .56], sun: [.55, .6, .65], spec: .35, storm: 1, fog: 0, land: [.7, .73, .76] },
     fog: { deep: [.04, .18, .28], shal: [.12, .38, .46], sky: [.7, .77, .82], sun: [.8, .82, .85], spec: .4, storm: 0, fog: .32, land: [.92, .95, .97] },
+    uw: { deep: [.008, .07, .12], shal: [.02, .16, .22], sky: [.08, .22, .3], sun: [.45, .7, .8], spec: .18, storm: 0, fog: 0, land: [.34, .42, .48] },
   },
   noise() {
     const N = 128, v = new Float32Array(N * N), out = new Uint8Array(N * N * 4);
@@ -9271,10 +9441,10 @@ void main(){
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); gl.activeTexture(gl.TEXTURE0);
     const loc = (p, n) => gl.getUniformLocation(p, n);
-    const W = { clear: [.55, .32], storm: [1, .45], fog: [0, 0], night: [.35, .15] }[weather] || [.55, .32];
+    const W = { clear: [.55, .32], storm: [1, .45], fog: [0, 0], night: [.35, .15], uw: [0, 0] }[weather] || [.55, .32];
     map.appendChild(c);
     this.P = [];
-    const FC = { night: [[.03, .07, .16], [.16, .24, .4], .6], fog: [[.42, .5, .58], [.75, .8, .85], .78], storm: [[.06, .09, .13], [.25, .3, .36], .72] }[weather] || [[.02, .07, .16], [.22, .38, .55], .62];
+    const FC = { uw: [[.01, .07, .14], [.06, .26, .36], .6], night: [[.03, .07, .16], [.16, .24, .4], .6], fog: [[.42, .5, .58], [.75, .8, .85], .78], storm: [[.06, .09, .13], [.25, .3, .36], .72] }[weather] || [[.02, .07, .16], [.22, .38, .55], .62];
     this.o = { c, gl, pp, pc, pf, ft, FC, fm: new Float32Array(HN * HN), fb: new Uint8Array(HN * HN), Uf: { uNz: loc(pf, 'uNz'), uM: loc(pf, 'uM'), uT: loc(pf, 'uT'), uN: loc(pf, 'uN'), uA: loc(pf, 'uA'), uC: loc(pf, 'uC'), uH: loc(pf, 'uH'), a: gl.getAttribLocation(pf, 'a') }, qb, pb, last: performance.now(), t0: performance.now(), max: gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] || 64,
       U: { uR: loc(pp, 'uR'), uMax: loc(pp, 'uMax'), uNz: loc(pp, 'uNz'), uT: loc(pp, 'uT'), cNz: loc(pc, 'uNz'), cT: loc(pc, 'uT'), cK: loc(pc, 'uK'), cN: loc(pc, 'uN'), cW: loc(pc, 'uW') },
       A: { aP: gl.getAttribLocation(pp, 'aP'), aD: gl.getAttribLocation(pp, 'aD'), a: gl.getAttribLocation(pc, 'a') },
@@ -9973,7 +10143,7 @@ setInterval(() => {
 }, 1000);
 /* ==================== BOOT ==================== */
 Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
-const APP_VER = 216;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
+const APP_VER = 218;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=' + APP_VER).then(r => { document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {}));
   let swReload = !!navigator.serviceWorker.controller;
