@@ -1528,7 +1528,7 @@ const bridge = (x, w) => `<rect x="${x}" y="31" width="${w}" height="38" rx="7" 
   <rect x="${x + w - 9}" y="36" width="4.5" height="28" rx="2" fill="#6fe3ff" opacity=".9"/>
   <line x1="${x + 8}" y1="50" x2="${x + w - 16}" y2="50" stroke="#9aa7b3" stroke-width="2"/>`;
 const LEN_SHIP = { 1: 'boat', 2: 'destroyer', 3: 'cruiser', 4: 'battleship' };
-const TOP_AR = { echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, raid_abyss: 4.03, raid_cruiser: 4.65, raid_butcher: 4.45, raid_ds: 4.31, raid_boat: 3.6, pir_boat: 2.39, dog_boat: 3.12, dog_ds: 3.93, dog_rose: 6.34, dog_prison: 4.35, dog_yacht: 3.98, pir_ds: 5.3, pir_sub: 3.45, dog_slaver: 3.31};
+const TOP_AR = { battery: 1.11, echo: 4.21, boat: 2.47, destroyer: 3.85, sub: 3.68, cruiser: 3.53, battleship: 2.98, sub2: 5.22, sub3: 4.55, subx: 2.46 , cargo: 5.78, atl_bb: 4.12, atl_cargo: 4.0, atl_dd: 4.13, pir_dd: 5.5, raid_abyss: 4.03, raid_cruiser: 4.65, raid_butcher: 4.45, raid_ds: 4.31, raid_boat: 3.6, pir_boat: 2.39, dog_boat: 3.12, dog_ds: 3.93, dog_rose: 6.34, dog_prison: 4.35, dog_yacht: 3.98, pir_ds: 5.3, pir_sub: 3.45, dog_slaver: 3.31};
 function shipSVG(len, foam) {
   const W = len * 100, H = 100;
   const hull = `M8,50 C8,27 22,16 42,16 L${W - 62},16 C${W - 30},16 ${W - 12},34 ${W - 3},50 C${W - 12},66 ${W - 30},84 ${W - 62},84 L42,84 C22,84 8,73 8,50Z`;
@@ -6465,7 +6465,7 @@ async function hFire(u, kind, r, c) {
   u.fired = true;
   if (isMe) H.foes.forEach(f => { if (f.hp > 0) f.known = { r: u.r, c: u.c, exact: !u.st.cloak, age: 0 }; });
   else { H.flashes.push({ r: u.r, c: u.c, age: 0 }); if (H.weather === 'night') u.revealed = Math.max(u.revealed, 1); }
-  if (!u.st.fort) u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI;
+  if (!u.st.fort || u.type === 'battery') u.dir = Math.atan2(r - u.r, c - u.c) * 180 / Math.PI;
   if (isMg) Snd.mg(Math.min(14, mgPer * Math.min(mgB, 2) + 2), kind === 'mgf' ? 70 : 95); else Snd.play(kind === 'torp' || kind === 'msl' || kind === 'met' ? 'plane' : kind === 'pulse' ? 'radar' : 'shot'); renderHunt();
   if (kind === 'gun' || kind === 'salvo' || kind === 'fire') { const sp = H.els[u.id] && H.els[u.id].querySelector('.spr > *'); if (sp) { sp.classList.remove('recoil'); void sp.offsetWidth; sp.classList.add('recoil'); } }
   let gy = r, gx = c, scatterHit = false;
@@ -6990,7 +6990,7 @@ function raidSetup(h) {
   const ci = Object.assign(mkUnit('citadel', 'me', cc[0], cc[1], 0), { name: 'Цитадель' });
   ci.st.hp = ci.hp = 20 + 12 * wl; ci.st.armor = Math.floor(wl / 2); ci.st.sight = 3;
   H.fleet.push(ci); H.citadel = ci;
-  bat.forEach(([r, c]) => { const b = Object.assign(mkUnit('battery', 'me', r, c, 0), { name: 'Батарея' }); b.st.hp = b.hp = 12 + 4 * wl; b.st.armor = 2; b.st.dmg = 3 + bl; b.st.range = 10 + (fL(h, 'lighthouse') >= 4 ? 1 : 0); b.st.sight = Math.max(b.st.sight, b.st.range); b.st.scatter = .14; H.fleet.push(b); });
+  bat.forEach(([r, c]) => { const b = Object.assign(mkUnit('battery', 'me', r, c, -45), { name: 'Батарея' }); b.st.hp = b.hp = 12 + 4 * wl; b.st.armor = 2; b.st.dmg = 3 + bl; b.st.range = 10 + (fL(h, 'lighthouse') >= 4 ? 1 : 0); b.st.sight = Math.max(b.st.sight, b.st.range); b.st.scatter = .14; H.fleet.push(b); });
   const m = Math.max(2, H.mission, 2 * cit); H.mission = m;
   genFoes(m, 2 + Math.floor(cit * .75));
   H.wavesLeft = 2; H.waveSize = 1 + Math.floor(cit / 3);
@@ -9927,7 +9927,7 @@ setInterval(() => {
 }, 1000);
 /* ==================== BOOT ==================== */
 Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
-const APP_VER = 210;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
+const APP_VER = 211;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=' + APP_VER).then(r => { document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {}));
   let swReload = !!navigator.serviceWorker.controller;
@@ -9938,8 +9938,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 (function(){
   // музыка по экранам: меню/крепость, карта экспедиций, бой (2 трека по очереди)
   var A=[document.getElementById('bgm'),document.getElementById('bgm2')], b=document.getElementById('bgmBtn');
-  var cur=0, track=null, battleN=Math.floor(Math.random()*2), fadeT=null, mapN=Math.floor(Math.random()*2);
-  var TR={menu:{src:'music_menu.mp3',v:.5}, map1:{src:'music_map.mp3',v:.5}, map2:{src:'music_map2.mp3',v:.5}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}};
+  var cur=0, track=null, battleN=Math.floor(Math.random()*3), fadeT=null, mapN=Math.floor(Math.random()*2);
+  var TR={menu:{src:'music_menu.mp3',v:.5}, map1:{src:'music_map.mp3',v:.5}, map2:{src:'music_map2.mp3',v:.5}, atl:{src:'music_atl.mp3',v:.5}, battle1:{src:'music_battle1.mp3',v:.32}, battle2:{src:'music_battle2.mp3',v:.32}, battle3:{src:'music_battle3.mp3',v:.24}};
   var a={pause:function(){A.forEach(function(x){x.pause();});}};
   var on=localStorage.getItem('bgm')!=='off';
   function want(){
@@ -9955,7 +9955,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     b.classList.toggle('off',!on);
     if(!on||document.hidden||(want()==='battle'&&typeof Snd!=='undefined'&&!Snd.on)){ track=null; A.forEach(function(x){x.pause();}); return; }
     var w=want(), id=w;
-    if(w==='battle'){ if(track==='battle1'||track==='battle2') id=track; else { battleN++; id='battle'+(battleN%2+1); } }
+    if(w==='battle'){ if(track&&track.indexOf('battle')===0) id=track; else { battleN++; id='battle'+(battleN%3+1); } }
     if(w==='map'){ if(track==='map1'||track==='map2') id=track; else { mapN++; id='map'+(mapN%2+1); } }
     if(id===track){ if(A[cur].paused) A[cur].play().catch(function(){}); return; }
     var old=A[cur]; cur^=1; var nx=A[cur], T=TR[id]; track=id;
