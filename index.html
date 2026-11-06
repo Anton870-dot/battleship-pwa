@@ -543,7 +543,7 @@ body.fort-on #splash,body.fort-on #sea{display:none}body.atlm-on #splash,body.at
 #imgview{position:fixed;inset:0;z-index:200;background:rgba(0,6,16,.94);display:flex;align-items:center;justify-content:center;overflow:auto;touch-action:pinch-zoom pan-x pan-y;animation:fadeIn .2s}
 #imgview[hidden]{display:none}
 #imgview img{max-width:100vw;max-height:100dvh;object-fit:contain;display:block}
-#imgview.zoom img{max-width:none;max-height:none;width:auto;height:auto}
+#imgview.zoom{display:block}#imgview.zoom img{max-width:none;max-height:none;width:auto;height:auto;margin:auto}
 #imgview .ivx{position:fixed;top:max(10px,env(safe-area-inset-top));right:10px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:20px;border:0;z-index:2}
 #imgview .ivh{position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.6);pointer-events:none}
 .clanppl{display:grid;gap:6px;margin:6px 0}.clanppl div{background:rgba(0,0,0,.22);border-radius:10px;padding:7px 10px;line-height:1.3}.clanppl b{color:#ffe08a;font-size:13.5px}.clanppl small{display:block;font-size:11.5px;color:#cfe3f3}
@@ -7800,7 +7800,7 @@ document.addEventListener('click', e => {
   if (!im || !im.src || e.target.closest('#imgview')) return;
   e.stopPropagation(); const v = $('#imgview'); v.querySelector('img').src = im.src.replace(/(irena|adj|corvin|lucia|tessa|vargo|stella|isabel|renar|atl_\w+|sci_\w+)\.webp$/, (m, n) => ['irena', 'adj'].includes(n) ? n + '_full.webp' : m); v.classList.remove('zoom'); v.hidden = false; Snd.play('click');
 }, true);
-document.addEventListener('DOMContentLoaded', () => { const v = $('#imgview'); if (!v) return; v.querySelector('.ivx').onclick = ev => { ev.stopPropagation(); v.hidden = true; }; v.querySelector('img').onclick = ev => { ev.stopPropagation(); v.classList.toggle('zoom'); }; v.onclick = () => { v.hidden = true; }; });
+document.addEventListener('DOMContentLoaded', () => { const v = $('#imgview'); if (!v) return; v.querySelector('.ivx').onclick = ev => { ev.stopPropagation(); v.hidden = true; }; v.querySelector('img').onclick = ev => { ev.stopPropagation(); const im = ev.currentTarget, r = im.getBoundingClientRect(), fx = (ev.clientX - r.left) / r.width, fy = (ev.clientY - r.top) / r.height; v.classList.toggle('zoom'); if (v.classList.contains('zoom')) requestAnimationFrame(() => { v.scrollLeft = Math.max(0, im.offsetWidth * fx - v.clientWidth / 2); v.scrollTop = Math.max(0, im.offsetHeight * fy - v.clientHeight / 2); }); else { v.scrollLeft = 0; v.scrollTop = 0; } }; v.onclick = () => { v.hidden = true; }; });
 function isleStage(nm, i) {
   const I = isleInfo(nm); if (!I) return null;
   const img = Array.isArray(I.img) ? I.img[Math.min(i, I.img.length - 1)] : I.img;
@@ -9927,7 +9927,7 @@ setInterval(() => {
 }, 1000);
 /* ==================== BOOT ==================== */
 Sea.init(); logoShip(); initMenu(); initSetup(); initOver(); initYard(); initHunt(); initFortUI(); initMap(); initExtra(); document.addEventListener('visibilitychange', ambSync); refreshCaptain();
-const APP_VER = 213;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
+const APP_VER = 214;   // ← при каждом обновлении игры увеличивать это число (sw.js трогать не нужно)
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=' + APP_VER).then(r => { document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); }); }).catch(() => {}));
   let swReload = !!navigator.serviceWorker.controller;
